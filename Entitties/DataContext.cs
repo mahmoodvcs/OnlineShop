@@ -17,7 +17,7 @@ namespace MahtaKala.Entities
         }
 
         public DbSet<User> Users{ get; set; }
-        public DbSet<UserToken> UserTokens { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<UserActivationCode> UserActivationCodes { get; set; }
     }
 }

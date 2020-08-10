@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using MahtaKala.Helpers;
 using MahtaKala.GeneralServices;
+using MahtaKala.Services;
 
 namespace MahtaKala
 {
@@ -44,6 +45,7 @@ namespace MahtaKala
             });
 
             services.AddScoped<ISMSService, ParsGreenSMSService>();
+            services.AddScoped<IUserService, UserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

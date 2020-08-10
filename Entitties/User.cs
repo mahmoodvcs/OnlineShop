@@ -9,7 +9,7 @@ namespace MahtaKala.Entities
     {
         public User()
         {
-            Tokens = new List<UserToken>();
+            RefreshTokens = new List<RefreshToken>();
         }
 
         [Key]
@@ -18,6 +18,10 @@ namespace MahtaKala.Entities
         [StringLength(255)]
         public string Username { get; set; }
         public string Password { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string NationalCode { get; set; }
+
         public string SecurityStamp { get; set; }
         [StringLength(255)]
         public string Name { get; set; }
@@ -27,7 +31,7 @@ namespace MahtaKala.Entities
         public string MobileNumber { get; set; }
         public UserType Type { get; set; }
 
-        public ICollection<UserToken> Tokens { get; set; }
+        public ICollection<RefreshToken> RefreshTokens { get; set; }
 
 
         public static User Create(
