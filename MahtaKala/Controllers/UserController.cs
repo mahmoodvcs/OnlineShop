@@ -97,9 +97,20 @@ namespace MahtaKala.Controllers
             });
         }
 
-        public string Index()
+        [HttpPost]
+        public async Task<IActionResult> Refresh([FromBody]RefreshRequest refreshRequest)
         {
-            return "Hi";
+            var tokens = await userService.RefreshToken(refreshRequest.Refresh, GetIpAddress());
+            if (tokens == null)
+            {
+                return StatusCode(401);
+            }
+
+            return Json(new
+            {
+                access = tokens.JwtToken,
+                refresh = tokens.RefreshToken
+            });
         }
 
 

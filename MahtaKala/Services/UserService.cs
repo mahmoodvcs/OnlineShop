@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -53,22 +54,19 @@ namespace MahtaKala.Services
 
         public async Task<AuthenticateResponse> RefreshToken(string token, string ipAddress)
         {
-            var user = await context.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));
-
-            // return null if no user found with token
-            if (user == null) return null;
-
-            var refreshToken = await context.RefreshTokens.SingleOrDefaultAsync(x => x.UserId == user.Id && x.Token == token);
+            var refreshToken = await context.RefreshTokens.SingleOrDefaultAsync(x => x.Token == token);
 
             // return null if token is no longer active
-            if (!refreshToken.IsActive) return null;
+            if (refreshToken == null || !refreshToken.IsActive)
+                return null;
+
+            var user = context.Users.Find(refreshToken.UserId);
 
             // replace old refresh token with a new one and save
             var newRefreshToken = GenerateRefreshToken(ipAddress);
             refreshToken.Revoked = DateTime.UtcNow;
             refreshToken.RevokedByIp = ipAddress;
             refreshToken.ReplacedByToken = newRefreshToken.Token;
-            context.Update(user);
             await context.SaveChangesAsync();
 
             // generate new jwt
@@ -118,16 +116,12 @@ namespace MahtaKala.Services
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
+                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Type.ToString()),
+                    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(15),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Claims = new Dictionary<string, object>()
-                {
-                    { "UserType" , user.Type },
-                    { "FirstName", user.FirstName },
-                    { "LastName", user.LastName }
-                }
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);

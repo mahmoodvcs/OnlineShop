@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MahtaKala.Entities
 {
-    [Owned]
     public class RefreshToken
     {
         [Key]
