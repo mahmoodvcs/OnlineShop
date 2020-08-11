@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
@@ -112,6 +113,13 @@ namespace MahtaKala.Controllers
                 refresh = tokens.RefreshToken
             });
         }
+
+        [Authorize]
+        public IActionResult Logout()
+        {
+            return StatusCode(200);
+        }
+
 
 
         #region Private Methods
