@@ -21,7 +21,6 @@ namespace MahtaKala.Services
         Task<AuthenticateResponse> Authenticate(User user, string ipAddress);
         Task<AuthenticateResponse> RefreshToken(string token, string ipAddress);
         bool RevokeToken(string token, string ipAddress);
-        IEnumerable<User> GetAll();
         User GetById(int id);
     }
 
@@ -96,11 +95,6 @@ namespace MahtaKala.Services
             return true;
         }
 
-        public IEnumerable<User> GetAll()
-        {
-            return context.Users;
-        }
-
         public User GetById(int id)
         {
             return context.Users.Find(id);
@@ -118,7 +112,7 @@ namespace MahtaKala.Services
                 {
                     new Claim(ClaimTypes.Name, user.Id.ToString()),
                     new Claim(ClaimTypes.Role, user.Type.ToString()),
-                    new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                    new Claim(ClaimTypes.GivenName, $"{user.FirstName} {user.LastName}"),
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(15),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using MahtaKala.Helpers;
 using MahtaKala.GeneralServices;
 using MahtaKala.Services;
+using MahtaKala.Middlewares;
 
 namespace MahtaKala
 {
@@ -61,6 +62,7 @@ namespace MahtaKala
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseMiddleware<JwtMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
