@@ -135,9 +135,20 @@ namespace MahtaKala.Controllers
             return StatusCode(200);
         }
 
-
-
-
+        [Authorize]
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            var user = (User)HttpContext.Items["User"];
+            var p = new ProfileModel
+            {
+                Name = user.FirstName,
+                Family = user.LastName,
+                National_Code = user.NationalCode,
+                EMail = user.EmailAddress,
+            };
+            return Json(p);
+        }
 
 
         #region Private Methods
