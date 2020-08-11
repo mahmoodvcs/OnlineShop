@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
+using MahtaKala.Models;
 using MahtaKala.Models.UserModels;
 using MahtaKala.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -119,6 +121,22 @@ namespace MahtaKala.Controllers
         {
             return StatusCode(200);
         }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Profile([FromBody]ProfileModel profileModel)
+        {
+            var user = (User)HttpContext.Items["User"];
+            user.FirstName = profileModel.Name;
+            user.LastName = profileModel.Family;
+            user.NationalCode = profileModel.National_Code;
+            user.EmailAddress = profileModel.EMail;
+            await userService.Update(user);
+            return StatusCode(200);
+        }
+
+
+
 
 
 

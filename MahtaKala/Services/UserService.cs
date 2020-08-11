@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MahtaKala.Entities;
 using MahtaKala.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -22,6 +23,7 @@ namespace MahtaKala.Services
         Task<AuthenticateResponse> RefreshToken(string token, string ipAddress);
         bool RevokeToken(string token, string ipAddress);
         User GetById(int id);
+        Task Update(User user);
     }
 
     public class UserService : IUserService
@@ -135,6 +137,12 @@ namespace MahtaKala.Services
                     CreatedByIp = ipAddress
                 };
             }
+        }
+
+        public async Task Update(User user)
+        {
+            context.Users.Attach(user);
+            await context.SaveChangesAsync();
         }
     }
 }

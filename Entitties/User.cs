@@ -24,8 +24,6 @@ namespace MahtaKala.Entities
 
         public string SecurityStamp { get; set; }
         [StringLength(255)]
-        public string Name { get; set; }
-        [StringLength(255)]
         public string EmailAddress { get; set; }
         [StringLength(255)]
         public string MobileNumber { get; set; }
@@ -37,7 +35,6 @@ namespace MahtaKala.Entities
         public static User Create(
             string username,
             string password,
-            string name,
             string email,
             UserType type)
         {
@@ -46,7 +43,6 @@ namespace MahtaKala.Entities
                 Username = username,
                 Password = PasswordHasher.Hash(password),
                 SecurityStamp = Security.SecurityStamp.Generate(),
-                Name = name,
                 EmailAddress = email,
                 Type = type,
             };
