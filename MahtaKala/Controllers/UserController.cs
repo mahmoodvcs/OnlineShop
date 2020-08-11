@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
+using MahtaKala.Models.UserModels;
 using MahtaKala.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ namespace MahtaKala.Controllers
         private readonly ISMSService smsService;
         private readonly DataContext db;
         private readonly IUserService userService;
-        public UserController(ISMSService smsService, 
+        public UserController(ISMSService smsService,
             DataContext context,
             IUserService userService)
         {
@@ -33,9 +34,9 @@ namespace MahtaKala.Controllers
 
         [HttpPost]
 
-        public async Task<IActionResult> Signup(string mobile)
+        public async Task<IActionResult> Signup([FromBody]SignupRequest signupRequest)
         {
-            var number = Util.NormalizePhoneNumber(mobile);
+            var number = Util.NormalizePhoneNumber(signupRequest.Mobile);
             bool newUser = false;
             var user = await db.Users.FirstOrDefaultAsync(a => a.MobileNumber == number);
             if (user == null)
@@ -61,9 +62,9 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Verify(int code, string mobile)
+        public async Task<IActionResult> Verify([FromBody]VerifyRequest verifyRequest)
         {
-            var number = Util.NormalizePhoneNumber(mobile);
+            var number = Util.NormalizePhoneNumber(verifyRequest.Mobile);
 
             var user = await db.Users.FirstOrDefaultAsync(a => a.MobileNumber == number);
             if (user == null)
@@ -77,7 +78,7 @@ namespace MahtaKala.Controllers
                 return StatusCode(401);
             }
 
-            if (!userCodes.Any(a => a.ExpireTime > DateTime.Now && a.Code == code))
+            if (!userCodes.Any(a => a.ExpireTime > DateTime.Now && a.Code == verifyRequest.Code))
             {
                 return StatusCode(401);
             }
@@ -101,6 +102,9 @@ namespace MahtaKala.Controllers
             return "Hi";
         }
 
+
+        #region Private Methods
+
         private string GetIpAddress()
         {
             if (Request.Headers.ContainsKey("X-Forwarded-For"))
@@ -108,6 +112,8 @@ namespace MahtaKala.Controllers
             else
                 return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
         }
+
+        #endregion Private Methods
 
     }
 }
