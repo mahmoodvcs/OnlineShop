@@ -10,6 +10,9 @@ namespace MahtaKala.Models
         public string Name { get; set; }
         public string Family { get; set; }
         public string National_Code { get; set; }
+        /// <summary>
+        /// Not used
+        /// </summary>
         public string Personel_Code { get; set; }
         public string EMail { get; set; }
     }

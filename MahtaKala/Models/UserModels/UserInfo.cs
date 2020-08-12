@@ -5,12 +5,9 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.Models.UserModels
 {
-    public class VerifyRequest
+    public class UserInfo
     {
         public string Mobile { get; set; }
-        /// <summary>
-        /// OTP code
-        /// </summary>
-        public int Code { get; set; }
+        public string Name { get; set; }
     }
 }

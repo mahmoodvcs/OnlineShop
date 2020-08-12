@@ -16,6 +16,10 @@ using MahtaKala.Helpers;
 using MahtaKala.GeneralServices;
 using MahtaKala.Services;
 using MahtaKala.Middlewares;
+using Microsoft.OpenApi.Models;
+using System.IO;
+using Swashbuckle.AspNetCore.Filters;
+using MahtaKala.ActionFilter;
 
 namespace MahtaKala
 {
@@ -35,6 +39,34 @@ namespace MahtaKala
             services.AddControllers();
             services.AddApiVersioning();
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "MahtaShop API", Version = "v1" });
+                var filePath = Path.Combine(System.AppContext.BaseDirectory, "MahtaKala.xml");
+                c.IncludeXmlComments(filePath);
+
+                c.OperationFilter<AppendAuthorizeToSummaryOperationFilter<AuthorizeAttribute>>(); // Adds "(Auth)" to the summary so that you can see which endpoints have Authorization
+
+                // add Security information to each operation for OAuth2
+                //c.OperationFilter<SecurityRequirementsOperationFilter<AuthorizeAttribute>>();
+                // or use the generic method, e.g. c.OperationFilter<SecurityRequirementsOperationFilter<MyCustomAttribute>>();
+
+                c.OperationFilter<SwaggerAuthResponsesOperationFilter>();
+
+                // if you're using the SecurityRequirementsOperationFilter, you also need to tell Swashbuckle you're using OAuth2
+                c.AddSecurityDefinition("JWT", new OpenApiSecurityScheme
+                {
+                    Description = "Standard Authorization header using the Bearer scheme. Example: \"bearer {token}\"",
+                    In = ParameterLocation.Header,
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+            });
+
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.AutomaticAuthentication = false;
+            });
 
             //services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
             services.AddSingleton(Configuration);
@@ -67,6 +99,12 @@ namespace MahtaKala
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "MahtaShop API V1");
             });
         }
     }

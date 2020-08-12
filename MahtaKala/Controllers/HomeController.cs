@@ -14,6 +14,7 @@ namespace MahtaKala.Controllers
     public class HomeController : Controller
     {
         [Authorize]
+        [HttpGet]
         public IActionResult Index()
         {
             return StatusCode(200);

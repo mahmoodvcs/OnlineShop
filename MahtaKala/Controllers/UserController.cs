@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 namespace MahtaKala.Controllers
 {
     [ApiController()]
-    [Route("api/v{version:apiVersion}/[controller]")]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiVersion("1")]
     public class UserController : Controller
@@ -35,8 +34,14 @@ namespace MahtaKala.Controllers
             this.userService = userService;
         }
 
+        /// <summary>
+        /// Start the login proccess. Currently only supported method is OTP (One-time password) that will be sent to the users mobile phone.
+        /// </summary>
+        /// <param name="signupRequest">Contains the mobile phone number</param>
+        /// <returns></returns>
+        /// <response code="200">Success. The user is allready registered and the OTP is sent</response>
+        /// <response code="201">Success. The user is new. The OTP is sent</response>
         [HttpPost]
-
         public async Task<IActionResult> Signup([FromBody]SignupRequest signupRequest)
         {
             var number = Util.NormalizePhoneNumber(signupRequest.Mobile);
@@ -64,42 +69,55 @@ namespace MahtaKala.Controllers
             return StatusCode(newUser ? 201 : 200);
         }
 
+        /// <summary>
+        /// The second (last) phase of the login or signup proccess.
+        /// </summary>
+        /// <param name="verifyRequest">Contains the mobile number and the OTP</param>
+        /// <returns>Access token, refresh token and the user info</returns>
         [HttpPost]
-        public async Task<IActionResult> Verify([FromBody]VerifyRequest verifyRequest)
+        public async Task<VerifyRespnse> Verify([FromBody]VerifyRequest verifyRequest)
         {
             var number = Util.NormalizePhoneNumber(verifyRequest.Mobile);
 
             var user = await db.Users.FirstOrDefaultAsync(a => a.MobileNumber == number);
             if (user == null)
             {
-                return StatusCode(401);
+                Response.StatusCode = 401;
+                return null;
             }
 
             var userCodes = await db.UserActivationCodes.Where(a => a.UserId == user.Id).ToListAsync();
             if (!userCodes.Any())
             {
-                return StatusCode(401);
+                Response.StatusCode = 401;
+                return null;
             }
 
             if (!userCodes.Any(a => a.ExpireTime > DateTime.Now && a.Code == verifyRequest.Code))
             {
-                return StatusCode(401);
+                Response.StatusCode = 401;
+                return null;
             }
 
             var tokens = await userService.Authenticate(user, GetIpAddress());
 
 
-            return Json(new
+            return new VerifyRespnse
             {
-                refresh = tokens.RefreshToken,
-                access = tokens.JwtToken,
-                user = new
+                Refresh = tokens.RefreshToken,
+                Access = tokens.JwtToken,
+                User = new UserInfo
                 {
-                    mobile = number
+                    Mobile = number
                 }
-            });
+            };
         }
 
+        /// <summary>
+        /// Creates a new refresh and access token for JWT authorization.
+        /// </summary>
+        /// <param name="refreshRequest">Contains the old refresh token</param>
+        /// <returns>New tokens</returns>
         [HttpPost]
         public async Task<IActionResult> Refresh([FromBody]RefreshRequest refreshRequest)
         {
@@ -116,12 +134,27 @@ namespace MahtaKala.Controllers
             });
         }
 
+        /// <summary>
+        /// Used to logout the user. It does nothing on the server side. Because we use JWT for authentication, nothing is stored on the server.
+        /// Client code should remove the JWT token from cookie or LocalStorage.
+        /// </summary>
+        /// <returns></returns>
+        /// <response code="200">The user was logged in. Clear the client token.</response>
+        /// <response code="401">JWT token is not valid. Clear the client token anyway.</response>
         [Authorize]
-        public IActionResult Logout()
+        [HttpPost]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(200)]
+        public void Logout()
         {
-            return StatusCode(200);
+            return;
         }
 
+        /// <summary>
+        /// Updates the user's profile information
+        /// </summary>
+        /// <param name="profileModel">User profile info</param>
+        /// <returns></returns>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Profile([FromBody]ProfileModel profileModel)
@@ -135,19 +168,22 @@ namespace MahtaKala.Controllers
             return StatusCode(200);
         }
 
+        /// <summary>
+        /// Returns the user's profile information
+        /// </summary>
+        /// <returns></returns>
         [Authorize]
         [HttpGet]
-        public IActionResult Profile()
+        public ProfileModel Profile()
         {
             var user = (User)HttpContext.Items["User"];
-            var p = new ProfileModel
+            return new ProfileModel
             {
                 Name = user.FirstName,
                 Family = user.LastName,
                 National_Code = user.NationalCode,
                 EMail = user.EmailAddress,
             };
-            return Json(p);
         }
 
 
