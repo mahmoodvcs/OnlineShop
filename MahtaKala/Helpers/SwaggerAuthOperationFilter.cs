@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.Helpers
 {
-    public class SwaggerAuthResponsesOperationFilter : IOperationFilter
+    public class SwaggerAuthOperationFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {

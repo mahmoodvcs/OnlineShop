@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>fb754d52-1f7a-4d8a-8012-50ce5055ad34</UserSecretsId>
     
   </PropertyGroup>
 
@@ -39,6 +40,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Entitties\Entities.csproj" />
     <ProjectReference Include="..\Services\GeneralServices.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="MahtaKala.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 

@@ -55,15 +55,8 @@ namespace MahtaKala
                 var filePath = Path.Combine(System.AppContext.BaseDirectory, "MahtaKala.xml");
                 c.IncludeXmlComments(filePath);
 
-                c.OperationFilter<AppendAuthorizeToSummaryOperationFilter<AuthorizeAttribute>>(); // Adds "(Auth)" to the summary so that you can see which endpoints have Authorization
+                c.OperationFilter<SwaggerAuthOperationFilter>();
 
-                // add Security information to each operation for OAuth2
-                //c.OperationFilter<SecurityRequirementsOperationFilter<AuthorizeAttribute>>();
-                // or use the generic method, e.g. c.OperationFilter<SecurityRequirementsOperationFilter<MyCustomAttribute>>();
-
-                c.OperationFilter<SwaggerAuthResponsesOperationFilter>();
-
-                // if you're using the SecurityRequirementsOperationFilter, you also need to tell Swashbuckle you're using OAuth2
                 c.AddSecurityDefinition("JWT", new OpenApiSecurityScheme
                 {
                     BearerFormat = "JWT",
