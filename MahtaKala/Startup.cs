@@ -37,7 +37,17 @@ namespace MahtaKala
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddApiVersioning();
+            services.AddApiVersioning(op=>
+            {
+                op.AssumeDefaultVersionWhenUnspecified = true;
+                op.DefaultApiVersion = new ApiVersion(1, 0);
+            });
+
+            services.AddVersionedApiExplorer(o =>
+            {
+                o.GroupNameFormat = "'v'VVV";
+                o.SubstituteApiVersionInUrl = true;
+            });
 
             services.AddSwaggerGen(c =>
             {
@@ -56,10 +66,12 @@ namespace MahtaKala
                 // if you're using the SecurityRequirementsOperationFilter, you also need to tell Swashbuckle you're using OAuth2
                 c.AddSecurityDefinition("JWT", new OpenApiSecurityScheme
                 {
-                    Description = "Standard Authorization header using the Bearer scheme. Example: \"bearer {token}\"",
+                    BearerFormat = "JWT",
+                    Scheme = "bearer",
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"bearer {token}\"",
                     In = ParameterLocation.Header,
                     Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey
+                    Type = SecuritySchemeType.Http
                 });
             });
 

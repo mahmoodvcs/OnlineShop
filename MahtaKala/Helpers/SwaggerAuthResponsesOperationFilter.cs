@@ -16,8 +16,21 @@ namespace MahtaKala.Helpers
                 .Union(context.MethodInfo.GetCustomAttributes(true))
                 .OfType<AuthorizeAttribute>();
 
-            if (authAttributes.Any() && !operation.Responses.Any(r => r.Key == "401"))
-                operation.Responses.Add("401", new OpenApiResponse { Description = "Unauthorized" });
+            if (authAttributes.Any())
+            {
+                if (!operation.Responses.Any(r => r.Key == "401"))
+                    operation.Responses.Add("401", new OpenApiResponse { Description = "Unauthorized" });
+                operation.Security.Add(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference{ Type = ReferenceType.SecurityScheme, Id = "JWT" }
+                        },
+                        new string[0]
+                    }
+                });
+            }
         }
     }
 }
