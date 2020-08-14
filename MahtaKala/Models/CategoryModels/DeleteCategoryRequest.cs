@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.Models.CategoryModels
 {
-    public class GetListCategoryModel
+    public class DeleteCategoryRequest
     {
-        public int Parent { get; set; }
+        public int Id { get; set; }
     }
 }

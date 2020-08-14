@@ -49,7 +49,7 @@ namespace MahtaKala.Controllers
             {
                 category = await db.Categories.FirstOrDefaultAsync(c => c.Id == updateCategoryRequest.Id);
                 if (category == null)
-                    throw new Exception("Category Not Found!!!");
+                    throw new Exception("Category Not Found.");
             }
 
             if (category == null)
@@ -76,9 +76,32 @@ namespace MahtaKala.Controllers
         /// <returns></returns>
         //[Authorize]
         [HttpGet]
-        public async Task<List<Category>> Category([FromBody]GetListCategoryModel getListCategoryModel)
+        public async Task<List<Category>> Category([FromBody]GetListCategoryRequest getListCategoryModel)
         {
             return await db.Categories.Where(c => c.ParentId == getListCategoryModel.Parent).ToListAsync();
+        }
+        /// <summary>
+        /// Removes the Category with the given ID
+        /// </summary>
+        /// <returns></returns>
+        /// <response code="200">Success. The category was Deleted.</response>
+        //[Authorize]
+        [HttpDelete]
+        public async Task<IActionResult> Category([FromBody]DeleteCategoryRequest deleteCategoryRequest)
+        {
+            var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == deleteCategoryRequest.Id);
+            if(category == null)
+            {
+                throw new Exception("Category Not Found.");
+            }
+            if(!await db.Categories.AnyAsync(c=>c.ParentId == deleteCategoryRequest.Id))
+            {
+                throw new Exception("Category Has Child.");
+            }
+            db.Categories.Remove(category);
+            await db.SaveChangesAsync();
+            return StatusCode(200);
+
         }
     }
 }
