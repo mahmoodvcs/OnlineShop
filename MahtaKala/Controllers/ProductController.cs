@@ -70,5 +70,15 @@ namespace MahtaKala.Controllers
             else
                 return StatusCode(201);
         }
+        /// <summary>
+        /// Return the List of Categories with the given parent ID
+        /// </summary>
+        /// <returns></returns>
+        //[Authorize]
+        [HttpGet]
+        public async Task<List<Category>> Category([FromBody]GetListCategoryModel getListCategoryModel)
+        {
+            return await db.Categories.Where(c => c.ParentId == getListCategoryModel.Parent).ToListAsync();
+        }
     }
 }
