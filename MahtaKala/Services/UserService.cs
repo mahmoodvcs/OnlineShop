@@ -64,10 +64,11 @@ namespace MahtaKala.Services
             var user = context.Users.Find(refreshToken.UserId);
 
             // replace old refresh token with a new one and save
-            var newRefreshToken = GenerateRefreshToken(ipAddress);
             refreshToken.Revoked = DateTime.UtcNow;
             refreshToken.RevokedByIp = ipAddress;
+            var newRefreshToken = GenerateRefreshToken(ipAddress);
             refreshToken.ReplacedByToken = newRefreshToken.Token;
+            context.RefreshTokens.Add(newRefreshToken);
             await context.SaveChangesAsync();
 
             // generate new jwt
@@ -132,7 +133,7 @@ namespace MahtaKala.Services
                 return new RefreshToken
                 {
                     Token = Convert.ToBase64String(randomBytes),
-                    Expires = DateTime.UtcNow.AddDays(7),
+                    Expires = DateTime.UtcNow.AddYears(1),
                     Created = DateTime.UtcNow,
                     CreatedByIp = ipAddress
                 };
