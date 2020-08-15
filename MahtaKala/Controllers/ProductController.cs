@@ -25,7 +25,6 @@ namespace MahtaKala.Controllers
         }
 
 
-
         /// <summary>
         /// Update the Existing Category or Create New One
         /// </summary>
@@ -37,12 +36,12 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<IActionResult> Category([FromBody]UpdateCategoryRequest updateCategoryRequest)
         {
-            Category category = null;
+            ProductCategory category = null;
             bool newCategory = false;
             if(updateCategoryRequest.Id == 0)
             {
                 newCategory = true;
-                category = new Category();
+                category = new ProductCategory();
                 db.Categories.Add(category);
             }
             else
@@ -50,13 +49,6 @@ namespace MahtaKala.Controllers
                 category = await db.Categories.FirstOrDefaultAsync(c => c.Id == updateCategoryRequest.Id);
                 if (category == null)
                     throw new Exception("Category Not Found.");
-            }
-
-            if (category == null)
-            {
-                newCategory = true;
-                category = new Category();
-                db.Categories.Add(category);
             }
 
             category.Title = updateCategoryRequest.Title;
@@ -76,7 +68,7 @@ namespace MahtaKala.Controllers
         /// <returns></returns>
         //[Authorize]
         [HttpGet]
-        public async Task<List<Category>> Category([FromBody]GetListCategoryRequest getListCategoryModel)
+        public async Task<List<ProductCategory>> Category([FromBody]GetListCategoryRequest getListCategoryModel)
         {
             return await db.Categories.Where(c => c.ParentId == getListCategoryModel.Parent).ToListAsync();
         }
@@ -94,7 +86,7 @@ namespace MahtaKala.Controllers
             {
                 throw new Exception("Category Not Found.");
             }
-            if(!await db.Categories.AnyAsync(c=>c.ParentId == deleteCategoryRequest.Id))
+            if(await db.Categories.AnyAsync(c=>c.ParentId == deleteCategoryRequest.Id))
             {
                 throw new Exception("Category Has Child.");
             }
