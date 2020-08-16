@@ -189,15 +189,14 @@ namespace MahtaKala.Controllers
         }
 
         /// <summary>
-        /// Returns list of addresses for a user
+        /// Returns list of addresses for current user
         /// </summary>
-        /// <param name="addressListRequest"></param>
         /// <returns></returns>
         [Authorize]
         [HttpGet]
-        public async Task<List<AddressModel>> Address(AddressListRequest addressListRequest)
+        public async Task<List<AddressModel>> Address()
         {
-            var list = db.Addresses.Where(a => a.UserId == addressListRequest.UserId);
+            var list = db.Addresses.Where(a => a.UserId == UserId);
             return await list.Select(a => new AddressModel
             {
                 Id = a.Id,
