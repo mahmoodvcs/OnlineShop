@@ -48,6 +48,10 @@ namespace MahtaKala.Controllers
         {
             var number = Util.NormalizePhoneNumber(signupRequest.Mobile);
             bool newUser = false;
+            if (!System.Text.RegularExpressions.Regex.IsMatch(number, @"^(\+98|0)?9\d{9}$"))
+            {
+                throw new Exception("Wrong Phone Entered.");
+            }
             var user = await db.Users.FirstOrDefaultAsync(a => a.MobileNumber == number);
             if (user == null)
             {
