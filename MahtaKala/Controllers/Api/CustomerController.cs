@@ -41,7 +41,7 @@ namespace MahtaKala.Controllers.Api
 
         [Authorize]
         [HttpGet]
-        public async Task<List<WishlistModels>> Wishlist([FromBody]PagerModel pagerModel)
+        public async Task<List<WishlistModels>> Wishlist([FromQuery]PagerModel pagerModel)
         {
             var list = db.Wishlists.Where(a => a.UserId == UserId).Skip(pagerModel.Offset).Take(pagerModel.Page);
             return await list.Select(a => new WishlistModels
