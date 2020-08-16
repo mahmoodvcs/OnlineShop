@@ -23,6 +23,6 @@ namespace MahtaKala.Entities
         public DbSet<City> Cities { get; set; }
         public DbSet<Province> Provinces { get; set; }
         public DbSet<UserAddress> Addresses { get; set; }
-
+        public DbSet<Wishlist> Wishlists { get; set; }
     }
 }
