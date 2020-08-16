@@ -31,7 +31,6 @@ namespace MahtaKala.Controllers
         /// <returns></returns>
         /// <response code="200">Success. The category was updated.</response>
         /// <response code="201">Success. Category was new.</response>
-        /// <response code="401">Fail. ParentId was not in category list</response>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Category([FromBody]UpdateCategoryRequest updateCategoryRequest)

@@ -24,5 +24,6 @@ namespace MahtaKala.Entities
         public DbSet<Province> Provinces { get; set; }
         public DbSet<UserAddress> Addresses { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
+        public DbSet<Basket> Baskets { get; set; }
     }
 }
