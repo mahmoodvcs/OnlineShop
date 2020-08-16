@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using MahtaKala.Services;
 using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
+using System.Security.Principal;
+using Microsoft.AspNetCore.Authentication;
 
 namespace MahtaKala.Middlewares
 {
@@ -47,9 +50,17 @@ namespace MahtaKala.Middlewares
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "unique_name").Value);
+                var userId = long.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
+                var user = userService.GetById(userId);
 
-                context.Items["User"] = userService.GetById(userId);
+                context.Items["User"] = user;
+
+                //context.AuthenticateAsync();
+                //context.User = new System.Security.Claims.ClaimsPrincipal(new ClaimsIdentity[]
+                //{
+                //    new ClaimsIdentity(jwtToken.Claims),
+                //});
+                
             }
             catch
             {

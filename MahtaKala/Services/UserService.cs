@@ -22,7 +22,7 @@ namespace MahtaKala.Services
         Task<AuthenticateResponse> Authenticate(User user, string ipAddress);
         Task<AuthenticateResponse> RefreshToken(string token, string ipAddress);
         bool RevokeToken(string token, string ipAddress);
-        User GetById(int id);
+        User GetById(long id);
         Task Update(User user);
     }
 
@@ -68,7 +68,7 @@ namespace MahtaKala.Services
             refreshToken.RevokedByIp = ipAddress;
             var newRefreshToken = GenerateRefreshToken(ipAddress);
             refreshToken.ReplacedByToken = newRefreshToken.Token;
-            context.RefreshTokens.Add(newRefreshToken);
+            user.RefreshTokens.Add(newRefreshToken);
             await context.SaveChangesAsync();
 
             // generate new jwt
@@ -98,7 +98,7 @@ namespace MahtaKala.Services
             return true;
         }
 
-        public User GetById(int id)
+        public User GetById(long id)
         {
             return context.Users.Find(id);
         }
@@ -113,7 +113,7 @@ namespace MahtaKala.Services
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim("id", user.Id.ToString()),
                     new Claim(ClaimTypes.Role, user.Type.ToString()),
                     new Claim(ClaimTypes.GivenName, $"{user.FirstName} {user.LastName}"),
                 }),

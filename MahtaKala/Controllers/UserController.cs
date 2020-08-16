@@ -13,13 +13,15 @@ using MahtaKala.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace MahtaKala.Controllers
 {
     [ApiController()]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiVersion("1")]
-    public class UserController : Controller
+    public class UserController : ControllerBase
     {
 
         private readonly ISMSService smsService;
@@ -42,7 +44,7 @@ namespace MahtaKala.Controllers
         /// <response code="200">Success. The user is allready registered and the OTP is sent</response>
         /// <response code="201">Success. The user is new. The OTP is sent</response>
         [HttpPost]
-        public async Task<IActionResult> Signup([FromBody]SignupRequest signupRequest)
+        public async Task<IActionResult> Signup([FromBody] SignupRequest signupRequest)
         {
             var number = Util.NormalizePhoneNumber(signupRequest.Mobile);
             bool newUser = false;
@@ -75,7 +77,7 @@ namespace MahtaKala.Controllers
         /// <param name="verifyRequest">Contains the mobile number and the OTP</param>
         /// <returns>Access token, refresh token and the user info</returns>
         [HttpPost]
-        public async Task<VerifyRespnse> Verify([FromBody]VerifyRequest verifyRequest)
+        public async Task<VerifyRespnse> Verify([FromBody] VerifyRequest verifyRequest)
         {
             var number = Util.NormalizePhoneNumber(verifyRequest.Mobile);
 
@@ -101,7 +103,6 @@ namespace MahtaKala.Controllers
 
             var tokens = await userService.Authenticate(user, GetIpAddress());
 
-
             return new VerifyRespnse
             {
                 Refresh = tokens.RefreshToken,
@@ -119,7 +120,7 @@ namespace MahtaKala.Controllers
         /// <param name="refreshRequest">Contains the old refresh token</param>
         /// <returns>New tokens</returns>
         [HttpPost]
-        public async Task<IActionResult> Refresh([FromBody]RefreshRequest refreshRequest)
+        public async Task<IActionResult> Refresh([FromBody] RefreshRequest refreshRequest)
         {
             var tokens = await userService.RefreshToken(refreshRequest.Refresh, GetIpAddress());
             if (tokens == null)
@@ -147,6 +148,7 @@ namespace MahtaKala.Controllers
         [ProducesResponseType(200)]
         public void Logout()
         {
+            //userService.RevokeToken()
             return;
         }
 
@@ -157,7 +159,7 @@ namespace MahtaKala.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Profile([FromBody]ProfileModel profileModel)
+        public async Task<IActionResult> Profile([FromBody] ProfileModel profileModel)
         {
             var user = (User)HttpContext.Items["User"];
             user.FirstName = profileModel.Name;
@@ -185,6 +187,80 @@ namespace MahtaKala.Controllers
                 EMail = user.EmailAddress,
             };
         }
+
+        /// <summary>
+        /// Returns list of addresses for a user
+        /// </summary>
+        /// <param name="addressListRequest"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpGet]
+        public async Task<List<AddressModel>> Address(AddressListRequest addressListRequest)
+        {
+            var list = db.Addresses.Where(a => a.UserId == addressListRequest.UserId);
+            return await list.Select(a => new AddressModel
+            {
+                Id = a.Id,
+                City = a.CityId,
+                Province = a.City.ProvinceId,
+                Details = a.Details,
+                Postal_Code = a.PostalCode,
+                Lat = a.Location.Coordinate.Y,
+                Lng = a.Location.X
+            }).ToListAsync();
+        }
+
+        /// <summary>
+        /// Updates or creates an address for a user
+        /// </summary>
+        /// <param name="addressModel"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpPost]
+        public async Task<StatusCodeResult> Address(AddressModel addressModel)
+        {
+            UserAddress address;
+            if (addressModel.Id == 0)
+            {
+                address = new UserAddress();
+                address.UserId = UserId;
+                db.Addresses.Add(address);
+            }
+            else
+            {
+                address = db.Addresses.Find(addressModel.Id);
+                if (address == null)
+                    throw new Exception("Address not found");
+                if (address.UserId != UserId)
+                    return StatusCode(403);
+            }
+
+            address.PostalCode = addressModel.Postal_Code;
+            address.CityId = addressModel.City;
+            address.Details = addressModel.Details;
+            address.Location = GeoUtil.CreatePoint(addressModel);
+
+            await db.SaveChangesAsync();
+            return StatusCode(200);
+        }
+
+        /// <summary>
+        /// Deletes an address for a user
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Authorize]
+        [HttpDelete]
+        public async Task<StatusCodeResult> Address(DeleteAddressRequest model)
+        {
+            var address = db.Addresses.Find(model.Id);
+            if (address == null)
+                throw new InvalidOperationException("Address not found.");
+            db.Addresses.Remove(address);
+            await db.SaveChangesAsync();
+            return StatusCode(200);
+        }
+
 
 
         #region Private Methods

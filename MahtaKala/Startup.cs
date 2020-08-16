@@ -30,7 +30,7 @@ namespace MahtaKala
         {
             services.AddControllersWithViews();
 
-            services.AddApiVersioning(op=>
+            services.AddApiVersioning(op =>
             {
                 op.AssumeDefaultVersionWhenUnspecified = true;
                 op.DefaultApiVersion = new ApiVersion(1, 0);
@@ -73,10 +73,13 @@ namespace MahtaKala
             //services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
             services.AddSingleton(Configuration);
 
-            services.AddDbContext<DataContext>(options=>
+            services.AddDbContext<DataContext>(options =>
             {
                 //options.UseNpgsql(Configuration.GetConnectionString("DataContext")).UseSnakeCaseNamingConvention();
-                options.UseSqlServer(Configuration.GetConnectionString("DataContext"));
+                options.UseSqlServer(Configuration.GetConnectionString("DataContext"), options =>
+                {
+                    options.UseNetTopologySuite();
+                });
             });
 
             services.AddScoped<ISMSService, ParsGreenSMSService>();
@@ -125,7 +128,7 @@ namespace MahtaKala
 
             app.UseSpa(spa =>
             {
-                
+
                 // To learn more about options for serving an Angular SPA from ASP.NET Core,
                 // see https://go.microsoft.com/fwlink/?linkid=864501
 

@@ -32,7 +32,7 @@ namespace MahtaKala.Controllers
         /// <response code="200">Success. The category was updated.</response>
         /// <response code="201">Success. Category was new.</response>
         /// <response code="401">Fail. ParentId was not in category list</response>
-        //[Authorize]
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Category([FromBody]UpdateCategoryRequest updateCategoryRequest)
         {
@@ -66,7 +66,7 @@ namespace MahtaKala.Controllers
         /// Return the List of Categories with the given parent ID
         /// </summary>
         /// <returns></returns>
-        //[Authorize]
+        [Authorize]
         [HttpGet]
         public async Task<List<ProductCategory>> Category([FromBody]GetListCategoryRequest getListCategoryModel)
         {
@@ -77,7 +77,7 @@ namespace MahtaKala.Controllers
         /// </summary>
         /// <returns></returns>
         /// <response code="200">Success. The category was Deleted.</response>
-        //[Authorize]
+        [Authorize]
         [HttpDelete]
         public async Task<IActionResult> Category([FromBody]DeleteCategoryRequest deleteCategoryRequest)
         {

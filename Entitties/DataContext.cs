@@ -19,7 +19,10 @@ namespace MahtaKala.Entities
         public DbSet<User> Users{ get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<UserActivationCode> UserActivationCodes { get; set; }
-        public DbSet<Category> Categories { get; set; }
+        public DbSet<ProductCategory> Categories { get; set; }
+        public DbSet<City> Cities { get; set; }
+        public DbSet<Province> Provinces { get; set; }
+        public DbSet<UserAddress> Addresses { get; set; }
 
     }
 }
