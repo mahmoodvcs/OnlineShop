@@ -9,18 +9,19 @@ using MahtaKala.Models.CustomerModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Serilog.Core;
 
 namespace MahtaKala.Controllers.Api
 {
     [ApiController()]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiVersion("1")]
-    public class CustomerController : ControllerBase
+    public class CustomerController : ApiControllerBase<CustomerController>
     {
-        private readonly DataContext db;
-        public CustomerController(DataContext context)
+        public CustomerController(DataContext context, ILogger<CustomerController> logger)
+            : base(context, logger)
         {
-            this.db = context;
         }
 
 

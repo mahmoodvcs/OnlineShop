@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace MahtaKala.Infrustructure.Exceptions
+{
+    public class ApiErrorResponse
+    {
+        public int Code { get; set; }
+        public string Type { get; set; }
+        public string Message { get; set; }
+
+        public ApiErrorResponse(ApiException ex)
+        {
+            Code = ex.StatusCode;
+            Type = ex.GetType().Name;
+            Message = ex.Message;
+        }
+        public ApiErrorResponse(Exception ex)
+        {
+            Code = 500;
+            Type = ex.GetType().Name;
+            Message = ex.Message;
+        }
+    }
+}

@@ -2,6 +2,7 @@
 using MahtaKala.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +14,11 @@ namespace MahtaKala.Controllers.Api
     [Route("api/v{version:apiVersion}/provinces")]
     [ApiVersion("1")]
     [Authorize]
-    public class ProvincesController :ControllerBase
+    public class ProvincesController : ApiControllerBase<ProvincesController>
     {
-        private readonly DataContext db;
-
-        public ProvincesController(DataContext context)
+        public ProvincesController(DataContext context, ILogger<ProvincesController> logger)
+            : base(context, logger)
         {
-            db = context;
         }
         [HttpGet]
         public async Task<List<Province>> Index()

@@ -13,6 +13,7 @@ using MahtaKala.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
@@ -21,37 +22,37 @@ namespace MahtaKala.Controllers
     [ApiController()]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiVersion("1")]
-    public class UserController : ControllerBase
+    public class UserController : ApiControllerBase<UserController>
     {
 
         private readonly ISMSService smsService;
-        private readonly DataContext db;
         private readonly IUserService userService;
         public UserController(ISMSService smsService,
             DataContext context,
-            IUserService userService)
+            IUserService userService,
+            ILogger<UserController> logger)
+            : base(context, logger)
         {
             this.smsService = smsService;
-            this.db = context;
             this.userService = userService;
         }
 
         /// <summary>
-        /// Start the login proccess. Currently only supported method is OTP (One-time password) that will be sent to the users mobile phone.
+        /// Start the login process. Currently only supported method is OTP (One-time password) that will be sent to the users mobile phone.
         /// </summary>
         /// <param name="signupRequest">Contains the mobile phone number</param>
         /// <returns></returns>
-        /// <response code="200">Success. The user is allready registered and the OTP is sent</response>
+        /// <response code="200">Success. The user is already registered and the OTP is sent</response>
         /// <response code="201">Success. The user is new. The OTP is sent</response>
         [HttpPost]
         public async Task<IActionResult> Signup([FromBody] SignupRequest signupRequest)
         {
             var number = Util.NormalizePhoneNumber(signupRequest.Mobile);
             bool newUser = false;
-            if (!System.Text.RegularExpressions.Regex.IsMatch(number, @"^(\+98|0)?9\d{9}$"))
-            {
-                throw new Exception("Wrong Phone Entered.");
-            }
+            //if (!System.Text.RegularExpressions.Regex.IsMatch(number, @"^(\+98|0)?9\d{9}$"))
+            //{
+            //    throw new Exception("Wrong Phone Entered.");
+            //}
             var user = await db.Users.FirstOrDefaultAsync(a => a.MobileNumber == number);
             if (user == null)
             {

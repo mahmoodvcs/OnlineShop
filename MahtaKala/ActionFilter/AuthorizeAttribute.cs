@@ -18,7 +18,7 @@ namespace MahtaKala.ActionFilter
             if (user == null)
             {
                 // not logged in
-                context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
+                throw new UnauthorizedAccessException();
             }
         }
     }

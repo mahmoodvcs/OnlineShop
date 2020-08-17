@@ -4,25 +4,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.ActionFilter;
+using MahtaKala.Controllers.Api;
 using MahtaKala.Entities;
 using MahtaKala.Models;
 using MahtaKala.Models.CategoryModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace MahtaKala.Controllers
 {
     [ApiController()]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiVersion("1")]
-    public class ProductController : ControllerBase
+    public class ProductController : ApiControllerBase<ProductController>
     {
-
-        private readonly DataContext db;
-        public ProductController(DataContext context)
+        public ProductController(DataContext context, ILogger<ProductController> logger)
+            : base(context, logger)
         {
-            this.db = context;
         }
 
 
