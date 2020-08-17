@@ -7,9 +7,9 @@ namespace MahtaKala.Models.CategoryModels
 {
     public class UpdateCategoryRequest
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
         public string Title { get; set; }
         public string Icon { get; set; }
-        public int? ParentId { get; set; }
+        public long? ParentId { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
+using MahtaKala.Models;
 using MahtaKala.Models.CategoryModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -78,14 +79,14 @@ namespace MahtaKala.Controllers
         /// <response code="200">Success. The category was Deleted.</response>
         [Authorize]
         [HttpDelete]
-        public async Task<IActionResult> Category([FromBody]DeleteCategoryRequest deleteCategoryRequest)
+        public async Task<IActionResult> Category([FromBody]IdModel model)
         {
-            var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == deleteCategoryRequest.Id);
+            var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == model.Id);
             if(category == null)
             {
                 throw new Exception("Category Not Found.");
             }
-            if(await db.Categories.AnyAsync(c=>c.ParentId == deleteCategoryRequest.Id))
+            if(await db.Categories.AnyAsync(c=>c.ParentId == model.Id))
             {
                 throw new Exception("Category Has Child.");
             }

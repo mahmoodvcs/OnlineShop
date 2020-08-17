@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using MahtaKala.Entities.EntityConfig;
 
 namespace MahtaKala.Entities
 {
@@ -14,6 +15,12 @@ namespace MahtaKala.Entities
         public DataContext(DbContextOptions<DataContext> options) :base(options)
         {
 
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new ProductConfiguration());
         }
 
         public DbSet<User> Users{ get; set; }

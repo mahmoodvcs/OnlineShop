@@ -254,7 +254,7 @@ namespace MahtaKala.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpDelete]
-        public async Task<StatusCodeResult> Address(DeleteAddressRequest model)
+        public async Task<StatusCodeResult> Address(IdModel model)
         {
             var address = db.Addresses.Find(model.Id);
             if (address == null)
