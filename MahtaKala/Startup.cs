@@ -82,7 +82,8 @@ namespace MahtaKala
                 });
             });
 
-            services.AddScoped<ISMSService, ParsGreenSMSService>();
+            //services.AddScoped<ISMSService, ParsGreenSMSService>();
+            services.AddScoped<ISMSService, PayamSMSService>();
             services.AddScoped<IUserService, UserService>();
         }
 
