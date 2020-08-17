@@ -29,6 +29,7 @@ namespace MahtaKala.Controllers
             if(exception is ApiException apiException)
             {
                 Response.StatusCode = apiException.StatusCode;
+                return new ApiErrorResponse(apiException);
             }
             else if (exception is UnauthorizedAccessException)
             {
@@ -38,7 +39,7 @@ namespace MahtaKala.Controllers
             {
                 Response.StatusCode = 500;
             }
-            return new ApiErrorResponse(exception);
+            return new ApiErrorResponse(exception, Response.StatusCode);
         }
     }
 }

@@ -17,9 +17,9 @@ namespace MahtaKala.Infrustructure.Exceptions
             Type = ex.GetType().Name;
             Message = ex.Message;
         }
-        public ApiErrorResponse(Exception ex)
+        public ApiErrorResponse(Exception ex, int code = 500)
         {
-            Code = 500;
+            Code = code;
             Type = ex.GetType().Name;
             Message = ex.Message;
         }
