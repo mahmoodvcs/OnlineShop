@@ -11,6 +11,12 @@ namespace MahtaKala.Infrustructure.Exceptions
         public string Type { get; set; }
         public string Message { get; set; }
 
+        public ApiErrorResponse(int code, string type, string message)
+        {
+            Code = code;
+            Type = type;
+            Message = message;
+        }
         public ApiErrorResponse(ApiException ex)
         {
             Code = ex.StatusCode;

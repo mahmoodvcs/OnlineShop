@@ -1,4 +1,5 @@
 using MahtaKala.Entities;
+using MahtaKala.Entities.ExceptionHandling;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
 using MahtaKala.Middlewares;
@@ -154,6 +155,7 @@ namespace MahtaKala
                 using (var context = serviceScope.ServiceProvider.GetService<DataContext>())
                 {
                     context.Database.Migrate();
+                    SqlErrorParsers.SetDataContext(context);
                 }
             }
         }
