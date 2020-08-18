@@ -1,5 +1,6 @@
 ﻿using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
+using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,7 @@ namespace MahtaKala.Controllers.Api
             {
                 province = await db.Provinces.FirstOrDefaultAsync(c => c.Id == provinceModel.Id);
                 if (province == null)
-                    throw new Exception("Province Not Found.");
+                    throw new EntityNotFoundException<Province>(provinceModel.Id);
             }
 
             province.Name = provinceModel.Province;
@@ -54,7 +55,7 @@ namespace MahtaKala.Controllers.Api
             var province = await db.Provinces.FirstOrDefaultAsync(c => c.Id == model.Id);
             if (province == null)
             {
-                throw new Exception("Province Not Found.");
+                throw new EntityNotFoundException<Province>(model.Id);
             }
             db.Provinces.Remove(province);
             await db.SaveChangesAsync();

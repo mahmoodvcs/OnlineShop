@@ -1,5 +1,6 @@
 ﻿using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
+using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -40,7 +41,7 @@ namespace MahtaKala.Controllers
             {
                 city = await db.Cities.FirstOrDefaultAsync(c => c.Id == cityModel.Id);
                 if (city == null)
-                    throw new Exception("City Not Found.");
+                    throw new EntityNotFoundException<City>(cityModel.Id);
             }
 
             city.Name = cityModel.City;
@@ -55,7 +56,7 @@ namespace MahtaKala.Controllers
             var city = await db.Cities.FirstOrDefaultAsync(c => c.Id == model.Id);
             if (city == null)
             {
-                throw new Exception("City Not Found.");
+                throw new EntityNotFoundException<City>(model.Id);
             }
             db.Cities.Remove(city);
             await db.SaveChangesAsync();

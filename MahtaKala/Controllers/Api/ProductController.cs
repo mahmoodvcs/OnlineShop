@@ -7,6 +7,7 @@ using MahtaKala.ActionFilter;
 using MahtaKala.Controllers.Api;
 using MahtaKala.Entities;
 using MahtaKala.Entities.Extentions;
+using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
 using Microsoft.AspNetCore.Http;
@@ -49,7 +50,7 @@ namespace MahtaKala.Controllers
             {
                 category = await db.Categories.FirstOrDefaultAsync(c => c.Id == updateCategoryRequest.Id);
                 if (category == null)
-                    throw new Exception("Category Not Found.");
+                    throw new EntityNotFoundException<ProductCategory>(updateCategoryRequest.Id);
             }
 
             category.Title = updateCategoryRequest.Title;
@@ -83,12 +84,12 @@ namespace MahtaKala.Controllers
             var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == model.Id);
             if (category == null)
             {
-                throw new Exception("Category Not Found.");
+                throw new EntityNotFoundException<ProductCategory>(model.Id);
             }
-            if (await db.Categories.AnyAsync(c => c.ParentId == model.Id))
-            {
-                throw new Exception("Category Has Child.");
-            }
+            //if (await db.Categories.AnyAsync(c => c.ParentId == model.Id))
+            //{
+            //    throw new Exception("Category Has Child.");
+            //}
             db.Categories.Remove(category);
             await db.SaveChangesAsync();
             return StatusCode(200);

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
 using MahtaKala.Entities.Extentions;
+using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.CustomerModels;
 using Microsoft.AspNetCore.Http;
@@ -60,7 +61,7 @@ namespace MahtaKala.Controllers.Api
             var wishlists = await db.Wishlists.FirstOrDefaultAsync(c => c.Id == idModel.Id);
             if (wishlists == null)
             {
-                throw new Exception("Wishlist Not Found.");
+                throw new EntityNotFoundException<Wishlist>(idModel.Id);
             }
             db.Wishlists.Remove(wishlists);
             await db.SaveChangesAsync();
@@ -89,7 +90,7 @@ namespace MahtaKala.Controllers.Api
             {
                 basket = await db.Baskets.FirstOrDefaultAsync(b => b.Id == updateBasketRequest.Id);
                 if (basket == null)
-                    throw new Exception("Basket Not Found.");
+                    throw new EntityNotFoundException<Basket>(updateBasketRequest.Id);
             }
 
             basket.ProductId = updateBasketRequest.Product_Id;
@@ -138,7 +139,7 @@ namespace MahtaKala.Controllers.Api
             var basket = await db.Baskets.FirstOrDefaultAsync(b => b.Id == idModel.Id);
             if (basket == null)
             {
-                throw new Exception("Basket Not Found.");
+                throw new EntityNotFoundException<Basket>(idModel.Id);
             }
             db.Baskets.Remove(basket);
             await db.SaveChangesAsync();

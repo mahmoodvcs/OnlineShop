@@ -14,8 +14,8 @@ using System.Text.RegularExpressions;
 
 namespace MahtaKala.Entities.ExceptionHandling
 {
-    
-    
+
+
     public interface ISqlErrorParser
     {
         int ErrorCode { get; }
@@ -48,9 +48,7 @@ namespace MahtaKala.Entities.ExceptionHandling
 
         public static string GetTableDisplayName(string tableName)
         {
-            var t = tablesMap[tableName];
-            var nameAttr = t.GetCustomAttributes<DisplayAttribute>(false).FirstOrDefault();
-            return nameAttr != null ? nameAttr.Name : t.Name;
+            return DataContext.GetEntityTitle(tablesMap[tableName]);
         }
 
         public static string GetFieldDisplayName(string tableName, string fieldName)
@@ -95,6 +93,13 @@ namespace MahtaKala.Entities.ExceptionHandling
 
         public int ErrorCode => 547;
 
+        static readonly string[] fkErrorMessages =
+        {
+            "مقدار داده شده برای جدول '{0}' فیلد '{1}' در جدول '{2}' وجود ندارد", //Insert
+            "مقدار داده شده برای جدول '{0}' فیلد '{1}' در جدول '{2}' وجود ندارد", //Update
+            "امکان حذف اطلاعات مورد نظر از جدول '{2}' وجود ندارد. این اطلاعات در فیلد '{1}' در جدول '{2}' استفاده شده است"  //Delete
+        };
+
         public string Translate(string error)
         {
             var match = regex.Match(error);
@@ -108,24 +113,28 @@ namespace MahtaKala.Entities.ExceptionHandling
             var table = match.Groups["table"].Value;
             var column = match.Groups["col"].Value;
             var constraint = match.Groups["constraint"].Value;
-            var opStr = SqlErrorParsers.OperationMessages[(int)Enum.Parse(typeof(SqlOperation), op)];
+            var ope = (SqlOperation)Enum.Parse(typeof(SqlOperation), op);
+            var opStr = SqlErrorParsers.OperationMessages[(int)ope];
             string msg;
-            if (constraint == "FOREIGN KEY")
-                msg = GetFKMessage(name);
+            if (name.StartsWith("FK_"))
+            {
+                msg = GetFKMessage(name, ope);
+
+            }
             else
                 msg = error;
 
             return $"خطای {opStr} اطلاعات. {msg}";
         }
 
-        private string GetFKMessage(string name)
+        private string GetFKMessage(string name, SqlOperation ope)
         {
             var parts = name.Split('_');
             var fkTable = SqlErrorParsers.GetTableDisplayName(parts[1]);
             var fkField = SqlErrorParsers.GetFieldDisplayName(parts[1], parts[3]);
             var pkTable = SqlErrorParsers.GetTableDisplayName(parts[2]);
 
-            return $"مقدار داده شده برای جدول '{fkTable}' فیلد '{fkField}' در جدول '{pkTable}' وجود ندارد";
+            return string.Format(fkErrorMessages[(int)ope], fkTable, fkField, pkTable);
         }
     }
 

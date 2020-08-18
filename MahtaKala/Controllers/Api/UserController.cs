@@ -7,6 +7,7 @@ using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
+using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.UserModels;
 using MahtaKala.Services;
@@ -235,7 +236,7 @@ namespace MahtaKala.Controllers
             {
                 address = db.Addresses.Find(addressModel.Id);
                 if (address == null)
-                    throw new Exception("Address not found");
+                    throw new EntityNotFoundException<UserAddress>(addressModel.Id);
                 if (address.UserId != UserId)
                     return StatusCode(403);
             }
@@ -261,7 +262,7 @@ namespace MahtaKala.Controllers
         {
             var address = db.Addresses.Find(model.Id);
             if (address == null)
-                throw new InvalidOperationException("Address not found.");
+                throw new EntityNotFoundException<UserAddress>(model.Id);
             db.Addresses.Remove(address);
             await db.SaveChangesAsync();
             return StatusCode(200);
