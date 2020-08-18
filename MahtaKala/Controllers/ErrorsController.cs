@@ -2,7 +2,9 @@
 using MahtaKala.Infrustructure.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -21,13 +23,30 @@ namespace MahtaKala.Controllers
             this.logger = logger;
         }
 
+        [Route("{*url}", Order = int.MaxValue - 10)]
+        public ApiErrorResponse NotFoundError()
+        {
+            return new ApiErrorResponse(404, "HttpStatusCode", GetStatusCodeMessage(404));
+        }
+
+        static Dictionary<int, string> messages = new Dictionary<int, string>
+        {
+            {404, "آدرس پیدا نشد" }
+        };
+
+        private string GetStatusCodeMessage(int code)
+        {
+            if (messages.TryGetValue(code, out var msg))
+                return msg;
+            return ReasonPhrases.GetReasonPhrase(code);
+        }
+
         [Route("error")]
         public ApiErrorResponse Error()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = context?.Error;
 
-            //logger.LogError(exception, "");
             if (exception is ApiException apiException)
             {
                 Response.StatusCode = apiException.StatusCode;
