@@ -10,6 +10,7 @@ namespace MahtaKala.Models.UserModels
         public long Id { get; set; }
         public long City { get; set; }
         public long Province { get; set; }
+        public string Title { get; set; }
         public string Details { get; set; }
         public string Postal_Code { get; set; }
         public double Lat { get; set; }

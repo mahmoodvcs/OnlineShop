@@ -206,6 +206,7 @@ namespace MahtaKala.Controllers
             {
                 Id = a.Id,
                 City = a.CityId,
+                Title = a.Title,
                 Province = a.City.ProvinceId,
                 Details = a.Details,
                 Postal_Code = a.PostalCode,
@@ -243,6 +244,7 @@ namespace MahtaKala.Controllers
             address.CityId = addressModel.City;
             address.Details = addressModel.Details;
             address.Location = GeoUtil.CreatePoint(addressModel);
+            address.Title = addressModel.Title;
 
             await db.SaveChangesAsync();
             return StatusCode(200);
