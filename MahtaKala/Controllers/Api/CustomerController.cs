@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
+using MahtaKala.Entities.Extentions;
 using MahtaKala.Models;
 using MahtaKala.Models.CustomerModels;
 using Microsoft.AspNetCore.Http;
@@ -44,7 +45,7 @@ namespace MahtaKala.Controllers.Api
         [HttpGet]
         public async Task<List<WishlistModels>> Wishlist([FromQuery]PagerModel pagerModel)
         {
-            var list = db.Wishlists.Where(a => a.UserId == UserId).Skip(pagerModel.Offset).Take(pagerModel.Page);
+            var list = db.Wishlists.Where(a => a.UserId == UserId).OrderBy(p => p.Id).Page(pagerModel);
             return await list.Select(a => new WishlistModels
             {
                 Id = a.Id,
@@ -64,16 +65,14 @@ namespace MahtaKala.Controllers.Api
             db.Wishlists.Remove(wishlists);
             await db.SaveChangesAsync();
             return StatusCode(200);
-
         }
 
 
         /// <summary>
-        /// Update the Existing Bascket or Create New One
+        /// Update the Existing Basket or Create New One
         /// </summary>
         /// <returns></returns>
-        /// <response code="200">Success. The Bascket was updated.</response>
-        /// <response code="201">Success. Bascket was new.</response>
+        /// <response code="200">Success. The Backet was updated.</response>
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Basket([FromBody]BasketModel updateBasketRequest)
@@ -93,17 +92,17 @@ namespace MahtaKala.Controllers.Api
                     throw new Exception("Basket Not Found.");
             }
 
-            basket.ProductId = updateBasketRequest.ProductId;
+            basket.ProductId = updateBasketRequest.Product_Id;
             basket.Date = updateBasketRequest.Date;
             basket.Quantity = updateBasketRequest.Qty;
             basket.Price = updateBasketRequest.Price;
+            basket.CharacteristicName = updateBasketRequest.Characteristic_Name;
+            basket.CharacteristicValue = updateBasketRequest.Characteristic_Value;
 
             await db.SaveChangesAsync();
-            if (newBasket)
-                return StatusCode(200);
-            else
-                return StatusCode(201);
+            return StatusCode(200);
         }
+
         /// <summary>
         /// Return the List of Baskets with the given offset and page
         /// </summary>
@@ -112,18 +111,21 @@ namespace MahtaKala.Controllers.Api
         [HttpGet]
         public async Task<List<BasketModel>> Basket([FromQuery]PagerModel pagerModel)
         {
-            return await db.Baskets.OrderBy(b => b.Id)
-                .Skip(pagerModel.Offset)
-                .Take(pagerModel.Page)
+            return await db.Baskets
+                .OrderBy(b => b.Id)
+                .Page(pagerModel)
                 .Select(b => new BasketModel
                 {
                     Id = b.Id,
-                    ProductId = b.ProductId,
+                    Product_Id = b.ProductId,
                     Date = b.Date,
                     Price = b.Price,
-                    Qty = b.Quantity
+                    Qty = b.Quantity,
+                    Characteristic_Name = b.CharacteristicName,
+                    Characteristic_Value = b.CharacteristicValue
                 }).ToListAsync();
         }
+
         /// <summary>
         /// Removes the Basket with the given ID
         /// </summary>
@@ -141,7 +143,6 @@ namespace MahtaKala.Controllers.Api
             db.Baskets.Remove(basket);
             await db.SaveChangesAsync();
             return StatusCode(200);
-
         }
     }
 }

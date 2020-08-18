@@ -23,28 +23,12 @@ namespace MahtaKala.Entities
         public Brand Brand { get; set; }
         public IList<Characteristic> Characteristics { get; set; }
         public IList<string> ImageList { get; set; }
+        public string Thubmnail { get; set; }
     }
-
-
-
-    public class CharacteristicValue
-    {
-        public int Id { get; set; }
-        public string Value { get; set; }
-    }
-
-    //public enum CharacteristicType
-    //{
-    //    String,
-    //    Number,
-    //    Date,
-    //    Image,
-    //}
 
     public class Characteristic
     {
         public string Name { get; set; }
-        //public CharacteristicType Type { get; set; }
         public List<string> Values { get; set; }
     }
 }

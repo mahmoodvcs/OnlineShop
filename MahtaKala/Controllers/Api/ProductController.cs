@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using MahtaKala.ActionFilter;
 using MahtaKala.Controllers.Api;
 using MahtaKala.Entities;
+using MahtaKala.Entities.Extentions;
 using MahtaKala.Models;
-using MahtaKala.Models.CategoryModels;
+using MahtaKala.Models.ProductModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace MahtaKala.Controllers
     [ApiController()]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiVersion("1")]
+    [Authorize]
     public class ProductController : ApiControllerBase<ProductController>
     {
         public ProductController(DataContext context, ILogger<ProductController> logger)
@@ -32,13 +34,12 @@ namespace MahtaKala.Controllers
         /// <returns></returns>
         /// <response code="200">Success. The category was updated.</response>
         /// <response code="201">Success. Category was new.</response>
-        [Authorize]
         [HttpPost]
-        public async Task<IActionResult> Category([FromBody]UpdateCategoryRequest updateCategoryRequest)
+        public async Task<IActionResult> Category([FromBody] UpdateCategoryRequest updateCategoryRequest)
         {
             ProductCategory category = null;
             bool newCategory = false;
-            if(updateCategoryRequest.Id == 0)
+            if (updateCategoryRequest.Id == 0)
             {
                 newCategory = true;
                 category = new ProductCategory();
@@ -66,9 +67,8 @@ namespace MahtaKala.Controllers
         /// Return the List of Categories with the given parent ID
         /// </summary>
         /// <returns></returns>
-        [Authorize]
         [HttpGet]
-        public async Task<List<ProductCategory>> Category([FromBody]GetListCategoryRequest getListCategoryModel)
+        public async Task<List<ProductCategory>> Category([FromBody] GetListCategoryRequest getListCategoryModel)
         {
             return await db.Categories.Where(c => c.ParentId == getListCategoryModel.Parent).ToListAsync();
         }
@@ -77,23 +77,41 @@ namespace MahtaKala.Controllers
         /// </summary>
         /// <returns></returns>
         /// <response code="200">Success. The category was Deleted.</response>
-        [Authorize]
         [HttpDelete]
-        public async Task<IActionResult> Category([FromBody]IdModel model)
+        public async Task<IActionResult> Category([FromBody] IdModel model)
         {
             var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == model.Id);
-            if(category == null)
+            if (category == null)
             {
                 throw new Exception("Category Not Found.");
             }
-            if(await db.Categories.AnyAsync(c=>c.ParentId == model.Id))
+            if (await db.Categories.AnyAsync(c => c.ParentId == model.Id))
             {
                 throw new Exception("Category Has Child.");
             }
             db.Categories.Remove(category);
             await db.SaveChangesAsync();
             return StatusCode(200);
-
         }
+
+        [HttpGet]
+        public async Task<List<ProductModel>> List([FromBody] PagerModel pagerModel)
+        {
+            return await db.Products.OrderBy(p => p.Id).Page(pagerModel)
+                .Select(a => new ProductModel
+                {
+                    Id = a.Id,
+                    Brand_Id = a.BrandId,
+                    Category_Id = a.CategoryId,
+                    Description = a.Description,
+                    Title = a.Title,
+                    Thubmnail = a.Thubmnail,
+                    Characteristics = a.Characteristics,
+                    ImageList = a.ImageList
+                })
+                .ToListAsync();
+        }
+
+
     }
 }

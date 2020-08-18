@@ -12,10 +12,15 @@ namespace MahtaKala.Entities
         [DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
+        public Product Product { get; set; }
         public long ProductId { get; set; }
 
         public DateTime Date { get; set; }
-        public long Quantity { get; set; }
+        public int Quantity { get; set; }
         public decimal Price { get; set; }
+        [StringLength(255)]
+        public string CharacteristicName { get; set; }
+        [StringLength(255)]
+        public string CharacteristicValue { get; set; }
     }
 }

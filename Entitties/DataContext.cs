@@ -32,5 +32,6 @@ namespace MahtaKala.Entities
         public DbSet<UserAddress> Addresses { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<Basket> Baskets { get; set; }
+        public DbSet<Product> Products { get; set; }
     }
 }
