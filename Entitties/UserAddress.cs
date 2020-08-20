@@ -28,6 +28,7 @@ namespace MahtaKala.Entities
         [StringLength(10)]
         public string PostalCode { get; set; }
         public string Details { get; set; }
-        public Point Location { get; set; }
+        public double Lat { get; set; }
+        public double Lng { get; set; }
     }
 }

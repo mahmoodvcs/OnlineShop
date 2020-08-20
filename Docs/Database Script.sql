@@ -217,3 +217,26 @@ VALUES (N'20200818201030_Added_Address_Title', N'3.1.7');
 
 GO
 
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Addresses]') AND [c].[name] = N'Location');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Addresses] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Addresses] DROP COLUMN [Location];
+
+GO
+
+ALTER TABLE [Addresses] ADD [Lat] float NOT NULL DEFAULT 0.0E0;
+
+GO
+
+ALTER TABLE [Addresses] ADD [Lng] float NOT NULL DEFAULT 0.0E0;
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20200820090743_Address_Location_Lat_Lng', N'3.1.7');
+
+GO
+

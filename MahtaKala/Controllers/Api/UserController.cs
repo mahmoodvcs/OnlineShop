@@ -211,8 +211,8 @@ namespace MahtaKala.Controllers
                 Province = a.City.ProvinceId,
                 Details = a.Details,
                 Postal_Code = a.PostalCode,
-                Lat = a.Location.Coordinate.Y,
-                Lng = a.Location.X
+                Lat = a.Lat,
+                Lng = a.Lng
             }).ToListAsync();
         }
 
@@ -244,7 +244,8 @@ namespace MahtaKala.Controllers
             address.PostalCode = addressModel.Postal_Code;
             address.CityId = addressModel.City;
             address.Details = addressModel.Details;
-            address.Location = GeoUtil.CreatePoint(addressModel);
+            address.Lat = addressModel.Lat;
+            address.Lng = addressModel.Lng;
             address.Title = addressModel.Title;
 
             await db.SaveChangesAsync();
@@ -267,7 +268,6 @@ namespace MahtaKala.Controllers
             await db.SaveChangesAsync();
             return StatusCode(200);
         }
-
 
 
         #region Private Methods
