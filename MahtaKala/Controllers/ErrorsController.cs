@@ -23,11 +23,12 @@ namespace MahtaKala.Controllers
             this.logger = logger;
         }
 
-        [Route("{*url}", Order = int.MaxValue - 10)]
-        public ApiErrorResponse NotFoundError()
-        {
-            return new ApiErrorResponse(404, "HttpStatusCode", GetStatusCodeMessage(404));
-        }
+        //[Route("{*url}", Order = int.MaxValue - 10)]
+        //public ApiErrorResponse NotFoundError()
+        //{
+        //    Response.StatusCode = 404;
+        //    return new ApiErrorResponse(404, "HttpStatusCode", GetStatusCodeMessage(404));
+        //}
 
         static Dictionary<int, string> messages = new Dictionary<int, string>
         {
