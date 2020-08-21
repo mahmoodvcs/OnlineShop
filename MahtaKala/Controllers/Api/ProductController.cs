@@ -69,9 +69,9 @@ namespace MahtaKala.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<List<ProductCategory>> Category([FromBody] GetListCategoryRequest getListCategoryModel)
+        public async Task<List<ProductCategory>> Category([FromQuery] long? parent)
         {
-            return await db.Categories.Where(c => c.ParentId == getListCategoryModel.Parent).ToListAsync();
+            return await db.Categories.Where(c => c.ParentId == parent).ToListAsync();
         }
         /// <summary>
         /// Removes the Category with the given ID
@@ -79,12 +79,12 @@ namespace MahtaKala.Controllers
         /// <returns></returns>
         /// <response code="200">Success. The category was Deleted.</response>
         [HttpDelete]
-        public async Task<IActionResult> Category([FromBody] IdModel model)
+        public async Task<IActionResult> DeleteCategory([FromQuery] long id)
         {
-            var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == model.Id);
+            var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == id);
             if (category == null)
             {
-                throw new EntityNotFoundException<ProductCategory>(model.Id);
+                throw new EntityNotFoundException<ProductCategory>(id);
             }
             //if (await db.Categories.AnyAsync(c => c.ParentId == model.Id))
             //{
@@ -95,10 +95,40 @@ namespace MahtaKala.Controllers
             return StatusCode(200);
         }
 
-        [HttpGet]
-        public async Task<List<ProductModel>> List([FromBody] PagerModel pagerModel)
+        [HttpPost]
+        public async Task Product([FromBody]ProductModel productMode)
         {
-            return await db.Products.OrderBy(p => p.Id).Page(pagerModel)
+            Product product;
+            if(productMode.Id>0)
+            {
+                product = db.Products.Find(productMode.Id);
+                if (product == null)
+                    throw new EntityNotFoundException<Product>(productMode.Id);
+            }
+            else
+            {
+                product = new Product();
+            }
+            product.BrandId = productMode.Brand_Id;
+            product.CategoryId = productMode.Category_Id;
+            product.Characteristics = productMode.Characteristics;
+            product.Description = productMode.Description;
+            product.Properties = productMode.Properties;
+            product.Thubmnail = productMode.Thubmnail;
+            product.Title = productMode.Title;
+            await db.SaveChangesAsync();
+        }
+
+        //public async Task<string> ProductImage(long id)
+        //{
+
+        //}
+
+        [HttpGet]
+        public async Task<ProductModel> Product(long id)
+        {
+            return await db.Products
+                .Where(a => a.Id == id)
                 .Select(a => new ProductModel
                 {
                     Id = a.Id,
@@ -108,10 +138,57 @@ namespace MahtaKala.Controllers
                     Title = a.Title,
                     Thubmnail = a.Thubmnail,
                     Characteristics = a.Characteristics,
+                    Properties = a.Properties,
+                    ImageList = a.ImageList
+                }).FirstOrDefaultAsync();
+        }
+
+        [HttpGet]
+        public async Task<List<ProductModel>> Products([FromQuery] long? category, [FromQuery] int offset, [FromQuery] int page)
+        {
+            return await db.Products
+                .Where(a => a.CategoryId == category)
+                .OrderBy(p => p.Id).Skip(offset).Take(page)
+                .Select(a => new ProductModel
+                {
+                    Id = a.Id,
+                    Brand_Id = a.BrandId,
+                    Category_Id = a.CategoryId,
+                    Description = a.Description,
+                    Title = a.Title,
+                    Thubmnail = a.Thubmnail,
+                    Characteristics = a.Characteristics,
+                    Properties = a.Properties,
                     ImageList = a.ImageList
                 })
                 .ToListAsync();
         }
+
+        /// <summary>
+        /// Returns the products that must be displayed in the home page of the app. This will include promotions and ads.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<List<ProductModel>> Home()
+        {
+            return await db.Products
+                .OrderBy(p => p.Id).Take(10)
+                .Select(a => new ProductModel
+                {
+                    Id = a.Id,
+                    Brand_Id = a.BrandId,
+                    Category_Id = a.CategoryId,
+                    Description = a.Description,
+                    Title = a.Title,
+                    Thubmnail = a.Thubmnail,
+                    Characteristics = a.Characteristics,
+                    Properties = a.Properties,
+                    ImageList = a.ImageList
+                })
+                .ToListAsync();
+        }
+
+
 
 
     }
