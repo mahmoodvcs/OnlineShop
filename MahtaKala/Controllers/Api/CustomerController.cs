@@ -50,7 +50,7 @@ namespace MahtaKala.Controllers.Api
             return await list.Select(a => new WishlistModels
             {
                 Id = a.Id,
-                Title = ""
+                Title = a.Product.Title
             }).ToListAsync();
         }
 
