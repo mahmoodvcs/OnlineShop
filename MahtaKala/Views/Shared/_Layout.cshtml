@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="~/css/owl.carousel.min.css?v=1">
     <link rel="stylesheet" href="~/css/bootstrap.min.css?v=1">
     <link rel="stylesheet" href="~/css/default.css?v=1">
-    <link href="~/css/style.css?v=1" rel="stylesheet" />
+    <link href="~/css/style.css?v=2" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/responsive.css?v=1">
     <script src="~/js/vendor/modernizr-3.5.0.min.js"></script>
 </head>
@@ -32,8 +32,8 @@
                 <div class="subscribe_area text-center mt-60">
                     <h2>خبرنامه</h2>
                     <p>
-                        برای دریافت به روزرسانی در مورد ورودهای جدید ، پیشنهادات ویژه و سایر اطلاعات تخفیف ، در قسمت زیر ثبت نام نمایید 
-                      
+                        برای دریافت به روزرسانی در مورد ورودهای جدید ، پیشنهادات ویژه و سایر اطلاعات تخفیف ، در قسمت زیر ثبت نام نمایید
+
                     </p>
                     <div class="subscribe-form-group">
                         <form action="#">
@@ -231,9 +231,11 @@
                             <nav>
                                 <ul class="vertical-menu-list">
                                     <li class="">
-                                        <a href="#"><span><img src="~/img/vertical-menu/1.png" alt="menu-icon"></span>
-                                        لوازم یدکی و مصرفی خودرو
-                                        <i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                                        <a href="#">
+                                            <span><img src="~/img/vertical-menu/1.png" alt="menu-icon"></span>
+                                            لوازم یدکی و مصرفی خودرو
+                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                        </a>
 
                                         <ul class="ht-dropdown mega-child">
                                             <li>
@@ -248,31 +250,42 @@
                                         </ul>
                                     </li>
                                     <li>
-                                        <a href="#"><span><img src="~/img/vertical-menu/3.png" alt="menu-icon"></span>
-                                        لوازم ورزشی</a>
-    
-                                    </li>
-                                    <li>
-                                        <a href="#"><span><img src="~/img/vertical-menu/6.png" alt="menu-icon">
-                                             </span> مد و پوشاک </a>
-                                       
-                                    </li>
-                                    <li>
-                                        <a href="#"><span><img src="~/img/vertical-menu/7.png" alt="menu-icon">
-                                             </span>خانه و آشپزخانه</a>
-                                     
+                                        <a href="#">
+                                            <span><img src="~/img/vertical-menu/3.png" alt="menu-icon"></span>
+                                            لوازم ورزشی
+                                        </a>
+
                                     </li>
                                     <li>
                                         <a href="#">
-                                            <span><img src="~/img/vertical-menu/4.png" alt="menu-icon">
-                                                </span>
+                                            <span>
+                                                <img src="~/img/vertical-menu/6.png" alt="menu-icon">
+                                            </span> مد و پوشاک
+                                        </a>
+
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span>
+                                                <img src="~/img/vertical-menu/7.png" alt="menu-icon">
+                                            </span>خانه و آشپزخانه
+                                        </a>
+
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span>
+                                                <img src="~/img/vertical-menu/4.png" alt="menu-icon">
+                                            </span>
                                             موبایل و تبلت
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#"><span><img src="~/img/vertical-menu/6.png" alt="menu-icon"></span>
-                                       صوتی و تصویری</a>
-                                      
+                                        <a href="#">
+                                            <span><img src="~/img/vertical-menu/6.png" alt="menu-icon"></span>
+                                            صوتی و تصویری
+                                        </a>
+
                                     </li>
                                     <li>
                                         <a href="#"><span><img src="~/img/vertical-menu/5.png" alt="menu-icon"></span>زیبایی</a>
@@ -385,9 +398,12 @@
                             <div class="single-footer mb-sm-40">
                                 <h3 class="footer-title">تماس با ما</h3>
                                 <div class="footer-content">
-                                    <ul class="footer-list">
-                                        <li><a href="#">درباره ما</a></li>
-                                        <li><a href="#">تماس با ما</a></li>
+                                    <ul class="footer-list address-content">
+                                        <li><i class="lnr lnr-map-marker"></i> تهران</li>
+                                        <li><i class="lnr lnr-envelope"></i><a href="#">info@mahtakala.ir </a></li>
+                                        <li>
+                                            <i class="lnr lnr-phone-handset"></i>  02188656453
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
@@ -396,13 +412,20 @@
                         <!-- Single Footer Start -->
                         <div class="col-lg-4 col-md-6 col-sm-6">
                             <div class="single-footer mb-sm-40">
-                                <h3 class="footer-title">اطلاعات تماس</h3>
+                                <h3 class="footer-title">مجوزها</h3>
                                 <div class="footer-content">
-                                    <ul class="footer-list address-content">
-                                        <li><i class="lnr lnr-map-marker"></i> آدرس: تهران</li>
-                                        <li><i class="lnr lnr-envelope"></i><a href="#"> ایمیل: info@mahtakala.ir </a></li>
+                                    <ul id="liList">
                                         <li>
-                                            <i class="lnr lnr-phone-handset"></i> شماره تماس: 02188656453
+                                            <img class="imgFooter" src="~/img/logo-footer.png" />
+                                        </li>
+                                        <li>
+                                            <img class="imgFooter" src="((آدرس نشان لوگوی اتحادیه))" alt="" onclick="window.open('https://www.ecunion.ir/verify/mahtakala.ir?token=51619435f0185925110e', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=580, height=600, top=30')" style="cursor:pointer">
+                                        </li>
+                                        <li>
+                                            <img id='jxlzwlaofukzjxlzwlaorgvj' class="imgFooter"  style='cursor:pointer' onclick='window.open("https://logo.samandehi.ir/Verify.aspx?id=146143&p=rfthaodsgvkarfthaodsxlao", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")' 
+                                                 src='https://logo.samandehi.ir/logo.aspx?id=146143&p=nbpdshwlwlbqnbpdshwlqfti' />   </li>
+                                        <li>
+                                            <a target="_blank" href="https://trustseal.enamad.ir/?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE"><img class="imgFooter" src="https://Trustseal.eNamad.ir/logo.aspx?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE" alt="" style="cursor:pointer" id="ytzlrNw8i8c1YXJ7p9FE"></a>
                                         </li>
                                     </ul>
                                     <div class="payment mt-25 bdr-top pt-30">
@@ -498,8 +521,8 @@
                                                 <p class="d-flex align-items-center"><span class="prev-price">250,000</span><span class="price">200,000</span><span class="saving-price"> 8%</span></p>
                                             </div>
                                             <p class="mb-20 pro-desc-details">
-                                                این محصول مانند سایر محصولات درس_ایگو دست دوز است. به همین دلیل دوختی بسار تمیز دارد. 
-                                             </p>
+                                                این محصول مانند سایر محصولات درس_ایگو دست دوز است. به همین دلیل دوختی بسار تمیز دارد.
+                                            </p>
                                             <div class="product-size mb-20 clearfix">
                                                 <label>سایز</label>
                                                 <select class="">

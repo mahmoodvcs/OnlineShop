@@ -31,6 +31,13 @@
 }
 
 
+ul#liList li {
+    display: inline;
+}
+img.imgFooter{
+    width:85px !important;
+    height:85px !important;
+}
 body {
     font-family: IRANSansFaNum, sans-serif;
     font-weight: 400;
