@@ -58,6 +58,29 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\fonts\fontawesome-webfont.svg" />
+    <None Include="wwwroot\fonts\fontawesome-webfont.woff2" />
+    <None Include="wwwroot\fonts\ionicons.svg" />
+    <None Include="wwwroot\fonts\Linearicons-Free.svg" />
+    <None Include="wwwroot\fonts\Linearicons-Free.woff2" />
+    <None Include="wwwroot\js\ajax-mail.js" />
+    <None Include="wwwroot\js\bootstrap.min.js" />
+    <None Include="wwwroot\js\jquery-ui.min.js" />
+    <None Include="wwwroot\js\jquery.countdown.min.js" />
+    <None Include="wwwroot\js\jquery.fancybox.min.js" />
+    <None Include="wwwroot\js\jquery.meanmenu.min.js" />
+    <None Include="wwwroot\js\jquery.nice-select.min.js" />
+    <None Include="wwwroot\js\jquery.nivo.slider.js" />
+    <None Include="wwwroot\js\jquery.scrollUp.js" />
+    <None Include="wwwroot\js\main.js" />
+    <None Include="wwwroot\js\owl.carousel.min.js" />
+    <None Include="wwwroot\js\plugins.js" />
+    <None Include="wwwroot\js\popper.min.js" />
+    <None Include="wwwroot\js\vendor\jquery-3.2.1.min.js" />
+    <None Include="wwwroot\js\vendor\modernizr-3.5.0.min.js" />
+    <None Include="wwwroot\js\wow.min.js" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Entitties\Entities.csproj" />
     <ProjectReference Include="..\GeneralServices\GeneralServices.csproj" />
   </ItemGroup>
