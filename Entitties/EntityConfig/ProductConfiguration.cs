@@ -20,6 +20,10 @@ namespace MahtaKala.Entities.EntityConfig
             builder.Property(e => e.Characteristics).HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
                 v => JsonSerializer.Deserialize<IList<Characteristic>>(v, (JsonSerializerOptions)null));
+
+            builder.Property(e => e.Properties).HasConversion(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, (JsonSerializerOptions)null));
         }
     }
 }

@@ -22,6 +22,7 @@ namespace MahtaKala.Entities
         public long BrandId { get; set; }
         public Brand Brand { get; set; }
         public IList<Characteristic> Characteristics { get; set; }
+        public Dictionary<string, string> Properties { get; set; }
         public IList<string> ImageList { get; set; }
         public string Thubmnail { get; set; }
     }
@@ -31,4 +32,5 @@ namespace MahtaKala.Entities
         public string Name { get; set; }
         public List<string> Values { get; set; }
     }
+
 }

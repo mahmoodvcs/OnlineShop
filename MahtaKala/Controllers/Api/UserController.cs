@@ -259,11 +259,11 @@ namespace MahtaKala.Controllers
         /// <returns></returns>
         [Authorize]
         [HttpDelete]
-        public async Task<StatusCodeResult> Address(IdModel model)
+        public async Task<StatusCodeResult> Address([FromQuery]long id)
         {
-            var address = db.Addresses.Find(model.Id);
+            var address = db.Addresses.Find(id);
             if (address == null)
-                throw new EntityNotFoundException<UserAddress>(model.Id);
+                throw new EntityNotFoundException<UserAddress>(id);
             db.Addresses.Remove(address);
             await db.SaveChangesAsync();
             return StatusCode(200);
