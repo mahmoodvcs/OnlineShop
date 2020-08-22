@@ -97,10 +97,10 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
-        public async Task Product([FromBody]ProductModel productMode)
+        public async Task Product([FromBody] ProductModel productMode)
         {
             Product product;
-            if(productMode.Id>0)
+            if (productMode.Id > 0)
             {
                 product = db.Products.Find(productMode.Id);
                 if (product == null)
@@ -124,6 +124,19 @@ namespace MahtaKala.Controllers
         //{
 
         //}
+
+        [HttpDelete]
+        public async Task<StatusCodeResult> DeleteProduct(long id)
+        {
+            var product = await db.Products.FirstOrDefaultAsync(c => c.Id == id);
+            if (product == null)
+            {
+                throw new EntityNotFoundException<ProductCategory>(id);
+            }
+            db.Products.Remove(product);
+            await db.SaveChangesAsync();
+            return StatusCode(200);
+        }
 
         [HttpGet]
         public async Task<ProductModel> Product(long id)
@@ -165,6 +178,32 @@ namespace MahtaKala.Controllers
                 .ToListAsync();
         }
 
+        [HttpGet]
+        public async Task<List<ProductConciseModel>> Search([FromQuery] string q, [FromQuery] int? offset, [FromQuery] int? page)
+        {
+            var products = (IQueryable<Product>)db.Products.Where(p => p.Title.Contains(q))
+                .OrderBy(p => p.Id);
+
+            if (offset.HasValue)
+            {
+                products = products.Skip(offset.Value);
+            }
+
+            if (page.HasValue)
+            {
+                products = products.Take(page.Value);
+            }
+
+            return await products.Select(a => new ProductConciseModel
+            {
+                Id = a.Id,
+                Brand = a.Brand.Name,
+                Category = a.Category.Title,
+                Title = a.Title,
+                Thubmnail = a.Thubmnail,
+            })
+            .ToListAsync();
+        }
         /// <summary>
         /// Returns the products that must be displayed in the home page of the app. This will include promotions and ads.
         /// </summary>
