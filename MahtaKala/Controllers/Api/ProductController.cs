@@ -125,6 +125,19 @@ namespace MahtaKala.Controllers
 
         //}
 
+        [HttpDelete]
+        public async Task<StatusCodeResult> DeleteProduct(long id)
+        {
+            var product = await db.Products.FirstOrDefaultAsync(c => c.Id == id);
+            if (product == null)
+            {
+                throw new EntityNotFoundException<ProductCategory>(id);
+            }
+            db.Products.Remove(product);
+            await db.SaveChangesAsync();
+            return StatusCode(200);
+        }
+
         [HttpGet]
         public async Task<ProductModel> Product(long id)
         {
