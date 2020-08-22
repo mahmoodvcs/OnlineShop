@@ -54,8 +54,9 @@ namespace MahtaKala.Controllers
             }
 
             category.Title = updateCategoryRequest.Title;
-            if (!string.IsNullOrEmpty(updateCategoryRequest.Icon))
-                category.Image = Convert.FromBase64String(updateCategoryRequest.Icon);
+            //TODO: Category Icon
+            //if (!string.IsNullOrEmpty(updateCategoryRequest.Icon))
+            //    category.Image = Convert.FromBase64String(updateCategoryRequest.Icon);
             category.ParentId = updateCategoryRequest.ParentId;
 
             await db.SaveChangesAsync();

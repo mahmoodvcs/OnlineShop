@@ -31,7 +31,7 @@ namespace MahtaKala.Controllers
                 ProductCategory cat = new ProductCategory()
                 {
                     Title = c,
-                    Image = cli.DownloadData(faker.Image.LoremPixelUrl(c, 200, 200))
+                    Image = faker.Image.LoremPixelUrl(c, 200, 200)
                 };
                 db.Categories.Add(cat);
 
