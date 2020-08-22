@@ -79,7 +79,7 @@ namespace MahtaKala.Controllers
                         if (!p.Properties.ContainsKey(w))
                             p.Properties.Add(w, faker.Lorem.Sentence());
                     }
-
+                    p.Thubmnail = faker.Image.LoremPixelUrl(c, 800, 600, true);
                     db.Products.Add(p);
                 }
 
