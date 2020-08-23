@@ -10,6 +10,7 @@ using MahtaKala.Entities.Extentions;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ namespace MahtaKala.Controllers
     [ApiController()]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiVersion("1")]
-    [Authorize]
+    [ActionFilter.Authorize]
     public class ProductController : ApiControllerBase<ProductController>
     {
         public ProductController(DataContext context, ILogger<ProductController> logger)
@@ -204,31 +205,101 @@ namespace MahtaKala.Controllers
             })
             .ToListAsync();
         }
+
+        //[HttpGet]
+        //public async Task<byte[]> Image(long pid, string iid, int s)
+        //{
+        //    var prod = db.Products.Where(p => p.Id == pid);
+        //    if (iid.StartsWith("th"))
+        //    {
+        //        var th = prod.Select(p => p.Thubmnail).FirstOrDefault();
+        //        if(th == iid)
+        //        {
+        //            return 
+        //        }
+        //    }
+        //}
+
         /// <summary>
         /// Returns the products that must be displayed in the home page of the app. This will include promotions and ads.
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<List<ProductModel>> Home()
+        public async Task<List<ProductConciseModel>> Home()
         {
-            return await db.Products
-                .OrderBy(p => p.Id).Take(10)
-                .Select(a => new ProductModel
-                {
-                    Id = a.Id,
-                    Brand_Id = a.BrandId,
-                    Category_Id = a.CategoryId,
-                    Description = a.Description,
-                    Title = a.Title,
-                    Thubmnail = a.Thubmnail,
-                    Characteristics = a.Characteristics,
-                    Properties = a.Properties,
-                    ImageList = a.ImageList
-                })
-                .ToListAsync();
+            return await GetTopProducts();
         }
 
+        /// <summary>
+        /// Return the List of Categories with the given parent ID
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<List<CategoryWithProductsModel>> AllCategories([FromQuery] int numProducts = 0)
+        {
+            List<ProductCategory> categories = await db.Categories.ToListAsync();
+            List<CategoryWithProductsModel> result = new List<CategoryWithProductsModel>();
+            CreateHierarchy(null, result, categories.Where(c => c.ParentId == null).ToList());
+            if (numProducts > 0)
+            {
+                foreach (var c in result)
+                {
+                    List<long> catagories = new List<long>();
+                    catagories.Add(c.Id);
+                    if (c.Children != null)
+                        foreach (var item in c.Children)
+                        {
+                            catagories.Add(item.Id);
+                        }
+                    c.Products = await GetTopProducts(numProducts, catagories.ToArray());
+                }
+            }
+            return result;
+        }
 
+        private async Task<List<ProductConciseModel>> GetTopProducts(long? category = null, int num = 10)
+        {
+            List<long> catagories = new List<long>();
+            if (category != null)
+                catagories.Add(category.Value);
+            return await GetTopProducts(num, catagories.ToArray());
+        }
+        private async Task<List<ProductConciseModel>> GetTopProducts(int num = 10, params long[] categories)
+        {
+            IQueryable<Product> prods = db.Products.OrderBy(p => p.Id);
+
+            if (categories.Any())
+                prods = prods.Where(p => categories.Contains(p.CategoryId));
+            prods = prods.Take(num);
+            return await prods.Select(a => new ProductConciseModel
+            {
+                Id = a.Id,
+                Brand = a.Brand.Name,
+                Category = a.Category.Title,
+                Title = a.Title,
+                Thubmnail = a.Thubmnail,
+            })
+            .ToListAsync();
+        }
+
+        private void CreateHierarchy(long? parentId, IList<CategoryWithProductsModel> result, IList<ProductCategory> categories)
+        {
+            if (categories == null)
+                return;
+            foreach (var c in categories)
+            {
+                var cp = new CategoryWithProductsModel
+                {
+                    Id = c.Id,
+                    Image = c.Image,
+                    ParentId = parentId,
+                    Title = c.Title,
+                };
+                result.Add(cp);
+                cp.Children = new List<CategoryWithProductsModel>();
+                CreateHierarchy(c.Id, cp.Children, c.Children);
+            }
+        }
 
 
     }

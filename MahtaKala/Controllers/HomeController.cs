@@ -12,5 +12,16 @@ namespace MahtaKala.Controllers
         {
             return View();
         }
+
+        public IActionResult Category(int id)
+        {
+            return View();
+        }
+
+        public IActionResult Product(int id)
+        {
+            return View();
+        }
+
     }
 }

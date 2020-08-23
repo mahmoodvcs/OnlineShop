@@ -19,8 +19,8 @@
     <link rel="stylesheet" href="~/css/nivo-slider.css?v=1">
     <link rel="stylesheet" href="~/css/owl.carousel.min.css?v=1">
     <link rel="stylesheet" href="~/css/bootstrap.min.css?v=1">
-    <link rel="stylesheet" href="~/css/default.css?v=1">
-    <link href="~/css/style.css?v=2" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/default.css?v=1.1">
+    <link href="~/css/style.css?v=2.11" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/responsive.css?v=1">
     <script src="~/js/vendor/modernizr-3.5.0.min.js"></script>
 </head>
@@ -58,14 +58,6 @@
                         <div class="col-lg-5 col-md-8 ml-auto mr-auto col-10">
                             <div class="categorie-search-box">
                                 <form action="#">
-                                    <div class="form-group">
-                                        <select class="bootstrap-select" name="poscats">
-                                            <option value="0">همه دسته بندی ها</option>
-                                            <option value="2">بازارچه</option>
-                                            <option value="3">لوازم یدکی و مصرفی خودرو</option>
-                                            <option value="4">سفارش کلان</option>
-                                        </select>
-                                    </div>
                                     <input type="text" name="search" placeholder="جستجو در مهتاکالا ...">
                                     <button><i class="lnr lnr-magnifier"></i></button>
                                 </form>
@@ -222,110 +214,7 @@
             </div>
             <!-- Mobile Vertical Menu Start End -->
         </header>
-        <div class="main-page-banner pb-30 off-white-bg">
-            <div class="container">
-                <div class="row">
-                    <!-- Vertical Menu Start Here -->
-                    <div class="col-xl-3 col-lg-4 d-none d-lg-block">
-                        <div class="vertical-menu mb-all-30">
-                            <nav>
-                                <ul class="vertical-menu-list">
-                                    <li class="">
-                                        <a href="#">
-                                            <span><img src="~/img/vertical-menu/1.png" alt="menu-icon"></span>
-                                            لوازم یدکی و مصرفی خودرو
-                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
-                                        </a>
-
-                                        <ul class="ht-dropdown mega-child">
-                                            <li>
-                                                <a href="#">سایپا <i class="fa fa-angle-right"></i></a>
-                                                <ul class="ht-dropdown mega-child">
-                                                    <li><a href="#">پراید</a></li>
-                                                    <li><a href="#">پراید صبا</a></li>
-                                                    <li><a href="#">تیبا</a></li>
-                                                    <li><a href="#">ساینا</a></li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <a href="#">
-                                            <span><img src="~/img/vertical-menu/3.png" alt="menu-icon"></span>
-                                            لوازم ورزشی
-                                        </a>
-
-                                    </li>
-                                    <li>
-                                        <a href="#">
-                                            <span>
-                                                <img src="~/img/vertical-menu/6.png" alt="menu-icon">
-                                            </span> مد و پوشاک
-                                        </a>
-
-                                    </li>
-                                    <li>
-                                        <a href="#">
-                                            <span>
-                                                <img src="~/img/vertical-menu/7.png" alt="menu-icon">
-                                            </span>خانه و آشپزخانه
-                                        </a>
-
-                                    </li>
-                                    <li>
-                                        <a href="#">
-                                            <span>
-                                                <img src="~/img/vertical-menu/4.png" alt="menu-icon">
-                                            </span>
-                                            موبایل و تبلت
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#">
-                                            <span><img src="~/img/vertical-menu/6.png" alt="menu-icon"></span>
-                                            صوتی و تصویری
-                                        </a>
-
-                                    </li>
-                                    <li>
-                                        <a href="#"><span><img src="~/img/vertical-menu/5.png" alt="menu-icon"></span>زیبایی</a>
-                                    </li>
-                                    <li><a href="#"><span><img src="~/img/vertical-menu/8.png" alt="menu-icon"></span>میوه و سبزیجات</a></li>
-                                    <li><a href="#"><span><img src="~/img/vertical-menu/9.png" alt="menu-icon"></span>لپ تاپ</a></li>
-                                    <li><a href="#"><span><img src="~/img/vertical-menu/10.png" alt="menu-icon"></span>گوشت و غذاهای دریایی</a></li>
-
-                                    <li id="cate-toggle" class="category-menu v-cat-menu">
-                                        <ul>
-                                            <li class="has-sub">
-                                                <a href="#">بیشتر</a>
-                                                <ul class="category-sub">
-                                                    <li><a href="#"><span><img src="~/img/vertical-menu/11.png" alt="menu-icon"></span>تجهیزات جانبی</a></li>
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-                    <!-- Vertical Menu End Here -->
-                    <!-- Slider Area Start Here -->
-                    <div class="col-xl-9 col-lg-8 slider_box">
-                        <div class="slider-wrapper theme-default">
-                            <!-- Slider Background  Image Start-->
-                            <div id="slider" class="nivoSlider">
-                                <a href="#"><img src="~/img/slider/1.jpg" data-thumb="img/slider/1.jpg" alt="" title="#htmlcaption" /></a>
-                                <a href="#"><img src="~/img/slider/2.jpg" data-thumb="img/slider/2.jpg" alt="" title="#htmlcaption2" /></a>
-                            </div>
-                            <!-- Slider Background  Image Start-->
-                        </div>
-                    </div>
-                    <!-- Slider Area End Here -->
-                </div>
-                <!-- Row End -->
-            </div>
-            <!-- Container End -->
-        </div>
+      
         @RenderBody()
         <footer class="off-white-bg2 pt-95 bdr-top pt-sm-55">
             <!-- Footer Top Start -->
@@ -418,7 +307,7 @@
                                         <li>
                                             <img class="imgFooter" src="~/img/logo-footer.png" />
                                         </li>
-                                        <li>
+                                        @*<li>
                                             <img class="imgFooter" src="((آدرس نشان لوگوی اتحادیه))" alt="" onclick="window.open('https://www.ecunion.ir/verify/mahtakala.ir?token=51619435f0185925110e', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=580, height=600, top=30')" style="cursor:pointer">
                                         </li>
                                         <li>
@@ -426,7 +315,7 @@
                                                  src='https://logo.samandehi.ir/logo.aspx?id=146143&p=nbpdshwlwlbqnbpdshwlqfti' />   </li>
                                         <li>
                                             <a target="_blank" href="https://trustseal.enamad.ir/?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE"><img class="imgFooter" src="https://Trustseal.eNamad.ir/logo.aspx?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE" alt="" style="cursor:pointer" id="ytzlrNw8i8c1YXJ7p9FE"></a>
-                                        </li>
+                                        </li>*@
                                     </ul>
                                 </div>
                             </div>

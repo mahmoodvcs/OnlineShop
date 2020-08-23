@@ -2,214 +2,15 @@
     ViewData["Title"] = "فروشگاهی به وسعت ایران";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="hot-deal-products off-white-bg pb-90 pb-sm-50">
+<div class="main-page-banner pb-30 off-white-bg">
     <div class="container">
-  
-        <div class="post-title pb-30">
-            <h2>پیشنهاد شگفت انگیز</h2>
+        <div class="row">
+            @await Component.InvokeAsync("CategoryList")
+            @await Component.InvokeAsync("Slider")
         </div>
-        <div class="hot-deal-active owl-carousel" dir="ltr">
-
-            <div class="single-product">
-             
-                <div class="pro-img">
-                    <a href="#">
-                        <img class="primary-img" src="img/products/1.jpg" alt="single-product">
-                        <img class="secondary-img" src="img/products/7.jpg" alt="single-product">
-                    </a>
-                    <div class="countdown" data-countdown="2020/08/23"></div>
-                    <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>
-                </div>
-                <!-- Product Image End -->
-                <!-- Product Content Start -->
-                <div class="pro-content">
-                    <div class="pro-info">
-                        <h4><a href="#">لباس مجلسی</a></h4>
-                        <p><span class="price">330,000</span><del class="prev-price">270,000 </del></p>
-                        <div class="label-product l_sale">20<span class="symbol-percent">%</span></div>
-                    </div>
-                    <div class="pro-actions">
-                        <div class="actions-primary">
-                            <a href="#" title="Add to Cart"> + اضافه کردن به سبد</a>
-                        </div>
-                        <div class="actions-secondary">
-                            <a href="#" title="Compare"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                            <a href="#" title="WishList"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Product Content End -->
-            </div>
-            <!-- Single Product End -->
-            <!-- Single Product Start -->
-            <div class="single-product">
-                <!-- Product Image Start -->
-                <div class="pro-img">
-                    <a href="#">
-                        <img class="primary-img" src="img/products/24.jpg" alt="single-product">
-                        <img class="secondary-img" src="img/products/25.jpg" alt="single-product">
-                    </a>
-                    <div class="countdown" data-countdown="2020/08/23"></div>
-                    <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>
-                </div>
-                <!-- Product Image End -->
-                <!-- Product Content Start -->
-                <div class="pro-content">
-                    <div class="pro-info">
-                        <h4><a href="#">دوربین دیجیتال سونی</a></h4>
-                        <p><span class="price">4,000,000</span><del class="prev-price">4,500,000</del></p>
-                        <div class="label-product l_sale">20<span class="symbol-percent">%</span></div>
-                    </div>
-                    <div class="pro-actions">
-                        <div class="actions-primary">
-                            <a href="#" title="Add to Cart">+ اضافه کردن به سبد</a>
-                        </div>
-                        <div class="actions-secondary">
-                            <a href="#" title="Compare"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                            <a href="#" title="WishList"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Product Content End -->
-            </div>
-            <!-- Single Product End -->
-            <!-- Single Product Start -->
-            <div class="single-product">
-                <!-- Product Image Start -->
-                <div class="pro-img">
-                    <a href="#">
-                        <img class="primary-img" src="img/products/42.jpg" alt="single-product">
-                        <img class="secondary-img" src="img/products/43.jpg" alt="single-product">
-                    </a>
-                    <div class="countdown" data-countdown="2020/08/23"></div>
-                    <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>
-                </div>
-                <!-- Product Image End -->
-                <!-- Product Content Start -->
-                <div class="pro-content">
-                    <div class="pro-info">
-                        <h4><a href="#">اسباب بازی کودک </a></h4>
-                        <p><span class="price">200,000</span><del class="prev-price">175,000</del></p>
-                        <div class="label-product l_sale">15<span class="symbol-percent">%</span></div>
-                    </div>
-                    <div class="pro-actions">
-                        <div class="actions-primary">
-                            <a href="#" title="Add to Cart">+ اضافه کردن به سبد</a>
-                        </div>
-                        <div class="actions-secondary">
-                            <a href="#" title="Compare"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                            <a href="#" title="WishList"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Product Content End -->
-                <span class="sticker-new">new</span>
-            </div>
-            <!-- Single Product End -->
-            <!-- Single Product Start -->
-            <div class="single-product">
-                <!-- Product Image Start -->
-                <div class="pro-img">
-                    <a href="#">
-                        <img class="primary-img" src="img/products/30.jpg" alt="single-product">
-                        <img class="secondary-img" src="img/products/31.jpg" alt="single-product">
-                    </a>
-                    <div class="countdown" data-countdown="2020/08/23"></div>
-                    <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>
-                </div>
-                <!-- Product Image End -->
-                <!-- Product Content Start -->
-                <div class="pro-content">
-                    <div class="pro-info">
-                        <h4><a href="#">صندلی راحتی</a></h4>
-                        <p><span class="price">500,000</span><del class="prev-price">475,000</del></p>
-                        <div class="label-product l_sale">20<span class="symbol-percent">%</span></div>
-                    </div>
-                    <div class="pro-actions">
-                        <div class="actions-primary">
-                            <a href="#" title="Add to Cart">+ اضافه کردن به سبد</a>
-                        </div>
-                        <div class="actions-secondary">
-                            <a href="#" title="Compare"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                            <a href="#" title="WishList"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Product Content End -->
-            </div>
-            <!-- Single Product End -->
-            <!-- Single Product Start -->
-            <div class="single-product">
-                <!-- Product Image Start -->
-                <div class="pro-img">
-                    <a href="#">
-                        <img class="primary-img" src="img/products/8.jpg" alt="single-product">
-                        <img class="secondary-img" src="img/products/9.jpg" alt="single-product">
-                    </a>
-                    <div class="countdown" data-countdown="2020/08/23"></div>
-                    <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>
-                </div>
-                <!-- Product Image End -->
-                <!-- Product Content Start -->
-                <div class="pro-content">
-                    <div class="pro-info">
-                        <h4><a href="#">پیراهن زنانه</a></h4>
-                        <p><span class="price">340,000</span><del class="prev-price">320,000</del></p>
-                        <div class="label-product l_sale">10<span class="symbol-percent">%</span></div>
-                    </div>
-                    <div class="pro-actions">
-                        <div class="actions-primary">
-                            <a href="#" title="Add to Cart">+ اضافه کردن به سبد</a>
-                        </div>
-                        <div class="actions-secondary">
-                            <a href="#" title="Compare"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                            <a href="#" title="WishList"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Product Content End -->
-                <span class="sticker-new">new</span>
-            </div>
-            <!-- Single Product End -->
-            <!-- Single Product Start -->
-            <div class="single-product">
-                <!-- Product Image Start -->
-                <div class="pro-img">
-                    <a href="#">
-                        <img class="primary-img" src="img/products/10.jpg" alt="single-product">
-                        <img class="secondary-img" src="img/products/11.jpg" alt="single-product">
-                    </a>
-                    <div class="countdown" data-countdown="2020/08/23"></div>
-                    <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>
-                </div>
-                <!-- Product Image End -->
-                <!-- Product Content Start -->
-                <div class="pro-content">
-                    <div class="pro-info">
-                        <h4><a href="#">لباس زمستانه</a></h4>
-                        <p><span class="price">280,000</span><del class="prev-price">350,000</del></p>
-                        <div class="label-product l_sale">37<span class="symbol-percent">%</span></div>
-                    </div>
-                    <div class="pro-actions">
-                        <div class="actions-primary">
-                            <a href="#" title="Add to Cart">+ اضافه کردن به سبد</a>
-                        </div>
-                        <div class="actions-secondary">
-                            <a href="#" title="Compare"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                            <a href="#" title="WishList"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Product Content End -->
-                <span class="sticker-new">new</span>
-            </div>
-            <!-- Single Product End -->
-        </div>
-        <!-- Hot Deal Product Active End -->
-
     </div>
-    <!-- Container End -->
 </div>
+@await Component.InvokeAsync("HotDeals")
 
 <div class="big-banner mt-100 pb-85 mt-sm-60 pb-sm-45">
     <div class="container banner-2">
@@ -827,7 +628,7 @@
                     </div>
                     <!-- Arrivals Product Activation End Here -->
                 </div>
-             
+
             </div>
         </div>
     </div>
