@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MahtaKala</name>
+    </assembly>
+    <members>
+        <member name="M:MahtaKala.Controllers.Api.CustomerController.Basket(MahtaKala.Models.CustomerModels.BasketModel)">
+            <summary>
+            Update the Existing Basket or Create New One
+            </summary>
+            <returns></returns>
+            <response code="200">Success. The Backet was updated.</response>
+        </member>
+        <member name="M:MahtaKala.Controllers.Api.CustomerController.Basket(MahtaKala.Models.PagerModel)">
+            <summary>
+            Return the List of Baskets with the given offset and page
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MahtaKala.Controllers.Api.CustomerController.Basket(MahtaKala.Models.IdModel)">
+            <summary>
+            Removes the Basket with the given ID
+            </summary>
+            <returns></returns>
+            <response code="200">Success. The Basket was Deleted.</response>
+        </member>
+        <member name="M:MahtaKala.Controllers.ProductController.Category(MahtaKala.Models.ProductModels.UpdateCategoryRequest)">
+            <summary>
+            Update the Existing Category or Create New One
+            </summary>
+            <returns></returns>
+            <response code="200">Success. The category was updated.</response>
+            <response code="201">Success. Category was new.</response>
+        </member>
+        <member name="M:MahtaKala.Controllers.ProductController.Category(System.Nullable{System.Int64})">
+            <summary>
+            Return the List of Categories with the given parent ID
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MahtaKala.Controllers.ProductController.DeleteCategory(System.Int64)">
+            <summary>
+            Removes the Category with the given ID
+            </summary>
+            <returns></returns>
+            <response code="200">Success. The category was Deleted.</response>
+        </member>
+        <member name="M:MahtaKala.Controllers.ProductController.Home">
+            <summary>
+            Returns the products that must be displayed in the home page of the app. This will include promotions and ads.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MahtaKala.Controllers.UserController.Signup(MahtaKala.Models.UserModels.SignupRequest)">
+            <summary>
+            Start the login process. Currently only supported method is OTP (One-time password) that will be sent to the users mobile phone.
+            </summary>
+            <param name="signupRequest">Contains the mobile phone number</param>
+            <returns></returns>
+            <response code="200">Success. The user is already registered and the OTP is sent</response>
+            <response code="201">Success. The user is new. The OTP is sent</response>
+        </member>
+        <member name="M:MahtaKala.Controllers.UserController.Verify(MahtaKala.Models.UserModels.VerifyRequest)">
+            <summary>
+            The second (last) phase of the login or signup proccess.
+            </summary>
+            <param name="verifyRequest">Contains the mobile number and the OTP</param>
+            <returns>Access token, refresh token and the user info</returns>
+        </member>
+        <member name="M:MahtaKala.Controllers.UserController.Refresh(MahtaKala.Models.UserModels.RefreshRequest)">
+            <summary>
+            Creates a new refresh and access token for JWT authorization.
+            </summary>
+            <param name="refreshRequest">Contains the old refresh token</param>
+            <returns>New tokens</returns>
+        </member>
+        <member name="M:MahtaKala.Controllers.UserController.Logout">
+            <summary>
+            Used to logout the user. It does nothing on the server side. Because we use JWT for authentication, nothing is stored on the server.
+            Client code should remove the JWT token from cookie or LocalStorage.
+            </summary>
+            <returns></returns>
+            <response code="200">The user was logged in. Clear the client token.</response>
+            <response code="401">JWT token is not valid. Clear the client token anyway.</response>
+        </member>
+        <member name="M:MahtaKala.Controllers.UserController.Profile(MahtaKala.Models.ProfileModel)">
+            <summary>
+            Updates the user's profile information
+            </summary>
+            <param name="profileModel">User profile info</param>
+            <returns></returns>
+        </member>
+        <member name="M:MahtaKala.Controllers.UserController.Profile">
+            <summary>
+            Returns the user's profile information
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MahtaKala.Controllers.UserController.Address">
+            <summary>
+            Returns list of addresses for current user
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MahtaKala.Controllers.UserController.Address(MahtaKala.Models.UserModels.AddressModel)">
+            <summary>
+            Updates or creates an address for a user
+            </summary>
+            <param name="addressModel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MahtaKala.Controllers.UserController.Address(System.Int64)">
+            <summary>
+            Deletes an address for a user
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="P:MahtaKala.Models.ProfileModel.Personel_Code">
+            <summary>
+            Not used
+            </summary>
+        </member>
+        <member name="P:MahtaKala.Models.UserModels.VerifyRequest.Code">
+            <summary>
+            OTP code
+            </summary>
+        </member>
+        <member name="P:MahtaKala.Models.UserModels.VerifyRespnse.Refresh">
+            <summary>
+            Refresh token for JWT
+            </summary>
+        </member>
+        <member name="P:MahtaKala.Models.UserModels.VerifyRespnse.Access">
+            <summary>
+            Access token for JWT
+            </summary>
+        </member>
+        <member name="P:MahtaKala.Models.UserModels.VerifyRespnse.User">
+            <summary>
+            User info
+            </summary>
+        </member>
+    </members>
+</doc>
