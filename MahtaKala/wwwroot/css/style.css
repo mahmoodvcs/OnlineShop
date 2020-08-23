@@ -2334,7 +2334,7 @@ li.megamenu-img a {
 }
 
 .breadcrumb li + li::before {
-  content: "\f105";
+  content: "\f104";
   font-family: fontawesome;
   padding: 0 5px;
   vertical-align: middle;
