@@ -1,0 +1,42 @@
+﻿.wellbox {
+    text-align: center;
+}
+
+.well {
+    margin-right: 10% !important;
+    margin-left: 10% !important;
+}
+
+.formInputLogin {
+    width: 80%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 2;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    -webkit-transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+    transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+}
+
+.customer-btn, .return-customer-btn {
+    background: #e62e04 none repeat scroll 0 0;
+    border: medium none;
+    color: #ffffff;
+    display: inline-block;
+    font-weight: 500;
+    font-size: 15px;
+    margin-top: 0px !important;
+    padding: 10px 30px;
+    text-align: center;
+    text-transform: uppercase;
+    -webkit-transition: all 300ms ease-in 0s;
+    transition: all 300ms ease-in 0s;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 80%;
+}

@@ -12,5 +12,6 @@ namespace MahtaKala.Models.UserModels
         /// OTP code
         /// </summary>
         public int Code { get; set; }
+        public int Id { get; set; }
     }
 }

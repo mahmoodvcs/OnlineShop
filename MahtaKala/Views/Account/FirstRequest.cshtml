@@ -1,0 +1,17 @@
+﻿@model MahtaKala.Models.UserModels.SignupRequest
+<h3 class="mb-10 ptb-30 custom-title">ورود / ثبت نام</h3>
+<p class="mb-10"><strong class="product-size">شماره موبایل خود را وارد کنید</strong></p>
+@using (Html.BeginForm("FirstRequest", "Account", FormMethod.Post,
+new
+{
+   @id = "FirstRequest"
+}))
+{
+    <div class="form-group">
+        @Html.TextBoxFor(a => a.Mobile, new { @autocomplete = "off", @placeholder = "شماره موبایل ...", @class = "formInputLogin" })
+    </div>
+    <input type="submit" value="ادامه" class="customer-btn">
+}
+<p class="ptb-15">
+    با ورود و یا ثبت نام در مهتاکالا شما شرایط و قوانین استفاده از سرویس های سایت ‌مهتاکالا و قوانین حریم خصوصی آن را می‌پذیرید.
+</p>
