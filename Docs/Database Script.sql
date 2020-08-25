@@ -240,3 +240,151 @@ VALUES (N'20200820090743_Address_Location_Lat_Lng', N'3.1.7');
 
 GO
 
+ALTER TABLE [Products] ADD [Properties] nvarchar(max) NULL;
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20200821105641_Product_Properties', N'3.1.7');
+
+GO
+
+DECLARE @var1 sysname;
+SELECT @var1 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Categories]') AND [c].[name] = N'Image');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Categories] DROP CONSTRAINT [' + @var1 + '];');
+ALTER TABLE [Categories] ALTER COLUMN [Image] nvarchar(max) NULL;
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20200822154521_Category_Image_Path', N'3.1.7');
+
+GO
+
+ALTER TABLE [Products] DROP CONSTRAINT [FK_Products_Brand_BrandId];
+
+GO
+
+DROP TABLE [Baskets];
+
+GO
+
+ALTER TABLE [Brand] DROP CONSTRAINT [PK_Brand];
+
+GO
+
+EXEC sp_rename N'[Brand]', N'Brands';
+
+GO
+
+ALTER TABLE [Brands] ADD CONSTRAINT [PK_Brands] PRIMARY KEY ([Id]);
+
+GO
+
+CREATE TABLE [Orders] (
+    [Id] bigint NOT NULL IDENTITY,
+    [UserId] bigint NOT NULL,
+    [OrrderDate] datetime2 NOT NULL,
+    [TotalPrice] decimal(18,2) NOT NULL,
+    [State] int NOT NULL,
+    [AddressId] bigint NULL,
+    CONSTRAINT [PK_Orders] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Orders_Addresses_AddressId] FOREIGN KEY ([AddressId]) REFERENCES [Addresses] ([Id]) ON DELETE NO ACTION,
+    CONSTRAINT [FK_Orders_Users_UserId] FOREIGN KEY ([UserId]) REFERENCES [Users] ([Id]) ON DELETE CASCADE
+);
+
+GO
+
+CREATE TABLE [ProductPrices] (
+    [Id] bigint NOT NULL IDENTITY,
+    [ProductId] bigint NOT NULL,
+    [CharacteristicValues] nvarchar(max) NULL,
+    [Price] decimal(18,2) NOT NULL,
+    [DiscountPrice] decimal(18,2) NOT NULL,
+    CONSTRAINT [PK_ProductPrices] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_ProductPrices_Products_ProductId] FOREIGN KEY ([ProductId]) REFERENCES [Products] ([Id]) ON DELETE CASCADE
+);
+
+GO
+
+CREATE TABLE [ProductQuantities] (
+    [Id] bigint NOT NULL IDENTITY,
+    [ProductId] bigint NOT NULL,
+    [CharacteristicValues] nvarchar(max) NULL,
+    [Quantity] int NOT NULL,
+    CONSTRAINT [PK_ProductQuantities] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_ProductQuantities_Products_ProductId] FOREIGN KEY ([ProductId]) REFERENCES [Products] ([Id]) ON DELETE CASCADE
+);
+
+GO
+
+CREATE TABLE [OrderItems] (
+    [Id] bigint NOT NULL IDENTITY,
+    [ProductId] bigint NOT NULL,
+    [OrderId] bigint NOT NULL,
+    [Quantity] int NOT NULL,
+    [UnitPrice] decimal(18,2) NOT NULL,
+    [CharacteristicValues] nvarchar(max) NULL,
+    CONSTRAINT [PK_OrderItems] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_OrderItems_Orders_OrderId] FOREIGN KEY ([OrderId]) REFERENCES [Orders] ([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_OrderItems_Products_ProductId] FOREIGN KEY ([ProductId]) REFERENCES [Products] ([Id]) ON DELETE CASCADE
+);
+
+GO
+
+CREATE TABLE [Payments] (
+    [Id] bigint NOT NULL IDENTITY,
+    [OrderId] bigint NOT NULL,
+    [PayToken] nvarchar(max) NULL,
+    [UniqueId] nvarchar(max) NULL,
+    [Amount] decimal(18,2) NOT NULL,
+    [RegisterDate] datetime2 NOT NULL,
+    [ReferenceNumber] nvarchar(100) NULL,
+    [TrackingNumber] nvarchar(100) NULL,
+    [State] int NOT NULL,
+    CONSTRAINT [PK_Payments] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Payments_Orders_OrderId] FOREIGN KEY ([OrderId]) REFERENCES [Orders] ([Id]) ON DELETE CASCADE
+);
+
+GO
+
+CREATE INDEX [IX_OrderItems_OrderId] ON [OrderItems] ([OrderId]);
+
+GO
+
+CREATE INDEX [IX_OrderItems_ProductId] ON [OrderItems] ([ProductId]);
+
+GO
+
+CREATE INDEX [IX_Orders_AddressId] ON [Orders] ([AddressId]);
+
+GO
+
+CREATE INDEX [IX_Orders_UserId] ON [Orders] ([UserId]);
+
+GO
+
+CREATE INDEX [IX_Payments_OrderId] ON [Payments] ([OrderId]);
+
+GO
+
+CREATE INDEX [IX_ProductPrices_ProductId] ON [ProductPrices] ([ProductId]);
+
+GO
+
+CREATE INDEX [IX_ProductQuantities_ProductId] ON [ProductQuantities] ([ProductId]);
+
+GO
+
+ALTER TABLE [Products] ADD CONSTRAINT [FK_Products_Brands_BrandId] FOREIGN KEY ([BrandId]) REFERENCES [Brands] ([Id]) ON DELETE CASCADE;
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'20200825000625_Quantity_Price_Order_Payment', N'3.1.7');
+
+GO
+
