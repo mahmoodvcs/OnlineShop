@@ -2,28 +2,20 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
+    "module": "esnext",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
-    "experimentalDecorators": true,
-    "module": "esnext",
     "moduleResolution": "node",
-    "importHelpers": true,
-    // "emitDecoratorMetadata": true,
-    "target": "es2015", // es5
-    // "typeRoots": [
-    //   "node_modules/@types"
-    // ],
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es2015",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "lib": [
-      "es2018",
+      "es2017",
       "dom"
     ]
-    // "allowSyntheticDefaultImports": true
-  },
-  "angularCompilerOptions": {
-    "fullTemplateTypeCheck": false,
-    "strictInjectionParameters": true,
-    "enableIvy": false
   }
 }
