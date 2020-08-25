@@ -21,7 +21,7 @@ namespace MahtaKala.Services
 {
     public interface IUserService
     {
-        Task<AuthenticateResponse> Authenticate(User user, string ipAddress);
+        Task<AuthenticateResponse> Authenticate(User user, string ipAddress, UserClient client);
         Task<AuthenticateResponse> RefreshToken(string token, string ipAddress);
         bool RevokeToken(string token, string ipAddress);
         User GetById(long id);
@@ -44,18 +44,21 @@ namespace MahtaKala.Services
             jwtSecret = configuration.GetSection("AppSettings")["JwtSecret"];
         }
 
-        public async Task<AuthenticateResponse> Authenticate(User user, string ipAddress)
+        public async Task<AuthenticateResponse> Authenticate(User user, string ipAddress, UserClient client)
         {
             // authentication successful so generate jwt and refresh tokens
-            var jwtToken = GenerateJwtToken(user);
-            var refreshToken = GenerateRefreshToken(ipAddress);
+            var jwtToken = GenerateJwtToken(user, client);
+            RefreshToken refreshToken = null;
+            if (client == UserClient.Api)
+            {
+                refreshToken = GenerateRefreshToken(ipAddress);
 
-            // save refresh token
-            user.RefreshTokens.Add(refreshToken);
-            context.Update(user);
-            await context.SaveChangesAsync();
-
-            return new AuthenticateResponse(user, jwtToken, refreshToken.Token);
+                // save refresh token
+                user.RefreshTokens.Add(refreshToken);
+                context.Update(user);
+                await context.SaveChangesAsync();
+            }
+            return new AuthenticateResponse(user, jwtToken, refreshToken?.Token);
         }
 
         public async Task<AuthenticateResponse> RefreshToken(string token, string ipAddress)
@@ -110,7 +113,7 @@ namespace MahtaKala.Services
 
         // helper methods
 
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(User user, UserClient? client = null)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(jwtSecret);
@@ -122,7 +125,7 @@ namespace MahtaKala.Services
                     new Claim(ClaimTypes.Role, user.Type.ToString()),
                     new Claim(ClaimTypes.GivenName, $"{user.FirstName} {user.LastName}"),
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(15),
+                Expires = client == UserClient.WebSite ? DateTime.UtcNow.AddYears(1) : DateTime.UtcNow.AddMinutes(15),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -159,5 +162,11 @@ namespace MahtaKala.Services
             cookie.Expires = DateTime.Now.AddYears(1);
             return cookie;
         }
+    }
+
+    public enum UserClient
+    {
+        Api,
+        WebSite
     }
 }

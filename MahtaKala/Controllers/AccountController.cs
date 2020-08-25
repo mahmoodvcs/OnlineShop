@@ -11,19 +11,23 @@ using MahtaKala.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace MahtaKala.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : SiteControllerBase<AccountController>
     {
 
-        protected readonly DataContext db;
         private readonly IUserService userService;
         private readonly ISMSService smsService;
-        public AccountController(ISMSService smsService, DataContext context, IUserService userService)
+
+        public AccountController(
+            ISMSService smsService, 
+            IUserService userService, 
+            DataContext dataContext, 
+            ILogger<AccountController> logger) : base(dataContext, logger)
         {
             this.smsService = smsService;
-            this.db = context;
             this.userService = userService;
         }
 
@@ -92,7 +96,7 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = "زمان ثبت درخواست به اتمام رسیده است" });
             }
 
-            var authResp = await userService.Authenticate(user, GetIpAddress());
+            var authResp = await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
 
 
             Response.Cookies.Append("MahtaAuth", authResp.JwtToken, new Microsoft.AspNetCore.Http.CookieOptions
@@ -101,7 +105,7 @@ namespace MahtaKala.Controllers
                 HttpOnly =true
             });
 
-            return Json(new { Success = true });
+            return Redirect("~/");
         }
 
         public IActionResult ResultRequest()

@@ -123,7 +123,7 @@ namespace MahtaKala.Controllers
             }
             await db.SaveChangesAsync();
 
-            var tokens = await userService.Authenticate(user, GetIpAddress());
+            var tokens = await userService.Authenticate(user, GetIpAddress(), UserClient.Api);
 
             return new VerifyRespnse
             {

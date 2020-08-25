@@ -31,6 +31,12 @@ namespace MahtaKala.Middlewares
 
             if (token != null)
                 attachUserToContext(context, userService, token);
+            else
+            {
+                token = context.Request.Cookies["MahtaAuth"];
+                if (token != null)
+                    attachUserToContext(context, userService, token);
+            }
 
             await _next(context);
         }
@@ -60,7 +66,7 @@ namespace MahtaKala.Middlewares
                 //{
                 //    new ClaimsIdentity(jwtToken.Claims),
                 //});
-                
+
             }
             catch
             {

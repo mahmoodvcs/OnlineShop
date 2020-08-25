@@ -1,6 +1,5 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.Infrustructure;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -9,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.Controllers
 {
-    public class ApiControllerBase<T> : MahtaControllerBase<T>
-        where T : ApiControllerBase<T>
+    public class SiteControllerBase<T> : MahtaControllerBase<T>
+        where T : SiteControllerBase<T>
     {
-        public ApiControllerBase(DataContext dataContext, ILogger<T> logger) : base(dataContext, logger)
+        public SiteControllerBase(DataContext dataContext, ILogger<T> logger) : base(dataContext, logger)
         {
         }
     }
