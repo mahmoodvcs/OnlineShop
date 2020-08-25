@@ -11,5 +11,8 @@ namespace MahtaKala.Infrustructure.Exceptions
         public EntityNotFoundException(long id) : base(400, $"{DataContext.GetEntityTitle<TEntity>()} با کد {id} پیدا نشد")
         {
         }
+        public EntityNotFoundException(string msg) : base(400, msg)
+        {
+        }
     }
 }

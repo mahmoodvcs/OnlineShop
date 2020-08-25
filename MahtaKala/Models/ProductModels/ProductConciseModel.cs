@@ -13,5 +13,7 @@ namespace MahtaKala.Models.ProductModels
         public string Thubmnail { get; set; }
         public string Category { get; set; }
         public string Brand { get; set; }
+        public decimal? Price { get; set; }
+        public decimal? DiscountPrice { get; set; }
     }
 }

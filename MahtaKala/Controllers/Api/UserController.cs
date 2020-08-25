@@ -7,6 +7,7 @@ using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
+using MahtaKala.Infrustructure;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.UserModels;
@@ -52,8 +53,9 @@ namespace MahtaKala.Controllers
             bool newUser = false;
             if (!System.Text.RegularExpressions.Regex.IsMatch(number, @"^(\+98|0)?9\d{9}$"))
             {
-                throw new Exception("Wrong Phone Entered.");
+                throw new ApiException(400, Messages.Messages.Signup.PhoneNumberIsNotValid);
             }
+
             var user = await db.Users.FirstOrDefaultAsync(a => a.MobileNumber == number);
             if (user == null)
             {
@@ -63,7 +65,7 @@ namespace MahtaKala.Controllers
                 await db.SaveChangesAsync();
             }
 
-            var code = await smsService.SendOTP(number, "کد ورود به مهتا کالا:");
+            var code = await smsService.SendOTP(number, Messages.Messages.Signup.LoginOTPMessage);
             UserActivationCode userCode = new UserActivationCode()
             {
                 UserId = user.Id,
@@ -220,10 +222,10 @@ namespace MahtaKala.Controllers
         /// Updates or creates an address for a user
         /// </summary>
         /// <param name="addressModel"></param>
-        /// <returns></returns>
+        /// <returns>شناسه ی آدرس را برمیگرداند</returns>
         [Authorize]
         [HttpPost]
-        public async Task<StatusCodeResult> Address(AddressModel addressModel)
+        public async Task<long> Address(AddressModel addressModel)
         {
             UserAddress address;
             if (addressModel.Id == 0)
@@ -238,7 +240,7 @@ namespace MahtaKala.Controllers
                 if (address == null)
                     throw new EntityNotFoundException<UserAddress>(addressModel.Id);
                 if (address.UserId != UserId)
-                    return StatusCode(403);
+                    throw new AccessDeniedException();
             }
 
             address.PostalCode = addressModel.Postal_Code;
@@ -249,7 +251,7 @@ namespace MahtaKala.Controllers
             address.Title = addressModel.Title;
 
             await db.SaveChangesAsync();
-            return StatusCode(200);
+            return address.Id;
         }
 
         /// <summary>

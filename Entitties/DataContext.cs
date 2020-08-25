@@ -24,7 +24,15 @@ namespace MahtaKala.Entities
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            //foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            //{
+            //    modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
+            //}
+
             modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductPriceConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductQuantityConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderItemConfiguration());
         }
 
         public DbSet<User> Users{ get; set; }
@@ -35,8 +43,14 @@ namespace MahtaKala.Entities
         public DbSet<Province> Provinces { get; set; }
         public DbSet<UserAddress> Addresses { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
-        public DbSet<Basket> Baskets { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Brand> Brands { get; set; }
+        public DbSet<ProductQuantity> ProductQuantities { get; set; }
+        public DbSet<ProductPrice> ProductPrices { get; set; }
+
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         #region Get Titles
 

@@ -25,6 +25,10 @@ namespace MahtaKala.Entities
         public Dictionary<string, string> Properties { get; set; }
         public IList<string> ImageList { get; set; }
         public string Thubmnail { get; set; }
+
+        public IList<ProductPrice> Prices { get; set; }
+        public IList<ProductQuantity> Quantities { get; set; }
+
     }
 
     public class Characteristic

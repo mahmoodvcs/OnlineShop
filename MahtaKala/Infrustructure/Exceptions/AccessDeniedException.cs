@@ -7,7 +7,7 @@ namespace MahtaKala.Infrustructure.Exceptions
 {
     public class AccessDeniedException : ApiException
     {
-        public AccessDeniedException() : base(403, Messages.AccessDeined)
+        public AccessDeniedException() : base(403, Messages.Messages.AccessDeined)
         {
         }
     }

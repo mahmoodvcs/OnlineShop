@@ -1,7 +1,9 @@
 using MahtaKala.Entities;
 using MahtaKala.Entities.ExceptionHandling;
 using MahtaKala.GeneralServices;
+using MahtaKala.GeneralServices.Payment;
 using MahtaKala.Helpers;
+using MahtaKala.Infrustructure;
 using MahtaKala.Middlewares;
 using MahtaKala.Services;
 using Microsoft.AspNetCore.Builder;
@@ -83,9 +85,17 @@ namespace MahtaKala
                 });
             });
 
+            RegisterMyServices(services);
+        }
+
+        private static void RegisterMyServices(IServiceCollection services)
+        {
             //services.AddScoped<ISMSService, ParsGreenSMSService>();
             services.AddScoped<ISMSService, PayamSMSService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IBankPaymentService, ICKPaymentService>();
+            services.AddScoped<PaymentService>();
+            services.AddSingleton<AppSettings>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

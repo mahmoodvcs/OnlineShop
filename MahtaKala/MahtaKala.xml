@@ -4,25 +4,33 @@
         <name>MahtaKala</name>
     </assembly>
     <members>
-        <member name="M:MahtaKala.Controllers.Api.CustomerController.Basket(MahtaKala.Models.CustomerModels.BasketModel)">
+        <member name="M:MahtaKala.Controllers.Api.CustomerController.AddToCart(MahtaKala.Models.CustomerModels.AddToCartModel)">
             <summary>
-            Update the Existing Basket or Create New One
+            قلمی را به سبد خرید اضافه میکند و یا قلم موجود را ویرایش میکند. برای ویرایش قلم(مثلا تغییر تعداد) باید فیلد Id ارسال شود
             </summary>
-            <returns></returns>
-            <response code="200">Success. The Backet was updated.</response>
+            <param name="addToCart"></param>
+            <returns>شناسه ی آیتم در سبد خرید را برمیگرداند. برای ویرایش یا حذف قلم از سبد مورد نیاز است</returns>
         </member>
-        <member name="M:MahtaKala.Controllers.Api.CustomerController.Basket(MahtaKala.Models.PagerModel)">
+        <member name="M:MahtaKala.Controllers.Api.CustomerController.Cart">
             <summary>
-            Return the List of Baskets with the given offset and page
+            اقلام موجود در سبد خرید کاربر را برمیگرداند
             </summary>
             <returns></returns>
         </member>
-        <member name="M:MahtaKala.Controllers.Api.CustomerController.Basket(MahtaKala.Models.IdModel)">
+        <member name="M:MahtaKala.Controllers.Api.CustomerController.RemoveFromCart(System.Int64)">
             <summary>
-            Removes the Basket with the given ID
+            قلم را از سبد خرید حذف میکند
             </summary>
+            <param name="id"></param>
             <returns></returns>
-            <response code="200">Success. The Basket was Deleted.</response>
+        </member>
+        <member name="M:MahtaKala.Controllers.Api.CustomerController.Checkout(MahtaKala.Models.CustomerModels.CheckoutModel)">
+            <summary>
+            سبد خرید را نهایی میکند. کاربر باید به صفحه ی پرداخت بانک هدایت شود.
+            موجودی کالا نیز باید به طور موقت رززو شود
+            </summary>
+            <param name="checkoutModel">آدرس انتخابی کاربر باید ارسال شود</param>
+            <returns>شناسه ی سفارش و آدرس انتقال کاربر برای پرداخت را برمیگرداند</returns>
         </member>
         <member name="M:MahtaKala.Controllers.ProductController.Category(MahtaKala.Models.ProductModels.UpdateCategoryRequest)">
             <summary>
@@ -48,6 +56,12 @@
         <member name="M:MahtaKala.Controllers.ProductController.Home">
             <summary>
             Returns the products that must be displayed in the home page of the app. This will include promotions and ads.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MahtaKala.Controllers.ProductController.AllCategories(System.Int32)">
+            <summary>
+            Return the List of Categories with the given parent ID
             </summary>
             <returns></returns>
         </member>
@@ -107,7 +121,7 @@
             Updates or creates an address for a user
             </summary>
             <param name="addressModel"></param>
-            <returns></returns>
+            <returns>شناسه ی آدرس را برمیگرداند</returns>
         </member>
         <member name="M:MahtaKala.Controllers.UserController.Address(System.Int64)">
             <summary>

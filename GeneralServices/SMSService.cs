@@ -25,55 +25,55 @@ namespace MahtaKala.GeneralServices
         public async Task<int> SendOTP(string number, string message)
         {
             var code = new Random().Next(1000, 99999);
-            var ok = await Send(number, message + " " + code);
+            var ok = await Send(number, string.Format(message, code));
             if (ok)
                 return code;
             return 0;
         }
     }
 
-    public class ParsGreenSMSService : SMSServiceBase
-    {
+    //public class ParsGreenSMSService : SMSServiceBase
+    //{
 
-        private readonly string signature;
+    //    private readonly string signature;
 
-        public ParsGreenSMSService(IConfiguration configuration)
-        {
-            signature = configuration.GetSection("AppSettings")["ParsGreenSignature"];
-        }
+    //    public ParsGreenSMSService(IConfiguration configuration)
+    //    {
+    //        signature = configuration.GetSection("AppSettings")["ParsGreenSignature"];
+    //    }
 
-        public override async Task<bool> Send(string number, string message)
-        {
-            ParsGreen.SendSMSSoapClient sms = new ParsGreen.SendSMSSoapClient(ParsGreen.SendSMSSoapClient.EndpointConfiguration.SendSMSSoap);
-            var refStr = "";
-            var retVal = await sms.SendAsync(signature, number, message, refStr);
-            //NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-            //logger.Warn(() => $"{number}: {message} - Return Value: {retVal} - refStr: {refStr}");
-            if (retVal.Body.SendResult != 1)
-                throw new Exception($"Send Error. return code: {retVal} - refStr: {refStr}");
-            return true;
-        }
+    //    public override async Task<bool> Send(string number, string message)
+    //    {
+    //        ParsGreen.SendSMSSoapClient sms = new ParsGreen.SendSMSSoapClient(ParsGreen.SendSMSSoapClient.EndpointConfiguration.SendSMSSoap);
+    //        var refStr = "";
+    //        var retVal = await sms.SendAsync(signature, number, message, refStr);
+    //        //NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    //        //logger.Warn(() => $"{number}: {message} - Return Value: {retVal} - refStr: {refStr}");
+    //        if (retVal.Body.SendResult != 1)
+    //            throw new Exception($"Send Error. return code: {retVal} - refStr: {refStr}");
+    //        return true;
+    //    }
 
-        //public static async void SendAsync(IEnumerable<string> numbers, IEnumerable<string> messages)
-        //{
-        //    PARSGREEN.API.SMS.Send.SendSMS sms = new PARSGREEN.API.SMS.Send.SendSMS();
-        //    sms.Send("")
-        //    //var mobiles = new ir.payamkotah.ArrayOfString();
-        //    //foreach (var n in numbers)
-        //    //{
-        //    //    mobiles.Add(n);
-        //    //}
-        //    //var msgs = new ir.payamkotah.ArrayOfString();
-        //    //foreach (var m in messages)
-        //    //{
-        //    //    msgs.Add(m);
-        //    //}
-        //    //ir.payamkotah.SMSPanelSoapClient cl = new ir.payamkotah.SMSPanelSoapClient();
-        //    //var response = await cl.SendAsync(AppSettings.SMSUserName, AppSettings.SMSPassword, AppSettings.SMSNumber, mobiles, msgs, false, false, false);
-        //    //cl.stat
-        //    //response.Body.
-        //}
-    }
+    //    //public static async void SendAsync(IEnumerable<string> numbers, IEnumerable<string> messages)
+    //    //{
+    //    //    PARSGREEN.API.SMS.Send.SendSMS sms = new PARSGREEN.API.SMS.Send.SendSMS();
+    //    //    sms.Send("")
+    //    //    //var mobiles = new ir.payamkotah.ArrayOfString();
+    //    //    //foreach (var n in numbers)
+    //    //    //{
+    //    //    //    mobiles.Add(n);
+    //    //    //}
+    //    //    //var msgs = new ir.payamkotah.ArrayOfString();
+    //    //    //foreach (var m in messages)
+    //    //    //{
+    //    //    //    msgs.Add(m);
+    //    //    //}
+    //    //    //ir.payamkotah.SMSPanelSoapClient cl = new ir.payamkotah.SMSPanelSoapClient();
+    //    //    //var response = await cl.SendAsync(AppSettings.SMSUserName, AppSettings.SMSPassword, AppSettings.SMSNumber, mobiles, msgs, false, false, false);
+    //    //    //cl.stat
+    //    //    //response.Body.
+    //    //}
+    //}
 
     public class PayamSMSService : SMSServiceBase
     {
@@ -108,7 +108,7 @@ namespace MahtaKala.GeneralServices
                 httpResponse = await _client.PostAsync($"{BaseUrl}/send", c);
                 res = await httpResponse.Content.ReadAsStringAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ServiceMessages.SMS.SendNetworkError, ex);
             }

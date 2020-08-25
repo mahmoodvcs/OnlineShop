@@ -154,27 +154,28 @@ namespace MahtaKala.Controllers
                     Thubmnail = a.Thubmnail,
                     Characteristics = a.Characteristics,
                     Properties = a.Properties,
-                    ImageList = a.ImageList
+                    ImageList = a.ImageList,
+                    Price = a.Prices.FirstOrDefault().Price,
+                    DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
+                    Prices = a.Prices
                 }).FirstOrDefaultAsync();
         }
 
         [HttpGet]
-        public async Task<List<ProductModel>> Products([FromQuery] long? category, [FromQuery] int offset, [FromQuery] int page)
+        public async Task<List<ProductConciseModel>> Products([FromQuery] long? category, [FromQuery] int offset, [FromQuery] int page)
         {
             return await db.Products
                 .Where(a => a.CategoryId == category)
                 .OrderBy(p => p.Id).Skip(offset).Take(page)
-                .Select(a => new ProductModel
+                .Select(a => new ProductConciseModel
                 {
                     Id = a.Id,
-                    Brand_Id = a.BrandId,
-                    Category_Id = a.CategoryId,
-                    Description = a.Description,
+                    Brand = a.Brand.Name,
+                    Category = a.Category.Title,
                     Title = a.Title,
                     Thubmnail = a.Thubmnail,
-                    Characteristics = a.Characteristics,
-                    Properties = a.Properties,
-                    ImageList = a.ImageList
+                    Price = a.Prices.FirstOrDefault().Price,
+                    DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice
                 })
                 .ToListAsync();
         }
@@ -202,6 +203,8 @@ namespace MahtaKala.Controllers
                 Category = a.Category.Title,
                 Title = a.Title,
                 Thubmnail = a.Thubmnail,
+                Price = a.Prices.FirstOrDefault().Price,
+                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice
             })
             .ToListAsync();
         }
@@ -278,6 +281,8 @@ namespace MahtaKala.Controllers
                 Category = a.Category.Title,
                 Title = a.Title,
                 Thubmnail = a.Thubmnail,
+                Price = a.Prices.FirstOrDefault().Price,
+                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
             })
             .ToListAsync();
         }

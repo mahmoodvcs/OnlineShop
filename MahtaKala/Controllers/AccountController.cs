@@ -18,11 +18,13 @@ namespace MahtaKala.Controllers
     {
 
         protected readonly DataContext db;
+        private readonly IUserService userService;
         private readonly ISMSService smsService;
-        public AccountController(ISMSService smsService, DataContext context)
+        public AccountController(ISMSService smsService, DataContext context, IUserService userService)
         {
             this.smsService = smsService;
             this.db = context;
+            this.userService = userService;
         }
 
         public IActionResult Index()
@@ -52,7 +54,7 @@ namespace MahtaKala.Controllers
                 await db.SaveChangesAsync();
             }
 
-            var code = await smsService.SendOTP(number, "کد ورود به مهتا کالا:");
+            var code = await smsService.SendOTP(number, Messages.Messages.Signup.LoginOTPMessage);
             UserActivationCode userCode = new UserActivationCode()
             {
                 UserId = user.Id,
@@ -90,7 +92,14 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = "زمان ثبت درخواست به اتمام رسیده است" });
             }
 
+            var authResp = await userService.Authenticate(user, GetIpAddress());
 
+
+            Response.Cookies.Append("MahtaAuth", authResp.JwtToken, new Microsoft.AspNetCore.Http.CookieOptions
+            {
+                Expires = DateTime.Now.AddYears(1),
+                HttpOnly =true
+            });
 
             return Json(new { Success = true });
         }
@@ -99,5 +108,14 @@ namespace MahtaKala.Controllers
         {
             return PartialView();
         }
+
+        private string GetIpAddress()
+        {
+            if (Request.Headers.ContainsKey("X-Forwarded-For"))
+                return Request.Headers["X-Forwarded-For"];
+            else
+                return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+        }
+
     }
 }

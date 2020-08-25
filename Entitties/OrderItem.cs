@@ -6,7 +6,8 @@ using System.Text;
 
 namespace MahtaKala.Entities
 {
-    public class Basket
+    [Display(Name = "قلم سبد خرید")]
+    public class OrderItem
     {
         [Key]
         [DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
@@ -15,12 +16,12 @@ namespace MahtaKala.Entities
         public Product Product { get; set; }
         public long ProductId { get; set; }
 
-        public DateTime Date { get; set; }
+        public long OrderId { get; set; }
+        public Order Order { get; set; }
+
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
-        [StringLength(255)]
-        public string CharacteristicName { get; set; }
-        [StringLength(255)]
-        public string CharacteristicValue { get; set; }
+        public decimal UnitPrice { get; set; }
+        public IList<CharacteristicValue> CharacteristicValues { get; set; }
+
     }
 }

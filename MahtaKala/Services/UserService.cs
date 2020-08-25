@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using MahtaKala.Entities;
+using MahtaKala.GeneralServices;
 using MahtaKala.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -29,13 +31,16 @@ namespace MahtaKala.Services
     public class UserService : IUserService
     {
         private DataContext context;
+        private readonly ISMSService smsService;
         private readonly string jwtSecret;
 
         public UserService(
             DataContext context,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ISMSService smsService )
         {
             this.context = context;
+            this.smsService = smsService;
             jwtSecret = configuration.GetSection("AppSettings")["JwtSecret"];
         }
 
@@ -144,6 +149,15 @@ namespace MahtaKala.Services
         {
             context.Users.Attach(user);
             await context.SaveChangesAsync();
+        }
+
+        public const string authCookieName = "MahtaAuth";
+        public Cookie GetAuthCookie(User user, string jwtToken)
+        {
+            Cookie cookie = new Cookie(authCookieName, jwtToken);
+            cookie.HttpOnly = true;
+            cookie.Expires = DateTime.Now.AddYears(1);
+            return cookie;
         }
     }
 }

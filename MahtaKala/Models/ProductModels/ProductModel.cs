@@ -20,5 +20,19 @@ namespace MahtaKala.Models.ProductModels
         public Dictionary<string,string> Properties { get; set; }
         public IList<string> ImageList { get; set; }
         public string Thubmnail { get; set; }
+        public IList<ProductPrice> Prices { get; set; }
+        public decimal? Price { get; set; }
+        public int? Quantity { get; set; }
+        public decimal? DiscountPrice { get; internal set; }
     }
+
+    //public class ProductCharacteristicPrice
+    //{
+    //    public IList<CharacteristicValue> CharacteristicValues { get; set; }
+    //    public decimal Price { get; set; }
+    //    /// <summary>
+    //    /// If null, the quantity is not known
+    //    /// </summary>
+    //    public int? Quantity { get; set; }
+    //}
 }
