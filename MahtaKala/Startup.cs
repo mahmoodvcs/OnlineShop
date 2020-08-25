@@ -137,6 +137,13 @@ namespace MahtaKala
 
             UpdateDatabase(app);
 
+            using (var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var userService = serviceScope.ServiceProvider.GetService<IUserService>();
+                userService.CreateAdminUserIfNotExist();
+            }
         }
 
         private static void UpdateDatabase(IApplicationBuilder app)

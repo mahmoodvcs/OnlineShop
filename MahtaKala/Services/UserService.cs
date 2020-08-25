@@ -26,6 +26,7 @@ namespace MahtaKala.Services
         bool RevokeToken(string token, string ipAddress);
         User GetById(long id);
         Task Update(User user);
+        void CreateAdminUserIfNotExist();
     }
 
     public class UserService : IUserService
@@ -37,7 +38,7 @@ namespace MahtaKala.Services
         public UserService(
             DataContext context,
             IConfiguration configuration,
-            ISMSService smsService )
+            ISMSService smsService)
         {
             this.context = context;
             this.smsService = smsService;
@@ -162,6 +163,24 @@ namespace MahtaKala.Services
             cookie.Expires = DateTime.Now.AddYears(1);
             return cookie;
         }
+
+        public void CreateAdminUserIfNotExist()
+        {
+            var user = context.Users.FirstOrDefault(a => a.Username.ToLower() == "admin");
+            if (user == null)
+            {
+                user = User.Create("admin", "123456", null, UserType.Admin);
+                context.Users.Add(user);
+                context.SaveChanges();
+            }
+            else
+            {
+                if (user.Type != UserType.Admin)
+                    throw new Exception("Admin user found. But it's type is not Admin.");
+            }
+        }
+
+
     }
 
     public enum UserClient

@@ -45,7 +45,7 @@ namespace MahtaKala.Entities
             return new User
             {
                 Username = username,
-                Password = PasswordHasher.Hash(password),
+                Password = PasswordHasher.Hash(password, ((int)type).ToString()),
                 SecurityStamp = Security.SecurityStamp.Generate(),
                 EmailAddress = email,
                 Type = type,
@@ -61,6 +61,11 @@ namespace MahtaKala.Entities
                 MobileNumber = mobile,
                 Type = type,
             };
+        }
+
+        public bool VerifyPassword(string password)
+        {
+            return PasswordHasher.Verify(this.Password, password, ((int)this.Type).ToString());
         }
     }
 }

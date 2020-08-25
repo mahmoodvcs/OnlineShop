@@ -34,7 +34,7 @@ namespace MahtaKala.Entities.Security
             return flag;
         }
 
-        public static string Hash(string password)
+        public static string Hash(string password, string data)
         {
             byte[] salt;
             byte[] buffer2;
@@ -43,6 +43,8 @@ namespace MahtaKala.Entities.Security
             {
                 throw new ArgumentNullException(nameof(password));
             }
+
+            password += data;
 
             using (var bytes = new Rfc2898DeriveBytes(password, SaltSize, Pbkdf2IterCount))
             {
@@ -57,7 +59,7 @@ namespace MahtaKala.Entities.Security
             return Convert.ToBase64String(dst);
         }
 
-        public static bool Verify(string hashedPassword, string password)
+        public static bool Verify(string hashedPassword, string password, string data)
         {
             byte[] buffer4;
 
@@ -65,6 +67,8 @@ namespace MahtaKala.Entities.Security
             {
                 return false;
             }
+
+            password += data;
 
             var src = Convert.FromBase64String(hashedPassword);
 
