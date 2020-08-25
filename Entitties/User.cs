@@ -18,12 +18,16 @@ namespace MahtaKala.Entities
         [StringLength(255)]
         public string Username { get; set; }
         public string Password { get; set; }
+        [StringLength(255)]
         public string FirstName { get; set; }
+        [StringLength(255)]
         public string LastName { get; set; }
+        [StringLength(10)]
         public string NationalCode { get; set; }
 
         public string SecurityStamp { get; set; }
         [StringLength(255)]
+        [EmailAddress(ErrorMessage ="آدرس ایمیل معتبر نیست")]
         public string EmailAddress { get; set; }
         [StringLength(255)]
         public string MobileNumber { get; set; }

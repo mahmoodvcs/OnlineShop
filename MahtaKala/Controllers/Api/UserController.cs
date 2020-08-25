@@ -183,6 +183,16 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<IActionResult> Profile([FromBody] ProfileModel profileModel)
         {
+            if (!ModelState.IsValid)
+            {
+                foreach (var m in ModelState.Values)
+                {
+                    if (m.Errors.Count > 0)
+                        throw new BadRequestException(m.Errors[0].ErrorMessage);
+                }
+            }
+            Util.CheckNationalCode(profileModel.National_Code);
+
             var user = (User)HttpContext.Items["User"];
             user.FirstName = profileModel.Name;
             user.LastName = profileModel.Family;
