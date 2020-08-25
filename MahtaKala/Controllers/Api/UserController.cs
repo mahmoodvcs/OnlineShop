@@ -49,6 +49,10 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<IActionResult> Signup([FromBody] SignupRequest signupRequest)
         {
+            if(signupRequest == null || string.IsNullOrEmpty(signupRequest.Mobile))
+            {
+                throw new ApiException(400, Messages.Messages.Signup.PhoneNumberIsNotValid);
+            }
             var number = Util.NormalizePhoneNumber(signupRequest.Mobile);
             bool newUser = false;
             if (!System.Text.RegularExpressions.Regex.IsMatch(number, @"^(\+98|0)?9\d{9}$"))
@@ -87,6 +91,10 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<VerifyRespnse> Verify([FromBody] VerifyRequest verifyRequest)
         {
+            if (verifyRequest == null || string.IsNullOrEmpty(verifyRequest.Mobile))
+            {
+                throw new ApiException(400, Messages.Messages.Signup.PhoneNumberIsNotValid);
+            }
             var number = Util.NormalizePhoneNumber(verifyRequest.Mobile);
 
             var user = await db.Users.FirstOrDefaultAsync(a => a.MobileNumber == number);
@@ -108,6 +116,12 @@ namespace MahtaKala.Controllers
                 Response.StatusCode = 401;
                 return null;
             }
+
+            foreach (var c in userCodes)
+            {
+                db.UserActivationCodes.Remove(c);
+            }
+            await db.SaveChangesAsync();
 
             var tokens = await userService.Authenticate(user, GetIpAddress());
 
