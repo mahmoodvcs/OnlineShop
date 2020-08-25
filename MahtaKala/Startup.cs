@@ -64,10 +64,10 @@ namespace MahtaKala
                 });
             });
             // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/dist";
-            });
+            //services.AddSpaStaticFiles(configuration =>
+            //{
+            //    configuration.RootPath = "ClientApp/dist";
+            //});
             services.Configure<IISServerOptions>(options =>
             {
                 options.AutomaticAuthentication = false;
@@ -78,7 +78,6 @@ namespace MahtaKala
 
             services.AddDbContext<DataContext>(options =>
             {
-                //options.UseNpgsql(Configuration.GetConnectionString("DataContext")).UseSnakeCaseNamingConvention();
                 options.UseSqlServer(Configuration.GetConnectionString("DataContext"), options =>
                 {
                     options.UseNetTopologySuite();
@@ -90,7 +89,6 @@ namespace MahtaKala
 
         private static void RegisterMyServices(IServiceCollection services)
         {
-            //services.AddScoped<ISMSService, ParsGreenSMSService>();
             services.AddScoped<ISMSService, PayamSMSService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBankPaymentService, ICKPaymentService>();
@@ -98,16 +96,15 @@ namespace MahtaKala
             services.AddSingleton<AppSettings>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseExceptionHandler("/error");
 
             app.UseStaticFiles();
-            if (!env.IsDevelopment())
-            {
-                app.UseSpaStaticFiles();
-            }
+            //if (!env.IsDevelopment())
+            //{
+            //    app.UseSpaStaticFiles();
+            //}
 
             app.UseRouting();
 
@@ -125,25 +122,18 @@ namespace MahtaKala
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-                //endpoints.MapControllerRoute(
-                //    name: "default1",
-                //    pattern: "",
-                //    defaults: new { controller = "HomeController", action = "Index" });
             });
 
-            app.UseSpa(spa =>
-            {
-
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseAngularCliServer(npmScript: "start");
-                }
-            });
+            //app.UseSpa(spa =>
+            //{
+            //    // To learn more about options for serving an Angular SPA from ASP.NET Core,
+            //    // see https://go.microsoft.com/fwlink/?linkid=864501
+            //    spa.Options.SourcePath = "ClientApp";
+            //    if (env.IsDevelopment())
+            //    {
+            //        spa.UseAngularCliServer(npmScript: "start");
+            //    }
+            //});
 
             UpdateDatabase(app);
 
