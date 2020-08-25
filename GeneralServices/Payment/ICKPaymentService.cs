@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using MahtaKala.Entities;
+using Newtonsoft.Json;
 using SevenTiny.Bantina.Security;
 using System;
 using System.Collections.Generic;
@@ -23,10 +24,10 @@ lLz0pKE5lSEJkoGu+CxrZzls3PfKoUtzizpTRQiAs+TDorREiK6Zp0oHA8MzxBEM
         const string baseUrl = "https://ikc.shaparak.ir/";
         const string retrunUrl = "http://localhost:55741/Payment/Payed";
 
-        public async Task<string> GetToken(long amount)
+        public async Task<string> GetToken(Entities.Payment payment, string returnUrl)
         {
 
-            var bStr = $"{merchantId}{password}{amount:000000000000}00";
+            var bStr = $"{merchantId}{password}{payment.Amount:000000000000}00";
 
             using (var aes = new AesCryptoServiceProvider())
             {
@@ -43,7 +44,7 @@ lLz0pKE5lSEJkoGu+CxrZzls3PfKoUtzizpTRQiAs+TDorREiK6Zp0oHA8MzxBEM
                     },
                     request = new IKCRequest
                     {
-                        amount = amount,
+                        amount = (long)payment.Amount,
                         paymentId = null,
                         transactionType = "Purchase",
                         requestTimestamp = (DateTime.Now - new DateTime(1970, 1, 1)).Ticks,
@@ -143,14 +144,14 @@ lLz0pKE5lSEJkoGu+CxrZzls3PfKoUtzizpTRQiAs+TDorREiK6Zp0oHA8MzxBEM
             return bytes;
         }
 
-        public Task<string> GetToken(Entities.Payment payment)
-        {
-            throw new NotImplementedException();
-        }
-
         public string GetPayUrl(Entities.Payment payment)
         {
             return "";
+        }
+
+        public Task<Entities.Payment> Paid(string bankReturnBody)
+        {
+            throw new NotImplementedException();
         }
 
         class TokenReuqest

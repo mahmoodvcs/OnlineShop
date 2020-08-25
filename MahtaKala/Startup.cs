@@ -6,8 +6,10 @@ using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
 using MahtaKala.Middlewares;
 using MahtaKala.Services;
+using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
@@ -91,9 +93,11 @@ namespace MahtaKala
         {
             services.AddScoped<ISMSService, PayamSMSService>();
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IBankPaymentService, ICKPaymentService>();
+            services.AddScoped<IBankPaymentService, PardakhtNovinService>();
             services.AddScoped<PaymentService>();
             services.AddSingleton<AppSettings>();
+            services.AddSingleton<IPathService, PathService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -144,6 +148,14 @@ namespace MahtaKala
                 var userService = serviceScope.ServiceProvider.GetService<IUserService>();
                 userService.CreateAdminUserIfNotExist();
             }
+
+            //TODO: consider the performance overhead
+            //For Paymernt/Paid?source=api
+            //app.Use((context, next) =>
+            //{
+            //    context.Request.EnableBuffering();
+            //    return next();
+            //});
         }
 
         private static void UpdateDatabase(IApplicationBuilder app)

@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.Infrustructure
 {
+    /// <summary>
+    /// This is the base for all controllers in the application.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class MahtaControllerBase<T> : Controller
         where T : MahtaControllerBase<T>
     {

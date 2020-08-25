@@ -30,13 +30,14 @@ namespace MahtaKala.Entities
         public string TrackingNumber { get; set; }
         public PaymentState State { get; set; }
 
+        public bool IsPayable => State == PaymentState.Registerd || State == PaymentState.SentToBank;
     }
 
     public enum PaymentState
     {
         Registerd,
         SentToBank,
-        Payed,
+        PaidNotVerified,
         Failed,
         Succeeded,
     }

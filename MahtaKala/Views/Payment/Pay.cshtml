@@ -1,7 +1,11 @@
-﻿@{
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+﻿@model MahtaKala.Models.Payment.PayModel
 
-<form method="post">
-    <input type="hidden" value="" />
+<form method="post" action="@Model.BankPostUrl">
+    <input type="hidden" name="language" value="fa" />
+    <input type="hidden" name="token" value="@Model.Token" />
 </form>
+<script language="">
+    (function () {
+        document.forms[0].submit();
+    })();
+</script>

@@ -88,10 +88,14 @@
   <ItemGroup>
     <ProjectReference Include="..\Entitties\Entities.csproj" />
     <ProjectReference Include="..\GeneralServices\GeneralServices.csproj" />
+    <ProjectReference Include="..\SharedServices\SharedServices.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="MahtaKala.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="PardakhtNovin.cer">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

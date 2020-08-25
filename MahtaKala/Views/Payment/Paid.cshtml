@@ -1,0 +1,9 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model MahtaKala.Entities.Payment
+@if(Model.State == MahtaKala.Entities.PaymentState.Succeeded)
+{
+    <h2>پرداخت موفقیت آمیز</h2>
+}

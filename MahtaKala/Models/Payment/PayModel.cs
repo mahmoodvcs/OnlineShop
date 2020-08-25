@@ -7,5 +7,7 @@ namespace MahtaKala.Models.Payment
 {
     public class PayModel
     {
+        public string Token { get; set; }
+        public string BankPostUrl { get; set; }
     }
 }

@@ -130,6 +130,18 @@
             <param name="model"></param>
             <returns></returns>
         </member>
+        <member name="T:MahtaKala.Controllers.SiteControllerBase`1">
+            <summary>
+            This is the base for all controllers that render HTML
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="T:MahtaKala.Infrustructure.MahtaControllerBase`1">
+            <summary>
+            This is the base for all controllers in the application.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
         <member name="P:MahtaKala.Models.ProfileModel.Personel_Code">
             <summary>
             Not used

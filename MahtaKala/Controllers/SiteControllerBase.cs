@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.Controllers
 {
+    /// <summary>
+    /// This is the base for all controllers that render HTML
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class SiteControllerBase<T> : MahtaControllerBase<T>
         where T : SiteControllerBase<T>
     {

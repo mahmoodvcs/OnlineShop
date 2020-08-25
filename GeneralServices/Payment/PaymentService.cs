@@ -1,4 +1,5 @@
 ﻿using MahtaKala.Entities;
+using MahtaKala.SharedServices;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,13 +11,15 @@ namespace MahtaKala.GeneralServices.Payment
     {
         private readonly DataContext dataContext;
         private readonly IBankPaymentService bankService;
+        private readonly IPathService pathService;
 
-        public PaymentService(DataContext dataContext, IBankPaymentService bankService)
+        public PaymentService(DataContext dataContext, IBankPaymentService bankService, IPathService pathService)
         {
             this.dataContext = dataContext;
             this.bankService = bankService;
+            this.pathService = pathService;
         }
-        public async Task<(string internalPayUrl, Entities.Payment payment)> InitPayment(Order order)
+        public async Task<Entities.Payment> InitPayment(Order order, string returnUrl)
         {
             var payment = new Entities.Payment()
             {
@@ -26,10 +29,14 @@ namespace MahtaKala.GeneralServices.Payment
             };
             dataContext.Payments.Add(payment);
             await dataContext.SaveChangesAsync();
-            payment.PayToken = await bankService.GetToken(payment);
+            payment.PayToken = await bankService.GetToken(payment, returnUrl);
             await dataContext.SaveChangesAsync();
-            string payUrl = "";//TODO: PaymentController
-            return (payUrl, payment);
+            return payment;
         }
+
+        //public async Task<Entities.Payment> Paid(string bankReturnBody)
+        //{
+
+        //}
     }
 }

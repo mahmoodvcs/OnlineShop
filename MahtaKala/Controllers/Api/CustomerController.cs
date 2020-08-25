@@ -17,6 +17,7 @@ using Microsoft.VisualBasic;
 using Serilog.Core;
 using MahtaKala.Messages;
 using MahtaKala.GeneralServices.Payment;
+using MahtaKala.SharedServices;
 
 namespace MahtaKala.Controllers.Api
 {
@@ -27,11 +28,14 @@ namespace MahtaKala.Controllers.Api
     public class CustomerController : ApiControllerBase<CustomerController>
     {
         private readonly PaymentService paymentService;
+        private readonly IPathService pathService;
 
-        public CustomerController(DataContext context, ILogger<CustomerController> logger, PaymentService paymentService)
+        public CustomerController(DataContext context, ILogger<CustomerController> logger, PaymentService paymentService,
+            IPathService pathService)
             : base(context, logger)
         {
             this.paymentService = paymentService;
+            this.pathService = pathService;
         }
 
 
@@ -187,11 +191,13 @@ namespace MahtaKala.Controllers.Api
             order.State = OrderState.CheckedOut;
             await db.SaveChangesAsync();
 
-            var (url, payment) = await paymentService.InitPayment(order);
+            var payment = await paymentService.InitPayment(order, pathService.AppBaseUrl + "/Payment/Paid?source=api");
+            string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}&source=api";
+
             return new CheckoutResponseModel
             {
                 OrderId = order.Id,
-                PaymentUrl = url
+                PaymentUrl = payUrl
             };
         }
 

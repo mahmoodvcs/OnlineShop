@@ -1,0 +1,13 @@
+﻿
+@model MahtaKala.Entities.Payment
+@if (Model.State == MahtaKala.Entities.PaymentState.Succeeded)
+{
+    <h2>پرداخت موفقیت آمیز</h2>
+}
+else
+{
+    <h2>پرداخت نا موفقیت </h2>
+}
+
+
+<button>بازگشت به اپلیکیشن</button>
