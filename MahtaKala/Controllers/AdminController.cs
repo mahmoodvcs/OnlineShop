@@ -26,6 +26,11 @@ namespace MahtaKala.Controllers
         {
             return View();
         }
+
+
+        #region Users
+
+
         public IActionResult Users()
         {
             return View();
@@ -51,7 +56,6 @@ namespace MahtaKala.Controllers
             }
             return View(user);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult EditUser(User model)
@@ -98,7 +102,10 @@ namespace MahtaKala.Controllers
             return View(model);
         }
 
+        #endregion
 
+
+        #region Provinces
 
         public IActionResult Provinces()
         {
@@ -125,7 +132,6 @@ namespace MahtaKala.Controllers
             }
             return View(province);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult EditProvince(Province model)
@@ -155,6 +161,10 @@ namespace MahtaKala.Controllers
             return View(model);
         }
 
+        #endregion
+
+
+        #region Cities
 
         public IActionResult Cities()
         {
@@ -162,7 +172,7 @@ namespace MahtaKala.Controllers
         }
         public ActionResult GetAllCities([DataSourceRequest]DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Cities.Include(c=>c.Province).ToList(), request);
+            return ConvertDataToJson(db.Cities.Include(c => c.Province).ToList(), request);
         }
         public ActionResult EditCity(long id)
         {
@@ -182,7 +192,6 @@ namespace MahtaKala.Controllers
             ViewBag.Provinces = db.Provinces.ToList();
             return View(city);
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult EditCity(City model)
@@ -207,9 +216,9 @@ namespace MahtaKala.Controllers
                     }
                     db.Entry(model).State = EntityState.Modified;
                 }
-                if(model.IsCenter)
+                if (model.IsCenter)
                 {
-                    if (db.Cities.Any(c=>c.IsCenter && c.Id != model.Id))
+                    if (db.Cities.Any(c => c.IsCenter && c.Id != model.Id))
                     {
                         throw new BadRequestException("استان انتخاب شده دارای مرکز استان می باشد.");
                     }
@@ -219,6 +228,71 @@ namespace MahtaKala.Controllers
             }
             return View(model);
         }
+
+        #endregion
+
+
+        #region Categories
+
+        public IActionResult Categories()
+        {
+            return View();
+        }
+        public ActionResult GetAllCategories([DataSourceRequest]DataSourceRequest request)
+        {
+            return ConvertDataToJson(db.Categories.Include(c => c.Parent).ToList(), request);
+        }
+        public ActionResult EditCategory(long id)
+        {
+            ProductCategory productCategory = null;
+            if (id == 0)
+            {
+                productCategory = new ProductCategory();
+            }
+            else
+            {
+                productCategory = db.Categories.Where(u => u.Id == id).FirstOrDefault();
+                if (productCategory == null)
+                {
+                    throw new EntityNotFoundException<ProductCategory>(id);
+                }
+            }
+            ViewBag.Categories = db.Categories.Where(c => c.Id != id).ToList();
+            return View(productCategory);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditCategory(ProductCategory model)
+        {
+            ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
+            if (ModelState.IsValid)
+            {
+                if (model.Id == 0)
+                {
+                    if (string.IsNullOrEmpty(model.Title))
+                    {
+                        ModelState.AddModelError(nameof(model.Title), "Title Required.");
+                        return View(model);
+                    }
+                    db.Categories.Add(model);
+                }
+                else
+                {
+                    if (!db.Categories.Any(u => u.Id == model.Id))
+                    {
+                        throw new EntityNotFoundException<ProductCategory>(model.Id);
+                    }
+                    db.Entry(model).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+                return RedirectToAction("Categories");
+            }
+            return View(model);
+        }
+
+        #endregion
+
+
 
 
 

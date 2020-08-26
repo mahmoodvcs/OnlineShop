@@ -36,5 +36,6 @@
 <script>
     function editEntity(e) {
         window.location.href = '/Admin/EditProvince/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
+        return false;
     }
 </script>

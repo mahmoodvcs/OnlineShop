@@ -41,5 +41,6 @@
 <script>
     function editUser(e) {
         window.location.href = '/Admin/EditUser/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
+        return false;
     }
 </script>
