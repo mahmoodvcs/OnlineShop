@@ -1,0 +1,79 @@
+﻿@model CharacteristicVM
+@{
+    ViewData["Title"] = ViewData["Title"];
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+<div class="card card-custom gutter-b example example-compact">
+    @using (Html.BeginForm("ProductItem", "admin", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(a => a.ProductId)
+
+
+        <div class="card-header">
+            <div class="row">
+                <div class="col-lg-6">
+                </div>
+                <div class="col-lg-6" style="text-align:left;">
+                    <a href="@Url.Content("~/admin/ProductList")" class="btn btn-default m-btn m-btn--custom m-btn--icon">
+                        <span>
+                            <i class="fa fa-list"></i>
+                            <span>
+                                برگشت به لیست
+                            </span>
+                        </span>
+                    </a>
+                    <button type="submit" class="btn btn-success m-btn m-btn--custom m-btn--icon">
+                        <span>
+                            <i class="fa fa-calendar-check-o"></i>
+                            <span>
+                                ذخیره
+                            </span>
+                        </span>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="form-group row">
+                <div class="col-lg-12">
+
+                    <table class="table table-striped mb-6">
+                        <thead>
+                            <tr>
+                                <th scope="col">عنوان</th>
+                                <th scope="col">تعداد</th>
+                                <th scope="col">قیمت</th>
+                                <th scope="col">تخفیف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>
+                                        @item.Name - @item.Value
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control" />
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control" />
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+        <br />
+    }
+</div>
+

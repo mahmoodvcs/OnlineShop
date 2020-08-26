@@ -8,6 +8,7 @@ using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
 using MahtaKala.Entities.Security;
 using MahtaKala.Infrustructure.Exceptions;
+using MahtaKala.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -400,10 +401,32 @@ namespace MahtaKala.Controllers
                     db.Entry(model).State = EntityState.Modified;
                 }
                 db.SaveChanges();
-                return RedirectToAction("ProductList");
+                return RedirectToAction("ProductItem", "admin",new {id = model.Id });
             }
             return View(model);
         }
+
+        public IActionResult ProductItem(int id)
+        {
+            ViewData["Title"] = "مدیریت  قیمت و تعداد محصول";
+            var p = db.Products.FirstOrDefault(a => a.Id == id);
+            CharacteristicVM vm = new CharacteristicVM();
+            vm.ProductId = id;
+            List<CharacteristicItemVM> lst = new List<CharacteristicItemVM>();
+            foreach (var item in p.Characteristics)
+            {
+                foreach (var itemx in item.Values)
+                {
+                    CharacteristicItemVM v = new CharacteristicItemVM();
+                    v.Name = item.Name;
+                    v.Value = itemx;
+                    lst.Add(v);
+                }
+            }
+            vm.Items = lst;
+            return View(vm);
+        }
+
 
         #endregion
 
