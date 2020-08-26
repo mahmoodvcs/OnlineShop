@@ -30,6 +30,9 @@
     <link href="~/assets/css/themes/layout/brand/dark.rtl.css" rel="stylesheet" type="text/css" />
     <link href="~/assets/css/themes/layout/aside/dark.rtl.css" rel="stylesheet" type="text/css" />        <!--end::Layout Themes-->
 
+    <link href="~/lib/kendo/css/web/kendo.rtl.min.css" rel="stylesheet" />
+    <link href="~/lib/kendo/css/web/kendo.bootstrap.mobile.min.css" rel="stylesheet" />
+    <link href="~/lib/kendo/css/web/kendo.bootstrap-v4.min.css" rel="stylesheet" />
     <link rel="shortcut icon" href="~/assets/media/logos/favicon.ico" />
 
 </head>
@@ -1296,7 +1299,7 @@
                     <div class="d-flex flex-column-fluid">
                         <!--begin::Container-->
                         <div class=" container ">
-                          @RenderBody()
+                            @RenderBody()
                         </div>
                         <!--end::Container-->
                     </div>
@@ -2901,7 +2904,8 @@
 
     <script>var HOST_URL = "https://preview.keenthemes.com/metronic/theme/html/tools/preview";</script>
     <!--begin::Global Config(global config for global JS scripts)-->
-    <script>var KTAppSettings = {
+    <script>
+var KTAppSettings = {
     "breakpoints": {
         "sm": 576,
         "md": 768,
@@ -2964,11 +2968,15 @@
     <script src="~/assets/plugins/global/plugins.bundle.js?v=7.0.6"></script>
     <script src="~/assets/plugins/custom/prismjs/prismjs.bundle.js?v=7.0.6"></script>
     <script src="~/assets/js/scripts.bundle.js?v=7.0.6"></script>
+    <script src="~/js/jquery-migrate-3.0.0.js"></script>
+    <script src="~/lib/kendo/js/kendo.all.min.js"></script>
+    <script src="~/lib/kendo/js/kendo.aspnetmvc.min.js"></script>
+    <script src="~/lib/kendo/js/kendo.timezones.min.js"></script>
+    <script src="~/js/kendo.fa-IR.js"></script>
     <!--end::Global Theme Bundle-->
     <!--begin::Page Vendors(used by this page)-->
     <script src="~/assets/plugins/custom/fullcalendar/fullcalendar.bundle.js?v=7.0.6"></script>
-    <script src="//maps.google.com/maps/api/js?key=AIzaSyBTGnKT7dt597vo9QgeQ7BFhvSRP4eiMSM?v=7.0.6"></script>
-    <script src="~/assets/plugins/custom/gmaps/gmaps.js?v=7.0.6"></script>
+
     <!--end::Page Vendors-->
     <!--begin::Page Scripts(used by this page)-->
     <script src="~/assets/js/pages/widgets.js?v=7.0.6"></script>

@@ -98,6 +98,7 @@ namespace MahtaKala
             services.AddSingleton<AppSettings>();
             services.AddSingleton<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddKendo();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

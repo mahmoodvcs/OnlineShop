@@ -90,6 +90,11 @@
     <ProjectReference Include="..\GeneralServices\GeneralServices.csproj" />
     <ProjectReference Include="..\SharedServices\SharedServices.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Kendo.Mvc">
+      <HintPath>..\Docs\Kendo.Mvc.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="MahtaKala.xml">
