@@ -32,13 +32,7 @@ namespace MahtaKala.Controllers
         }
         public ActionResult GetAllUsers([DataSourceRequest]DataSourceRequest request)
         {
-            var data = db.Users.ToList();
-            var list = JsonConvert.SerializeObject(data.ToDataSourceResult(request), Formatting.None,
-                    new JsonSerializerSettings()
-                    {
-                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                    });
-            return Content(list, "application/json");
+            return ConvertDataToJson(db.Users.ToList(), request);
         }
         public ActionResult EditUser(long id)
         {
@@ -112,13 +106,7 @@ namespace MahtaKala.Controllers
         }
         public ActionResult GetAllProvinces([DataSourceRequest]DataSourceRequest request)
         {
-            var data = db.Provinces.ToList();
-            var list = JsonConvert.SerializeObject(data.ToDataSourceResult(request), Formatting.None,
-                    new JsonSerializerSettings()
-                    {
-                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                    });
-            return Content(list, "application/json");
+            return ConvertDataToJson(db.Provinces.ToList(), request);
         }
         public ActionResult EditProvince(long id)
         {
@@ -157,7 +145,7 @@ namespace MahtaKala.Controllers
                 {
                     if (!db.Provinces.Any(u => u.Id == model.Id))
                     {
-                        throw new EntityNotFoundException<User>(model.Id);
+                        throw new EntityNotFoundException<Province>(model.Id);
                     }
                     db.Entry(model).State = EntityState.Modified;
                 }
@@ -171,6 +159,83 @@ namespace MahtaKala.Controllers
         public IActionResult Cities()
         {
             return View();
+        }
+        public ActionResult GetAllCities([DataSourceRequest]DataSourceRequest request)
+        {
+            return ConvertDataToJson(db.Cities.Include(c=>c.Province).ToList(), request);
+        }
+        public ActionResult EditCity(long id)
+        {
+            City city = null;
+            if (id == 0)
+            {
+                city = new City();
+            }
+            else
+            {
+                city = db.Cities.Where(u => u.Id == id).FirstOrDefault();
+                if (city == null)
+                {
+                    throw new EntityNotFoundException<City>(id);
+                }
+            }
+            ViewBag.Provinces = db.Provinces.ToList();
+            return View(city);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditCity(City model)
+        {
+            ViewBag.Provinces = db.Provinces.ToList();
+            if (ModelState.IsValid)
+            {
+                if (model.Id == 0)
+                {
+                    if (string.IsNullOrEmpty(model.Name))
+                    {
+                        ModelState.AddModelError(nameof(model.Name), "Name Required.");
+                        return View(model);
+                    }
+                    db.Cities.Add(model);
+                }
+                else
+                {
+                    if (!db.Cities.Any(u => u.Id == model.Id))
+                    {
+                        throw new EntityNotFoundException<City>(model.Id);
+                    }
+                    db.Entry(model).State = EntityState.Modified;
+                }
+                if(model.IsCenter)
+                {
+                    if (db.Cities.Any(c=>c.IsCenter && c.Id != model.Id))
+                    {
+                        throw new BadRequestException("استان انتخاب شده دارای مرکز استان می باشد.");
+                    }
+                }
+                db.SaveChanges();
+                return RedirectToAction("Cities");
+            }
+            return View(model);
+        }
+
+
+
+
+
+
+
+
+        private ContentResult ConvertDataToJson<T>(IEnumerable<T> data, [DataSourceRequest]DataSourceRequest request)
+        {
+
+            var list = JsonConvert.SerializeObject(data.ToDataSourceResult(request), Formatting.None,
+                    new JsonSerializerSettings()
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    });
+            return Content(list, "application/json");
         }
     }
 }

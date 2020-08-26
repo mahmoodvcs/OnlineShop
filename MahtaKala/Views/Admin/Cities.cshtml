@@ -1,15 +1,17 @@
 ﻿@using Kendo.Mvc.UI
 @{
-    ViewData["Title"] = "Provinces";
+    ViewData["Title"] = "Cities";
     Layout = "~/Views/Shared/_Admin.cshtml";
 }
 
 
-@(Html.Kendo().Grid<MahtaKala.Entities.Province>()
+@(Html.Kendo().Grid<MahtaKala.Entities.City>()
     .Name("Grid")
     .Columns(columns =>
     {
         columns.Bound(p => p.Name);
+        columns.Bound(p => p.Province.Name);
+        columns.Bound(p => p.IsCenter);
         columns.Command(command => command.Custom("Edit").Click("editEntity")).Width(160);
     })
     .HtmlAttributes(new { style = "height: 550px;" })
@@ -26,15 +28,15 @@
             {
                 model.Id(p => p.Id);
             })
-            .Read(read => read.Action("GetAllProvinces", "Admin"))
+            .Read(read => read.Action("GetAllCities", "Admin"))
             .PageSize(20)
         )
 )
 
-<a href="/Admin/EditProvince/" class="btn btn-primary m-3">استان جدید</a>
+<a href="/Admin/EditCity/" class="btn btn-primary m-3">استان جدید</a>
 
 <script>
     function editEntity(e) {
-        window.location.href = '/Admin/EditProvince/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
+        window.location.href = '/Admin/EditCity/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
     }
 </script>
