@@ -11,6 +11,7 @@ using MahtaKala.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace MahtaKala.Controllers
@@ -20,20 +21,59 @@ namespace MahtaKala.Controllers
 
         private readonly IUserService userService;
         private readonly ISMSService smsService;
+        private readonly IConfiguration configuration;
 
         public AccountController(
-            ISMSService smsService, 
-            IUserService userService, 
-            DataContext dataContext, 
+            ISMSService smsService,
+            IUserService userService,
+            DataContext dataContext,
+            IConfiguration configuration,
             ILogger<AccountController> logger) : base(dataContext, logger)
         {
             this.smsService = smsService;
             this.userService = userService;
+            this.configuration = configuration;
         }
 
         public IActionResult Index()
         {
             return View();
+        }
+
+        public IActionResult Login(string returnUrl)
+        {
+            ViewBag.ReturnUrl = returnUrl;
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Login(LoginModel model, string returnUrl)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await db.Users.Where(u => u.Username == model.UserName).FirstAsync();
+            if (user == null || !user.VerifyPassword(model.Password))
+            {
+                ModelState.AddModelError(string.Empty, "نام کاربری و یا رمز عبور اشتباه است.");
+                return View(model);
+            }
+            var userService = new UserService(db, configuration, smsService);
+            var authResp = await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
+
+            Response.Cookies.Append("MahtaAuth", authResp.JwtToken, new Microsoft.AspNetCore.Http.CookieOptions
+            {
+                Expires = DateTime.Now.AddYears(1),
+                HttpOnly = true
+            });
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         public IActionResult FirstRequest()
@@ -102,7 +142,7 @@ namespace MahtaKala.Controllers
             Response.Cookies.Append("MahtaAuth", authResp.JwtToken, new Microsoft.AspNetCore.Http.CookieOptions
             {
                 Expires = DateTime.Now.AddYears(1),
-                HttpOnly =true
+                HttpOnly = true
             });
 
             return Redirect("~/");

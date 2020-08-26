@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
+using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,10 +36,13 @@ namespace MahtaKala.ActionFilter
             var user = (User)context.HttpContext.Items["User"];
             if (user == null)
             {
+                context.Result = new RedirectToRouteResult(new
+                    RouteValueDictionary(new { controller = "Account", action = "Login", returnUrl = context.HttpContext.Request.Path }));
+                return;
                 // not logged in
-                throw new UnauthorizedAccessException();
+                //throw new UnauthorizedAccessException();
             }
-            if (UserType != null && user.Type != UserType && user.Type != Entities.UserType.Admin)
+            else if (user.Type != UserType && user.Type != Entities.UserType.Admin)
             {
                 throw new AccessDeniedException();
             }
