@@ -293,6 +293,65 @@ namespace MahtaKala.Controllers
         #endregion
 
 
+        #region Brand
+
+        public IActionResult Brands()
+        {
+            return View();
+        }
+        public ActionResult GetAllBrands([DataSourceRequest]DataSourceRequest request)
+        {
+            return ConvertDataToJson(db.Brands.ToList(), request);
+        }
+        public ActionResult EditBrand(long id)
+        {
+            Brand brand = null;
+            if (id == 0)
+            {
+                brand = new Brand();
+            }
+            else
+            {
+                brand = db.Brands.Where(u => u.Id == id).FirstOrDefault();
+                if (brand == null)
+                {
+                    throw new EntityNotFoundException<Brand>(id);
+                }
+            }
+            return View(brand);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditBrand(Brand model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.Id == 0)
+                {
+                    if (string.IsNullOrEmpty(model.Name))
+                    {
+                        ModelState.AddModelError(nameof(model.Name), "Name Required.");
+                        return View(model);
+                    }
+                    db.Brands.Add(model);
+                }
+                else
+                {
+                    if (!db.Brands.Any(u => u.Id == model.Id))
+                    {
+                        throw new EntityNotFoundException<Brand>(model.Id);
+                    }
+                    db.Entry(model).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+                return RedirectToAction("Brands");
+            }
+            return View(model);
+        }
+
+        #endregion
+
+
 
 
 
