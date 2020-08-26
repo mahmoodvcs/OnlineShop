@@ -384,7 +384,26 @@ namespace MahtaKala.Controllers
             return View(p);
         }
 
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Product(Product model)
+        {
+            ViewData["Title"] = "درج محصول";
+            if (ModelState.IsValid)
+            {
+                if (model.Id == 0)
+                {
+                    db.Products.Add(model);
+                }
+                else
+                {
+                    db.Entry(model).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+                return RedirectToAction("ProductList");
+            }
+            return View(model);
+        }
 
         #endregion
 
