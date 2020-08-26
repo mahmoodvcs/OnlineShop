@@ -103,5 +103,74 @@ namespace MahtaKala.Controllers
             }
             return View(model);
         }
+
+
+
+        public IActionResult Provinces()
+        {
+            return View();
+        }
+        public ActionResult GetAllProvinces([DataSourceRequest]DataSourceRequest request)
+        {
+            var data = db.Provinces.ToList();
+            var list = JsonConvert.SerializeObject(data.ToDataSourceResult(request), Formatting.None,
+                    new JsonSerializerSettings()
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    });
+            return Content(list, "application/json");
+        }
+        public ActionResult EditProvince(long id)
+        {
+            Province province = null;
+            if (id == 0)
+            {
+                province = new Province();
+            }
+            else
+            {
+                province = db.Provinces.Where(u => u.Id == id).FirstOrDefault();
+                if (province == null)
+                {
+                    throw new EntityNotFoundException<Province>(id);
+                }
+            }
+            return View(province);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditProvince(Province model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.Id == 0)
+                {
+                    if (string.IsNullOrEmpty(model.Name))
+                    {
+                        ModelState.AddModelError(nameof(model.Name), "Name Required.");
+                        return View(model);
+                    }
+                    db.Provinces.Add(model);
+                }
+                else
+                {
+                    if (!db.Provinces.Any(u => u.Id == model.Id))
+                    {
+                        throw new EntityNotFoundException<User>(model.Id);
+                    }
+                    db.Entry(model).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+                return RedirectToAction("Provinces");
+            }
+            return View(model);
+        }
+
+
+        public IActionResult Cities()
+        {
+            return View();
+        }
     }
 }
