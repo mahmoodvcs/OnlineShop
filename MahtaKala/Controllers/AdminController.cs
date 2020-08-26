@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Controllers
 {
@@ -352,7 +353,40 @@ namespace MahtaKala.Controllers
         #endregion
 
 
+        #region "Product"
 
+        public IActionResult ProductList()
+        {
+            ViewData["Title"] = "لیست محصولات";
+            return View();
+        }
+
+        public IActionResult Product_Read([DataSourceRequest] DataSourceRequest request)
+        {
+            return ConvertDataToJson(db.Products.Include(c => c.Category).ToList(), request);
+        }
+
+        [HttpPost]
+        public JsonResult Product_Destroy(int id)
+        {
+            db.ProductQuantities.Where(a => a.ProductId == id).Delete();
+            db.ProductPrices.Where(a => a.ProductId == id).Delete();
+            db.Products.Where(a => a.Id == id).Delete();
+            return Json(new { Success = true });
+        }
+
+        public IActionResult Product(int? id)
+        {
+            ViewData["Title"] = "درج محصول";
+            var p = new Product();
+            if (id.HasValue)
+                p = db.Products.FirstOrDefault(a => a.Id == id);
+            return View(p);
+        }
+
+
+
+        #endregion
 
 
 

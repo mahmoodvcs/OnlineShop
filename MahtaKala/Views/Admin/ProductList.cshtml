@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = ViewData["Title"];
+    Layout = "~/Views/Shared/_Admin.cshtml";
+}
+@(Html.Kendo().Grid<Product>().Name("grid").Columns(columns =>
+{
+    columns.Bound(p => p.Id).Title("شناسه");
+    columns.Bound(p => p.Title).Title("عنوان");
+    columns.Bound(p => p.Category.Title).Title("دسته بندی");
+    columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
+    columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
+
+})
+                                   .ToolBar(toolbar =>
+                                   {
+                                       toolbar.ClientTemplateId("GridToolbarTemplate");
+                                   })
+                                 .Pageable(pageable => pageable
+        .Refresh(true)
+        .PageSizes(true)
+        .ButtonCount(5)).Filterable().Sortable().DataSource(dataSource => dataSource
+                                                                                                                                                                                              .Ajax()
+                                                                                                                                                                                              .PageSize(50)
+                                                                                                                                                                                              .Model(model =>
+                                                                                                                                                                                              {
+                                                                                                                                                                                                  model.Id(p => p.Id);
+
+                                                                                                                                                                                              })
+                                                                                                                                                                                              .Read(read => read.Action("Product_Read", "Admin"))
+                                                                                                                                                                                                                                                                                    )
+        )
+<script id="GridToolbarTemplate" type="text/x-kendo-template">
+    <div class="refreshBtnContainer">
+        <a href="@Url.Content("~/Admin/Product")" class="k-pager-refresh k-link k-button">
+            <span class="k-icon k-i-add"></span>
+            جدید
+        </a>
+    </div>
+</script>
+@section js{
+    <script type="text/javascript">
+       function EditQuestion(e) {
+           e.preventDefault();
+           var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+           var url = '@Url.Content("~/Admin/Product/")' + dataItem.Id;
+           window.location.href = url;
+        }
+
+
+        function RemoveQuestion(e) {
+            e.preventDefault();
+            var id = this.dataItem($(e.currentTarget).closest("tr")).Id;
+            swal({
+                title: "از حذف این آیتم مطمئن هستید؟",
+                text: "در صورتی که برای این آیتم رکوردی درج شده باشد حذف می شود و این کار غیر قابل بازگشت می باشد",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "بلی مطمئنم",
+                cancelButtonText: "انصراف می دم",
+                closeOnConfirm: false,
+                closeOnCancel: true
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                      
+                        $.ajax({
+                            url: '@Url.Content("~/admin/Product_Destroy/")' + id,
+                            dataType: "json",
+                            type: "POST",
+                            contentType: 'application/json; charset=utf-8',
+                            cache: false,
+                            success: function (data) {
+
+                                if (data.Success) {
+                                    var grid = $("#grid").data("kendoGrid");
+                                    grid.dataSource.read();
+                                    swal("حذف رکورد با موفقیت انجام شد", "", "success");
+                                }
+                                else {
+                                    swal(data.msg, "", "warning");
+                                }
+                            },
+                            error: function (xhr) {
+                                swal("خطایی  در حذف اطلاعات اتفاق افتاده است", "", "warning");
+                            }
+                        });
+                    }
+                });
+        }
+    </script>
+}

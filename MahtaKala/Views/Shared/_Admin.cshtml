@@ -9,7 +9,7 @@
 <head>
     <base href="../../">
     <meta charset="utf-8" />
-    <title>Metronic | Empty Page</title>
+    <title>@ViewData["Title"]</title>
     <meta name="description" content="Page with empty content" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
@@ -33,6 +33,7 @@
     <link href="~/lib/kendo/css/web/kendo.rtl.min.css" rel="stylesheet" />
     <link href="~/lib/kendo/css/web/kendo.bootstrap.mobile.min.css" rel="stylesheet" />
     <link href="~/lib/kendo/css/web/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+    <link href="~/css/main.css" rel="stylesheet" />
     <link rel="shortcut icon" href="~/assets/media/logos/favicon.ico" />
 
 
@@ -58,7 +59,7 @@
 </head>
 <!--end::Head-->
 <!--begin::Body-->
-<body id="kt_body" class="header-fixed header-mobile-fixed subheader-enabled subheader-fixed aside-enabled aside-fixed aside-minimize-hoverable page-loading">
+<body id="kt_body" class="k-rtl header-fixed header-mobile-fixed subheader-enabled subheader-fixed aside-enabled aside-fixed aside-minimize-hoverable page-loading">
 
     <!--begin::Main-->
     <!--begin::Header Mobile-->
@@ -1253,23 +1254,10 @@
                                 <div class="d-flex align-items-baseline flex-wrap mr-5">
                                     <!--begin::Page Title-->
                                     <h5 class="text-dark font-weight-bold my-1 mr-5">
-                                        Empty Page
+                                      @ViewData["Title"]
                                     </h5>
                                     <!--end::Page Title-->
-                                    <!--begin::Breadcrumb-->
-                                    <ul class="breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold p-0 my-2 font-size-sm">
-                                        <li class="breadcrumb-item">
-                                            <a href="" class="text-muted">
-                                                General
-                                            </a>
-                                        </li>
-                                        <li class="breadcrumb-item">
-                                            <a href="" class="text-muted">
-                                                Empty Page
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <!--end::Breadcrumb-->
+                                  
                                 </div>
                                 <!--end::Page Heading-->
                             </div>
@@ -3023,6 +3011,7 @@
             "font-family": "Poppins"
         };</script>
     <!--end::Global Config-->
+    @RenderSection("js",false)
 </body>
 <!--end::Body-->
 </html>

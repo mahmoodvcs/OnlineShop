@@ -1,4 +1,4 @@
-@charset "UTF-8";
+﻿@charset "UTF-8";
 /*!
  * Bootstrap v4.5.2 (https://getbootstrap.com/)
  * Copyright 2011-2020 The Bootstrap Authors
@@ -54,7 +54,7 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 
 body {
   margin: 0;
-  font-family: Poppins, Helvetica, "sans-serif";
+  font-family: IRANSansFaNum, Helvetica, "sans-serif";
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
@@ -5505,7 +5505,7 @@ a.close.disabled {
   z-index: 1070;
   display: block;
   margin: 0;
-  font-family: Poppins, Helvetica, "sans-serif";
+  font-family: IRANSansFaNum, Helvetica, "sans-serif";
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
@@ -5590,7 +5590,7 @@ a.close.disabled {
   z-index: 1060;
   display: block;
   max-width: 276px;
-  font-family: Poppins, Helvetica, "sans-serif";
+  font-family: IRANSansFaNum, Helvetica, "sans-serif";
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
@@ -55451,7 +55451,7 @@ code {
   box-shadow: 0px 0px 50px 0px rgba(82, 63, 105, 0.15);
   border-radius: 0.42rem;
   border: 0;
-  font-family: Poppins, Helvetica, "sans-serif";
+  font-family: IRANSansFaNum, Helvetica, "sans-serif";
   z-index: 98; }
   .modal-open .daterangepicker {
     z-index: 1051; }
@@ -57679,7 +57679,7 @@ code {
   padding: 0.5rem 0;
   min-width: 150px;
   font-size: 1rem;
-  font-family: Poppins, Helvetica, "sans-serif";
+  font-family: IRANSansFaNum, Helvetica, "sans-serif";
   background: #ffffff;
   -webkit-box-shadow: 0px 0px 50px 0px rgba(82, 63, 105, 0.15);
   box-shadow: 0px 0px 50px 0px rgba(82, 63, 105, 0.15);
@@ -58171,7 +58171,7 @@ code {
         background: #E4E6EF; }
 
 .ql-toolbar {
-  font-family: Poppins, Helvetica, "sans-serif"; }
+  font-family: IRANSansFaNum, Helvetica, "sans-serif"; }
   .ql-toolbar.ql-snow {
     border: 1px solid #EBEDF3;
     border-top-right-radius: 0.42rem;
@@ -59172,7 +59172,7 @@ body.swal2-height-auto {
       background: #F3F6F9; }
 
 .uppy .uppy-Root {
-  font-family: Poppins, Helvetica, "sans-serif"; }
+  font-family: IRANSansFaNum, Helvetica, "sans-serif"; }
   .uppy .uppy-Root.uppy-DragDrop--is-dragdrop-supported {
     border: 2px dashed #EBEDF3; }
 
@@ -59636,7 +59636,7 @@ body.swal2-height-auto {
 .apexcharts-text,
 .apexcharts-title-text,
 .apexcharts-legend-text {
-  font-family: Poppins, Helvetica, "sans-serif" !important; }
+  font-family: IRANSansFaNum, Helvetica, "sans-serif" !important; }
 
 .apexcharts-title-text {
   font-weight: 400; }
@@ -59716,7 +59716,7 @@ body.swal2-height-auto {
   -webkit-box-shadow: 0 0.5rem 1.5rem 0.5rem rgba(0, 0, 0, 0.075) !important;
   box-shadow: 0 0.5rem 1.5rem 0.5rem rgba(0, 0, 0, 0.075) !important; }
   .leaflet-container .leaflet-popup-content-wrapper .leaflet-popup-content {
-    font-family: Poppins, Helvetica, "sans-serif";
+    font-family: IRANSansFaNum, Helvetica, "sans-serif";
     font-size: 1rem; }
 
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
@@ -59730,15 +59730,16 @@ html {
 
 html,
 body {
-  height: 100%;
-  margin: 0px;
-  padding: 0px;
-  font-size: 13px !important;
-  font-weight: 400;
-  font-family: Poppins, Helvetica, "sans-serif";
-  -ms-text-size-adjust: 100%;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale; }
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    font-size: 13px !important;
+    font-weight: 400;
+    font-family: IRANSansFaNum, Helvetica, "sans-serif";
+    -ms-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
   @media (max-width: 1199.98px) {
     html,
     body {
