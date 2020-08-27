@@ -42,7 +42,7 @@ namespace MahtaKala.ActionFilter
                 // not logged in
                 //throw new UnauthorizedAccessException();
             }
-            else if (user.Type != UserType && user.Type != Entities.UserType.Admin)
+            else if (UserType != null && user.Type != UserType && user.Type != Entities.UserType.Admin)
             {
                 throw new AccessDeniedException();
             }
