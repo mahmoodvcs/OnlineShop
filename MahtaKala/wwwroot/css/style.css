@@ -191,7 +191,7 @@ ul {
   line-height: 33px;
   opacity: 1;
   position: absolute;
-  left: 40px;
+  right:-5px;
   text-align: center;
   top: -59px;
   border:1px solid #cbcbcb;
@@ -3903,11 +3903,12 @@ p.checkout-coupon input[type="submit"] {
     font-size: 15px;
 }
 
-.table-content table th,
-.table-content table td {
-    border-bottom: 1px solid #e5e5e5;
-    border-left: 1px solid #e5e5e5;
-}
+    .table-content table th,
+    .table-content table td {
+        border-bottom: 1px solid #e5e5e5;
+        border-left: 1px solid #e5e5e5;
+        border-right: 1px solid #e5e5e5 !important;
+    }
 
 .table-content table td {
     border-top: medium none;
@@ -4031,6 +4032,7 @@ p.checkout-coupon input[type="submit"] {
 .wc-proceed-to-checkout {
     clear: both;
     display: block;
+    text-align:left;
 }
 
 .buttons-cart input:hover,
