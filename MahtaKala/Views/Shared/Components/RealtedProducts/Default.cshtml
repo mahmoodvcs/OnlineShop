@@ -1,0 +1,43 @@
+﻿@model List<Product>
+<div class="hot-deal-products off-white-bg pt-100 pb-90 pt-sm-60 pb-sm-50">
+    <div class="container">
+        <div class="post-title pb-30">
+            <h2>محصولات مرتبط</h2>
+        </div>
+        <div class="hot-deal-active owl-carousel" dir="ltr">
+
+            @foreach (var item in Model)
+            {
+
+                <div class="single-product">
+                    <!-- Product Image Start -->
+                    <div class="pro-img">
+                        <a href="@Url.Content("~/home/product/"+item.Id)">
+                            <img class="primary-img" src="@Url.Content(item.Thubmnail)" alt="single-product">
+                        </a>
+                        <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>
+                    </div>
+                    <!-- Product Image End -->
+                    <!-- Product Content Start -->
+                    <div class="pro-content">
+                        <div class="pro-info">
+                            <h4><a href="@Url.Content("~/home/product/"+item.Id)">@item.Title</a></h4>
+                            <p><span class="price">20,000</span> <del class="prev-price">32,000</del></p>
+                            <div class="label-product l_sale">15<span class="symbol-percent">%</span></div>
+                        </div>
+                        <div class="pro-actions">
+                            <div class="actions-primary">
+                                <a href="#" title="اضافه کردن به سبد">اضافه کردن به سبد +</a>
+                            </div>
+                            <div class="actions-secondary">
+                                <a href="#" title="مقایسه"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
+                                <a href="#" title="علاقه مندی ها"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Product Content End -->
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -26,7 +26,8 @@ namespace MahtaKala.Controllers
 
         public IActionResult Product(int id)
         {
-            return View();
+            var product = db.Products.FirstOrDefault(a=>a.Id==id);
+            return View(product);
         }
 
     }
