@@ -132,17 +132,20 @@ namespace MahtaKala.Controllers.Api
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<List<AddToCartModel>> Cart()
+        public async Task<List<CartItemModel>> Cart()
         {
 
             var items = await db.OrderItems.Where(a => a.Order.UserId == UserId && a.Order.State == OrderState.Initial).ToListAsync();
 
-            return items.Select(b => new AddToCartModel
+            return items.Select(b => new CartItemModel
             {
                 Id = b.Id,
                 Product_Id = b.ProductId,
                 Quantity = b.Quantity,
                 CharacteristicValues = b.CharacteristicValues,
+                Thumbnail = b.Product.Thubmnail,
+                Title = b.Product.Title,
+                Price = b.UnitPrice
             }).ToList();
         }
 
