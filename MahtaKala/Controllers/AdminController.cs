@@ -37,7 +37,7 @@ namespace MahtaKala.Controllers
         {
             return View();
         }
-        public ActionResult GetAllUsers([DataSourceRequest]DataSourceRequest request)
+        public ActionResult GetAllUsers([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Users.ToList(), request);
         }
@@ -113,7 +113,7 @@ namespace MahtaKala.Controllers
         {
             return View();
         }
-        public ActionResult GetAllProvinces([DataSourceRequest]DataSourceRequest request)
+        public ActionResult GetAllProvinces([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Provinces.ToList(), request);
         }
@@ -172,7 +172,7 @@ namespace MahtaKala.Controllers
         {
             return View();
         }
-        public ActionResult GetAllCities([DataSourceRequest]DataSourceRequest request)
+        public ActionResult GetAllCities([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Cities.Include(c => c.Province).ToList(), request);
         }
@@ -240,7 +240,7 @@ namespace MahtaKala.Controllers
         {
             return View();
         }
-        public ActionResult GetAllCategories([DataSourceRequest]DataSourceRequest request)
+        public ActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Categories.Include(c => c.Parent).ToList(), request);
         }
@@ -301,7 +301,7 @@ namespace MahtaKala.Controllers
         {
             return View();
         }
-        public ActionResult GetAllBrands([DataSourceRequest]DataSourceRequest request)
+        public ActionResult GetAllBrands([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Brands.ToList(), request);
         }
@@ -354,7 +354,7 @@ namespace MahtaKala.Controllers
         #endregion
 
 
-        #region "Product"
+        #region Product
 
         public IActionResult ProductList()
         {
@@ -376,12 +376,22 @@ namespace MahtaKala.Controllers
             return Json(new { Success = true });
         }
 
+        [HttpGet]
         public IActionResult Product(int? id)
         {
             ViewData["Title"] = "درج محصول";
-            var p = new Product();
+            
+            Product p;
             if (id.HasValue)
                 p = db.Products.FirstOrDefault(a => a.Id == id);
+            else
+            {
+                p = new Product()
+                {
+                    Characteristics = new List<Characteristic>()
+                };
+            }
+
             return View(p);
         }
 
@@ -392,6 +402,7 @@ namespace MahtaKala.Controllers
             ViewData["Title"] = "درج محصول";
             if (ModelState.IsValid)
             {
+                model.Characteristics = JsonConvert.DeserializeObject<IList<Characteristic>>(Request.Form["characteristicsJson"]);
                 if (model.Id == 0)
                 {
                     db.Products.Add(model);
@@ -436,7 +447,7 @@ namespace MahtaKala.Controllers
 
 
 
-        private ContentResult ConvertDataToJson<T>(IEnumerable<T> data, [DataSourceRequest]DataSourceRequest request)
+        private ContentResult ConvertDataToJson<T>(IEnumerable<T> data, [DataSourceRequest] DataSourceRequest request)
         {
 
             var list = JsonConvert.SerializeObject(data.ToDataSourceResult(request), Formatting.None,

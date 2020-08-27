@@ -31,7 +31,7 @@
                             </span>
                         </span>
                     </a>
-                    <button type="submit" class="btn btn-success m-btn m-btn--custom m-btn--icon">
+                    <button type="submit" class="btn btn-success m-btn m-btn--custom m-btn--icon" onclick="saveProducts();">
                         <span>
                             <i class="fa fa-calendar-check-o"></i>
                             <span>
@@ -98,63 +98,9 @@ source.Read(read => { read.Action("GetBrands", "Repo"); });
                 </div>
             </div>
             <div class="form-group row">
-                <div class="col-lg-6">
-                    <div class="card card-custom gutter-b">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <h3 class="card-label">ویژگی ها</h3>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <table class="table table-striped mb-6">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">عنوان</th>
-                                        <th scope="col">مقدار</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            @Html.TextBoxFor(a => a.Title, new { @class = "form-control" })
-                                        </td>
-                                        <td>
-                                            @Html.TextBoxFor(a => a.Title, new { @class = "form-control" })
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="card card-custom gutter-b">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <h3 class="card-label">ویژگی ها</h3>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <table class="table table-striped mb-6">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">عنوان</th>
-                                        <th scope="col">مقدار</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            @Html.TextBoxFor(a => a.Title, new { @class = "form-control" })
-                                        </td>
-                                        <td>
-                                            @Html.TextBoxFor(a => a.Title, new { @class = "form-control" })
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="col-lg-12">
+                    <div id="characteristicsGrid"></div>
+                    <input type="hidden" name="characteristicsJson" id="characteristicsJson"/>
                 </div>
             </div>
 
@@ -191,4 +137,78 @@ source.Read(read => { read.Action("GetBrands", "Repo"); });
         <br />
     }
 </div>
+
+<script>
+
+    var characteristicsDataSource;
+
+    $(function () {
+
+        var pChars = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Characteristics));
+        var cChars = !pChars ? [] : pChars.map(function (c) {
+            var o = {};
+            o.Name = c.Name;
+            for (var i = 0; i < c.Values.length; i++) {
+                o['Value' + i] = c.Values[i];
+            }
+            for (var i = c.Values.length; i < 10; i++) {
+                o['Value' + i] = null;
+            }
+            return o;
+        });
+
+        characteristicsDataSource =
+            new kendo.data.DataSource({
+                data: cChars,
+                pageSize: 10
+            });
+
+        $("#characteristicsGrid").kendoGrid({
+            dataSource: characteristicsDataSource,
+            columns: [
+                { field: "Name", title: "نام خصوصیت" },
+                { field: "Value0", title: "مقدار 1" },
+                { field: "Value1", title: "مقدار 2" },
+                { field: "Value2", title: "مقدار 3" },
+                { field: "Value3", title: "مقدار 4" },
+                { field: "Value4", title: "مقدار 5" },
+                { field: "Value5", title: "مقدار 6" },
+                { field: "Value6", title: "مقدار 7" },
+                { field: "Value7", title: "مقدار 8" },
+                { field: "Value8", title: "مقدار 9" },
+                { field: "Value9", title: "مقدار 10" },
+                { command: ["edit", "destroy"] }
+            ],
+            toolbar: ["create"],
+            scrollable: false,
+            pageable: true,
+            sortable: true,
+            groupable: true,
+            //filterable: true,
+            editable: "inline",
+            save: function () {
+                this.refresh();
+            }
+        });
+    });
+
+    function saveProducts() {
+        var cChars = characteristicsDataSource.data();
+        var pChars = cChars.map(function (c) {
+            var o = {
+                Name: c.Name,
+                Values: []
+            };
+
+            for (var i = 0; i < 10; i++) {
+                var v = c["Value" + i];
+                if (v == null || v == '')
+                    break;
+                o.Values[i] = v;
+            }
+            return o;
+        });
+        $("#characteristicsJson").val(JSON.stringify(pChars));
+    }
+</script>
 
