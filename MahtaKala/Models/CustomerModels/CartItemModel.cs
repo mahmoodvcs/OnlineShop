@@ -9,7 +9,7 @@ namespace MahtaKala.Models.CustomerModels
     public class CartItemModel
     {
         public long Id { get; set; }
-        public long ProductPrice_Id { get; set; }
+        public long Product_Id { get; set; }
         public int Quantity { get; set; }
         public IList<CharacteristicValue> CharacteristicValues { get; set; }
         public string Thumbnail { get; set; }
