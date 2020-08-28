@@ -1,10 +1,10 @@
 ﻿@model CharacteristicVM
 @{
     ViewData["Title"] = ViewData["Title"];
-    Layout = "~/Views/Shared/_Admin.cshtml";
+    Layout = "~/Views/Shared/_Staff.cshtml";
 }
 <div class="card card-custom gutter-b example example-compact">
-    @using (Html.BeginForm("ProductItem", "admin", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form" }))
+    @using (Html.BeginForm("ProductItem", "Staff", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form" }))
     {
         @Html.AntiForgeryToken()
         @Html.HiddenFor(a => a.ProductId)
@@ -15,7 +15,7 @@
                 <div class="col-lg-6">
                 </div>
                 <div class="col-lg-6" style="text-align:left;">
-                    <a href="@Url.Content("~/admin/ProductList")" class="btn btn-default m-btn m-btn--custom m-btn--icon">
+                    <a href="@Url.Content("~/Staff/ProductList")" class="btn btn-default m-btn m-btn--custom m-btn--icon">
                         <span>
                             <i class="fa fa-list"></i>
                             <span>

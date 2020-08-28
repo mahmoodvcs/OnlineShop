@@ -1,11 +1,11 @@
 ﻿@using MahtaKala.Entities;
-@model Brand
+@model Province
 @{
-    ViewData["Title"] = "Brand " + Model.Name;
-    Layout = "~/Views/Shared/_Admin.cshtml";
+    ViewData["Title"] = "Province " + Model.Name;
+    Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
-@using (Html.BeginForm("EditBrand", "Admin", FormMethod.Post, new { encType = "multipart/form-data" }))
+@using (Html.BeginForm("Province", "Staff", FormMethod.Post, new { encType = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
 

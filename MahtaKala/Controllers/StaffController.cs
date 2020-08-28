@@ -18,9 +18,9 @@ using Z.EntityFramework.Plus;
 namespace MahtaKala.Controllers
 {
     [Authorize(Entities.UserType.Admin)]
-    public class AdminController : ApiControllerBase<AdminController>
+    public class StaffController : ApiControllerBase<StaffController>
     {
-        public AdminController(DataContext context, ILogger<AdminController> logger)
+        public StaffController(DataContext context, ILogger<StaffController> logger)
             : base(context, logger)
         {
         }
@@ -33,7 +33,7 @@ namespace MahtaKala.Controllers
         #region Users
 
 
-        public IActionResult Users()
+        public IActionResult UserList()
         {
             return View();
         }
@@ -41,7 +41,7 @@ namespace MahtaKala.Controllers
         {
             return ConvertDataToJson(db.Users.ToList(), request);
         }
-        public ActionResult EditUser(long id)
+        public new ActionResult User(long id)
         {
             User user = null;
             if (id == 0)
@@ -60,7 +60,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditUser(User model)
+        public new IActionResult User(User model)
         {
             if (ModelState.IsValid)
             {
@@ -99,7 +99,7 @@ namespace MahtaKala.Controllers
                     db.Entry(user).State = EntityState.Modified;
                 }
                 db.SaveChanges();
-                return RedirectToAction("Users");
+                return RedirectToAction("UserList");
             }
             return View(model);
         }
@@ -109,7 +109,7 @@ namespace MahtaKala.Controllers
 
         #region Provinces
 
-        public IActionResult Provinces()
+        public IActionResult ProvinceList()
         {
             return View();
         }
@@ -117,7 +117,7 @@ namespace MahtaKala.Controllers
         {
             return ConvertDataToJson(db.Provinces.ToList(), request);
         }
-        public ActionResult EditProvince(long id)
+        public ActionResult Province(long id)
         {
             Province province = null;
             if (id == 0)
@@ -136,7 +136,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditProvince(Province model)
+        public IActionResult Province(Province model)
         {
             if (ModelState.IsValid)
             {
@@ -158,7 +158,7 @@ namespace MahtaKala.Controllers
                     db.Entry(model).State = EntityState.Modified;
                 }
                 db.SaveChanges();
-                return RedirectToAction("Provinces");
+                return RedirectToAction("ProvinceList");
             }
             return View(model);
         }
@@ -166,9 +166,9 @@ namespace MahtaKala.Controllers
         #endregion
 
 
-        #region Cities
+        #region City
 
-        public IActionResult Cities()
+        public IActionResult CityList()
         {
             return View();
         }
@@ -176,7 +176,7 @@ namespace MahtaKala.Controllers
         {
             return ConvertDataToJson(db.Cities.Include(c => c.Province).ToList(), request);
         }
-        public ActionResult EditCity(long id)
+        public ActionResult City(long id)
         {
             City city = null;
             if (id == 0)
@@ -196,7 +196,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditCity(City model)
+        public IActionResult City(City model)
         {
             ViewBag.Provinces = db.Provinces.ToList();
             if (ModelState.IsValid)
@@ -226,7 +226,7 @@ namespace MahtaKala.Controllers
                     }
                 }
                 db.SaveChanges();
-                return RedirectToAction("Cities");
+                return RedirectToAction("CityList");
             }
             return View(model);
         }
@@ -234,9 +234,9 @@ namespace MahtaKala.Controllers
         #endregion
 
 
-        #region Categories
+        #region Category
 
-        public IActionResult Categories()
+        public IActionResult CategoryList()
         {
             return View();
         }
@@ -244,7 +244,7 @@ namespace MahtaKala.Controllers
         {
             return ConvertDataToJson(db.Categories.Include(c => c.Parent).ToList(), request);
         }
-        public ActionResult EditCategory(long id)
+        public ActionResult Category(long id)
         {
             ProductCategory productCategory = null;
             if (id == 0)
@@ -264,7 +264,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditCategory(ProductCategory model)
+        public IActionResult Category(ProductCategory model)
         {
             ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
             if (ModelState.IsValid)
@@ -287,7 +287,7 @@ namespace MahtaKala.Controllers
                     db.Entry(model).State = EntityState.Modified;
                 }
                 db.SaveChanges();
-                return RedirectToAction("Categories");
+                return RedirectToAction("CategoryList");
             }
             return View(model);
         }
@@ -297,7 +297,7 @@ namespace MahtaKala.Controllers
 
         #region Brand
 
-        public IActionResult Brands()
+        public IActionResult BrandList()
         {
             return View();
         }
@@ -305,7 +305,7 @@ namespace MahtaKala.Controllers
         {
             return ConvertDataToJson(db.Brands.ToList(), request);
         }
-        public ActionResult EditBrand(long id)
+        public ActionResult Brand(long id)
         {
             Brand brand = null;
             if (id == 0)
@@ -324,7 +324,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditBrand(Brand model)
+        public IActionResult Brand(Brand model)
         {
             if (ModelState.IsValid)
             {
@@ -346,7 +346,7 @@ namespace MahtaKala.Controllers
                     db.Entry(model).State = EntityState.Modified;
                 }
                 db.SaveChanges();
-                return RedirectToAction("Brands");
+                return RedirectToAction("BrandList");
             }
             return View(model);
         }
@@ -412,7 +412,7 @@ namespace MahtaKala.Controllers
                     db.Entry(model).State = EntityState.Modified;
                 }
                 db.SaveChanges();
-                return RedirectToAction("ProductItem", "admin",new {id = model.Id });
+                return RedirectToAction("ProductItem", "Staff",new {id = model.Id });
             }
             return View(model);
         }

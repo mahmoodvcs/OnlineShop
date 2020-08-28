@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = ViewData["Title"];
-    Layout = "~/Views/Shared/_Admin.cshtml";
+    Layout = "~/Views/Shared/_Staff.cshtml";
 }
 @(Html.Kendo().Grid<Product>().Name("grid").Columns(columns =>
 {
@@ -20,19 +20,19 @@
         .Refresh(true)
         .PageSizes(true)
         .ButtonCount(5)).Filterable().Sortable().DataSource(dataSource => dataSource
-                                                                                                                                                                                              .Ajax()
-                                                                                                                                                                                              .PageSize(50)
-                                                                                                                                                                                              .Model(model =>
-                                                                                                                                                                                              {
-                                                                                                                                                                                                  model.Id(p => p.Id);
+                .Ajax()
+                .PageSize(50)
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
 
-                                                                                                                                                                                              })
-                                                                                                                                                                                              .Read(read => read.Action("Product_Read", "Admin"))
+                })
+                .Read(read => read.Action("Product_Read", "Staff"))
                                                                                                                                                                                                                                                                                     )
         )
 <script id="GridToolbarTemplate" type="text/x-kendo-template">
     <div class="refreshBtnContainer">
-        <a href="@Url.Content("~/Admin/Product")" class="k-pager-refresh k-link k-button">
+        <a href="@Url.Content("~/Staff/Product")" class="k-pager-refresh k-link k-button">
             <span class="k-icon k-i-add"></span>
             جدید
         </a>
@@ -43,14 +43,14 @@
        function EditQuestion(e) {
            e.preventDefault();
            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-           var url = '@Url.Content("~/Admin/Product/")' + dataItem.Id;
+           var url = '@Url.Content("~/Staff/Product/")' + dataItem.Id;
            window.location.href = url;
         }
 
         function ShowItem(e) {
            e.preventDefault();
            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-           var url = '@Url.Content("~/Admin/ProductItem/")' + dataItem.Id;
+           var url = '@Url.Content("~/Staff/ProductItem/")' + dataItem.Id;
            window.location.href = url;
         }
 
@@ -73,7 +73,7 @@
                     if (isConfirm) {
 
                         $.ajax({
-                            url: '@Url.Content("~/admin/Product_Destroy/")' + id,
+                            url: '@Url.Content("~/Staff/Product_Destroy/")' + id,
                             dataType: "json",
                             type: "POST",
                             contentType: 'application/json; charset=utf-8',
