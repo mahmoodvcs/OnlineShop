@@ -119,7 +119,7 @@ namespace MahtaKala.Controllers.Api
                 db.OrderItems.Add(item);
             }
 
-            item.ProductId = addToCart.Product_Id;
+            item.ProductPriceId = addToCart.ProductPrice_Id;
             item.Quantity = addToCart.Quantity;
             item.CharacteristicValues = addToCart.CharacteristicValues;
 
@@ -140,11 +140,11 @@ namespace MahtaKala.Controllers.Api
             return await items.Select(b => new CartItemModel
             {
                 Id = b.Id,
-                Product_Id = b.ProductId,
+                ProductPrice_Id = b.ProductPriceId,
                 Quantity = b.Quantity,
                 CharacteristicValues = b.CharacteristicValues,
-                Thumbnail = b.Product.Thubmnail,
-                Title = b.Product.Title,
+                Thumbnail = b.ProductPrice.Product.Thubmnail,
+                Title = b.ProductPrice.Product.Title,
                 Price = b.UnitPrice
             }).ToListAsync();
         }

@@ -69,7 +69,7 @@ namespace MahtaKala.Controllers
                 {
                     new OrderItem
                     {
-                        ProductId = prod.Id,
+                        ProductPriceId = prod.Id,
                         Quantity = 1,
                         UnitPrice = 1000
                     }

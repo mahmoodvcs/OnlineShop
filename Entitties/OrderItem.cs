@@ -13,14 +13,16 @@ namespace MahtaKala.Entities
         [DatabaseGenerated(System.ComponentModel.DataAnnotations.Schema.DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
-        public Product Product { get; set; }
-        public long ProductId { get; set; }
+        public ProductPrice ProductPrice { get; set; }
+        public long ProductPriceId { get; set; }
 
         public long OrderId { get; set; }
         public Order Order { get; set; }
 
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
+        public decimal FinalPrice { get; set; }
+        
         public IList<CharacteristicValue> CharacteristicValues { get; set; }
 
     }
