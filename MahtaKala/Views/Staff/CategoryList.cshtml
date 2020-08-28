@@ -1,0 +1,53 @@
+﻿@using Kendo.Mvc.UI
+@{
+    ViewData["Title"] = "Categories";
+    Layout = "~/Views/Shared/_Staff.cshtml";
+}
+
+
+@(Html.Kendo().Grid<MahtaKala.Entities.ProductCategory>()
+    .Name("Grid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Title);
+        columns.Command(command => command.Custom("Edit").Click("editEntity")).Width(160);
+    })
+    .ToolBar(toolbar =>
+    {
+        toolbar.ClientTemplateId("GridToolbarTemplate");
+    })
+    .HtmlAttributes(new { style = "height: 550px;" })
+    .Scrollable()
+    .Groupable()
+    .Sortable()
+    .Pageable(pageable => pageable
+        .Refresh(true)
+        .PageSizes(true)
+        .ButtonCount(5))
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+        })
+        .Read(read => read.Action("GetAllCategories", "Staff"))
+        .PageSize(20)
+    )
+)
+
+
+<script id="GridToolbarTemplate" type="text/x-kendo-template">
+    <div class="refreshBtnContainer">
+        <a href="@Url.Content("~/Staff/Category")" class="k-pager-refresh k-link k-button">
+            <span class="k-icon k-i-add"></span>
+            جدید
+        </a>
+    </div>
+</script>
+
+<script>
+    function editEntity(e) {
+        window.location.href = '/Staff/Category/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
+        return false;
+    }
+</script>

@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
-@using (Html.BeginForm("EditUser", "Staff", FormMethod.Post, new { encType = "multipart/form-data" }))
+@using (Html.BeginForm("User", "Staff", FormMethod.Post, new { encType = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
 

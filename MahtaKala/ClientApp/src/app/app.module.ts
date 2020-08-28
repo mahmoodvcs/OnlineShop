@@ -24,7 +24,7 @@ import { FetchDataComponent } from './fetch-data/fetch-data.component';
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'staff', loadChildren: './staff/staff.module#StaffModule'},
+      { path: 'staffff', loadChildren: './staff/staff.module#StaffModule'},
     ])
   ],
   providers: [],
