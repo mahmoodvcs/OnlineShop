@@ -135,9 +135,9 @@ namespace MahtaKala.Controllers.Api
         public async Task<List<CartItemModel>> Cart()
         {
 
-            var items = await db.OrderItems.Where(a => a.Order.UserId == UserId && a.Order.State == OrderState.Initial).ToListAsync();
+            var items = db.OrderItems.Where(a => a.Order.UserId == UserId && a.Order.State == OrderState.Initial);
 
-            return items.Select(b => new CartItemModel
+            return await items.Select(b => new CartItemModel
             {
                 Id = b.Id,
                 Product_Id = b.ProductId,
@@ -146,7 +146,7 @@ namespace MahtaKala.Controllers.Api
                 Thumbnail = b.Product.Thubmnail,
                 Title = b.Product.Title,
                 Price = b.UnitPrice
-            }).ToList();
+            }).ToListAsync();
         }
 
         /// <summary>
