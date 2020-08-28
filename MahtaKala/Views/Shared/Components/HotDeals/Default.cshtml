@@ -1,4 +1,4 @@
-﻿@model IList<MahtaKala.Entities.Product>
+﻿@model List<Product>
 <div class="hot-deal-products off-white-bg pb-90 pb-sm-50">
     <div class="container">
 
@@ -8,6 +8,7 @@
         <div class="hot-deal-active owl-carousel" dir="ltr">
             @foreach (var item in Model)
             {
+                var productPrice = item.Prices.First();
                 <div class="single-product">
 
                     <div class="pro-img">
@@ -20,16 +21,16 @@
                     <div class="pro-content">
                         <div class="pro-info">
                             <h4><a href="@Url.Content("~/home/product/"+item.Id)">@item.Title</a></h4>
-                            <p><span class="price">330,000</span><del class="prev-price">270,000 </del></p>
+                            <p><span class="price">@productPrice.DiscountPrice</span><del class="prev-price">@productPrice.Price</del></p>
                             <div class="label-product l_sale">20<span class="symbol-percent">%</span></div>
                         </div>
                         <div class="pro-actions">
                             <div class="actions-primary">
-                                <a href="#" title="Add to Cart"> + اضافه کردن به سبد</a>
+                            <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id">+ اضافه کردن به سبد </a>
                             </div>
                             <div class="actions-secondary">
-                                <a href="#" title="Compare"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                                <a href="#" title="WishList"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
+                                <a href="#" title="مقایسه"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
+                                <a href="#" title="علاقه مندی ها"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
                             </div>
                         </div>
                     </div>

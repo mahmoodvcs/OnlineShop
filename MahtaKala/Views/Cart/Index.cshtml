@@ -1,4 +1,5 @@
-﻿@{
+﻿@model List<ShppingCart>
+@{
     ViewData["Title"] = "سبد خرید";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -32,26 +33,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="product-thumbnail">
-                                        <a href="#"><img src="~/img/products/13.jpg" alt="cart-image" /></a>
-                                    </td>
-                                    <td class="product-name"><a href="#">محصول کد 14</a></td>
-                                    <td class="product-price"><span class="amount">10,000</span></td>
-                                    <td class="product-quantity"><input type="number" value="1" /></td>
-                                    <td class="product-subtotal">10,0000</td>
-                                    <td class="product-remove"> <a href="#"><i class="fa fa-times" aria-hidden="true"></i></a></td>
-                                </tr>
-                                <tr>
-                                    <td class="product-thumbnail">
-                                        <a href="#"><img src="~/img/products/23.jpg" alt="cart-image" /></a>
-                                    </td>
-                                    <td class="product-name"><a href="#">محصول کد 15</a></td>
-                                    <td class="product-price"><span class="amount">5000</span></td>
-                                    <td class="product-quantity"><input type="number" value="1" /></td>
-                                    <td class="product-subtotal">5000</td>
-                                    <td class="product-remove"> <a href="#"><i class="fa fa-times" aria-hidden="true"></i></a></td>
-                                </tr>
+                                @{ decimal sumPrice = 0; decimal sumFinalPrice = 0;}
+                                @foreach (var item in Model)
+                                {
+                                    sumPrice = item.ProductPrice.Price * item.Count;
+                                    sumFinalPrice = item.ProductPrice.DiscountPrice * item.Count;
+                                    <tr>
+                                        <td class="product-thumbnail">
+                                            <a href="#"><img src="@Url.Content(item.ProductPrice.Product.Thubmnail)" alt="cart-image" /></a>
+                                        </td>
+                                        <td class="product-name"><a href="@Url.Content("~/home/product/"+item.ProductPrice.ProductId)">@item.ProductPrice.Product.Title</a></td>
+                                        <td class="product-price"><span class="amount">@item.ProductPrice.DiscountPrice</span></td>
+                                        <td class="product-quantity"><input type="number" value="@item.Count" /></td>
+                                        <td class="product-subtotal">@(item.ProductPrice.DiscountPrice * item.Count )</td>
+                                        <td class="product-remove"> <a href="#"><i class="fa fa-times" aria-hidden="true"></i></a></td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -71,12 +68,12 @@
                                     <tbody>
                                         <tr class="cart-subtotal">
                                             <th>قیمت کل</th>
-                                            <td><span class="amount">20,000 تومان</span></td>
+                                            <td><span class="amount">@sumPrice تومان</span></td>
                                         </tr>
                                         <tr class="order-total">
                                             <th>قیمت قابل پرداخت</th>
                                             <td>
-                                                <strong><span class="amount">18,000 تومان</span></strong>
+                                                <strong><span class="amount">@sumFinalPrice تومان</span></strong>
                                             </td>
                                         </tr>
                                     </tbody>

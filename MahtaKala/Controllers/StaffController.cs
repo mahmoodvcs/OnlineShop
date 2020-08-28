@@ -379,11 +379,18 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public IActionResult Product(int? id)
         {
-            ViewData["Title"] = "درج محصول";
-            
+            ViewData["Title"] = "درج محصول";           
             Product p;
             if (id.HasValue)
+            {
                 p = db.Products.FirstOrDefault(a => a.Id == id);
+                var productPrices = db.ProductPrices.FirstOrDefault(a=>a.ProductId==id);
+                if (productPrices != null)
+                {
+                    p.DiscountPrice = productPrices.DiscountPrice;
+                    p.Price = productPrices.Price;
+                }
+            }
             else
             {
                 p = new Product()
@@ -391,7 +398,6 @@ namespace MahtaKala.Controllers
                     Characteristics = new List<Characteristic>()
                 };
             }
-
             return View(p);
         }
 
@@ -411,34 +417,24 @@ namespace MahtaKala.Controllers
                 {
                     db.Entry(model).State = EntityState.Modified;
                 }
+
+                var productPrices = db.ProductPrices.FirstOrDefault(a => a.ProductId == model.Id);
+                if (productPrices == null)
+                {
+                    productPrices = new ProductPrice();
+                    productPrices.Product = model;
+                    db.ProductPrices.Add(productPrices);
+                }
+                productPrices.DiscountPrice = model.DiscountPrice;
+                productPrices.Price = model.Price;
+
                 db.SaveChanges();
-                return RedirectToAction("ProductItem", "Staff",new {id = model.Id });
+                return RedirectToAction("ProductList", "Staff");
             }
             return View(model);
         }
 
-        public IActionResult ProductItem(int id)
-        {
-            ViewData["Title"] = "مدیریت  قیمت و تعداد محصول";
-            var p = db.Products.FirstOrDefault(a => a.Id == id);
-            CharacteristicVM vm = new CharacteristicVM();
-            vm.ProductId = id;
-            List<CharacteristicItemVM> lst = new List<CharacteristicItemVM>();
-            foreach (var item in p.Characteristics)
-            {
-                foreach (var itemx in item.Values)
-                {
-                    CharacteristicItemVM v = new CharacteristicItemVM();
-                    v.Name = item.Name;
-                    v.Value = itemx;
-                    lst.Add(v);
-                }
-            }
-            vm.Items = lst;
-            return View(vm);
-        }
-
-
+  
         #endregion
 
 

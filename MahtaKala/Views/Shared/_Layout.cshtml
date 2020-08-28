@@ -20,8 +20,11 @@
     <link rel="stylesheet" href="~/css/owl.carousel.min.css?v=1">
     <link rel="stylesheet" href="~/css/bootstrap.min.css?v=1">
     <link rel="stylesheet" href="~/css/default.css?v=1.1">
+    <link href="~/css/toastr.css" rel="stylesheet" />
+    <link href="~/css/sweetalert.css" rel="stylesheet" />
     <link href="~/css/style.css?v=2.12" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/responsive.css?v=1">
+    <script src="~/js/vendor/jquery-3.2.1.min.js"></script>
     <script src="~/js/vendor/modernizr-3.5.0.min.js"></script>
 </head>
 <body dir="rtl">
@@ -69,7 +72,7 @@
                             <div class="cart-box mt-all-30">
                                 <ul class="d-flex justify-content-lg-end justify-content-center align-items-center">
                                     <li>
-                                        <a href="#"><i class="lnr lnr-cart"></i><span class="my-cart"><span class="total-pro">2</span></span></a>
+                                        <a href="@Url.Content("~/cart/")"><i class="lnr lnr-cart"></i><span class="my-cart"><span class="total-pro" id="cart-status">0</span></span></a>
                                         <ul class="ht-dropdown cart-box-width">
                                             <li>
                                                 <!-- Cart Box Start -->
@@ -211,7 +214,7 @@
             </div>
             <!-- Mobile Vertical Menu Start End -->
         </header>
-      
+
         @RenderBody()
         <footer class="off-white-bg2 pt-95 bdr-top pt-sm-55">
             <!-- Footer Top Start -->
@@ -305,14 +308,14 @@
                                             <img class="imgFooter" src="~/img/logo-footer.png" />
                                         </li>
                                         @*<li>
-                                            <img class="imgFooter" src="((آدرس نشان لوگوی اتحادیه))" alt="" onclick="window.open('https://www.ecunion.ir/verify/mahtakala.ir?token=51619435f0185925110e', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=580, height=600, top=30')" style="cursor:pointer">
-                                        </li>
-                                        <li>
-                                            <img id='jxlzwlaofukzjxlzwlaorgvj' class="imgFooter"  style='cursor:pointer' onclick='window.open("https://logo.samandehi.ir/Verify.aspx?id=146143&p=rfthaodsgvkarfthaodsxlao", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")' 
-                                                 src='https://logo.samandehi.ir/logo.aspx?id=146143&p=nbpdshwlwlbqnbpdshwlqfti' />   </li>
-                                        <li>
-                                            <a target="_blank" href="https://trustseal.enamad.ir/?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE"><img class="imgFooter" src="https://Trustseal.eNamad.ir/logo.aspx?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE" alt="" style="cursor:pointer" id="ytzlrNw8i8c1YXJ7p9FE"></a>
-                                        </li>*@
+                                                <img class="imgFooter" src="((آدرس نشان لوگوی اتحادیه))" alt="" onclick="window.open('https://www.ecunion.ir/verify/mahtakala.ir?token=51619435f0185925110e', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=580, height=600, top=30')" style="cursor:pointer">
+                                            </li>
+                                            <li>
+                                                <img id='jxlzwlaofukzjxlzwlaorgvj' class="imgFooter"  style='cursor:pointer' onclick='window.open("https://logo.samandehi.ir/Verify.aspx?id=146143&p=rfthaodsgvkarfthaodsxlao", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")'
+                                                     src='https://logo.samandehi.ir/logo.aspx?id=146143&p=nbpdshwlwlbqnbpdshwlqfti' />   </li>
+                                            <li>
+                                                <a target="_blank" href="https://trustseal.enamad.ir/?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE"><img class="imgFooter" src="https://Trustseal.eNamad.ir/logo.aspx?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE" alt="" style="cursor:pointer" id="ytzlrNw8i8c1YXJ7p9FE"></a>
+                                            </li>*@
                                     </ul>
                                 </div>
                             </div>
@@ -454,7 +457,11 @@
             </div>
         </div>
     </div>
-    <script src="~/js/vendor/jquery-3.2.1.min.js"></script>
+
+    <script src="~/js/jquery-migrate-3.0.0.js"></script>
+    <script src="~/js/jquery.validate.min.js"></script>
+    <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/jquery.unobtrusive-ajax.min.js"></script>
     <script src="~/js/jquery.countdown.min.js?v=1"></script>
     <script src="~/js/jquery.meanmenu.min.js"></script>
     <script src="~/js/jquery.scrollUp.js"></script>
@@ -467,5 +474,8 @@
     <script src="~/js/bootstrap.min.js"></script>
     <script src="~/js/plugins.js"></script>
     <script src="~/js/main.js"></script>
+    <script src="~/js/jquery.blockUI.js"></script>
+    <script src="~/js/toastr.min.js"></script>
+    <script src="~/js/ShoppingCart.js?v=2"></script>
 </body>
 </html>

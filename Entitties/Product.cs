@@ -29,6 +29,11 @@ namespace MahtaKala.Entities
         public IList<ProductPrice> Prices { get; set; }
         public IList<ProductQuantity> Quantities { get; set; }
 
+        [NotMapped]
+        public decimal Price { get; set; }
+        [NotMapped]
+        public decimal DiscountPrice { get; set; }
+
     }
 
     public class Characteristic
