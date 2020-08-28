@@ -2,10 +2,10 @@
 @model User
 @{
     ViewData["Title"] = "User " + Model.Username;
-    Layout = "~/Views/Shared/_Admin.cshtml";
+    Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
-@using (Html.BeginForm("EditUser", "Admin", FormMethod.Post, new { encType = "multipart/form-data" }))
+@using (Html.BeginForm("EditUser", "Staff", FormMethod.Post, new { encType = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
 

@@ -1,15 +1,15 @@
 ﻿@using Kendo.Mvc.UI
 @{
-    ViewData["Title"] = "Categories";
-    Layout = "~/Views/Shared/_Admin.cshtml";
+    ViewData["Title"] = "Brands";
+    Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
 
-@(Html.Kendo().Grid<MahtaKala.Entities.ProductCategory>()
+@(Html.Kendo().Grid<MahtaKala.Entities.Brand>()
     .Name("Grid")
     .Columns(columns =>
     {
-        columns.Bound(p => p.Title);
+        columns.Bound(p => p.Name);
         columns.Command(command => command.Custom("Edit").Click("editEntity")).Width(160);
     })
     .HtmlAttributes(new { style = "height: 550px;" })
@@ -26,16 +26,16 @@
             {
                 model.Id(p => p.Id);
             })
-            .Read(read => read.Action("GetAllCategories", "Admin"))
+            .Read(read => read.Action("GetAllBrands", "Staff"))
             .PageSize(20)
         )
 )
 
-<a href="/Admin/EditCategory/" class="btn btn-primary m-3">دسته بندی جدید</a>
+<a href="/Staff/EditBrand/" class="btn btn-primary m-3">برند جدید</a>
 
 <script>
     function editEntity(e) {
-        window.location.href = '/Admin/EditCategory/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
+        window.location.href = '/Staff/EditBrand/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
         return false;
     }
 </script>

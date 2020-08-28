@@ -1,7 +1,7 @@
 ﻿@using Kendo.Mvc.UI
 @{
     ViewData["Title"] = "Users";
-    Layout = "~/Views/Shared/_Admin.cshtml";
+    Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
 
@@ -31,16 +31,16 @@
             {
                 model.Id(p => p.Id);
             })
-            .Read(read => read.Action("GetAllUsers", "Admin"))
+            .Read(read => read.Action("GetAllUsers", "Staff"))
             .PageSize(20)
         )
 )
 
-<a href="/Admin/EditUser/" class="btn btn-primary m-3">کاربر جدید</a>
+<a href="/Staff/EditUser/" class="btn btn-primary m-3">کاربر جدید</a>
 
 <script>
     function editUser(e) {
-        window.location.href = '/Admin/EditUser/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
+        window.location.href = '/Staff/EditUser/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
         return false;
     }
 </script>

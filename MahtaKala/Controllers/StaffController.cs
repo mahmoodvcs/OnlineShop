@@ -18,9 +18,9 @@ using Z.EntityFramework.Plus;
 namespace MahtaKala.Controllers
 {
     [Authorize(Entities.UserType.Admin)]
-    public class AdminController : ApiControllerBase<AdminController>
+    public class StaffController : ApiControllerBase<StaffController>
     {
-        public AdminController(DataContext context, ILogger<AdminController> logger)
+        public StaffController(DataContext context, ILogger<StaffController> logger)
             : base(context, logger)
         {
         }
@@ -412,7 +412,7 @@ namespace MahtaKala.Controllers
                     db.Entry(model).State = EntityState.Modified;
                 }
                 db.SaveChanges();
-                return RedirectToAction("ProductItem", "admin",new {id = model.Id });
+                return RedirectToAction("ProductItem", "Staff",new {id = model.Id });
             }
             return View(model);
         }

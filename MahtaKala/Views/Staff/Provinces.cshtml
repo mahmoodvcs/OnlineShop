@@ -1,7 +1,7 @@
 ﻿@using Kendo.Mvc.UI
 @{
     ViewData["Title"] = "Provinces";
-    Layout = "~/Views/Shared/_Admin.cshtml";
+    Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
 
@@ -26,16 +26,16 @@
             {
                 model.Id(p => p.Id);
             })
-            .Read(read => read.Action("GetAllProvinces", "Admin"))
+            .Read(read => read.Action("GetAllProvinces", "Staff"))
             .PageSize(20)
         )
 )
 
-<a href="/Admin/EditProvince/" class="btn btn-primary m-3">استان جدید</a>
+<a href="/Staff/EditProvince/" class="btn btn-primary m-3">استان جدید</a>
 
 <script>
     function editEntity(e) {
-        window.location.href = '/Admin/EditProvince/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
+        window.location.href = '/Staff/EditProvince/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
         return false;
     }
 </script>

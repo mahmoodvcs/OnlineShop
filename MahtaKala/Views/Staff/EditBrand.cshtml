@@ -2,10 +2,10 @@
 @model Brand
 @{
     ViewData["Title"] = "Brand " + Model.Name;
-    Layout = "~/Views/Shared/_Admin.cshtml";
+    Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
-@using (Html.BeginForm("EditBrand", "Admin", FormMethod.Post, new { encType = "multipart/form-data" }))
+@using (Html.BeginForm("EditBrand", "Staff", FormMethod.Post, new { encType = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
 
