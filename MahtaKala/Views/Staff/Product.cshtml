@@ -1,6 +1,6 @@
 ﻿@model Product
 @{
-    ViewData["Title"] = ViewData["Title"];
+    ViewData["TitlNewtonsoft.Json.JsonSerializerNewtonsoft.Json.JsonSerializere"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
 <div class="card card-custom gutter-b example example-compact">
@@ -59,14 +59,14 @@
                     </label>
                     <div class="k-content">
                         @(Html.Kendo().DropDownList()
-.Name("CategoryId")
-.DataTextField("title")
-.DataValueField("id")
-.DataSource(source =>
-{
-source.Read(read => { read.Action("GetCategories", "Repo"); });
-})
-.HtmlAttributes(new { style = "width: 100%" })
+                            .Name("CategoryId")
+                            .DataTextField("title")
+                            .DataValueField("id")
+                            .DataSource(source =>
+                            {
+                            source.Read(read => { read.Action("GetCategories", "Repo"); });
+                            })
+                            .HtmlAttributes(new { style = "width: 100%" })
                         )
                     </div>
                 </div>
@@ -76,14 +76,14 @@ source.Read(read => { read.Action("GetCategories", "Repo"); });
                     </label>
                     <div class="k-content">
                         @(Html.Kendo().DropDownList()
-.Name("BrandId")
-.DataTextField("name")
-.DataValueField("id")
-.DataSource(source =>
-{
-source.Read(read => { read.Action("GetBrands", "Repo"); });
-})
-.HtmlAttributes(new { style = "width: 100%" })
+                            .Name("BrandId")
+                            .DataTextField("name")
+                            .DataValueField("id")
+                            .DataSource(source =>
+                            {
+                            source.Read(read => { read.Action("GetBrands", "Repo"); });
+                            })
+                            .HtmlAttributes(new { style = "width: 100%" })
                         )
                     </div>
                 </div>
@@ -99,8 +99,64 @@ source.Read(read => { read.Action("GetBrands", "Repo"); });
             </div>
             <div class="form-group row">
                 <div class="col-lg-12">
+                    <label>
+                        عکس کوچک اول @(Model.Id == 0?"(برای آپلود عکس ابتدا باید محصول را ذخیره نمایید.)":"") :
+                    </label>
+                    <div class="k-content @(Model.Id == 0?"disabled-content":"")">
+                        @(Html.Kendo().Upload()
+                            .Name("thumbnails")
+                            .Multiple(false)
+                            .Async(a => a
+                                .Save("SaveThumbnail", "Staff")
+                                .AutoUpload(true)
+                            )
+                            .Events(e => e
+                                .Upload("onUpload")
+                                .Success("onThumbSuccess")
+                            )
+                            .Validation(validation => validation.AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png", ".bmp" }))
+                        )
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-12">
+                    <img id="thumb-img" src="@(Model.Thubmnail!=null?Url.Action("Product", "Image") + "?id=" + Model.Id + "&name=" + Model.Thubmnail:"")" style="max-width:200px; max-height:200px;" />
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-lg-12">
+                    <label>
+                        عکس ها @(Model.Id == 0?"(برای آپلود عکس ابتدا باید محصول را ذخیره نمایید.)":"") :
+                    </label>
+                    <div class="k-content @(Model.Id == 0?"disabled-content":"")">
+                        @(Html.Kendo().Upload()
+                            .Name("images")
+                            .Multiple(true)
+                            .Async(a => a
+                                .Save("SaveImages", "Staff")
+                                .AutoUpload(true)
+                                .Batch(true)
+                            )
+                            .Events(e => e
+                                .Upload("onUpload")
+                                .Success("onSuccess")
+                            )
+                            .Validation(validation => validation.AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png", ".bmp" }))
+                        )
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-12">
+                    <div id="productImagesListView"></div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-12">
                     <div id="characteristicsGrid"></div>
-                    <input type="hidden" name="characteristicsJson" id="characteristicsJson"/>
+                    <input type="hidden" name="characteristicsJson" id="characteristicsJson" />
                 </div>
             </div>
 
@@ -139,7 +195,7 @@ source.Read(read => { read.Action("GetBrands", "Repo"); });
 </div>
 
 <script>
-
+    @*var model = @Html.Raw(Json.Encode(Model));*@
     var characteristicsDataSource;
 
     $(function () {
@@ -190,6 +246,7 @@ source.Read(read => { read.Action("GetBrands", "Repo"); });
                 this.refresh();
             }
         });
+        loadImageList(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ImageList)));
     });
 
     function saveProducts() {
@@ -210,5 +267,139 @@ source.Read(read => { read.Action("GetBrands", "Repo"); });
         });
         $("#characteristicsJson").val(JSON.stringify(pChars));
     }
+    function onUpload(e) {
+        e.data = { ID: $("#Id").val() };
+    }
+    function onSuccess(e) {
+        images = jQuery.parseJSON(e.XMLHttpRequest.responseText);
+        loadImageList(images);
+    }
+    function loadImageList(images) {
+        data = [];
+        var i;
+        for (i = 0; i < images.length; i++) {
+            data.push({
+                src: getImage(images[i]),
+                image: images[i]
+            });
+        }
+        var dataSource = new kendo.data.DataSource({
+            data: data
+        });
+
+        $("#pager").kendoPager({
+            dataSource: dataSource
+        });
+
+        $("#productImagesListView").kendoListView({
+            dataSource: dataSource,
+            template: kendo.template($("#product-image-template").html())
+        });
+    }
+    function onThumbSuccess(e) {
+        var imgId = jQuery.parseJSON(e.XMLHttpRequest.responseText);
+        var _img = document.getElementById('thumb-img');
+        _img.src =  getImage(imgId);
+    }
+    function getImage(imgId) {
+        return '@Url.Action("Product", "Image")?id=' + $("#Id").val() + '&name=' + imgId;
+    }
+    function deleteImage(imgId) {
+        console.log(imgId);
+        Swal.fire({
+            title: "آیا مطمئن به حذف فایل هستید؟",
+            text: "در صورت تایید دیگر قابل بازگشت نخواهد بود.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "بله",
+            cancelButtonText: "خیر",
+            reverseButtons: true
+        }).then(function (result) {
+            if (result.value) {
+                $.post("@Url.Action("DeleteImage", "Staff")",
+                    {
+                        Id: $("#Id").val(),
+                        fileName: imgId
+                    },
+                    function (images) {
+                        loadImageList(images);
+                });
+                // result.dismiss can be "cancel", "overlay",
+                // "close", and "timer"
+            } else if (result.dismiss === "cancel") {
+                //Swal.fire(
+                //    "Cancelled",
+                //    "Your imaginary file is safe :)",
+                //    "error"
+                //)
+            }
+        });
+    }
 </script>
 
+<script type="text/x-kendo-tmpl" id="product-image-template">
+    <div class="product">
+        <img src="#:src#" />
+        <p>
+            <button type="button" class="btn btn-danger" onclick="deleteImage('#:image#')">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </p>
+    </div>
+</script>
+
+<style>
+
+    #productImagesListView {
+        padding: 10px 5px;
+        margin-bottom: -1px;
+        min-height: 200px;
+        /* Avoid cutout if font or line is bigger */
+        font: inherit;
+    }
+
+    .product {
+        float: left;
+        position: relative;
+        width: 111px;
+        height: 170px;
+        margin: 0 5px;
+        padding: 0;
+    }
+
+        .product img {
+            width: 110px;
+            height: 110px;
+        }
+
+        .product p {
+            visibility: hidden;
+        }
+
+        .product:hover p {
+            visibility: visible;
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            top: 0;
+            margin: 0;
+            padding: 0;
+            line-height: 110px;
+            vertical-align: middle;
+            text-align: center;
+            color: #fff;
+            background-color: rgba(0,0,0,0.75);
+            transition: background .2s linear, color .2s linear;
+            -moz-transition: background .2s linear, color .2s linear;
+            -webkit-transition: background .2s linear, color .2s linear;
+            -o-transition: background .2s linear, color .2s linear;
+        }
+
+    .k-listview:after {
+        content: ".";
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+    }
+</style>

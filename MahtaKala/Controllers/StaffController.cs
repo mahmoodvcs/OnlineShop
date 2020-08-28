@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Kendo.Mvc.Extensions;
@@ -7,10 +8,13 @@ using Kendo.Mvc.UI;
 using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
 using MahtaKala.Entities.Security;
+using MahtaKala.GeneralServices;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Z.EntityFramework.Plus;
@@ -20,9 +24,17 @@ namespace MahtaKala.Controllers
     [Authorize(Entities.UserType.Admin)]
     public class StaffController : ApiControllerBase<StaffController>
     {
-        public StaffController(DataContext context, ILogger<StaffController> logger)
-            : base(context, logger)
+        private string ProductsImagesPath { get; set; }
+        private IFileService FileService { get; set; }
+        public StaffController(
+            DataContext context,
+            ILogger<StaffController> logger,
+            IConfiguration configuration,
+            IFileService fileService
+            ) : base(context, logger)
         {
+            ProductsImagesPath = configuration.GetSection("AppSettings")["ProductsImagesPath"];
+            this.FileService = fileService;
         }
         public IActionResult Index()
         {
@@ -380,7 +392,7 @@ namespace MahtaKala.Controllers
         public IActionResult Product(int? id)
         {
             ViewData["Title"] = "درج محصول";
-            
+
             Product p;
             if (id.HasValue)
                 p = db.Products.FirstOrDefault(a => a.Id == id);
@@ -412,7 +424,7 @@ namespace MahtaKala.Controllers
                     db.Entry(model).State = EntityState.Modified;
                 }
                 db.SaveChanges();
-                return RedirectToAction("ProductItem", "Staff",new {id = model.Id });
+                return RedirectToAction("ProductItem", "Staff", new { id = model.Id });
             }
             return View(model);
         }
@@ -436,6 +448,96 @@ namespace MahtaKala.Controllers
             }
             vm.Items = lst;
             return View(vm);
+        }
+
+
+
+        [HttpPost]
+        public async Task<ActionResult> SaveImages(IEnumerable<IFormFile> images, long ID)
+        {
+            // The Name of the Upload component is "videos"
+            if (images != null)
+            {
+                List<string> imageList = new List<string>();
+                var product = await db.Products.Where(p => p.Id == ID).FirstOrDefaultAsync();
+                if (product == null)
+                {
+                    throw new EntityNotFoundException<Product>(ID);
+                }
+                if (product.ImageList == null)
+                {
+                    product.ImageList = new List<string>();
+                }
+                foreach (var file in images)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileExtension = Path.GetExtension(file.FileName);
+                        var fileName = Guid.NewGuid() + fileExtension;
+                        var path = Path.Combine(ProductsImagesPath, ID.ToString());
+
+                        using var ms = new MemoryStream();
+                        file.CopyTo(ms);
+                        var fileBytes = ms.ToArray();
+                        FileService.SaveFile(fileBytes, path, fileName);
+                        imageList.Add(fileName);
+                    }
+                }
+                product.ImageList.AddRange(imageList);
+                db.Entry(product).State = EntityState.Modified;
+                await db.SaveChangesAsync();
+                return Json(product.ImageList);
+            }
+            // Return an empty string to signify success
+            return Content("");
+        }
+
+
+        [HttpPost]
+        public async Task<ActionResult> SaveThumbnail(IEnumerable<IFormFile> thumbnails, long ID)
+        {
+            // The Name of the Upload component is "thumbnails"
+            if (thumbnails != null)
+            {
+                if (thumbnails.Count() > 0)
+                {
+                    var product = await db.Products.Where(p => p.Id == ID).FirstOrDefaultAsync();
+                    if (product == null)
+                    {
+                        throw new EntityNotFoundException<Product>(ID);
+                    }
+                    var file = thumbnails.First();
+                    var fileName = "Thumbnail" + Path.GetExtension(file.FileName);
+                    var path = Path.Combine(ProductsImagesPath, ID.ToString());
+                    using var ms = new MemoryStream();
+                    file.CopyTo(ms);
+                    var fileBytes = ms.ToArray();
+                    FileService.SaveFile(fileBytes, path, fileName);
+                    product.Thubmnail = fileName;
+                    db.Entry(product).State = EntityState.Modified;
+                    await db.SaveChangesAsync();
+                    return Json(product.Thubmnail);
+
+                }
+            }
+            // Return an empty string to signify success
+            return Content("");
+        }
+
+        public async Task<ActionResult> DeleteImage(long Id, string fileName)
+        {
+            var product = await db.Products.Where(p => p.Id == Id).FirstOrDefaultAsync();
+            if (product == null)
+            {
+                throw new EntityNotFoundException<Product>(Id);
+            }
+            var path = Path.Combine(ProductsImagesPath, Id.ToString());
+            FileService.DeleteFile(path, fileName);
+            product.ImageList.Remove(fileName);
+            db.Entry(product).State = EntityState.Modified;
+            await db.SaveChangesAsync();
+            return Json(product.ImageList);
+
         }
 
 

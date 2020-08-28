@@ -22,3 +22,8 @@
     font-weight: normal;
     font-style: normal;
 }
+
+.disabled-content {
+    pointer-events: none;
+    opacity: 0.4;
+}
