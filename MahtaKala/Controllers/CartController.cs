@@ -25,29 +25,37 @@ namespace MahtaKala.Controllers
         public IActionResult Index()
         {
             string sessionId = Current.Session.Id;
-            var cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == sessionId).ToList();
+            List<ShppingCart> cartItems;
             if (UserId != 0)
             {
                 cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.UserId == UserId).ToList();
+            }
+            else
+            {
+                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == sessionId).ToList();
             }
             return View(cartItems);
         }
 
         [HttpPost]
-        public ActionResult AddToCart(int id, int count = 1)
+        public ActionResult AddToCart(int id)
         {
             string sessionId = Current.Session.Id;
-            bool isAnyUser = UserId != 0;
-            var cartItem = db.ShppingCarts.FirstOrDefault(c => c.SessionId == sessionId && c.ProductPriceId == id);
-            if (isAnyUser)
+            ShppingCart cartItem;
+            if (UserId > 0)
             {
                 cartItem = db.ShppingCarts.FirstOrDefault(c => c.UserId == UserId && c.ProductPriceId == id);
             }
+            else
+            {
+                cartItem = db.ShppingCarts.FirstOrDefault(c => c.SessionId == sessionId && c.ProductPriceId == id);
+            }
+
             if (cartItem == null)
             {
                 cartItem = new ShppingCart();
                 cartItem.ProductPriceId = id;
-                if (isAnyUser)
+                if (UserId > 0)
                     cartItem.UserId = UserId;
                 else
                     cartItem.SessionId = sessionId;
