@@ -192,7 +192,7 @@ namespace MahtaKala.Controllers.Api
             order.OrrderDate = DateTime.Now;
             //TODO: check the address
             order.AddressId = checkoutModel.AddressId;
-            order.TotalPrice = order.Items.Sum(a => a.UnitPrice * a.Quantity);
+            order.TotalPrice = paymentService.CalculateTotalPrice(order);
             order.State = OrderState.CheckedOut;
             await db.SaveChangesAsync();
 
