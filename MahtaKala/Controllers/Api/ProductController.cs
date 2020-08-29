@@ -115,7 +115,7 @@ namespace MahtaKala.Controllers
             product.CategoryId = productMode.Category_Id;
             product.Characteristics = productMode.Characteristics;
             product.Description = productMode.Description;
-            product.Properties = productMode.Properties;
+            product.Properties = productMode.Properties.ToList();
             product.Thubmnail = productMode.Thubmnail;
             product.Title = productMode.Title;
             await db.SaveChangesAsync();
@@ -148,12 +148,14 @@ namespace MahtaKala.Controllers
                 {
                     Id = a.Id,
                     Brand_Id = a.BrandId,
+                    Brand = a.Brand.Name,
                     Category_Id = a.CategoryId,
+                    Category = a.Category.Title,
                     Description = a.Description,
                     Title = a.Title,
                     Thubmnail = a.Thubmnail,
                     Characteristics = a.Characteristics,
-                    Properties = a.Properties,
+                    Properties = a.Properties.ToDictionary(a => a.Key, a => a.Value),
                     ImageList = a.ImageList,
                     Price = a.Prices.FirstOrDefault().Price,
                     DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
