@@ -43,10 +43,15 @@ namespace MahtaKala.Controllers
         }
 
         [Route("error")]
-        public ApiErrorResponse Error()
+        public ActionResult<ApiErrorResponse> Error()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = context?.Error;
+            
+            if (context is IExceptionHandlerPathFeature path && !path.Path.ToLower().StartsWith("/api/"))
+            {
+                return SiteError(exception);
+            }
 
             if (exception is ApiException apiException)
             {
@@ -77,6 +82,11 @@ namespace MahtaKala.Controllers
             }
             sqlex = ex == null ? null : (SqlException)ex;
             return ex != null;
+        }
+
+        public ActionResult SiteError(Exception ex)
+        {
+            return View("SiteError", ex);
         }
     }
 }
