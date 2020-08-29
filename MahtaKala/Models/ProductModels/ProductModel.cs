@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace MahtaKala.Models.ProductModels
@@ -19,7 +20,9 @@ namespace MahtaKala.Models.ProductModels
         public long Brand_Id { get; set; }
         public string Brand { get; set; }
         public IList<Characteristic> Characteristics { get; set; }
-        public Dictionary<string,string> Properties { get; set; }
+        [JsonIgnore]
+        public IList<KeyValuePair<string,string>> PropertiesKeyValues { get; set; }
+        public Dictionary<string, string> Properties { get; set; }
         public IList<string> ImageList { get; set; }
         public string Thubmnail { get; set; }
         public IList<ProductPrice> Prices { get; set; }

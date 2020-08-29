@@ -142,7 +142,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<ProductModel> Product(long id)
         {
-            return await db.Products
+            var data = await db.Products
                 .Where(a => a.Id == id)
                 .Select(a => new ProductModel
                 {
@@ -155,12 +155,31 @@ namespace MahtaKala.Controllers
                     Title = a.Title,
                     Thubmnail = a.Thubmnail,
                     Characteristics = a.Characteristics,
-                    Properties = a.Properties.ToDictionary(a => a.Key, a => a.Value),
+                    PropertiesKeyValues = a.Properties,
                     ImageList = a.ImageList,
                     Price = a.Prices.FirstOrDefault().Price,
                     DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
                     Prices = a.Prices
-                }).FirstOrDefaultAsync();
+                }).ToListAsync();
+
+            //Product.Properties must be Dictionary
+            return data.Select(a=> new ProductModel
+            {
+                Id = a.Id,
+                Brand_Id = a.Brand_Id,
+                Brand = a.Brand,
+                Category_Id = a.Category_Id,
+                Category = a.Category,
+                Description = a.Description,
+                Title = a.Title,
+                Thubmnail = a.Thubmnail,
+                Characteristics = a.Characteristics,
+                Properties = a.PropertiesKeyValues.ToDictionary(a => a.Key, a => a.Value),
+                ImageList = a.ImageList,
+                Price = a.Prices.FirstOrDefault().Price,
+                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
+                Prices = a.Prices
+            }).FirstOrDefault();
         }
 
         [HttpGet]
