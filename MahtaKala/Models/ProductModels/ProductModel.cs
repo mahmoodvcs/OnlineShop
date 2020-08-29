@@ -17,7 +17,7 @@ namespace MahtaKala.Models.ProductModels
         public long Category_Id { get; set; }
         public long Brand_Id { get; set; }
         public IList<Characteristic> Characteristics { get; set; }
-        public Dictionary<string,string> Properties { get; set; }
+        public IList<KeyValuePair<string,string>> Properties { get; set; }
         public IList<string> ImageList { get; set; }
         public string Thubmnail { get; set; }
         public IList<ProductPrice> Prices { get; set; }

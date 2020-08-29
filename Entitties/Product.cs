@@ -6,6 +6,7 @@ using System.Text;
 
 namespace MahtaKala.Entities
 {
+    [Display(Name = "محصول")]
     public class Product
     {
         [Key]
@@ -17,12 +18,16 @@ namespace MahtaKala.Entities
 
         public string Description { get; set; }
 
+        [Display(Name ="دسته محصول")]
         public long CategoryId { get; set; }
+        [Display(Name ="دسته محصول")]
         public ProductCategory Category { get; set; }
+        [Display(Name ="برند")]
         public long BrandId { get; set; }
+        [Display(Name ="برند")]
         public Brand Brand { get; set; }
         public IList<Characteristic> Characteristics { get; set; }
-        public Dictionary<string, string> Properties { get; set; }
+        public IList<KeyValuePair<string, string>> Properties { get; set; }
         public IList<string> ImageList { get; set; }
         public string Thubmnail { get; set; }
 

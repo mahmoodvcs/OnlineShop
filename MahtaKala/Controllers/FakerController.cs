@@ -34,8 +34,9 @@ namespace MahtaKala.Controllers
                     Name = faker.Company.CompanyName()
                 });
             }
-
-            foreach (var c in faker.Commerce.Categories(num))
+            var categories = faker.Commerce.Categories(num * num);
+            int ci = 0;
+            foreach (var c in categories.Take(num))
             {
                 ProductCategory cat1 = new ProductCategory()
                 {
@@ -43,7 +44,7 @@ namespace MahtaKala.Controllers
                     Image = GetPicture(200, c)
                 };
                 db.Categories.Add(cat1);
-                foreach (var c2 in faker.Commerce.Categories(num))
+                foreach (var c2 in categories.Skip(num * (ci + 1)).Take(num))
                 {
                     ProductCategory cat = new ProductCategory()
                     {
@@ -81,23 +82,23 @@ namespace MahtaKala.Controllers
                                     }
                                 }
                             },
-                            Description = faker.Commerce.ProductDescription(),
+                            Description = "<h3>توضیحات محصول</h3>" + faker.Commerce.ProductDescription(),
                         };
                         p.ImageList = new List<string>();
                         for (int j = 0; j < random.Next(2, 5); j++)
                         {
-                            p.ImageList.Add(faker.Image.LoremPixelUrl(cat.Title, 800, 600, true));
+                            p.ImageList.Add(faker.Image.PicsumUrl(1000, 800));
                         }
-                        p.Properties = new Dictionary<string, string>();
+                        p.Properties = new List<KeyValuePair<string, string>>();
                         foreach (var w in faker.Lorem.Words(random.Next(3, 10)))
                         {
-                            if (!p.Properties.ContainsKey(w))
-                                p.Properties.Add(w, faker.Lorem.Sentence());
+                            if (!p.Properties.Any(p => p.Key == w))
+                                p.Properties.Add(new KeyValuePair<string, string>(w, faker.Lorem.Sentence()));
                         }
-                        p.Thubmnail = faker.Image.LoremPixelUrl(c, 400, 400, true);
+                        p.Thubmnail = faker.Image.PicsumUrl(400, 400);
 
                         var price = new ProductPrice();
-                        price.Price = random.Next(2000, 5000000);
+                        price.Price = random.Next(20, 5000) * 1000;
                         price.DiscountPrice = price.Price;
                         price.Product = p;
                         db.ProductPrices.Add(price);
@@ -105,6 +106,7 @@ namespace MahtaKala.Controllers
                         db.Products.Add(p);
                     }
                 }
+                ci++;
             }
 
             db.SaveChanges();

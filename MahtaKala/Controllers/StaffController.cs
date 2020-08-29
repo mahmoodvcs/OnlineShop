@@ -380,7 +380,7 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
-        public JsonResult Product_Destroy(int id)
+        public JsonResult Product_Destroy(long id)
         {
             db.ProductQuantities.Where(a => a.ProductId == id).Delete();
             db.ProductPrices.Where(a => a.ProductId == id).Delete();
@@ -389,15 +389,17 @@ namespace MahtaKala.Controllers
         }
 
         [HttpGet]
-        public IActionResult Product(int? id)
+        public IActionResult Product(long? id)
         {
-            ViewData["Title"] = "درج محصول";           
-            
+            ViewData["Title"] = "درج محصول";
+
             Product p;
             if (id.HasValue)
             {
-                p = db.Products.FirstOrDefault(a => a.Id == id);
-                var productPrices = db.ProductPrices.FirstOrDefault(a=>a.ProductId==id);
+                p = db.Products.Find(id);
+                if (p == null)
+                    throw new EntityNotFoundException<Product>(id.Value);
+                var productPrices = db.ProductPrices.FirstOrDefault(a => a.ProductId == id);
                 if (productPrices != null)
                 {
                     p.DiscountPrice = productPrices.DiscountPrice;
@@ -421,7 +423,7 @@ namespace MahtaKala.Controllers
             ViewData["Title"] = "درج محصول";
             if (ModelState.IsValid)
             {
-                model.Characteristics = JsonConvert.DeserializeObject<IList<Characteristic>>(Request.Form["characteristicsJson"]);
+                model.Properties = JsonConvert.DeserializeObject<IList<KeyValuePair<string, string>>>(Request.Form["Properties"]);
                 if (model.Id == 0)
                 {
                     db.Products.Add(model);
@@ -447,7 +449,7 @@ namespace MahtaKala.Controllers
             return View(model);
         }
 
-  
+
 
         [HttpPost]
         public async Task<ActionResult> SaveImages(IEnumerable<IFormFile> images, long ID)

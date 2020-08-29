@@ -30,7 +30,7 @@
                             </span>
                         </span>
                     </a>
-                    <button type="submit" class="btn btn-success m-btn m-btn--custom m-btn--icon" onclick="saveProducts();">
+                    <button type="submit" class="btn btn-success m-btn m-btn--custom m-btn--icon" onclick="beforeSave();">
                         <span>
                             <i class="fa fa-calendar-check-o"></i>
                             <span>
@@ -168,6 +168,12 @@
                     <div id="productImagesListView"></div>
                 </div>
             </div>
+            <div class="form-group row">
+                <div class="col-lg-12">
+                    <div id="productPropertiesGrid"></div>
+                    <input type="hidden" name="Properties" id="Properties" />
+                </div>
+            </div>
             @*<div class="form-group row">
                 <div class="col-lg-12">
                         <div id="characteristicsGrid"></div>
@@ -178,6 +184,35 @@
     }
 </div>
 <script>
+    var propertiesDataSource;
+    $(function () {
+
+        var properties = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Properties));
+        propertiesDataSource =
+            new kendo.data.DataSource({
+                data: properties,
+                pageSize: 10
+            });
+
+        $("#productPropertiesGrid").kendoGrid({
+            dataSource: propertiesDataSource,
+            columns: [
+                { field: "Key", title: "نام" },
+                { field: "Value", title: "مقدار" },
+                { command: ["edit", "destroy"] }
+            ],
+            toolbar: ["create"],
+            scrollable: false,
+            pageable: true,
+            sortable: true,
+            groupable: true,
+            //filterable: true,
+            editable: "inline",
+            save: function () {
+                this.refresh();
+            }
+        });
+    });
     @*var characteristicsDataSource;
 
     $(function () {
@@ -230,25 +265,11 @@
         });
         loadImageList(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ImageList)));
     });
+ *@
 
-    function saveProducts() {
-        var cChars = characteristicsDataSource.data();
-        var pChars = cChars.map(function (c) {
-            var o = {
-                Name: c.Name,
-                Values: []
-            };
-
-            for (var i = 0; i < 10; i++) {
-                var v = c["Value" + i];
-                if (v == null || v == '')
-                    break;
-                o.Values[i] = v;
-            }
-            return o;
-        });
-        $("#characteristicsJson").val(JSON.stringify(pChars));
-    }*@
+    function beforeSave() {
+        $("#Properties").val(JSON.stringify(propertiesDataSource.data()));
+    }
     function onUpload(e) {
         e.data = { ID: $("#Id").val() };
     }

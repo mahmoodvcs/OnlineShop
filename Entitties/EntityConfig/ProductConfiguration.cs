@@ -23,7 +23,7 @@ namespace MahtaKala.Entities.EntityConfig
 
             builder.Property(e => e.Properties).HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
-                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, (JsonSerializerOptions)null));
+                v => JsonSerializer.Deserialize<IList<KeyValuePair<string, string>>>(v, (JsonSerializerOptions)null));
         }
     }
 }
