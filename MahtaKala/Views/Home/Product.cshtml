@@ -2,13 +2,12 @@
 @{
     ViewData["Title"] = Model.Title;
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var productPrice = Model.Prices.First();
 }
-<!-- Product Thumbnail Start -->
 <div class="main-product-thumbnail ptb-50 ptb-sm-60">
     <div class="container">
         <div class="thumb-bg">
             <div class="row">
-                <!-- Main Thumbnail Image Start -->
                 <div class="col-lg-5 mb-all-40">
                     <!-- Thumbnail Large Image start -->
                     <div class="tab-content">
@@ -41,8 +40,6 @@
                     </div>
                     <!-- Thumbnail image end -->
                 </div>
-                <!-- Main Thumbnail Image End -->
-                <!-- Thumbnail Description Start -->
                 <div class="col-lg-7">
                     <div class="thubnail-desc fix">
                         <h3 class="product-header">@Model.Title</h3>
@@ -55,17 +52,17 @@
                                 <i class="fa fa-star-o"></i>
                             </div>
                             <div class="rating-feedback">
-                                <a href="#">(1 نظر)</a>
+                                <a href="#">(0 نظر)</a>
                                 <a href="#">به بررسی خود اضافه کنید</a>
                             </div>
                         </div>
                         <div class="pro-price mtb-30">
-                            <p class="d-flex align-items-center"><span class="prev-price">20,000</span><span class="price">18,000</span><span class="saving-price"> 8% تخفیف</span></p>
+                            <p class="d-flex align-items-center"><span class="prev-price">@productPrice.Price</span><span class="price">@productPrice.DiscountPrice</span><span class="saving-price"> 8% تخفیف</span></p>
                         </div>
                         <p class="mb-20 pro-desc-details">
                             @Model.Description
                         </p>
-                        <div class="product-size mb-20 clearfix">
+                        @*<div class="product-size mb-20 clearfix">
                             <label>اندازه</label>
                             <select class="">
                                 <option>S</option>
@@ -83,18 +80,18 @@
                                     <a class="paste" href="#"></a>
                                 </li>
                             </ul>
-                        </div>
+                        </div>*@
                         <div class="box-quantity d-flex hot-product2">
                             <form action="#">
-                                <input class="quantity mr-15" type="number" min="1" value="1">
+                                <input class="quantity mr-15" id="uxQuantity" type="number" min="1" value="1">
                             </form>
                             <div class="pro-actions">
                                 <div class="actions-primary">
-                                    <a href="cart.html" title="" data-original-title="اضافه کردن به سبد خرید"> + اضافه کردن به سبد خرید</a>
+                                    <a href="#" title="" id="addtocart" data-id="@productPrice.Id" data-original-title="اضافه کردن به سبد خرید"> + اضافه کردن به سبد خرید</a>
                                 </div>
                                 <div class="actions-secondary">
                                     <a href="compare.html" title="" data-original-title="مقایسه"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                                    <a href="wishlist.html" title="" data-original-title="علاقه مندی ها"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
+                                    <a href="#" class="heart" data-id="@Model.Id" title="" data-original-title="علاقه مندی ها"><i class="lnr lnr-heart" ></i> <span>علاقه مندی ها</span></a>
                                 </div>
                             </div>
                         </div>
@@ -112,28 +109,23 @@
                         </div>
                     </div>
                 </div>
-                <!-- Thumbnail Description End -->
             </div>
-            <!-- Row End -->
         </div>
     </div>
-    <!-- Container End -->
 </div>
-<!-- Product Thumbnail End -->
-<!-- Product Thumbnail Description Start -->
 <div class="thumnail-desc pb-100 pb-sm-60">
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
                 <ul class="main-thumb-desc nav tabs-area" role="tablist">
                     <li><a class="active" data-toggle="tab" href="#dtail">توضیحات</a></li>
-                    <li><a data-toggle="tab" href="#review">نظرات کاربران 1</a></li>
+                    <li><a data-toggle="tab" href="#review">نظرات کاربران 0</a></li>
                 </ul>
                 <!-- Product Thumbnail Tab Content Start -->
                 <div class="tab-content thumb-content border-default">
                     <div id="dtail" class="tab-pane fade show active">
                         <p>
-                            گوشی مدل «Redmi Note 8 Pro» از سری محصولات شرکت مطرح شیائومی است که با 4 دوربین در پشت گوشی و پنل­ IPS LCD ساخته‌شده و فاصله لبه صفحه‌نمایش در آن بسیار کم است. این محصول دارای حسگر اثرانگشت است و نمایشگر آن رزولوشن بالایی در مقایسه با گوشی‌های معمول موجود در بازار دارد؛ به‌طوری‌که در اندازه‌ی 6.53 اینچی‌اش، حدود 395 پیکسل را در هر اینچ جا داده است.
+                            @Model.Description
                         </p>
                     </div>
                     <div id="review" class="tab-pane fade">
@@ -246,5 +238,4 @@
     </div>
     <!-- Container End -->
 </div>
-<!-- Product Thumbnail Description End -->
 @await Component.InvokeAsync("RealtedProducts", new { id = Model.Id, categoryId = Model.CategoryId })

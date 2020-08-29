@@ -38,7 +38,7 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddToCart(int id)
+        public ActionResult AddToCart(int id, int count = 1)
         {
             string sessionId = Current.Session.Id;
             ShppingCart cartItem;
@@ -63,13 +63,29 @@ namespace MahtaKala.Controllers
                 cartItem.DateCreated = DateTime.Now;
                 db.ShppingCarts.Add(cartItem);
             }
-            cartItem.Count++;
+            cartItem.Count += count;
             db.SaveChanges();
             return Json(new { success = true, count = GetShoppingCartCount() });
         }
 
+
+        public ActionResult ShoppingBag()
+        {
+            string sessionId = Current.Session.Id;
+            List<ShppingCart> cartItems;
+            if (UserId != 0)
+            {
+                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.UserId == UserId).ToList();
+            }
+            else
+            {
+                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == sessionId).ToList();
+            }
+            return PartialView("ShoppingBag", cartItems);
+        }
+
         [NonAction]
-        private int GetShoppingCartCount()
+        public int GetShoppingCartCount()
         {
             if (UserId != 0)
             {

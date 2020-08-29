@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="~/css/default.css?v=1.1">
     <link href="~/css/toastr.css" rel="stylesheet" />
     <link href="~/css/sweetalert.css" rel="stylesheet" />
-    <link href="~/css/style.css?v=2.12" rel="stylesheet" />
+    <link href="~/css/style.css?v=2.14" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/responsive.css?v=1">
     <script src="~/js/vendor/jquery-3.2.1.min.js"></script>
     <script src="~/js/vendor/modernizr-3.5.0.min.js"></script>
@@ -72,53 +72,7 @@
                             <div class="cart-box mt-all-30">
                                 <ul class="d-flex justify-content-lg-end justify-content-center align-items-center">
                                     <li>
-                                        <a href="@Url.Content("~/cart/")"><i class="lnr lnr-cart"></i><span class="my-cart"><span class="total-pro" id="cart-status">0</span></span></a>
-                                        <ul class="ht-dropdown cart-box-width">
-                                            <li>
-                                                <!-- Cart Box Start -->
-                                                <div class="single-cart-box">
-                                                    <div class="cart-img">
-                                                        <a href="#"><img src="~/img/products/1.jpg" alt="cart-image"></a>
-                                                        <span class="pro-quantity">1X</span>
-                                                    </div>
-                                                    <div class="cart-content">
-                                                        <h6><a href="#">تی شرت زنانه طرح بیلی </a></h6>
-                                                        <span class="cart-price">150,000</span>
-                                                        <span>سایز: S</span>
-                                                        <span>رنگ: زرد</span>
-                                                    </div>
-                                                    <a class="del-icone" href="#"><i class="ion-close"></i></a>
-                                                </div>
-                                                <!-- Cart Box End -->
-                                                <!-- Cart Box Start -->
-                                                <div class="single-cart-box">
-                                                    <div class="cart-img">
-                                                        <a href="#"><img src="~/img/products/2.jpg" alt="cart-image"></a>
-                                                        <span class="pro-quantity">1X</span>
-                                                    </div>
-                                                    <div class="cart-content">
-                                                        <h6><a href="#">تی شرت زنانه</a></h6>
-                                                        <span class="cart-price">45,000</span>
-                                                        <span>سایز: XL</span>
-                                                        <span>رنگ: سبز</span>
-                                                    </div>
-                                                    <a class="del-icone" href="#"><i class="ion-close"></i></a>
-                                                </div>
-                                                <!-- Cart Box End -->
-                                                <!-- Cart Footer Inner Start -->
-                                                <div class="cart-footer">
-                                                    <ul class="price-content">
-                                                        <li>قیمت <span>200,000 تومان</span></li>
-                                                        <li>تخفیف <span>5,000 تومان</span></li>
-                                                        <li>قیمت نهایی <span>195,000 تومان</span></li>
-                                                    </ul>
-                                                    <div class="cart-actions text-center">
-                                                        <a class="cart-checkout" href="@Url.Content("~/cart/index")">پرداخت</a>
-                                                    </div>
-                                                </div>
-                                                <!-- Cart Footer Inner End -->
-                                            </li>
-                                        </ul>
+                                        @await Component.InvokeAsync("CartSummary")
                                     </li>
                                     <li>
                                         <a href="#"><i class="lnr lnr-heart"></i></a>
@@ -147,7 +101,7 @@
                             <nav class="d-none d-lg-block">
                                 <ul class="header-bottom-list d-flex">
                                     <li class="active">
-                                        <a href="#">خانه</a>
+                                        <a href="@Url.Content("~/home/")">خانه</a>
                                     </li>
                                     <li>
                                         <a href="#">بلاگ</a>
@@ -476,7 +430,7 @@
 
     <script src="~/js/jquery.blockUI.js"></script>
     <script src="~/js/toastr.min.js"></script>
-    <script src="~/js/main.js?v=1.1"></script>
-    <script src="~/js/ShoppingCart.js?v=2"></script>
+    <script src="~/js/main.js?v=2.0"></script>
+    <script src="~/js/ShoppingCart.js?v=2.05"></script>
 </body>
 </html>

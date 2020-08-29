@@ -30,6 +30,10 @@
     font-style: normal;
 }
 
+.cartLsit {
+    max-height: 250px;
+    overflow-y: scroll;
+}
 
 ul#liList li {
     display: inline;

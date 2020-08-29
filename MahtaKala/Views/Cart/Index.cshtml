@@ -36,8 +36,8 @@
                                 @{ decimal sumPrice = 0; decimal sumFinalPrice = 0;}
                                 @foreach (var item in Model)
                                 {
-                                    sumPrice = item.ProductPrice.Price * item.Count;
-                                    sumFinalPrice = item.ProductPrice.DiscountPrice * item.Count;
+                                    sumPrice += item.ProductPrice.Price * item.Count;
+                                    sumFinalPrice += item.ProductPrice.DiscountPrice * item.Count;
                                     <tr>
                                         <td class="product-thumbnail">
                                             <a href="#"><img src="@Url.Content(item.ProductPrice.Product.Thubmnail)" alt="cart-image" /></a>

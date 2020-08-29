@@ -1,5 +1,6 @@
 ﻿$(document).on("click", ".heart", function (e) {
     e.preventDefault();
+
     $.blockUI({
         message: '<img src="/img/loading.gif"/>',
         css: {
@@ -19,6 +20,7 @@
             }
         }
     );
+
 });
 
 (function ($) {
@@ -34,7 +36,7 @@
         $('.popup_off').on('click', function () {
             $(".popup_wrapper").fadeOut(500);
         })
-    },700000);
+    }, 700000);
 
     /*----------------------------
     2. Mobile Menu Activation
@@ -223,7 +225,7 @@
             }
         }
     })
-    
+
     /*----------------------------------------------------
     8. Electronics Product Activation
     -----------------------------------------------------*/
@@ -286,7 +288,7 @@
                 }
             }
         })
-    
+
     /*----------------------------------------------------
     9. Best Seller Product Activation
     -----------------------------------------------------*/
@@ -344,7 +346,7 @@
             }
         }
     })
-    
+
     /*----------------------------------------------------
     10. Like Product Activation
     -----------------------------------------------------*/
@@ -435,7 +437,7 @@
             }
         }
     })
-        
+
     /*----------------------------------------------------
     12. New Product Tow For Home-2 Activation
     -----------------------------------------------------*/
@@ -494,7 +496,7 @@
     $('.thumb-menu a').on('click', function () {
         $('.thumb-menu a').removeClass('active');
     })
-    
+
     /*----------------------------
     14. Countdown Js Activation
     -----------------------------*/
@@ -531,12 +533,12 @@
             $('.header-sticky').removeClass("sticky");
         }
     });
-    
+
     /*----------------------------
     17. Nice Select Activation
     ------------------------------ */
     $('select').niceSelect();
-    
+
     /*----------------------------
     18. Price Slider Activation
     -----------------------------*/
@@ -545,20 +547,20 @@
         min: 0,
         max: 100,
         values: [0, 85],
-    slide: function( event, ui ) {
-        $( "#amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
-      }
+        slide: function (event, ui) {
+            $("#amount").val("$" + ui.values[0] + " - $" + ui.values[1]);
+        }
     });
-    $( "#amount" ).val( "$" + $( "#slider-range" ).slider( "values", 0 ) +
-      " - $" + $( "#slider-range" ).slider( "values", 1 ) );
+    $("#amount").val("$" + $("#slider-range").slider("values", 0) +
+        " - $" + $("#slider-range").slider("values", 1));
 
 
 
     /*--------------------------
          banner colse Popup
     ---------------------------*/
-        $('.popup_off_banner').on('click', function () {
-            $(".popup_banner").fadeOut(500);
-        })
+    $('.popup_off_banner').on('click', function () {
+        $(".popup_banner").fadeOut(500);
+    })
 
 })(jQuery);

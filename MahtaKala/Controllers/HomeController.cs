@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MahtaKala.Controllers
@@ -26,7 +27,7 @@ namespace MahtaKala.Controllers
 
         public IActionResult Product(int id)
         {
-            var product = db.Products.FirstOrDefault(a=>a.Id==id);
+            var product = db.Products.Include(a=>a.Prices).FirstOrDefault(a=>a.Id==id);
             return View(product);
         }
 
