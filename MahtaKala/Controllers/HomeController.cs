@@ -20,7 +20,7 @@ namespace MahtaKala.Controllers
             return View();
         }
 
-        public IActionResult Category(int id)
+        public IActionResult Category(int? id)
         {
             return View();
         }
@@ -52,5 +52,8 @@ namespace MahtaKala.Controllers
             }
             return Json(new { success = false });
         }
+
+
+
     }
 }

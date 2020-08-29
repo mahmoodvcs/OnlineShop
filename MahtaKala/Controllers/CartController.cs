@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.Entities;
+using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Controllers
 {
@@ -24,6 +26,12 @@ namespace MahtaKala.Controllers
 
         public IActionResult Index()
         {
+            List<ShppingCart> cartItems = GetCartItems();
+            return View(cartItems);
+        }
+
+        public ActionResult ShoppingBag()
+        {
             string sessionId = Current.Session.Id;
             List<ShppingCart> cartItems;
             if (UserId != 0)
@@ -34,7 +42,7 @@ namespace MahtaKala.Controllers
             {
                 cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == sessionId).ToList();
             }
-            return View(cartItems);
+            return PartialView("ShoppingBag", cartItems);
         }
 
         [HttpPost]
@@ -68,24 +76,60 @@ namespace MahtaKala.Controllers
             return Json(new { success = true, count = GetShoppingCartCount() });
         }
 
-
-        public ActionResult ShoppingBag()
+        [HttpPost]
+        public ActionResult RemoveFromCart(int id)
         {
-            string sessionId = Current.Session.Id;
-            List<ShppingCart> cartItems;
-            if (UserId != 0)
+            var cartItem = db.ShppingCarts.FirstOrDefault(c => c.Id == id);
+            if (cartItem != null)
             {
-                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.UserId == UserId).ToList();
+                db.ShppingCarts.Remove(cartItem);
+                db.SaveChanges();
             }
-            else
-            {
-                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == sessionId).ToList();
-            }
-            return PartialView("ShoppingBag", cartItems);
+            return Json(new { success = true, count = GetShoppingCartCount() });
         }
 
+        [HttpPost]
+        public ActionResult UpdateCart(int id, int count)
+        {
+            var cartItem = db.ShppingCarts.Include(a=>a.ProductPrice).FirstOrDefault(c => c.Id == id);
+            cartItem.Count = count;
+            db.SaveChanges();
+            var finalcostRow = Util.Sub3Number(count * cartItem.ProductPrice.DiscountPrice);
+            List<ShppingCart> cartItems = GetCartItems();
+            var sumPrice = Util.Sub3Number(cartItems.Sum(a=>a.ProductPrice.Price) * cartItems.Sum(a => a.Count));
+            var sumFinalPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.DiscountPrice) * cartItems.Sum(a => a.Count));
+            return Json(new { success = true, count = cartItems.Sum(a=>a.Count), id, finalcostRow, sumPrice , sumFinalPrice });
+        }
+
+        [HttpPost]
+        public ActionResult DeleteItemCart(int id)
+        {
+            db.ShppingCarts.Where(c => c.Id == id).Delete();
+            List<ShppingCart> cartItems = GetCartItems();
+            var sumPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.Price) * cartItems.Sum(a => a.Count));
+            var sumFinalPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.DiscountPrice) * cartItems.Sum(a => a.Count));
+            return Json(new { success = true, count = cartItems.Sum(a => a.Count), id, sumPrice, sumFinalPrice });
+        }
+
+     
+
+        public IActionResult UserAddress()
+        {
+            if(UserId==0)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            if(GetShoppingCartCount()==0)
+            {
+                return RedirectToAction("Category", "home");
+            }
+            return View();
+        }
+
+
+
         [NonAction]
-        public int GetShoppingCartCount()
+        private int GetShoppingCartCount()
         {
             if (UserId != 0)
             {
@@ -96,6 +140,22 @@ namespace MahtaKala.Controllers
                 string sessionId = Current.Session.Id;
                 return db.ShppingCarts.Where(a => a.SessionId == sessionId).Sum(a => a.Count);
             }
+        }
+
+        [NonAction]
+        private List<ShppingCart> GetCartItems()
+        {
+            List<ShppingCart> cartItems;
+            if (UserId != 0)
+            {
+                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.UserId == UserId).ToList();
+            }
+            else
+            {
+                string sessionId = Current.Session.Id;
+                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == sessionId).ToList();
+            }
+            return cartItems;
         }
     }
 }

@@ -66,5 +66,17 @@ namespace MahtaKala.Helpers
          
             throw new Exception("کد ملی صحیح نیست");
         }
+
+        public static string Sub3Number(decimal price)
+        {
+            string value = price.ToString("0");
+            int i = value.Length;
+            while (i > 3)
+            {
+                value = value.Insert(i - 3, ",");
+                i -= 3;
+            }
+            return value;
+        }
     }
 }

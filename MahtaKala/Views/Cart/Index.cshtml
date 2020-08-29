@@ -38,15 +38,15 @@
                                 {
                                     sumPrice += item.ProductPrice.Price * item.Count;
                                     sumFinalPrice += item.ProductPrice.DiscountPrice * item.Count;
-                                    <tr>
+                                    <tr id="itemRow@(item.Id)">
                                         <td class="product-thumbnail">
                                             <a href="#"><img src="@Url.Content(item.ProductPrice.Product.Thubmnail)" alt="cart-image" /></a>
                                         </td>
                                         <td class="product-name"><a href="@Url.Content("~/home/product/"+item.ProductPrice.ProductId)">@item.ProductPrice.Product.Title</a></td>
-                                        <td class="product-price"><span class="amount">@item.ProductPrice.DiscountPrice</span></td>
-                                        <td class="product-quantity"><input type="number" value="@item.Count" /></td>
-                                        <td class="product-subtotal">@(item.ProductPrice.DiscountPrice * item.Count )</td>
-                                        <td class="product-remove"> <a href="#"><i class="fa fa-times" aria-hidden="true"></i></a></td>
+                                        <td class="product-price"><span class="amount">@Util.Sub3Number(item.ProductPrice.DiscountPrice)</span></td>
+                                        <td class="product-quantity"><input type="number" class="cartValue" min="1" data-id="@item.Id" value="@item.Count" /></td>
+                                        <td class="product-subtotal" id="finalcost@(item.Id)">@Util.Sub3Number(item.ProductPrice.DiscountPrice * item.Count)</td>
+                                        <td class="product-remove"> <a href="#" class="productremove" data-id="@item.Id"><i class="fa fa-times" aria-hidden="true"></i></a></td>
                                     </tr>
                                 }
                             </tbody>
@@ -57,7 +57,7 @@
                         <!-- Cart Button Start -->
                         <div class="col-md-8 col-sm-12">
                             <div class="buttons-cart">
-                                <a href="#">ادامه خرید</a>
+                                <a href="@Url.Content("~/home/category")">ادامه خرید</a>
                             </div>
                         </div>
                         <!-- Cart Button Start -->
@@ -68,18 +68,18 @@
                                     <tbody>
                                         <tr class="cart-subtotal">
                                             <th>قیمت کل</th>
-                                            <td><span class="amount">@sumPrice تومان</span></td>
+                                            <td><span class="amount" id="sumPrice">@Util.Sub3Number(sumPrice) </span> تومان</td>
                                         </tr>
                                         <tr class="order-total">
                                             <th>قیمت قابل پرداخت</th>
                                             <td>
-                                                <strong><span class="amount">@sumFinalPrice تومان</span></strong>
+                                                <strong><span id="sumFinalPrice" class="amount">@Util.Sub3Number(sumFinalPrice) </span> تومان</strong>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
                                 <div class="wc-proceed-to-checkout">
-                                    <a href="#">پرداخت</a>
+                                    <a href="@Url.Content("~/cart/useraddress")">پرداخت</a>
                                 </div>
                             </div>
                         </div>

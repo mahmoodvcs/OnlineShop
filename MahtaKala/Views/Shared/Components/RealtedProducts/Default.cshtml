@@ -22,7 +22,7 @@
                     <div class="pro-content">
                         <div class="pro-info">
                             <h4><a href="@Url.Content("~/home/product/"+item.Id)">@item.Title</a></h4>
-                            <p><span class="price">@productPrice.DiscountPrice</span><del class="prev-price">@productPrice.Price</del></p>
+                            <p><span class="price">@Util.Sub3Number(productPrice.DiscountPrice)</span><del class="prev-price">@Util.Sub3Number(productPrice.Price)</del></p>
                             <div class="label-product l_sale">15<span class="symbol-percent">%</span></div>
                         </div>
                         <div class="pro-actions">
