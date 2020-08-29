@@ -1,38 +1,25 @@
-﻿/*--------------------------------------------------
-Template Name: Truemart;
-Description: Responsive Html5 Ecommerce Template;
-Template URI:;
-Author Name: HasTech;
-Author URI:;
-Version: 1.0;
-
-NOTE: main.js, All custom script and plugin activation script in this file. 
------------------------------------------------------
-
-    JS INDEX
-    ================================================
-    1. Newsletter Popup
-    2. Mobile Menu Activation
-    3. Tooltip Activation
-    4.1 Vertical-Menu Activation
-    4.2 Category menu Activation
-    4.3 Checkout Page Activation
-    5. NivoSlider Activation
-    6. Hot Deal Product Activation
-    7. Brand Banner Activation
-    8. Electronics Product Activation
-    9. Best Seller Product Activation
-    10. Like Product Activation
-    11. Second Hot Deal Product Activation
-    12. Side Product Activation
-    13. Thumbnail Product activation
-    14. Countdown Js Activation
-    15. ScrollUp Activation
-    16. Sticky-Menu Activation
-    17. Nice Select Activation
-    18. Price Slider Activation
-    
-================================================*/
+﻿$(document).on("click", ".heart", function (e) {
+    e.preventDefault();
+    $.blockUI({
+        message: '<img src="/img/loading.gif"/>',
+        css: {
+            border: 'none',
+            backgroundColor: 'transparent'
+        }
+    });
+    var id = $(this).data("id");
+    $.post("/home/AddToWishlists", { id: id },
+        function (data) {
+            $.unblockUI();
+            if (data.success) {
+                toastr.success("محصول مورد نظر به لیست علاقه مندی ها افزوده شد", '', { positionClass: "toast-bottom-left" });
+            }
+            else {
+                toastr.warning('لطفا از طریق فرم ورود اقدام نمایید', '', { positionClass: "toast-bottom-left" });
+            }
+        }
+    );
+});
 
 (function ($) {
     "use Strict";

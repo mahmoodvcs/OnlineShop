@@ -30,5 +30,26 @@ namespace MahtaKala.Controllers
             return View(product);
         }
 
+
+
+        [HttpPost]
+        public IActionResult AddToWishlists(int id)
+        {
+            if (UserId != 0)
+            {
+                var wishlists = db.Wishlists.Where(a => a.UserId == UserId && a.ProductId == id);
+                if (!wishlists.Any())
+                {
+                    var p = new Wishlist();
+                    p.UserId = UserId;
+                    p.ProductId = id;
+                    db.Wishlists.Add(p);
+                    db.SaveChanges();
+                }
+                return Json(new { success = true });
+
+            }
+            return Json(new { success = false });
+        }
     }
 }

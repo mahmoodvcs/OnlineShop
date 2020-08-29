@@ -18,7 +18,7 @@ namespace MahtaKala.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(long id,long categoryId)
         {
-            return View(await _db.Products.Where(a=>a.Id!=id && a.CategoryId== categoryId).Take(10).ToListAsync());
+            return View(await _db.Products.Include(a=>a.Prices).Where(a=>a.Id!=id && a.CategoryId== categoryId).Take(10).ToListAsync());
         }
     }
 }

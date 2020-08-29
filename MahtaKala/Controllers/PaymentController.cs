@@ -56,31 +56,31 @@ namespace MahtaKala.Controllers
             });
         }
 
-        public async Task<ActionResult> Test()
-        {
-            var myAddress = db.Addresses.FirstOrDefault(a => a.UserId == UserId);
-            var prod = await db.Products.FirstAsync();
-            Order order = new Order
-            {
-                Address = myAddress,
-                OrrderDate = DateTime.Now,
-                UserId = UserId,
-                Items = new List<OrderItem>
-                {
-                    new OrderItem
-                    {
-                        ProductId = prod.Id,
-                        Quantity = 1,
-                        UnitPrice = 1000
-                    }
-                },
-                TotalPrice = 1000
-            };
-            db.Add(order);
-            await db.SaveChangesAsync();
-            var pay = await paymentService.InitPayment(order, pathService.AppBaseUrl + "/Payment/Paid?source=api");
-            return Redirect(pathService.AppBaseUrl + $"/Payment/Pay?pid={pay.Id}&uid={pay.UniqueId}&source=api");
-        }
+        //public async Task<ActionResult> Test()
+        //{
+        //    var myAddress = db.Addresses.FirstOrDefault(a => a.UserId == UserId);
+        //    var prod = await db.Products.FirstAsync();
+        //    Order order = new Order
+        //    {
+        //        Address = myAddress,
+        //        OrrderDate = DateTime.Now,
+        //        UserId = UserId,
+        //        Items = new List<OrderItem>
+        //        {
+        //            new OrderItem
+        //            {
+        //                ProductPriceId = prod.Id,
+        //                Quantity = 1,
+        //                UnitPrice = 1000
+        //            }
+        //        },
+        //        TotalPrice = 1000
+        //    };
+        //    db.Add(order);
+        //    await db.SaveChangesAsync();
+        //    var pay = await paymentService.InitPayment(order, pathService.AppBaseUrl + "/Payment/Paid?source=api");
+        //    return Redirect(pathService.AppBaseUrl + $"/Payment/Pay?pid={pay.Id}&uid={pay.UniqueId}&source=api");
+        //}
 
         [HttpPost]
         public async Task<ActionResult> Paid()//didn't work [FromQuery]string source)

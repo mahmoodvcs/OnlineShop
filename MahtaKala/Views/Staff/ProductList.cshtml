@@ -7,7 +7,6 @@
     columns.Bound(p => p.Id).Title("شناسه");
     columns.Bound(p => p.Title).Title("عنوان");
     columns.Bound(p => p.Category.Title).Title("دسته بندی");
-    columns.Command(command => command.Custom("مدیریت مقادیر").Click("ShowItem")).Width(90);
     columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
     columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
 

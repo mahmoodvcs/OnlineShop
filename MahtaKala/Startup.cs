@@ -99,6 +99,7 @@ namespace MahtaKala
             services.AddSingleton<AppSettings>();
             services.AddSingleton<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSession();
             services.AddKendo();
         }
 
@@ -116,7 +117,7 @@ namespace MahtaKala
 
             app.UseAuthorization();
             app.UseMiddleware<JwtMiddleware>();
-
+            app.UseSession();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

@@ -8,11 +8,13 @@ using MahtaKala.Helpers;
 using MahtaKala.Models;
 using MahtaKala.Models.UserModels;
 using MahtaKala.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Controllers
 {
@@ -28,12 +30,16 @@ namespace MahtaKala.Controllers
             IUserService userService,
             DataContext dataContext,
             IConfiguration configuration,
-            ILogger<AccountController> logger) : base(dataContext, logger)
+            ILogger<AccountController> logger, IHttpContextAccessor contextAccessor) : base(dataContext, logger)
         {
             this.smsService = smsService;
             this.userService = userService;
             this.configuration = configuration;
+            this.contextAccessor = contextAccessor;
         }
+
+        private readonly IHttpContextAccessor contextAccessor;
+        public HttpContext Current => contextAccessor.HttpContext;
 
         public IActionResult Index()
         {
@@ -54,7 +60,7 @@ namespace MahtaKala.Controllers
             {
                 return View(model);
             }
-
+            string sessionId = Current.Session.Id;
             var user = await db.Users.Where(u => u.Username == model.UserName).FirstAsync();
             if (user == null || !user.VerifyPassword(model.Password))
             {
@@ -69,6 +75,9 @@ namespace MahtaKala.Controllers
                 Expires = DateTime.Now.AddYears(1),
                 HttpOnly = true
             });
+
+            db.ShppingCarts.Where(x => x.SessionId == sessionId).Update(x => new ShppingCart() { UserId = user.Id, SessionId = null });
+
             if (Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
@@ -136,9 +145,9 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = "زمان ثبت درخواست به اتمام رسیده است" });
             }
 
+            string sessionId = Current.Session.Id;
             var authResp = await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
-
-
+            db.ShppingCarts.Where(x => x.SessionId == sessionId).Update(x => new ShppingCart() { UserId = user.Id, SessionId = null });
             Response.Cookies.Append("MahtaAuth", authResp.JwtToken, new Microsoft.AspNetCore.Http.CookieOptions
             {
                 Expires = DateTime.Now.AddYears(1),

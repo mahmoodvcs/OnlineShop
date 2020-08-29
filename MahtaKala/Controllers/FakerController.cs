@@ -95,6 +95,13 @@ namespace MahtaKala.Controllers
                                 p.Properties.Add(w, faker.Lorem.Sentence());
                         }
                         p.Thubmnail = faker.Image.LoremPixelUrl(c, 400, 400, true);
+
+                        var price = new ProductPrice();
+                        price.Price = random.Next(2000, 5000000);
+                        price.DiscountPrice = price.Price;
+                        price.Product = p;
+                        db.ProductPrices.Add(price);
+
                         db.Products.Add(p);
                     }
                 }
