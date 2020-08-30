@@ -2,11 +2,13 @@
     ViewData["Title"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
-@(Html.Kendo().Grid<Product>().Name("grid").Columns(columns =>
+@(Html.Kendo().Grid<MahtaKala.Models.ProductModels.ProductConciseModel>().Name("grid").Columns(columns =>
 {
     columns.Bound(p => p.Id).Title("شناسه");
     columns.Bound(p => p.Title).Title("عنوان");
-    columns.Bound(p => p.Category.Title).Title("دسته بندی");
+    columns.Bound(p => p.Category).Title("دسته بندی");
+    columns.Bound(p => p.Brand).Title("برند");
+    columns.Bound(p => p.Price).Title("قیمت");
     columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
     columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
 
@@ -53,7 +55,7 @@
            window.location.href = url;
         }
 
-        
+
         function RemoveQuestion(e) {
             e.preventDefault();
             var id = this.dataItem($(e.currentTarget).closest("tr")).Id;

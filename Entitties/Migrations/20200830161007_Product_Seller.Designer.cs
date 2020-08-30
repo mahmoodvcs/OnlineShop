@@ -4,14 +4,16 @@ using MahtaKala.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MahtaKala.Entities.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200830161007_Product_Seller")]
+    partial class Product_Seller
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -199,6 +201,9 @@ namespace MahtaKala.Entities.Migrations
                     b.Property<long>("BrandId")
                         .HasColumnType("bigint");
 
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Characteristics")
                         .HasColumnType("nvarchar(max)");
 
@@ -225,24 +230,11 @@ namespace MahtaKala.Entities.Migrations
 
                     b.HasIndex("BrandId");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("SellerId");
 
                     b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("MahtaKala.Entities.ProductCategory", b =>
-                {
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CategoryId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("ProductId", "CategoryId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("ProductCategory");
                 });
 
             modelBuilder.Entity("MahtaKala.Entities.ProductPrice", b =>
@@ -599,24 +591,15 @@ namespace MahtaKala.Entities.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MahtaKala.Entities.Seller", "Seller")
-                        .WithMany()
-                        .HasForeignKey("SellerId");
-                });
-
-            modelBuilder.Entity("MahtaKala.Entities.ProductCategory", b =>
-                {
                     b.HasOne("MahtaKala.Entities.Category", "Category")
-                        .WithMany("ProductCategories")
+                        .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MahtaKala.Entities.Product", "Product")
-                        .WithMany("ProductCategories")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("MahtaKala.Entities.Seller", "Seller")
+                        .WithMany()
+                        .HasForeignKey("SellerId");
                 });
 
             modelBuilder.Entity("MahtaKala.Entities.ProductPrice", b =>

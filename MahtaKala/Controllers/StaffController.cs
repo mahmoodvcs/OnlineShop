@@ -11,6 +11,7 @@ using MahtaKala.Entities.Security;
 using MahtaKala.GeneralServices;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
+using MahtaKala.Models.ProductModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -258,17 +259,17 @@ namespace MahtaKala.Controllers
         }
         public ActionResult Category(long id)
         {
-            ProductCategory productCategory = null;
+            Category productCategory = null;
             if (id == 0)
             {
-                productCategory = new ProductCategory();
+                productCategory = new Category();
             }
             else
             {
                 productCategory = db.Categories.Where(u => u.Id == id).FirstOrDefault();
                 if (productCategory == null)
                 {
-                    throw new EntityNotFoundException<ProductCategory>(id);
+                    throw new EntityNotFoundException<Category>(id);
                 }
             }
             ViewBag.Categories = db.Categories.Where(c => c.Id != id).ToList();
@@ -276,7 +277,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Category(ProductCategory model)
+        public IActionResult Category(Category model)
         {
             ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
             if (ModelState.IsValid)
@@ -294,7 +295,7 @@ namespace MahtaKala.Controllers
                 {
                     if (!db.Categories.Any(u => u.Id == model.Id))
                     {
-                        throw new EntityNotFoundException<ProductCategory>(model.Id);
+                        throw new EntityNotFoundException<Category>(model.Id);
                     }
                     db.Entry(model).State = EntityState.Modified;
                 }
@@ -374,9 +375,20 @@ namespace MahtaKala.Controllers
             return View();
         }
 
-        public IActionResult Product_Read([DataSourceRequest] DataSourceRequest request)
+        public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Products.Include(c => c.Category).ToList(), request);
+            var data =await db.Products.Select(a => new ProductConciseModel
+            {
+                Id = a.Id,
+                Brand = a.Brand.Name,
+                Category = a.ProductCategories.FirstOrDefault().Category.Title,
+                Title = a.Title,
+                Thubmnail = a.Thubmnail,
+                Price = a.Prices.FirstOrDefault().Price,
+                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice
+            }).ToListAsync();
+
+            return ConvertDataToJson(data, request);
         }
 
         [HttpPost]

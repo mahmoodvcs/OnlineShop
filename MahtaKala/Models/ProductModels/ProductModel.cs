@@ -21,7 +21,7 @@ namespace MahtaKala.Models.ProductModels
         public string Brand { get; set; }
         public IList<Characteristic> Characteristics { get; set; }
         [JsonIgnore]
-        public IList<KeyValuePair<string,string>> PropertiesKeyValues { get; set; }
+        public IList<KeyValuePair<string, string>> PropertiesKeyValues { get; set; }
         public Dictionary<string, string> Properties { get; set; }
         public IList<string> ImageList { get; set; }
         public string Thubmnail { get; set; }
@@ -31,6 +31,10 @@ namespace MahtaKala.Models.ProductModels
         public decimal? DiscountPrice { get; internal set; }
     }
 
+    public class ProductUpdateModel : ProductModel
+    {
+        public List<long> Categories { get; set; }
+    }
     //public class ProductCharacteristicPrice
     //{
     //    public IList<CharacteristicValue> CharacteristicValues { get; set; }

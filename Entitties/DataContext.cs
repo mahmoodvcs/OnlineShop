@@ -33,12 +33,23 @@ namespace MahtaKala.Entities
             modelBuilder.ApplyConfiguration(new ProductPriceConfiguration());
             modelBuilder.ApplyConfiguration(new ProductQuantityConfiguration());
             modelBuilder.ApplyConfiguration(new OrderItemConfiguration());
+
+            modelBuilder.Entity<ProductCategory>()
+                .HasKey(bc => new { bc.ProductId, bc.CategoryId });
+            modelBuilder.Entity<ProductCategory>()
+                .HasOne(pc => pc.Product)
+                .WithMany(p=>p.ProductCategories)
+                .HasForeignKey(bc => bc.ProductId);
+            modelBuilder.Entity<ProductCategory>()
+                .HasOne(pc => pc.Category)
+                .WithMany(c=>c.ProductCategories)
+                .HasForeignKey(pc => pc.CategoryId);
         }
 
         public DbSet<User> Users{ get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<UserActivationCode> UserActivationCodes { get; set; }
-        public DbSet<ProductCategory> Categories { get; set; }
+        public DbSet<Category> Categories { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<Province> Provinces { get; set; }
         public DbSet<UserAddress> Addresses { get; set; }

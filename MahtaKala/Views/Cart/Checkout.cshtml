@@ -1,0 +1,225 @@
+﻿@model CheckOutVM
+@{
+    ViewData["Title"] = "بررسی سفارش سفارش";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section css{
+    <link href="~/lib/kendo/css/web/kendo.rtl.min.css" rel="stylesheet" />
+    <link href="~/lib/kendo/css/web/kendo.bootstrap.mobile.min.css" rel="stylesheet" />
+    <link href="~/lib/kendo/css/web/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+}
+@section js{
+    <script src="~/lib/kendo/js/kendo.all.min.js"></script>
+    <script src="~/lib/kendo/js/kendo.aspnetmvc.min.js"></script>
+    <script src="~/lib/kendo/js/kendo.timezones.min.js"></script>
+    <script src="~/js/kendo.fa-IR.js"></script>
+}
+<!-- Breadcrumb Start -->
+<div class="breadcrumb-area mt-30">
+    <div class="container">
+        <div class="breadcrumb">
+            <ul class="d-flex align-items-center">
+                <li><a href="@Url.Content("~/home/")">خانه</a></li>
+                <li class="active"><a href="#">بررسی سفارش</a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- Container End -->
+</div>
+<!-- Breadcrumb End -->
+<!-- coupon-area start -->
+<div class="coupon-area pt-20 pt-sm-60">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="coupon-accordion">
+                    <h3>کد تخفیف دارید؟ <span id="showcoupon">برای وارد کردن کد تخفیف اینجا را کلیک کنید</span></h3>
+                    <div id="checkout_coupon" class="coupon-checkout-content">
+                        <div class="coupon-info">
+                            <form action="#">
+                                <p class="checkout-coupon">
+                                    <input type="text" class="code" placeholder="کد تخفیف" />
+                                    <input type="submit" value="ثبت" />
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="checkout-area pb-100 pt-15 pb-sm-60">
+    @using (Html.BeginForm("Checkout", "cart", FormMethod.Post,
+new
+{
+   @id = "cartRequest"
+}))
+    {
+        <div class="container k-rtl">
+            <div class="row">
+                <div class="col-lg-6 col-md-6">
+                    <div class="checkbox-form mb-sm-40">
+                        <h3>ثبت مشخصات شما</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="checkout-form-list mb-sm-30">
+                                    <label>نام <span class="required">*</span></label>
+                                    @Html.TextBoxFor(a => a.UserData.FirstName, new { @autocomplete = "off" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="checkout-form-list mb-30">
+                                    <label>نام خانوادگی <span class="required">*</span></label>
+                                    @Html.TextBoxFor(a => a.UserData.LastName, new { @autocomplete = "off" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="checkout-form-list mb-sm-30">
+                                    <label>کد ملی</label>
+                                    @Html.TextBoxFor(a => a.UserData.NationalCode, new { @autocomplete = "off" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="checkout-form-list mb-30">
+                                    <label>ایمیل</label>
+                                    @Html.TextBoxFor(a => a.UserData.EmailAddress, new { @autocomplete = "off" })
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="country-select clearfix mb-30">
+                                    <label>آدرس تحویل سفارش <span class="required">*</span></label>
+                                    @(Html.Kendo().DropDownList()
+                                                                                                                                                                                                                                                                                                                                                     .Name("UserData.AddressId")
+                                                                                                                                                                                                                                                                                                                                                      .OptionLabel("--انتخاب نمایید--")
+                                                                                                                                                                                                                                                                                                                                                     .HtmlAttributes(new { style = "width:100%" })
+                                                                                                                                                                                                                                                                                                                                                     .DataTextField("name")
+                                                                                                                                                                                                                                                                                                                                                     .DataValueField("id")
+                                                                                                                                                                                                                                                                                                                                                     .Filter(FilterType.Contains)
+                                                                                                                                                                                                                                                                                                                                                     .DataSource(source =>
+                                                                                                                                                                                                                                                                                                                                                     {
+                                                                                                                                                                                                                                                                                                                                                         source.Read(read =>
+                                                                                                                                                                                                                                                                                                                                                         {
+                                                                                                                                                                                                                                                                                                                                                             read.Action("GetUserAddress", "Cart");
+                                                                                                                                                                                                                                                                                                                                                         }).ServerFiltering(false);
+                                                                                                                                                                                                                                                                                                                                                     })
+)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="different-address">
+                            <div class="ship-different-title">
+                                <h3>
+                                    @Html.CheckBoxFor(a => a.IsNewAddress, new { id = "ship-box", name = "IsNewAddress" })
+                                    <label>به آدرس دیگری ارسال شود؟</label>
+                                </h3>
+                            </div>
+                            <div id="ship-box-info">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="country-select clearfix mb-30">
+                                            <label>استان <span class="required">*</span></label>
+                                            @(Html.Kendo().DropDownList()
+                                                                                                                                                                                                                                                                                                                                                     .Name("ProvinceId")
+                                                                                                                                                                                                                                                                                                                                                      .OptionLabel("--انتخاب نمایید--")
+                                                                                                                                                                                                                                                                                                                                                     .HtmlAttributes(new { style = "width:100%" })
+                                                                                                                                                                                                                                                                                                                                                     .DataTextField("name")
+                                                                                                                                                                                                                                                                                                                                                     .DataValueField("id")
+                                                                                                                                                                                                                                                                                                                                                     .Filter(FilterType.Contains)
+                                                                                                                                                                                                                                                                                                                                                     .DataSource(source =>
+                                                                                                                                                                                                                                                                                                                                                     {
+                                                                                                                                                                                                                                                                                                                                                         source.Read(read =>
+                                                                                                                                                                                                                                                                                                                                                         {
+                                                                                                                                                                                                                                                                                                                                                             read.Action("GetProvince", "Repo");
+                                                                                                                                                                                                                                                                                                                                                         }).ServerFiltering(false);
+                                                                                                                                                                                                                                                                                                                                                     })
+                            )
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="country-select clearfix mb-30">
+                                            <label>شهر <span class="required">*</span></label>
+                                            @(Html.Kendo().DropDownList().Name("UserAddress.CityId")
+                                                                                                 .HtmlAttributes(new { style = "width:100%" })
+                                                                                                 .DataTextField("name")
+                                                                                                 .DataValueField("id")
+                                                                                                 .Filter(FilterType.Contains)
+                                                                                                 .DataSource(source =>
+                                                                                                 {
+                                                                                                     source.Read(read => { read.Action("GetCity", "Repo").Data("filterCity"); }).ServerFiltering(true);
+                                                                                                 })
+                                                                                                 .Enable(false)
+                                                                                                 .AutoBind(false)
+                                                                                                 .CascadeFrom("ProvinceId")
+                            )
+                                            <script>
+                                                function filterCity(e) {
+                                                    return {
+                                                        provinceId: $("#ProvinceId").val(),
+                                                        name: e.filter.filters[0].value
+                                                    };
+                                                }
+                                            </script>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="checkout-form-list mb-30">
+                                            <label>عنوان <span class="required">*</span></label>
+                                            @Html.TextBoxFor(a => a.UserAddress.Title, new { @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="checkout-form-list mb-30">
+                                            <label>کد پستی <span class="required">*</span></label>
+                                            @Html.TextBoxFor(a => a.UserAddress.PostalCode, new { @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="checkout-form-list mb-30">
+                                            <label>آدرس <span class="required">*</span></label>
+                                            @Html.TextBoxFor(a => a.UserAddress.Details, new { @autocomplete = "off" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <div class="your-order">
+                        <h3>سفارش شما</h3>
+                        <div class="your-order-table table-responsive">
+                            <table>
+
+                                <tfoot>
+                                    <tr class="cart-subtotal">
+                                        <th>قیمت کالاها (@Model.CartItemCount)</th>
+                                        <td><span class="amount">@Model.Cost تومان</span></td>
+                                    </tr>
+                                    <tr class="order-total">
+                                        <th>هزینه ارسال</th>
+                                        <td>
+                                            <span class=" total amount">@Model.PostCost تومان</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="order-total">
+                                        <th>
+                                            مبلغ قابل پرداخت
+                                        </th>
+                                        <td>
+                                            <span class=" total amount">@Model.FinalCost تومان</span>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="payment-method">
+                            <input value="پرداخت" class="return-customer-btn" style="width:100% !important" type="submit">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+

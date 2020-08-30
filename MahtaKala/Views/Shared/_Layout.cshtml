@@ -24,8 +24,10 @@
     <link href="~/css/sweetalert.css" rel="stylesheet" />
     <link href="~/css/style.css?v=2.14" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/responsive.css?v=1">
+    @RenderSection("css", false)
     <script src="~/js/vendor/jquery-3.2.1.min.js"></script>
     <script src="~/js/vendor/modernizr-3.5.0.min.js"></script>
+    @RenderSection("js", false)
 </head>
 <body dir="rtl">
     <div class="wrapper">
@@ -431,6 +433,6 @@
     <script src="~/js/jquery.blockUI.js"></script>
     <script src="~/js/toastr.min.js"></script>
     <script src="~/js/main.js?v=2.0"></script>
-    <script src="~/js/ShoppingCart.js?v=2.18"></script>
+    <script src="~/js/ShoppingCart.js?v=2.19"></script>
 </body>
 </html>
