@@ -258,17 +258,17 @@ namespace MahtaKala.Controllers
         }
         public ActionResult Category(long id)
         {
-            ProductCategory productCategory = null;
+            Category productCategory = null;
             if (id == 0)
             {
-                productCategory = new ProductCategory();
+                productCategory = new Category();
             }
             else
             {
                 productCategory = db.Categories.Where(u => u.Id == id).FirstOrDefault();
                 if (productCategory == null)
                 {
-                    throw new EntityNotFoundException<ProductCategory>(id);
+                    throw new EntityNotFoundException<Category>(id);
                 }
             }
             ViewBag.Categories = db.Categories.Where(c => c.Id != id).ToList();
@@ -276,7 +276,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Category(ProductCategory model)
+        public IActionResult Category(Category model)
         {
             ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
             if (ModelState.IsValid)
@@ -294,7 +294,7 @@ namespace MahtaKala.Controllers
                 {
                     if (!db.Categories.Any(u => u.Id == model.Id))
                     {
-                        throw new EntityNotFoundException<ProductCategory>(model.Id);
+                        throw new EntityNotFoundException<Category>(model.Id);
                     }
                     db.Entry(model).State = EntityState.Modified;
                 }

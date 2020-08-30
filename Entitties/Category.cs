@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace MahtaKala.Entities
 {
-    public class ProductCategory
+    public class Category
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -17,8 +17,8 @@ namespace MahtaKala.Entities
         public string Image { get; set; }
         public long? ParentId { get; set; }
         [JsonIgnore]
-        public ProductCategory Parent { get; set; }
-        public IList<ProductCategory> Children { get; set; }
+        public Category Parent { get; set; }
+        public IList<Category> Children { get; set; }
         public IList<Product> Products { get; set; }
     }
 }

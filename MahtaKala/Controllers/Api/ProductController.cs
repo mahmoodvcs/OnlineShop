@@ -39,19 +39,19 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<IActionResult> Category([FromBody] UpdateCategoryRequest updateCategoryRequest)
         {
-            ProductCategory category = null;
+            Category category = null;
             bool newCategory = false;
             if (updateCategoryRequest.Id == 0)
             {
                 newCategory = true;
-                category = new ProductCategory();
+                category = new Category();
                 db.Categories.Add(category);
             }
             else
             {
                 category = await db.Categories.FirstOrDefaultAsync(c => c.Id == updateCategoryRequest.Id);
                 if (category == null)
-                    throw new EntityNotFoundException<ProductCategory>(updateCategoryRequest.Id);
+                    throw new EntityNotFoundException<Category>(updateCategoryRequest.Id);
             }
 
             category.Title = updateCategoryRequest.Title;
@@ -71,7 +71,7 @@ namespace MahtaKala.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<List<ProductCategory>> Category([FromQuery] long? parent)
+        public async Task<List<Category>> Category([FromQuery] long? parent)
         {
             return await db.Categories.Where(c => c.ParentId == parent).ToListAsync();
         }
@@ -86,7 +86,7 @@ namespace MahtaKala.Controllers
             var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == id);
             if (category == null)
             {
-                throw new EntityNotFoundException<ProductCategory>(id);
+                throw new EntityNotFoundException<Category>(id);
             }
             //if (await db.Categories.AnyAsync(c => c.ParentId == model.Id))
             //{
@@ -132,7 +132,7 @@ namespace MahtaKala.Controllers
             var product = await db.Products.FirstOrDefaultAsync(c => c.Id == id);
             if (product == null)
             {
-                throw new EntityNotFoundException<ProductCategory>(id);
+                throw new EntityNotFoundException<Category>(id);
             }
             db.Products.Remove(product);
             await db.SaveChangesAsync();
@@ -261,7 +261,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<CategoryWithProductsModel>> AllCategories([FromQuery] int numProducts = 0)
         {
-            List<ProductCategory> categories = await db.Categories.ToListAsync();
+            List<Category> categories = await db.Categories.ToListAsync();
             List<CategoryWithProductsModel> result = new List<CategoryWithProductsModel>();
             CreateHierarchy(null, result, categories.Where(c => c.ParentId == null).ToList());
             if (numProducts > 0)
@@ -308,7 +308,7 @@ namespace MahtaKala.Controllers
             .ToListAsync();
         }
 
-        private void CreateHierarchy(long? parentId, IList<CategoryWithProductsModel> result, IList<ProductCategory> categories)
+        private void CreateHierarchy(long? parentId, IList<CategoryWithProductsModel> result, IList<Category> categories)
         {
             if (categories == null)
                 return;
