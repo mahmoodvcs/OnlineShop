@@ -1,8 +1,8 @@
-﻿@model Product
+﻿@model MahtaKala.Models.ProductModels.ProductHomeModel
 @{
     ViewData["Title"] = Model.Title;
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var productPrice = Model.Prices.First();
+    var productPrice = Model.Prices.FirstOrDefault();
 }
 <div class="main-product-thumbnail ptb-50 ptb-sm-60">
     <div class="container">
@@ -238,4 +238,4 @@
     </div>
     <!-- Container End -->
 </div>
-@await Component.InvokeAsync("RealtedProducts", new { id = Model.Id, categoryId = Model.ProductCategories.FirstOrDefault()?.CategoryId })
+@await Component.InvokeAsync("RealtedProducts", new { id = Model.Id, categoryId = Model.CategoryId })

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.Entities;
+using MahtaKala.Infrustructure.Exceptions;
+using MahtaKala.Models.ProductModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -27,7 +29,20 @@ namespace MahtaKala.Controllers
 
         public IActionResult Product(int id)
         {
-            var product = db.Products.Include(a=>a.Prices).FirstOrDefault(a=>a.Id==id);
+            var product = db.Products.Where(a => a.Id == id)
+                .Select(p => new ProductHomeModel
+                {
+                    Id = p.Id,
+                    Category = p.ProductCategories.FirstOrDefault().Category.Title,
+                    CategoryId = p.ProductCategories.FirstOrDefault().CategoryId,
+                    Brand = p.Brand.Name,
+                    Description = p.Description,
+                    Thubmnail = p.Thubmnail,
+                    Title = p.Title,
+                    Prices = p.Prices.ToList()
+                }).FirstOrDefault();
+            if (product == null)
+                throw new EntityNotFoundException<Product>(id);
             return View(product);
         }
 
