@@ -9,6 +9,7 @@
         @Html.AntiForgeryToken()
         @Html.HiddenFor(a => a.Id)
         @Html.HiddenFor(a => a.Thubmnail)
+        @Html.HiddenFor(a => a.ImageList)
         <div class="card-header">
             <div class="row">
                 <div class="col-lg-6">
@@ -108,8 +109,26 @@
                     <label>
                         توضیحات :
                     </label>
-                    @Html.TextBoxFor(a => a.Description, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(a => a.Description)
+                    @(Html.Kendo().Editor()
+                  .Name("editor")
+                  .HtmlAttributes(new { style = "width: 100%; height:840px" })
+                  .Tools(tools => tools
+                        .Clear()
+                        .Bold().Italic().Underline()
+                        .JustifyLeft().JustifyCenter().JustifyRight()
+                        .InsertUnorderedList().InsertOrderedList()
+                        .Outdent().Indent()
+                        .CreateLink().Unlink()
+                        .InsertImage()
+                        .TableEditing()
+                        .FontName()
+                        .FontSize()
+                        .ForeColor().BackColor()
+                  )
+                .Value(Model.Description)
+        )
+                    <textarea id="editor" rows="10" cols="30" style="width:100%; height:470px" aria-label="editor">
+                    </textarea>
                 </div>
             </div>
             <div class="form-group row">
@@ -185,6 +204,8 @@
 </div>
 <script>
     var propertiesDataSource;
+    var modelId = $("#Id").val();
+    var kendoEditor;
     $(function () {
 
         var properties = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Properties));
@@ -211,6 +232,90 @@
             save: function () {
                 this.refresh();
             }
+        });
+        loadImageList(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ImageList)));
+        kendoEditor = $("#editor").kendoEditor({
+            tools: [
+                "bold",
+                "italic",
+                "underline",
+                "strikethrough",
+                "justifyLeft",
+                "justifyCenter",
+                "justifyRight",
+                "justifyFull",
+                "insertUnorderedList",
+                "insertOrderedList",
+                "indent",
+                "outdent",
+                "createLink",
+                "unlink",
+                "subscript",
+                "superscript",
+                "tableWizard",
+                "createTable",
+                "addRowAbove",
+                "addRowBelow",
+                "addColumnLeft",
+                "addColumnRight",
+                "deleteRow",
+                "deleteColumn",
+                "mergeCellsHorizontally",
+                "mergeCellsVertically",
+                "splitCellHorizontally",
+                "splitCellVertically",
+                "viewHtml",
+                "formatting",
+                "cleanFormatting",
+                "copyFormat",
+                "applyFormat",
+                "fontName",
+                "fontSize",
+                "foreColor",
+                "backColor",
+                "print",
+                {
+                    name: "insertImage",
+                    tooltip: "افزودن عکس",
+                    exec: function (e) {
+                        var editor = $(this).data("kendoEditor");
+
+                        // creating input on-the-fly
+                        var input = $(document.createElement("input"));
+                        input.attr("type", "file");
+                        // add onchange handler if you wish to get the file :)
+                        input.trigger("click"); // opening dialog
+                        input.change(function (e) {
+
+                            var files = e.target.files;
+                            if (files.length < 1) {
+                                alert('select a file...');
+                                return;
+                            }
+                            var file = files[0];
+                            var formData = new FormData();
+                            formData.append('images', file);
+                            formData.append('Id', modelId);
+
+                            $.ajax({
+                                url: '@Url.Action("SaveEditorImages", "Staff")',
+                                type: 'POST',
+                                data: formData,
+                                processData: false,  // tell jQuery not to process the data
+                                contentType: false,  // tell jQuery not to set contentType
+                                success: function (images) {
+                                    editor.exec("inserthtml", { value: '<img src="@Url.Action("ProductEditor", "Image")?id=' + modelId + '&name=' + images + '" style="max- width: 400px; max - height: 400px;"/>' });
+                                }
+                            });
+
+
+
+
+                        });
+                        return false; // avoiding navigation
+                    }
+                }
+            ]
         });
     });
     @*var characteristicsDataSource;
@@ -271,13 +376,16 @@
         $("#Properties").val(JSON.stringify(propertiesDataSource.data()));
     }
     function onUpload(e) {
-        e.data = { ID: $("#Id").val() };
+        e.data = { ID: modelId };
     }
     function onSuccess(e) {
         images = jQuery.parseJSON(e.XMLHttpRequest.responseText);
         loadImageList(images);
     }
     function loadImageList(images) {
+        if (!images)
+            return;
+        $("#ImageList").val(images);
         data = [];
         var i;
         for (i = 0; i < images.length; i++) {
@@ -301,11 +409,12 @@
     }
     function onThumbSuccess(e) {
         var imgId = jQuery.parseJSON(e.XMLHttpRequest.responseText);
+        $("#Thubmnail").val(imgId);
         var _img = document.getElementById('thumb-img');
         _img.src =  getImage(imgId);
     }
     function getImage(imgId) {
-        return '@Url.Action("Product", "Image")?id=' + $("#Id").val() + '&name=' + imgId;
+        return '@Url.Action("Product", "Image")?id=' + modelId + '&name=' + imgId;
     }
     function deleteImage(imgId) {
         console.log(imgId);
@@ -321,7 +430,7 @@
             if (result.value) {
                 $.post("@Url.Action("DeleteImage", "Staff")",
                     {
-                        Id: $("#Id").val(),
+                        Id: modelId,
                         fileName: imgId
                     },
                     function (images) {
