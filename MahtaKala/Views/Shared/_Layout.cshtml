@@ -78,7 +78,7 @@
                                         <a href="#"><i class="lnr lnr-heart"></i></a>
                                     </li>
                                     <li>
-                                        <a href="@Url.Content("~/Account/index")"><i class="lnr lnr-user"></i><span class="my-cart"><span> <strong>ورود</strong> </span><span> ثبت نام</span></span></a>
+                                        @await Component.InvokeAsync("UserInfo")
                                     </li>
                                 </ul>
                             </div>
@@ -107,20 +107,20 @@
                                         <a href="#">بلاگ</a>
                                     </li>
                                     <li><a href="#">درباره ما</a></li>
-                                    <li><a href="#">تماس با ما</a></li>
+                                    <li><a href="@Url.Content("~/page/contact")">تماس با ما</a></li>
                                 </ul>
                             </nav>
                             <div class="mobile-menu d-block d-lg-none">
                                 <nav>
                                     <ul>
                                         <li>
-                                            <a href="#">خانه</a>
+                                            <a href="@Url.Content("~/home/")">خانه</a>
                                         </li>
                                         <li>
                                             <a href="#">بلاگ</a>
                                         </li>
                                         <li><a href="#">درباره ما</a></li>
-                                        <li><a href="#">تماس با ما</a></li>
+                                        <li><a href="@Url.Content("~/page/contact")">تماس با ما</a></li>
                                     </ul>
                                 </nav>
                             </div>
@@ -227,7 +227,7 @@
                                 <h3 class="footer-title">با مهتا کالا</h3>
                                 <div class="footer-content">
                                     <ul class="footer-list">
-                                        <li><a href="#">فروش در دیجی‌کالا</a></li>
+                                        <li><a href="#">فروش در مهتا کالا</a></li>
                                         <li><a href="#">فرصت های شغلی</a></li>
                                         <li><a href="#">بلاگ</a></li>
                                         <li><a href="#">نقشه سایت</a></li>
@@ -431,6 +431,6 @@
     <script src="~/js/jquery.blockUI.js"></script>
     <script src="~/js/toastr.min.js"></script>
     <script src="~/js/main.js?v=2.0"></script>
-    <script src="~/js/ShoppingCart.js?v=2.05"></script>
+    <script src="~/js/ShoppingCart.js?v=2.18"></script>
 </body>
 </html>

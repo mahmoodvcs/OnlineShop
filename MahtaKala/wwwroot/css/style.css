@@ -35,6 +35,9 @@
     overflow-y: scroll;
 }
 
+.logout {
+    color: #e62e04;
+}
 ul#liList li {
     display: inline;
 }
