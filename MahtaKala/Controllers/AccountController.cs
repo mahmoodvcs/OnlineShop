@@ -84,6 +84,11 @@ namespace MahtaKala.Controllers
             }
             return RedirectToAction("Index", "Home");
         }
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("MahtaAuth");
+            return RedirectToAction("Index", "Home");
+        }
 
         public IActionResult FirstRequest()
         {
