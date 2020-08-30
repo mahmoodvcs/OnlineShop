@@ -19,6 +19,6 @@ namespace MahtaKala.Entities
         [JsonIgnore]
         public Category Parent { get; set; }
         public IList<Category> Children { get; set; }
-        public IList<Product> Products { get; set; }
+        public IList<ProductCategory> ProductCategories { get; set; }
     }
 }

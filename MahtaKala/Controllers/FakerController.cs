@@ -59,7 +59,7 @@ namespace MahtaKala.Controllers
                         var p = new Product()
                         {
                             Title = faker.Commerce.ProductName(),
-                            Category = cat,
+                            ProductCategories = new List<ProductCategory> { new ProductCategory { Category = cat } },
                             Brand = brands[random.Next(brands.Count)],
                             Characteristics = new List<Characteristic>()
                             {

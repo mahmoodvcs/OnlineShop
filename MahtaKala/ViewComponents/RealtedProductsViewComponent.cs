@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.ViewComponents
 {
-    public class RealtedProductsViewComponent: ViewComponent
+    public class RealtedProductsViewComponent : ViewComponent
     {
         private DataContext _db;
         public RealtedProductsViewComponent(DataContext db)
@@ -16,9 +16,9 @@ namespace MahtaKala.ViewComponents
             _db = db;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(long id,long categoryId)
+        public async Task<IViewComponentResult> InvokeAsync(long id, long categoryId)
         {
-            return View(await _db.Products.Include(a=>a.Prices).Where(a=>a.Id!=id && a.CategoryId== categoryId).Take(10).ToListAsync());
+            return View(await _db.Products.Include(a => a.Prices).Where(a => a.Id != id && a.ProductCategories.Any(c => c.CategoryId == categoryId)).Take(10).ToListAsync());
         }
     }
 }

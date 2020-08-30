@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Dissolve;
 
 namespace MahtaKala.Controllers
 {
@@ -98,7 +99,7 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
-        public async Task Product([FromBody] ProductModel productMode)
+        public async Task Product([FromBody] ProductUpdateModel productMode)
         {
             Product product;
             if (productMode.Id > 0)
@@ -112,7 +113,10 @@ namespace MahtaKala.Controllers
                 product = new Product();
             }
             product.BrandId = productMode.Brand_Id;
-            product.CategoryId = productMode.Category_Id;
+            product.ProductCategories = productMode.Categories.Select(c=>new ProductCategory
+                {
+                    CategoryId = c
+                }).ToList();
             product.Characteristics = productMode.Characteristics;
             product.Description = productMode.Description;
             product.Properties = productMode.Properties.ToList();
@@ -149,8 +153,8 @@ namespace MahtaKala.Controllers
                     Id = a.Id,
                     Brand_Id = a.BrandId,
                     Brand = a.Brand.Name,
-                    Category_Id = a.CategoryId,
-                    Category = a.Category.Title,
+                    Category_Id = a.ProductCategories.FirstOrDefault().CategoryId,
+                    Category = a.ProductCategories.FirstOrDefault().Category.Title,
                     Description = a.Description,
                     Title = a.Title,
                     Thubmnail = a.Thubmnail,
@@ -163,7 +167,7 @@ namespace MahtaKala.Controllers
                 }).ToListAsync();
 
             //Product.Properties must be Dictionary
-            return data.Select(a=> new ProductModel
+            return data.Select(a => new ProductModel
             {
                 Id = a.Id,
                 Brand_Id = a.Brand_Id,
@@ -185,20 +189,34 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<ProductConciseModel>> Products([FromQuery] long? category, [FromQuery] int offset, [FromQuery] int page)
         {
-            return await db.Products
-                .Where(a => a.CategoryId == category)
-                .OrderBy(p => p.Id).Skip(offset).Take(page)
-                .Select(a => new ProductConciseModel
-                {
-                    Id = a.Id,
-                    Brand = a.Brand.Name,
-                    Category = a.Category.Title,
-                    Title = a.Title,
-                    Thubmnail = a.Thubmnail,
-                    Price = a.Prices.FirstOrDefault().Price,
-                    DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice
-                })
-                .ToListAsync();
+            List<long> cids = new List<long>();
+            if (category.HasValue)
+                cids.Add(category.Value);
+            return await GetProducts(cids, offset, page);
+        }
+
+        public async Task<List<ProductConciseModel>> GetProducts(IEnumerable<long> categoryIds, int offset, int page)
+        {
+            var categories = db.Categories.AsQueryable();
+            
+            if (categoryIds.Count() > 0)
+                categories = categories.Where(c => categoryIds.Contains(c.Id));
+
+            var query = from cat in categories
+                        from prc in cat.ProductCategories
+                        orderby prc.ProductId
+                        select new ProductConciseModel
+                        {
+                            Id = prc.Product.Id,
+                            Brand = prc.Product.Brand.Name,
+                            Category = cat.Title,
+                            Title = prc.Product.Title,
+                            Thubmnail = prc.Product.Thubmnail,
+                            Price = prc.Product.Prices.FirstOrDefault().Price,
+                            DiscountPrice = prc.Product.Prices.FirstOrDefault().DiscountPrice
+                        };
+
+            return await query.Skip(offset).Take(page).ToListAsync();
         }
 
         [HttpGet]
@@ -221,7 +239,7 @@ namespace MahtaKala.Controllers
             {
                 Id = a.Id,
                 Brand = a.Brand.Name,
-                Category = a.Category.Title,
+                Category = a.ProductCategories.FirstOrDefault().Category.Title,
                 Title = a.Title,
                 Thubmnail = a.Thubmnail,
                 Price = a.Prices.FirstOrDefault().Price,
@@ -288,24 +306,9 @@ namespace MahtaKala.Controllers
                 catagories.Add(category.Value);
             return await GetTopProducts(num, catagories.ToArray());
         }
-        private async Task<List<ProductConciseModel>> GetTopProducts(int num = 10, params long[] categories)
+        private async Task<List<ProductConciseModel>> GetTopProducts(int num = 10, params long[] categoryIds)
         {
-            IQueryable<Product> prods = db.Products.OrderBy(p => p.Id);
-
-            if (categories.Any())
-                prods = prods.Where(p => categories.Contains(p.CategoryId));
-            prods = prods.Take(num);
-            return await prods.Select(a => new ProductConciseModel
-            {
-                Id = a.Id,
-                Brand = a.Brand.Name,
-                Category = a.Category.Title,
-                Title = a.Title,
-                Thubmnail = a.Thubmnail,
-                Price = a.Prices.FirstOrDefault().Price,
-                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
-            })
-            .ToListAsync();
+            return await GetProducts(categoryIds, 0, num);
         }
 
         private void CreateHierarchy(long? parentId, IList<CategoryWithProductsModel> result, IList<Category> categories)

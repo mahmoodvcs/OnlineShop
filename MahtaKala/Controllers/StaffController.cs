@@ -11,6 +11,7 @@ using MahtaKala.Entities.Security;
 using MahtaKala.GeneralServices;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
+using MahtaKala.Models.ProductModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -374,9 +375,20 @@ namespace MahtaKala.Controllers
             return View();
         }
 
-        public IActionResult Product_Read([DataSourceRequest] DataSourceRequest request)
+        public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Products.Include(c => c.Category).ToList(), request);
+            var data =await db.Products.Select(a => new ProductConciseModel
+            {
+                Id = a.Id,
+                Brand = a.Brand.Name,
+                Category = a.ProductCategories.FirstOrDefault().Category.Title,
+                Title = a.Title,
+                Thubmnail = a.Thubmnail,
+                Price = a.Prices.FirstOrDefault().Price,
+                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice
+            }).ToListAsync();
+
+            return ConvertDataToJson(data, request);
         }
 
         [HttpPost]

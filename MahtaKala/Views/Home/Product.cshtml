@@ -238,4 +238,4 @@
     </div>
     <!-- Container End -->
 </div>
-@await Component.InvokeAsync("RealtedProducts", new { id = Model.Id, categoryId = Model.CategoryId })
+@await Component.InvokeAsync("RealtedProducts", new { id = Model.Id, categoryId = Model.ProductCategories.FirstOrDefault()?.CategoryId })
