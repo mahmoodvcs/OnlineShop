@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.ViewComponents
 {
-    public class HotDealsViewComponent : ViewComponent
+    public class BestSellersViewComponent: ViewComponent
     {
         private readonly IProductImageService imageService;
         private DataContext _db;
-        public HotDealsViewComponent(DataContext db, IProductImageService imageService)
+        public BestSellersViewComponent(DataContext db, IProductImageService imageService)
         {
             this.imageService = imageService;
             _db = db;

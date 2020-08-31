@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.ViewComponents
 {
-    public class HotDealsViewComponent : ViewComponent
+    public class LatestProductsViewComponent : ViewComponent
     {
         private readonly IProductImageService imageService;
         private DataContext _db;
-        public HotDealsViewComponent(DataContext db, IProductImageService imageService)
+        public LatestProductsViewComponent(DataContext db, IProductImageService imageService)
         {
             this.imageService = imageService;
             _db = db;
@@ -21,7 +21,7 @@ namespace MahtaKala.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var lst = await _db.Products.Include(a => a.Prices).Take(10).ToListAsync();
+            var lst = await _db.Products.Include(a => a.Prices).Take(12).ToListAsync();
             foreach (var item in lst)
             {
                 imageService.FixImageUrls(item);
