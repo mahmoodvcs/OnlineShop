@@ -193,10 +193,10 @@ namespace MahtaKala.Controllers
                 Title = a.Title,
                 Thubmnail = imageService.GetImageUrl(a.Id, a.Thubmnail),
                 Characteristics = a.Characteristics,
-                Properties = a.PropertiesKeyValues.ToDictionary(a => a.Key, a => a.Value),
+                Properties = a.PropertiesKeyValues?.ToDictionary(a => a.Key, a => a.Value),
                 ImageList = imageService.GetImageUrls(a.Id, a.ImageList),
-                Price = a.Prices.FirstOrDefault().Price,
-                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
+                Price = a.Prices?.FirstOrDefault()?.Price,
+                DiscountPrice = a.Prices?.FirstOrDefault()?.DiscountPrice,
                 Prices = a.Prices
             }).FirstOrDefault();
         }
