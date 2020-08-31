@@ -9,6 +9,7 @@ using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
 using MahtaKala.Models;
 using MahtaKala.Models.CustomerModels;
+using MahtaKala.Services;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,15 +25,17 @@ namespace MahtaKala.Controllers
     {
         private readonly PaymentService paymentService;
         private readonly IPathService pathService;
-
+        private readonly IProductImageService imageService;
         public CartController(DataContext dataContext, ILogger<CartController> logger, IHttpContextAccessor contextAccessor,
             PaymentService paymentService,
-            IPathService pathService
+            IPathService pathService,
+            IProductImageService imageService
             ) : base(dataContext, logger)
         {
             this.contextAccessor = contextAccessor;
             this.paymentService = paymentService;
             this.pathService = pathService;
+            this.imageService = imageService;
         }
         private readonly IHttpContextAccessor contextAccessor;
         public HttpContext Current => contextAccessor.HttpContext;
@@ -54,6 +57,11 @@ namespace MahtaKala.Controllers
             else
             {
                 cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == sessionId).ToList();
+            }
+
+            foreach (var item in cartItems)
+            {
+               imageService.FixImageUrls(item.ProductPrice.Product);
             }
             return PartialView("ShoppingBag", cartItems);
         }
@@ -201,7 +209,7 @@ namespace MahtaKala.Controllers
             }
             if (vm.IsNewAddress)
             {
-                if (vm.UserAddress.CityId==0)
+                if (vm.UserAddress.CityId == 0)
                 {
                     return Json(new { success = false, msg = "لطفا شهر را انتخاب نمایید" });
                 }
@@ -227,7 +235,7 @@ namespace MahtaKala.Controllers
             {
                 order.AddressId = vm.UserData.AddressId;
             }
-        
+
             order.OrrderDate = DateTime.Now;
             db.OrderItems.Where(a => a.OrderId == order.Id).Delete();
             decimal sumFinalPrice = 0;
@@ -279,6 +287,10 @@ namespace MahtaKala.Controllers
             {
                 string sessionId = Current.Session.Id;
                 cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == sessionId).ToList();
+            }
+            foreach (var item in cartItems)
+            {
+                imageService.FixImageUrls(item.ProductPrice.Product);
             }
             return cartItems;
         }

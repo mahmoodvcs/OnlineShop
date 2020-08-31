@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MahtaKala.Entities;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models.ProductModels;
+using MahtaKala.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,8 +14,11 @@ namespace MahtaKala.Controllers
 {
     public class HomeController : SiteControllerBase<HomeController>
     {
-        public HomeController(DataContext dataContext, ILogger<HomeController> logger) : base(dataContext, logger)
+        private readonly IProductImageService imageService;
+        public HomeController(DataContext dataContext, ILogger<HomeController> logger,
+            IProductImageService imageService) : base(dataContext, logger)
         {
+            this.imageService = imageService;
         }
 
         public IActionResult Index()
@@ -24,20 +28,21 @@ namespace MahtaKala.Controllers
 
         public IActionResult Product(int id)
         {
-            var product = db.Products.Where(a => a.Id == id)
-                .Select(p => new ProductHomeModel
-                {
-                    Id = p.Id,
-                    Category = p.ProductCategories.FirstOrDefault().Category.Title,
-                    CategoryId = p.ProductCategories.FirstOrDefault().CategoryId,
-                    Brand = p.Brand.Name,
-                    Description = p.Description,
-                    Thubmnail = p.Thubmnail,
-                    Title = p.Title,
-                    Prices = p.Prices.ToList()
-                }).FirstOrDefault();
-            if (product == null)
+            var p = db.Products.FirstOrDefault(a => a.Id == id);
+            if (p == null)
                 throw new EntityNotFoundException<Product>(id);
+            imageService.FixImageUrls(p);
+            var product = new ProductHomeModel
+            {
+                Id = p.Id,
+                Category = p.ProductCategories.FirstOrDefault().Category.Title,
+                CategoryId = p.ProductCategories.FirstOrDefault().CategoryId,
+                Brand = p.Brand.Name,
+                Description = p.Description,
+                Thubmnail = p.Thubmnail,
+                Title = p.Title,
+                Prices = p.Prices.ToList()
+            };
             return View(product);
         }
 
@@ -110,7 +115,10 @@ namespace MahtaKala.Controllers
 
             var skiped = (page - 1) * recordsPerPage;
             queryable = queryable.Skip(skiped).Take(recordsPerPage);
-
+            foreach (var item in queryable)
+            {
+                imageService.FixImageUrls(item);
+            }
 
             return queryable.ToList();
         }
