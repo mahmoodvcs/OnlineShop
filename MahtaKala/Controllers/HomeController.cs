@@ -14,11 +14,14 @@ namespace MahtaKala.Controllers
 {
     public class HomeController : SiteControllerBase<HomeController>
     {
-        private readonly IProductImageService imageService;
-        public HomeController(DataContext dataContext, ILogger<HomeController> logger,
-            IProductImageService imageService) : base(dataContext, logger)
+        private readonly IProductImageService productImageService;
+
+        public HomeController(
+            DataContext dataContext, 
+            ILogger<HomeController> logger,
+            IProductImageService productImageService) : base(dataContext, logger)
         {
-            this.imageService = imageService;
+            this.productImageService = productImageService;
         }
 
         public IActionResult Index()
@@ -28,19 +31,23 @@ namespace MahtaKala.Controllers
 
         public IActionResult Product(int id)
         {
-            var p = db.Products.Include(a=> a.ProductCategories).Include(a=> a.Prices).Include(a=>a.Brand).FirstOrDefault(a => a.Id == id);
-            if (p == null)
+            var product = db.Products.Where(a => a.Id == id)
+                .Select(p => new ProductHomeModel
+                {
+                    Id = p.Id,
+                    Category = p.ProductCategories.FirstOrDefault().Category.Title,
+                    CategoryId = p.ProductCategories.FirstOrDefault().CategoryId,
+                    Brand = p.Brand.Name,
+                    Description = p.Description,
+                    Thubmnail = p.Thubmnail,
+                    Title = p.Title,
+                    Prices = p.Prices.ToList(),
+                    Images = p.ImageList
+                }).FirstOrDefault();
+            if (product == null)
                 throw new EntityNotFoundException<Product>(id);
-            imageService.FixImageUrls(p);
-            var product = new ProductHomeModel();
-            product.Id = p.Id;
-            product.Category = p.ProductCategories.FirstOrDefault().Category !=null? p.ProductCategories.FirstOrDefault().Category.Title:"";
-            product.CategoryId = p.ProductCategories.FirstOrDefault() != null ? p.ProductCategories.FirstOrDefault().CategoryId:0;
-            product.Brand = p.Brand.Name;
-            product.Description = p.Description;
-            product.Thubmnail = p.Thubmnail;
-            product.Title = p.Title;
-            product.Prices = p.Prices.ToList();
+            product.Thubmnail = productImageService.GetImageUrl(product.Id, product.Thubmnail);
+            product.Images = productImageService.GetImageUrls(product.Id, product.Images).ToList();
             return View(product);
         }
 
@@ -103,7 +110,7 @@ namespace MahtaKala.Controllers
             }
             if (groupId.HasValue)
             {
-                // queryable = queryable.Where(c => c.CategoryId == groupId);
+                queryable = queryable.Where(c => c.ProductCategories.Any(pc => pc.CategoryId == groupId));
             }
 
             totalItemCount = queryable.Count();
@@ -113,12 +120,11 @@ namespace MahtaKala.Controllers
 
             var skiped = (page - 1) * recordsPerPage;
             queryable = queryable.Skip(skiped).Take(recordsPerPage);
-            foreach (var item in queryable)
-            {
-                imageService.FixImageUrls(item);
-            }
 
-            return queryable.ToList();
+
+            var data = queryable.ToList();
+            productImageService.FixImageUrls(data);
+            return data;
         }
 
     }

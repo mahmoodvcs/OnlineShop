@@ -9,6 +9,7 @@
         @Html.AntiForgeryToken()
         @Html.HiddenFor(a => a.Id)
         @Html.HiddenFor(a => a.Thubmnail)
+        @Html.HiddenFor(a => a.ImageList)
         <div class="card-header">
             <div class="row">
                 <div class="col-lg-6">
@@ -108,8 +109,24 @@
                     <label>
                         توضیحات :
                     </label>
-                    @Html.TextBoxFor(a => a.Description, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(a => a.Description)
+                    @(Html.Kendo().Editor()
+                  .Name("editor")
+                  .HtmlAttributes(new { style = "width: 100%; height:840px" })
+                  .Tools(tools => tools
+                        .Clear()
+                        .Bold().Italic().Underline()
+                        .JustifyLeft().JustifyCenter().JustifyRight()
+                        .InsertUnorderedList().InsertOrderedList()
+                        .Outdent().Indent()
+                        .CreateLink().Unlink()
+                        .InsertImage()
+                        .TableEditing()
+                        .FontName()
+                        .FontSize()
+                        .ForeColor().BackColor()
+                  )
+                .Value(Model.Description)
+        )
                 </div>
             </div>
             <div class="form-group row">
@@ -185,6 +202,7 @@
 </div>
 <script>
     var propertiesDataSource;
+    var modelId = $("#Id").val();
     $(function () {
 
         var properties = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.Properties));
@@ -212,6 +230,7 @@
                 this.refresh();
             }
         });
+        loadImageList(@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.ImageList)));
     });
     @*var characteristicsDataSource;
 
@@ -271,13 +290,16 @@
         $("#Properties").val(JSON.stringify(propertiesDataSource.data()));
     }
     function onUpload(e) {
-        e.data = { ID: $("#Id").val() };
+        e.data = { ID: modelId };
     }
     function onSuccess(e) {
         images = jQuery.parseJSON(e.XMLHttpRequest.responseText);
         loadImageList(images);
     }
     function loadImageList(images) {
+        if (!images)
+            return;
+        $("#ImageList").val(images);
         data = [];
         var i;
         for (i = 0; i < images.length; i++) {
@@ -301,12 +323,13 @@
     }
     function onThumbSuccess(e) {
         var imgId = jQuery.parseJSON(e.XMLHttpRequest.responseText);
+        $("#Thubmnail").val(imgId);
         var _img = document.getElementById('thumb-img');
         _img.src =  getImage(imgId);
     }
     function getImage(imgId) {
         return imgId;
-        //return '@Url.Action("Product", "Image")?id=' + $("#Id").val() + '&name=' + imgId;
+        //return '@Url.Action("Product", "Image")?id=' + modelId + '&name=' + imgId;
     }
     function deleteImage(imgId) {
         console.log(imgId);
@@ -322,7 +345,7 @@
             if (result.value) {
                 $.post("@Url.Action("DeleteImage", "Staff")",
                     {
-                        Id: $("#Id").val(),
+                        Id: modelId,
                         fileName: imgId
                     },
                     function (images) {

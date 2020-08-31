@@ -10,21 +10,16 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.Services
 {
-    public class ProductImageService : IProductImageService
+    public class ProductImageService : ImageServiceBase, IProductImageService
     {
-        private readonly ImagesPathStrategy pathStrategy;
-        private readonly IPathService pathService;
-
-        public string ProductsImagesPath { get; }
 
         public ProductImageService(
             ImagesPathStrategy pathStrategy,
             IConfiguration configuration,
             IPathService pathService)
+            :base(pathStrategy, pathService)
         {
-            this.pathStrategy = pathStrategy;
-            this.pathService = pathService;
-            ProductsImagesPath = configuration.GetSection("AppSettings")["ProductsImagesPath"];
+            ImagesPath = configuration.GetSection("AppSettings")["ProductImagesPath"];
         }
 
         public string GetImageUrl(long productId, string name)
@@ -37,31 +32,6 @@ namespace MahtaKala.Services
         public string GetThumbnailUrl(Product p)
         {
             return GetImageUrl(p.Id, p.Thubmnail);
-        }
-        public byte[] GetImage(long productId, string name)
-        {
-            if (name.StartsWith("http://") || name.StartsWith("https://"))
-                return null;
-            return File.ReadAllBytes(pathStrategy.GetPath(ProductsImagesPath, productId, name));
-        }
-
-        public async Task SaveImage(long id, string name, Stream stream)
-        {
-            byte[] bs = new byte[4096];
-            int read;
-
-            using (var output = new FileStream(pathStrategy.GetPath(ProductsImagesPath, id, name), FileMode.Create, FileAccess.Write))
-            {
-                while ((read = await stream.ReadAsync(bs, 0, bs.Length)) > 0)
-                {
-                    await output.WriteAsync(bs, 0, read);
-                }
-            }
-        }
-
-        public void DeleteImage(long id, string fileName)
-        {
-            File.Delete(pathStrategy.GetPath(ProductsImagesPath, id, fileName));
         }
 
         public IEnumerable<string> GetImageUrls(Product p)
@@ -81,6 +51,13 @@ namespace MahtaKala.Services
                     list.Add(GetImageUrl(p.Id, item));
                 }
                 p.ImageList = list;
+            }
+        }
+        public void FixImageUrls(IEnumerable<Product> list)
+        {
+            foreach (var p in list)
+            {
+                FixImageUrls(p);
             }
         }
 

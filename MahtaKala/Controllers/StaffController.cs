@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Controllers
 {
-    [Authorize(Entities.UserType.Admin)]
+    [Authorize(UserType.Staff)]
     public class StaffController : ApiControllerBase<StaffController>
     {
         private readonly IProductImageService productImageService;
@@ -46,15 +47,17 @@ namespace MahtaKala.Controllers
 
         #region Users
 
-
+        [Authorize(UserType.Admin)]
         public IActionResult UserList()
         {
             return View();
         }
+        [Authorize(UserType.Admin)]
         public ActionResult GetAllUsers([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Users.ToList(), request);
         }
+        [Authorize(UserType.Admin)]
         public new ActionResult User(long id)
         {
             User user = null;
@@ -74,6 +77,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(UserType.Admin)]
         public new IActionResult User(User model)
         {
             if (ModelState.IsValid)
@@ -556,6 +560,36 @@ namespace MahtaKala.Controllers
 
         #endregion
 
+        public ActionResult BuyHistory()
+        {
+            ViewData["Title"] = "گزارش خرید ها";
+            return View();
+        }
+
+        public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
+        {
+            var data = await db.Orders.Where(o => o.State == OrderState.Payed || o.State == OrderState.Delivered)
+                .Select(a => new
+                {
+                    Id = a.Id,
+                    Price = a.TotalPrice,
+                    Date = a.OrrderDate,
+                    Name = a.User.FirstName + " " + a.User.LastName
+                }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
+                {
+                    Id = a.Id,
+                    Date = GetPersianDate(a.Date),
+                    Price = (long)a.Price,
+                    Customer = a.Name
+                });
+            return Json(data);
+        }
+
+        string GetPersianDate(DateTime d)
+        {
+            PersianCalendar pc = new PersianCalendar();
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay.ToString()}";
+        }
 
         private ContentResult ConvertDataToJson<T>(IEnumerable<T> data, [DataSourceRequest] DataSourceRequest request)
         {
