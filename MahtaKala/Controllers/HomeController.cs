@@ -28,21 +28,19 @@ namespace MahtaKala.Controllers
 
         public IActionResult Product(int id)
         {
-            var p = db.Products.FirstOrDefault(a => a.Id == id);
+            var p = db.Products.Include(a=> a.ProductCategories).Include(a=> a.Prices).Include(a=>a.Brand).FirstOrDefault(a => a.Id == id);
             if (p == null)
                 throw new EntityNotFoundException<Product>(id);
             imageService.FixImageUrls(p);
-            var product = new ProductHomeModel
-            {
-                Id = p.Id,
-                Category = p.ProductCategories.FirstOrDefault().Category.Title,
-                CategoryId = p.ProductCategories.FirstOrDefault().CategoryId,
-                Brand = p.Brand.Name,
-                Description = p.Description,
-                Thubmnail = p.Thubmnail,
-                Title = p.Title,
-                Prices = p.Prices.ToList()
-            };
+            var product = new ProductHomeModel();
+            product.Id = p.Id;
+            product.Category = p.ProductCategories.FirstOrDefault().Category !=null? p.ProductCategories.FirstOrDefault().Category.Title:"";
+            product.CategoryId = p.ProductCategories.FirstOrDefault() != null ? p.ProductCategories.FirstOrDefault().CategoryId:0;
+            product.Brand = p.Brand.Name;
+            product.Description = p.Description;
+            product.Thubmnail = p.Thubmnail;
+            product.Title = p.Title;
+            product.Prices = p.Prices.ToList();
             return View(product);
         }
 
@@ -105,7 +103,7 @@ namespace MahtaKala.Controllers
             }
             if (groupId.HasValue)
             {
-               // queryable = queryable.Where(c => c.CategoryId == groupId);
+                // queryable = queryable.Where(c => c.CategoryId == groupId);
             }
 
             totalItemCount = queryable.Count();
