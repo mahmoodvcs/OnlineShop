@@ -13,11 +13,14 @@
                 <div class="col-lg-5 mb-all-40">
                     <!-- Thumbnail Large Image start -->
                     <div class="tab-content">
+                        <div id="thumb1" class="tab-pane fade show  active">
+                            <a data-fancybox="images" href="@Model.Thubmnail"><img src="@Model.Thubmnail" alt="product-view"></a>
+                        </div>
                         @{
-                            int i = 1;
+                            int i = 2;
                             foreach (var img in Model.Images)
                             {
-                                <div id="thumb@(i)" class="tab-pane fade show active">
+                                <div id="thumb@(i)" class="tab-pane fade show">
                                     <a data-fancybox="images" href="@img"><img src="@img" alt="product-view"></a>
                                 </div>
                                 i++;

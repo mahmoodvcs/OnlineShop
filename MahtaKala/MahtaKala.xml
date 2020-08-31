@@ -130,6 +130,11 @@
             <param name="model"></param>
             <returns></returns>
         </member>
+        <member name="P:MahtaKala.Controllers.ProductEditorImageBrowserController.ContentPath">
+            <summary>
+            Gets the base paths from which content will be served.
+            </summary>
+        </member>
         <member name="T:MahtaKala.Controllers.SiteControllerBase`1">
             <summary>
             This is the base for all controllers that render HTML
