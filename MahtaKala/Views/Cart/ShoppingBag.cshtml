@@ -7,7 +7,7 @@
         sumFinalPrice += item.ProductPrice.DiscountPrice * item.Count;
         <div class="single-cart-box">
             <div class="cart-img">
-                <a href="#"><img src="@Url.Content(item.ProductPrice.Product.Thubmnail)"></a>
+                <a href="#"><img src="@item.ProductPrice.Product.Thubmnail"></a>
                 <span class="pro-quantity">@item.Count X</span>
             </div>
             <div class="cart-content">

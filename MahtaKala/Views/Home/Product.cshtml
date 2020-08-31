@@ -62,7 +62,7 @@
                             </p>
                         </div>
                         <p class="mb-20 pro-desc-details">
-                            @Model.Description
+                            @Html.Raw(Model.Description)
                         </p>
                         @*<div class="product-size mb-20 clearfix">
                                 <label>اندازه</label>
@@ -127,7 +127,8 @@
                 <div class="tab-content thumb-content border-default">
                     <div id="dtail" class="tab-pane fade show active">
                         <p>
-                            @Model.Description
+                            @Html.Raw(Model.Description)
+                
                         </p>
                     </div>
                     <div id="review" class="tab-pane fade">
