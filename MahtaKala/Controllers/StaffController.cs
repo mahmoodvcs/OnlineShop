@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -559,6 +560,36 @@ namespace MahtaKala.Controllers
 
         #endregion
 
+        public ActionResult BuyHistory()
+        {
+            ViewData["Title"] = "گزارش خرید ها";
+            return View();
+        }
+
+        public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
+        {
+            var data = await db.Orders.Where(o => o.State == OrderState.Payed || o.State == OrderState.Delivered)
+                .Select(a => new
+                {
+                    Id = a.Id,
+                    Price = a.TotalPrice,
+                    Date = a.OrrderDate,
+                    Name = a.User.FirstName + " " + a.User.LastName
+                }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
+                {
+                    Id = a.Id,
+                    Date = GetPersianDate(a.Date),
+                    Price = (long)a.Price,
+                    Customer = a.Name
+                });
+            return Json(data);
+        }
+
+        string GetPersianDate(DateTime d)
+        {
+            PersianCalendar pc = new PersianCalendar();
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay.ToString()}";
+        }
 
         private ContentResult ConvertDataToJson<T>(IEnumerable<T> data, [DataSourceRequest] DataSourceRequest request)
         {

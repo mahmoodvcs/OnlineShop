@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = ViewData["Title"];
+    Layout = "~/Views/Shared/_Staff.cshtml";
+}
+@(Html.Kendo().Grid<MahtaKala.Models.BuyHistoryModel>().Name("grid").Columns(columns =>
+{
+    columns.Bound(p => p.Customer).Title("مشتری");
+    columns.Bound(p => p.Date).Title("تاریخ");
+    columns.Bound(p => p.Price).Title("قیمت");
+
+})
+                                 .Pageable(pageable => pageable
+        .Refresh(true)
+        .PageSizes(true)
+        .ButtonCount(5)).Filterable().Sortable().DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(50)
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+
+                })
+                .Read(read => read.Action("GetBuyHistory", "Staff"))
+                                                                                                                                                                                                                                                                                    )
+        )
+@section js{
+    <script type="text/javascript">
+    </script>
+}

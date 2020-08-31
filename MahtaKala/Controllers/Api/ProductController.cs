@@ -207,10 +207,11 @@ namespace MahtaKala.Controllers
             List<long> cids = new List<long>();
             if (category.HasValue)
                 cids.Add(category.Value);
-            return await GetProducts(cids, offset, page);
+            return await GetProductsData(cids, offset, page);
         }
 
-        public async Task<List<ProductConciseModel>> GetProducts(IEnumerable<long> categoryIds, int offset, int page)
+        [NonAction]
+        public async Task<List<ProductConciseModel>> GetProductsData(IEnumerable<long> categoryIds, int offset, int page)
         {
             var categories = db.Categories.AsQueryable();
 
@@ -330,7 +331,7 @@ namespace MahtaKala.Controllers
         }
         private async Task<List<ProductConciseModel>> GetTopProducts(int num = 10, params long[] categoryIds)
         {
-            return await GetProducts(categoryIds, 0, num);
+            return await GetProductsData(categoryIds, 0, num);
         }
 
         private void CreateHierarchy(long? parentId, IList<CategoryWithProductsModel> result, IList<Category> categories)
