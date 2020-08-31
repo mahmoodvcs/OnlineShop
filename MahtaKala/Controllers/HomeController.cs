@@ -22,11 +22,6 @@ namespace MahtaKala.Controllers
             return View();
         }
 
-        public IActionResult Category(int? id)
-        {
-            return View();
-        }
-
         public IActionResult Product(int id)
         {
             var product = db.Products.Where(a => a.Id == id)
@@ -45,7 +40,6 @@ namespace MahtaKala.Controllers
                 throw new EntityNotFoundException<Product>(id);
             return View(product);
         }
-
 
 
         [HttpPost]
@@ -69,6 +63,58 @@ namespace MahtaKala.Controllers
         }
 
 
+        public IActionResult Category(int? id, string term)
+        {
+            var page = 1;
+            int pageSize;
+            int recordsPerPage = 12;
+            int totalItemCount;
+            var vm = Search(page: 1, recordsPerPage: recordsPerPage, groupId: id, term: term, pageSize: out pageSize, totalItemCount: out totalItemCount);
+            ViewBag.PageSize = pageSize;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalItemCount = totalItemCount;
+            return View(vm);
+        }
+
+        [HttpGet]
+        public ActionResult Search(int page = 1, string term = "", int? groupId = null)
+        {
+            int pageSize;
+            int recordsPerPage = 12;
+            int totalItemCount;
+            var users = Search(page: page, recordsPerPage: recordsPerPage, groupId: groupId, term: term, pageSize: out pageSize, totalItemCount: out totalItemCount);
+            ViewBag.PageSize = pageSize;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalItemCount = totalItemCount;
+            return PartialView("_ProductList", users);
+        }
+
+        [NonAction]
+        private IEnumerable<Entities.Product> Search(int page, int recordsPerPage, int? groupId, string term, out int pageSize, out int totalItemCount)
+        {
+            var queryable = db.Products.Include(a => a.Prices).AsQueryable();
+            if (!string.IsNullOrEmpty(term))
+            {
+                queryable = queryable.Where(c => c.Title.Contains(term));
+
+            }
+            if (groupId.HasValue)
+            {
+                queryable = queryable.Where(c => c.CategoryId == groupId);
+            }
+
+            totalItemCount = queryable.Count();
+            pageSize = (int)Math.Ceiling((double)totalItemCount / recordsPerPage);
+
+            page = page > pageSize || page < 1 ? 1 : page;
+
+            var skiped = (page - 1) * recordsPerPage;
+            queryable = queryable.Skip(skiped).Take(recordsPerPage);
+
+
+            return queryable.ToList();
+        }
 
     }
+
 }

@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Product>
+<div id="grid-view" class="tab-pane fade show active">
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            var productPrice = item.Prices.First();
+            <div class="col-lg-4 col-md-4 col-sm-6 col-6">
+                <div class="single-product">
+                    <!-- Product Image Start -->
+                    <div class="pro-img">
+                        <a href="@Url.Content("~/home/product/"+item.Id)">
+                            <img class="primary-img" src="@Url.Content(item.Thubmnail)" alt="single-product">
+                        </a>
+                        <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="Quick View"><i class="lnr lnr-magnifier"></i></a>
+                    </div>
+                    <!-- Product Image End -->
+                    <!-- Product Content Start -->
+                    <div class="pro-content">
+                        <div class="pro-info">
+                            <h4><a href="@Url.Content("~/home/product/"+item.Id)">@item.Title</a></h4>
+                            <p><span class="price">@Util.Sub3Number(productPrice.DiscountPrice)</span><del class="prev-price">@Util.Sub3Number(productPrice.Price)</del></p>
+                            <div class="label-product l_sale">20<span class="symbol-percent">%</span></div>
+                        </div>
+                        <div class="pro-actions">
+                            <div class="actions-primary">
+                                <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id">+ اضافه کردن به سبد </a>
+                            </div>
+                            <div class="actions-secondary">
+                                <a href="#" title="مقایسه"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
+                                <a href="#" class="heart" data-id="@item.Id" title="علاقه مندی ها"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Product Content End -->
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@Html.Partial("_ProductPagedList")
+
