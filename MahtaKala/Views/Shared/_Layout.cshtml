@@ -62,8 +62,8 @@
                         <!-- Categorie Search Box Start Here -->
                         <div class="col-lg-5 col-md-8 ml-auto mr-auto col-10">
                             <div class="categorie-search-box">
-                                <form action="#">
-                                    <input type="text" name="search" placeholder="جستجو در مهتاکالا ...">
+                                <form action="@Url.Content("~/home/category")" method="get">
+                                    <input type="text" name="term" value="@Context.Request.Query["term"]" placeholder="جستجو در مهتاکالا ...">
                                     <button><i class="lnr lnr-magnifier"></i></button>
                                 </form>
                             </div>

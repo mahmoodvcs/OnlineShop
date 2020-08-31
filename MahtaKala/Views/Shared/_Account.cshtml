@@ -1,0 +1,64 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>مهتا کالا</title>
+    <link rel="shortcut icon" href="~/favicon.ico">
+    <link rel="stylesheet" href="~/css/font-awesome.min.css?v=1">
+    <link rel="stylesheet" href="~/css/bootstrap.min.css?v=1">
+    <link rel="stylesheet" href="~/css/default.css?v=1.1">
+    <link href="~/css/style.css?v=2.11" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/responsive.css?v=1">
+    <link href="~/css/toastr.css" rel="stylesheet" />
+    <link href="~/css/sweetalert.css" rel="stylesheet" />
+    <link href="~/css/login.css?v=1.2" rel="stylesheet" />
+    <script src="~/js/vendor/jquery-3.2.1.min.js"></script>
+    <script src="~/js/vendor/modernizr-3.5.0.min.js"></script>
+</head>
+<body dir="rtl">
+    <div class="wrapper">
+        <div class="log-in ptb-50 ptb-sm-60">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="wellbox">
+                            <div class="well">
+                                <div class="return-customer">
+                                    <div class="text-center">
+                                        <a href="@Url.Content("~/home/")">
+                                            <img src="~/img/logo/logo3.png" />
+                                        </a>
+                                    </div>
+                                    <div id="uxDivContent">
+                                      @RenderBody()
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="~/js/jquery-migrate-3.0.0.js"></script>
+    <script src="~/js/jquery.validate.min.js"></script>
+    <script src="~/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="~/js/jquery.blockUI.js"></script>
+    <script src="~/js/sweetalert.min.js"></script>
+    <script src="~/js/toastr.min.js"></script>
+    <script src="~/js/easytimer.min.js"></script>
+    <script src="~/js/login.js?v=1.21"></script>
+</body>
+</html>

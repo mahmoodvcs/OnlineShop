@@ -245,7 +245,7 @@ namespace MahtaKala.Controllers
             order.TotalPrice = sumFinalPrice + postCost;
             db.SaveChanges();
 
-            var payment = await paymentService.InitPayment(order, pathService.AppBaseUrl + "/Payment/Paid?source=api");
+            var payment = await paymentService.InitPayment(order, pathService.AppBaseUrl + "/Payment/CallBackPay");
             string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}&source=api";
             return Json(new { success = true, msg = payUrl });
         }

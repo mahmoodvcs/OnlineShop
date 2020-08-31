@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Controllers
 {
@@ -92,9 +93,24 @@ namespace MahtaKala.Controllers
 
                 Payment payment = await bankPaymentService.Paid(body);
                 //if (source == "api")
-                    return View("PaidFromApi", payment);
+                return View("PaidFromApi", payment);
                 //else
                 //    return View(payment);
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> CallBackPay()
+        {
+            using (var reader = new StreamReader(Request.Body))
+            {
+                var body = await reader.ReadToEndAsync();
+                Payment payment = await bankPaymentService.Paid(body);
+                if (payment.State == PaymentState.Succeeded)
+                {
+                    db.ShppingCarts.Where(a => a.UserId == payment.Order.UserId).Delete();
+                }
+                return View(payment);
             }
         }
 
