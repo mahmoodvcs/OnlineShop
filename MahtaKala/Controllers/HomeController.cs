@@ -100,7 +100,7 @@ namespace MahtaKala.Controllers
             }
             if (groupId.HasValue)
             {
-                queryable = queryable.Where(c => c.CategoryId == groupId);
+               // queryable = queryable.Where(c => c.CategoryId == groupId);
             }
 
             totalItemCount = queryable.Count();
