@@ -33,9 +33,9 @@ namespace MahtaKala.Services
             var path = Path.Combine(rootPath, p);
 
             p = int.Parse(s.Substring(2, 2)).ToString();
-            path = Path.Combine(rootPath, p);
+            path = Path.Combine(path, p);
             p = int.Parse(s.Substring(4, 2)).ToString();
-            path = Path.Combine(rootPath, p);
+            path = Path.Combine(path, p);
 
             if (!Directory.Exists(path))
             {

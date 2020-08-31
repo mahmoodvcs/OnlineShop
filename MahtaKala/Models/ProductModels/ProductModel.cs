@@ -23,7 +23,7 @@ namespace MahtaKala.Models.ProductModels
         [JsonIgnore]
         public IList<KeyValuePair<string, string>> PropertiesKeyValues { get; set; }
         public Dictionary<string, string> Properties { get; set; }
-        public IList<string> ImageList { get; set; }
+        public IEnumerable<string> ImageList { get; set; }
         public string Thubmnail { get; set; }
         public IList<ProductPrice> Prices { get; set; }
         public decimal? Price { get; set; }

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
+using MahtaKala.Services;
+using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -14,22 +16,19 @@ namespace MahtaKala.Controllers
 {
     public class ImageController : ApiControllerBase<ImageController>
     {
+        private readonly IProductImageService productImageService;
         private string ProductsImagesPath { get; set; }
-        private IFileService FileService { get; set; }
         public ImageController(
             DataContext context,
             ILogger<ImageController> logger,
-            IConfiguration configuration,
-            IFileService fileService
+            IProductImageService productImageService 
             ) : base(context, logger)
         {
-            ProductsImagesPath = configuration.GetSection("AppSettings")["ProductsImagesPath"];
-            this.FileService = fileService;
+            this.productImageService = productImageService;
         }
         public FileContentResult Product(long id, string name)
         {
-            var path = Path.Combine(ProductsImagesPath, id.ToString());
-            return base.File(FileService.GetFile(path, name), "image/jpeg");
+            return File(productImageService.GetImage(id, name), "image/jpeg");
         }
     }
 }

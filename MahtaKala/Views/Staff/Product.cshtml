@@ -136,7 +136,7 @@
             </div>
             <div class="form-group row">
                 <div class="col-lg-12">
-                    <img id="thumb-img" src="@(Model.Thubmnail != null ? Url.Action("Product", "Image") + "?id=" + Model.Id + "&name=" + Model.Thubmnail : "")" style="max-width:200px; max-height:200px;" />
+                    <img id="thumb-img" src="@(Model.Thubmnail)" style="max-width:200px; max-height:200px;" />
                 </div>
             </div>
 
@@ -305,7 +305,8 @@
         _img.src =  getImage(imgId);
     }
     function getImage(imgId) {
-        return '@Url.Action("Product", "Image")?id=' + $("#Id").val() + '&name=' + imgId;
+        return imgId;
+        //return '@Url.Action("Product", "Image")?id=' + $("#Id").val() + '&name=' + imgId;
     }
     function deleteImage(imgId) {
         console.log(imgId);

@@ -10,6 +10,7 @@ using MahtaKala.Entities.Extentions;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
+using MahtaKala.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,9 +26,15 @@ namespace MahtaKala.Controllers
     [ActionFilter.Authorize]
     public class ProductController : ApiControllerBase<ProductController>
     {
-        public ProductController(DataContext context, ILogger<ProductController> logger)
+        private readonly IProductImageService imageService;
+
+        public ProductController(
+            DataContext context,
+            ILogger<ProductController> logger,
+            IProductImageService imageService)
             : base(context, logger)
         {
+            this.imageService = imageService;
         }
 
 
@@ -113,10 +120,10 @@ namespace MahtaKala.Controllers
                 product = new Product();
             }
             product.BrandId = productMode.Brand_Id;
-            product.ProductCategories = productMode.Categories.Select(c=>new ProductCategory
-                {
-                    CategoryId = c
-                }).ToList();
+            product.ProductCategories = productMode.Categories.Select(c => new ProductCategory
+            {
+                CategoryId = c
+            }).ToList();
             product.Characteristics = productMode.Characteristics;
             product.Description = productMode.Description;
             product.Properties = productMode.Properties.ToList();
@@ -176,10 +183,10 @@ namespace MahtaKala.Controllers
                 Category = a.Category,
                 Description = a.Description,
                 Title = a.Title,
-                Thubmnail = a.Thubmnail,
+                Thubmnail = imageService.GetImageUrl(a.Id, a.Thubmnail),
                 Characteristics = a.Characteristics,
                 Properties = a.PropertiesKeyValues.ToDictionary(a => a.Key, a => a.Value),
-                ImageList = a.ImageList,
+                ImageList = imageService.GetImageUrls(a.Id, a.ImageList),
                 Price = a.Prices.FirstOrDefault().Price,
                 DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
                 Prices = a.Prices
@@ -198,7 +205,7 @@ namespace MahtaKala.Controllers
         public async Task<List<ProductConciseModel>> GetProducts(IEnumerable<long> categoryIds, int offset, int page)
         {
             var categories = db.Categories.AsQueryable();
-            
+
             if (categoryIds.Count() > 0)
                 categories = categories.Where(c => categoryIds.Contains(c.Id));
 
@@ -216,8 +223,14 @@ namespace MahtaKala.Controllers
                             DiscountPrice = prc.Product.Prices.FirstOrDefault().DiscountPrice
                         };
 
-            return await query.Skip(offset).Take(page).ToListAsync();
+            var data = await query.Skip(offset).Take(page).ToListAsync();
+            foreach (var p in data)
+            {
+                p.Thubmnail = imageService.GetImageUrl(p.Id, p.Thubmnail);
+            }
+            return data;
         }
+
 
         [HttpGet]
         public async Task<List<ProductConciseModel>> Search([FromQuery] string q, [FromQuery] int? offset, [FromQuery] int? page)
@@ -241,7 +254,7 @@ namespace MahtaKala.Controllers
                 Brand = a.Brand.Name,
                 Category = a.ProductCategories.FirstOrDefault().Category.Title,
                 Title = a.Title,
-                Thubmnail = a.Thubmnail,
+                Thubmnail = imageService.GetImageUrl(a.Id, a.Thubmnail),
                 Price = a.Prices.FirstOrDefault().Price,
                 DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice
             })
