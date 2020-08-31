@@ -7,13 +7,9 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.Services
 {
-    public interface IProductImageService
+    public interface IProductImageService : IImageService
     {
-        byte[] GetImage(long productId, string name);
-        string GetImageUrl(long productId, string name);
         IEnumerable<string> GetImageUrls(long productId, IEnumerable<string> names);
-        Task SaveImage(long id, string fileName, Stream stream);
-        void DeleteImage(long id, string fileName);
         void FixImageUrls(Product p);
         IEnumerable<string> GetImageUrls(Product p);
         string GetThumbnailUrl(Product p);

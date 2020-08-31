@@ -17,18 +17,25 @@ namespace MahtaKala.Controllers
     public class ImageController : ApiControllerBase<ImageController>
     {
         private readonly IProductImageService productImageService;
-        private string ProductsImagesPath { get; set; }
+        private readonly ICategoryImageService categoryImageService;
+
         public ImageController(
             DataContext context,
             ILogger<ImageController> logger,
-            IProductImageService productImageService 
+            IProductImageService productImageService ,
+            ICategoryImageService categoryImageService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
+            this.categoryImageService = categoryImageService;
         }
         public FileContentResult Product(long id, string name)
         {
             return File(productImageService.GetImage(id, name), "image/jpeg");
+        }
+        public FileContentResult Category(long id, string name)
+        {
+            return File(categoryImageService.GetImage(id, name), "image/jpeg");
         }
     }
 }

@@ -26,14 +26,17 @@ namespace MahtaKala.Controllers
     [ActionFilter.Authorize]
     public class ProductController : ApiControllerBase<ProductController>
     {
+        private readonly ICategoryImageService categoryImageService;
         private readonly IProductImageService imageService;
 
         public ProductController(
             DataContext context,
             ILogger<ProductController> logger,
+            ICategoryImageService categoryImageService,
             IProductImageService imageService)
             : base(context, logger)
         {
+            this.categoryImageService = categoryImageService;
             this.imageService = imageService;
         }
 
@@ -81,7 +84,12 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<Category>> Category([FromQuery] long? parent)
         {
-            return await db.Categories.Where(c => c.ParentId == parent).ToListAsync();
+            var data = await db.Categories.Where(c => c.ParentId == parent).ToListAsync();
+            foreach (var item in data)
+            {
+                item.Image = categoryImageService.GetImageUrl(item.Id, item.Image);
+            }
+            return data;
         }
         /// <summary>
         /// Removes the Category with the given ID
@@ -299,6 +307,7 @@ namespace MahtaKala.Controllers
             {
                 foreach (var c in result)
                 {
+                    c.Image = categoryImageService.GetImageUrl(c.Id, c.Image);
                     List<long> catagories = new List<long>();
                     catagories.Add(c.Id);
                     if (c.Children != null)
@@ -333,7 +342,7 @@ namespace MahtaKala.Controllers
                 var cp = new CategoryWithProductsModel
                 {
                     Id = c.Id,
-                    Image = c.Image,
+                    Image = categoryImageService.GetImageUrl(c.Id, c.Image),
                     ParentId = parentId,
                     Title = c.Title,
                 };
