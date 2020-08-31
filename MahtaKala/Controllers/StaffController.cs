@@ -25,7 +25,7 @@ using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Controllers
 {
-    [Authorize(Entities.UserType.Admin)]
+    [Authorize(UserType.Staff)]
     public class StaffController : ApiControllerBase<StaffController>
     {
         private readonly IProductImageService productImageService;
@@ -46,15 +46,17 @@ namespace MahtaKala.Controllers
 
         #region Users
 
-
+        [Authorize(UserType.Admin)]
         public IActionResult UserList()
         {
             return View();
         }
+        [Authorize(UserType.Admin)]
         public ActionResult GetAllUsers([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Users.ToList(), request);
         }
+        [Authorize(UserType.Admin)]
         public new ActionResult User(long id)
         {
             User user = null;
@@ -74,6 +76,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(UserType.Admin)]
         public new IActionResult User(User model)
         {
             if (ModelState.IsValid)
