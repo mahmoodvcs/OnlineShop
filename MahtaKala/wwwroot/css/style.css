@@ -38,6 +38,9 @@
 .logout {
     color: #e62e04;
 }
+.paddReigt {
+    padding-right: 50px !important;
+}
 ul#liList li {
     display: inline;
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MahtaKala.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -41,7 +42,7 @@ namespace MahtaKala.Helpers
 
             //در صورتی که رقم‌های کد ملی وارد شده یکسان باشد
             var allDigitEqual = new[] { "0000000000", "1111111111", "2222222222", "3333333333", "4444444444", "5555555555", "6666666666", "7777777777", "8888888888", "9999999999" };
-            if (allDigitEqual.Contains(nationalCode)) 
+            if (allDigitEqual.Contains(nationalCode))
                 throw new Exception("کد ملی صحیح نیست");
 
 
@@ -63,7 +64,7 @@ namespace MahtaKala.Helpers
 
             if (((c < 2) && (a == c)) || ((c >= 2) && ((11 - c) == a)))
                 return;
-         
+
             throw new Exception("کد ملی صحیح نیست");
         }
 
@@ -77,6 +78,18 @@ namespace MahtaKala.Helpers
                 i -= 3;
             }
             return value;
+        }
+
+        public static bool IsDiscount(ProductPrice productPrice, out decimal discount)
+        {
+            discount = 0;
+            decimal val = productPrice.Price - productPrice.DiscountPrice;
+            if (val > 0 && productPrice.Price > 0)
+            {
+                discount = Math.Round(val * 100 / productPrice.Price, 0);
+                return true;
+            }
+            return false;
         }
     }
 }

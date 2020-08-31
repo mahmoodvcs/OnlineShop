@@ -4,6 +4,8 @@
         @foreach (var item in Model)
         {
             var productPrice = item.Prices.First();
+            decimal discount;
+            var isDiscount = Util.IsDiscount(productPrice, out discount);
             <div class="col-lg-4 col-md-4 col-sm-6 col-6">
                 <div class="single-product">
                     <!-- Product Image Start -->
@@ -18,8 +20,17 @@
                     <div class="pro-content">
                         <div class="pro-info">
                             <h4><a href="@Url.Content("~/home/product/"+item.Id)">@item.Title</a></h4>
-                            <p><span class="price">@Util.Sub3Number(productPrice.DiscountPrice)</span><del class="prev-price">@Util.Sub3Number(productPrice.Price)</del></p>
-                            <div class="label-product l_sale">20<span class="symbol-percent">%</span></div>
+                            <p>
+                                <span class="price">@Util.Sub3Number(productPrice.DiscountPrice) تومان</span>
+                                @if (isDiscount)
+                                {
+                                    <del class="prev-price">@Util.Sub3Number(productPrice.Price)</del>
+                                }
+                            </p>
+                            @if (isDiscount)
+                            {
+                                <div class="label-product l_sale">@discount<span class="symbol-percent">%</span></div>
+                            }
                         </div>
                         <div class="pro-actions">
                             <div class="actions-primary">
