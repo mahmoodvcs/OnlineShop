@@ -27,7 +27,7 @@ namespace MahtaKala.ViewComponents
             {
                 imageService.FixImageUrls(item);
             }
-            return View();
+            return View(lst);
         }
     }
 }

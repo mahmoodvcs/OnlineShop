@@ -53,6 +53,13 @@ namespace MahtaKala.Services
                 p.ImageList = list;
             }
         }
+        public void FixImageUrls(IEnumerable<Product> list)
+        {
+            foreach (var p in list)
+            {
+                FixImageUrls(p);
+            }
+        }
 
         public IEnumerable<string> GetImageUrls(long productId, IEnumerable<string> names)
         {

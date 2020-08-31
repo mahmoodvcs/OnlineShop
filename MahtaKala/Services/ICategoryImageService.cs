@@ -9,6 +9,8 @@ namespace MahtaKala.Services
 {
     public interface ICategoryImageService : IImageService
     {
+        void FixImageUrls(IEnumerable<Category> cs);
+        void FixImageUrls(Category c);
     }
 
 }

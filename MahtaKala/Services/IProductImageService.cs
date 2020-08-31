@@ -13,6 +13,7 @@ namespace MahtaKala.Services
         void FixImageUrls(Product p);
         IEnumerable<string> GetImageUrls(Product p);
         string GetThumbnailUrl(Product p);
+        void FixImageUrls(IEnumerable<Product> list);
     }
 
 }

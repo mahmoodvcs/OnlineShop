@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MahtaKala.Entities;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models.ProductModels;
+using MahtaKala.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -13,8 +14,14 @@ namespace MahtaKala.Controllers
 {
     public class HomeController : SiteControllerBase<HomeController>
     {
-        public HomeController(DataContext dataContext, ILogger<HomeController> logger) : base(dataContext, logger)
+        private readonly IProductImageService productImageService;
+
+        public HomeController(
+            DataContext dataContext, 
+            ILogger<HomeController> logger,
+            IProductImageService productImageService) : base(dataContext, logger)
         {
+            this.productImageService = productImageService;
         }
 
         public IActionResult Index()
@@ -34,10 +41,13 @@ namespace MahtaKala.Controllers
                     Description = p.Description,
                     Thubmnail = p.Thubmnail,
                     Title = p.Title,
-                    Prices = p.Prices.ToList()
+                    Prices = p.Prices.ToList(),
+                    Images = p.ImageList
                 }).FirstOrDefault();
             if (product == null)
                 throw new EntityNotFoundException<Product>(id);
+            product.Thubmnail = productImageService.GetImageUrl(product.Id, product.Thubmnail);
+            product.Images = productImageService.GetImageUrls(product.Id, product.Images).ToList();
             return View(product);
         }
 
@@ -112,7 +122,9 @@ namespace MahtaKala.Controllers
             queryable = queryable.Skip(skiped).Take(recordsPerPage);
 
 
-            return queryable.ToList();
+            var data = queryable.ToList();
+            productImageService.FixImageUrls(data);
+            return data;
         }
 
     }

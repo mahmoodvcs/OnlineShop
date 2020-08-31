@@ -1,4 +1,5 @@
-﻿using MahtaKala.SharedServices;
+﻿using MahtaKala.Entities;
+using MahtaKala.SharedServices;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,18 @@ namespace MahtaKala.Services
             if (name.StartsWith("http://") || name.StartsWith("https://"))
                 return name;
             return $"{pathService.AppBaseUrl}/Image/Category?id={id}&name={name}";
+        }
 
+        public void FixImageUrls(Category c)
+        {
+            c.Image = GetImageUrl(c.Id, c.Image);
+        }
+        public void FixImageUrls(IEnumerable<Category> cs)
+        {
+            foreach (var item in cs)
+            {
+                item.Image = GetImageUrl(item.Id, item.Image);
+            }
         }
     }
 }
