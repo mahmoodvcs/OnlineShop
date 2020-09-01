@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Kendo.Mvc.UI;
 using MahtaKala.GeneralServices;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -13,12 +14,10 @@ namespace MahtaKala.Controllers
 {
     public class ProductEditorImageBrowserController : EditorImageBrowserController
     {
-        private const string contentFolderRoot = "shared/";
-        private const string folderName = "Images/";
-        private static readonly string[] foldersToCopy = new[] { "shared/images/employees" };
         private string ProductsImagesPath { get; set; }
         private string ProductsEditorImagesFolder { get; set; }
         private IFileService FileService { get; set; }
+        private string Id { get; set; }
 
 
         public ProductEditorImageBrowserController(
@@ -26,7 +25,7 @@ namespace MahtaKala.Controllers
             IConfiguration configuration,
             IFileService fileService
             )
-            :base(hostingEnvironment)
+            : base(hostingEnvironment)
         {
             FileService = fileService;
             ProductsImagesPath = configuration.GetSection("AppSettings")["ProductsImagesPath"];
@@ -37,53 +36,84 @@ namespace MahtaKala.Controllers
         /// <summary>
         /// Gets the base paths from which content will be served.
         /// </summary>
-        public override string ContentPath
+        public override string ContentPath => FileService.GetAbsolutePath(Path.Combine(ProductsImagesPath, ProductsEditorImagesFolder, Id));
+        [HttpPost]
+        public string Address(string Id)
         {
-            get
-            {
-                return CreateUserFolder();
-            }
+            CreateFolder(Id);
+            return ContentPath;
         }
-        private string CreateUserFolder()
-        {
-            //var path = Path.Combine(ProductsImagesPath, ProductsEditorImagesFolder, id.ToString());
-            var virtualPath = Path.Combine(contentFolderRoot, "UserFiles", folderName);
-            var path = HostingEnvironment.WebRootFileProvider.GetFileInfo(virtualPath).PhysicalPath;
 
+        
+        [HttpPost]
+        public override JsonResult Read(string Id)
+        {
+            CreateFolder(Id);
+            var files = Directory.GetFiles(ContentPath);
+            List<Dictionary<string, object>> datas = new List<Dictionary<string, object>>();
+            //List<FileInfoJson> data = new List<FileInfoJson>();
+            foreach(var file in files)
+            {
+                var fi = new FileInfo(file);
+                var data = new Dictionary<string, object>();
+                data.Add("name", fi.Name);
+                data.Add("size", fi.Length);
+                data.Add("type", "f");
+                datas.Add(data);
+                //data.Add(new FileInfoJson()
+                //{
+                //    Name = fi.Name,
+                //    Size = fi.Length,
+                //    Type = "f"
+                //});
+            }
+            return Json(datas);
+        }
+
+        [HttpPost]
+        public override ActionResult Create(string Id, FileBrowserEntry entry)
+        {
+            CreateFolder(Id);
+            return base.Create(ContentPath, entry);
+        }
+
+
+        [HttpPost]
+        public override ActionResult Destroy(string Id, FileBrowserEntry entry)
+        {
+            CreateFolder(Id);
+            base.Destroy(ContentPath, entry);
+            return Read(Id);
+        }
+
+        [HttpPost]
+        public override ActionResult Upload(string Id, IFormFile file)
+        {
+            CreateFolder(Id);
+            base.Upload(ContentPath, file);
+            return Read(Id);
+        }
+        
+        public override IActionResult Thumbnail(string Id)
+        {
+            CreateFolder(Id);
+            return Json(base.Thumbnail(ContentPath));
+        }
+
+
+
+        private void CreateFolder(string Id)
+        {
+            this.Id = Id;
+            var path = ContentPath;
             if (!Directory.Exists(path))
-            {
                 Directory.CreateDirectory(path);
-                foreach (var sourceFolder in foldersToCopy)
-                {
-                    CopyFolder(HostingEnvironment.WebRootFileProvider.GetFileInfo(sourceFolder).PhysicalPath, path);
-                }
-            }
-            return virtualPath;
         }
-
-        private void CopyFolder(string source, string destination)
+        class FileInfoJson
         {
-            if (!Directory.Exists(destination))
-            {
-                Directory.CreateDirectory(destination);
-            }
-
-            foreach (var file in Directory.EnumerateFiles(source))
-            {
-                var dest = Path.Combine(destination, Path.GetFileName(file));
-                System.IO.File.Copy(file, dest);
-            }
-
-            foreach (var folder in Directory.EnumerateDirectories(source))
-            {
-                var dest = Path.Combine(destination, Path.GetFileName(folder));
-                CopyFolder(folder, dest);
-            }
-        }
-
-        public JsonResult Read(string path, long Id)
-        {
-            return base.Read(path + "/" + Id.ToString());
+            public string Name { get; set; }
+            public string Type { get; set; }
+            public long Size { get; set; }
         }
     }
 }

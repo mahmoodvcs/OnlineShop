@@ -7,6 +7,9 @@
     columns.Bound(p => p.Customer).Title("مشتری");
     columns.Bound(p => p.Date).Title("تاریخ");
     columns.Bound(p => p.Price).Title("قیمت");
+    columns.Bound(p => p.State).Title("وضعیت");
+    columns.Command(command => command.Custom("تایید ارسال").Click("ConfirmSent")).Width(90);
+    columns.Command(command => command.Custom("تایید تحویل").Click("ConfirmDelivered")).Width(90);
 
 })
                                  .Pageable(pageable => pageable
@@ -25,5 +28,102 @@
         )
 @section js{
     <script type="text/javascript">
+        function ConfirmSent(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            swal({
+                title: "دریافت شماره ارسال کننده",
+                text: "شماره ارسال کننده را وارد نمایید",
+                type: "input",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                animation: "slide-from-top",
+                inputPlaceholder: "شماره ارسال کننده"
+            },
+                function (inputValue) {
+                    if (inputValue === false) return false;
+
+                    if (inputValue === "") {
+                        swal.showInputError("شماره ارسال کننده را وارد نمایید");
+                        return false
+                    }
+
+                    $.post("@Url.Action("ConfirmSent", "Staff")",
+                        {
+                            Id: dataItem.Id,
+                            delivererId: inputValue
+                        },
+                        function (response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'خطا',
+                                    text: response.message
+                                });
+                            }
+                        });
+                });
+        }
+
+        function ConfirmDelivered(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            swal({
+                title: "دریافت شماره پیگیری",
+                text: "شماره پیگیری را وارد نمایید",
+                type: "input",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                animation: "slide-from-top",
+                inputPlaceholder: "شماره پیگیری"
+            },
+                function (inputValue) {
+                    if (inputValue === false) return false;
+
+                    if (inputValue === "") {
+                        swal.showInputError("شماره پیگیری را وارد نمایید");
+                        return false
+                    }
+
+                    $.post("@Url.Action("ConfirmDelivered", "Staff")",
+                        {
+                            Id: dataItem.Id,
+                            TrackNo: inputValue
+                        },
+                        function (response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'خطا',
+                                    text: response.message
+                                });
+                            }
+                        });
+                });
+            ConfirmServer(e, "@Url.Action("ConfirmDelivered", "Staff")", dataItem.Id);
+        }
+
+        function ConfirmServer(e, url, Id) {
+
+            $.post(url,
+                {
+                    Id: Id
+                },
+                function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'خطا',
+                            text: response.message
+                        });
+                    }
+                });
+        }
     </script>
 }

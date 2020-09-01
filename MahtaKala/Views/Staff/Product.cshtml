@@ -110,23 +110,30 @@
                         توضیحات :
                     </label>
                     @(Html.Kendo().Editor()
-                  .Name("editor")
-                  .HtmlAttributes(new { style = "width: 100%; height:840px" })
-                  .Tools(tools => tools
-                        .Clear()
-                        .Bold().Italic().Underline()
-                        .JustifyLeft().JustifyCenter().JustifyRight()
-                        .InsertUnorderedList().InsertOrderedList()
-                        .Outdent().Indent()
-                        .CreateLink().Unlink()
-                        .InsertImage()
-                        .TableEditing()
-                        .FontName()
-                        .FontSize()
-                        .ForeColor().BackColor()
-                  )
-                .Value(Model.Description)
-        )
+                        .Name("editor")
+                        .HtmlAttributes(new { style = "width: 100%; height:840px" })
+                        .Tools(tools => tools
+                            .Clear()
+                            .Bold().Italic().Underline()
+                            .JustifyLeft().JustifyCenter().JustifyRight()
+                            .InsertUnorderedList().InsertOrderedList()
+                            .Outdent().Indent()
+                            .CreateLink().Unlink()
+                            .InsertImage()
+                            .TableEditing()
+                            .FontName()
+                            .FontSize()
+                            .ForeColor().BackColor()
+                        )
+                        .ImageBrowser(imageBrowser => imageBrowser
+                            .Image(Url.Action("Product", "Image")+"?id=" + Model.Id + "&name={0}")
+                            .Read("Read", "ProductEditorImageBrowser", new { Id = Model.Id })
+                            .Destroy("Destroy", "ProductEditorImageBrowser", new { Id = Model.Id })
+                            .Upload("Upload", "ProductEditorImageBrowser", new { Id = Model.Id })
+                            .Thumbnail("Thumbnail", "ProductEditorImageBrowser", new { Id = Model.Id })
+                        )
+                        .Value(Model.Description)
+                    )
                 </div>
             </div>
             <div class="form-group row">

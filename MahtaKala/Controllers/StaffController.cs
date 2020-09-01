@@ -30,14 +30,17 @@ namespace MahtaKala.Controllers
     public class StaffController : ApiControllerBase<StaffController>
     {
         private readonly IProductImageService productImageService;
-        
+        private readonly ISMSService smsService;
+
         public StaffController(
             DataContext context,
             ILogger<StaffController> logger,
+            ISMSService smsService,
             IProductImageService productImageService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
+            this.smsService = smsService;
         }
         public IActionResult Index()
         {
@@ -55,7 +58,7 @@ namespace MahtaKala.Controllers
         [Authorize(UserType.Admin)]
         public ActionResult GetAllUsers([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Users.ToList(), request);
+            return ConvertDataToJson(db.Users, request);
         }
         [Authorize(UserType.Admin)]
         public new ActionResult User(long id)
@@ -133,7 +136,7 @@ namespace MahtaKala.Controllers
         }
         public ActionResult GetAllProvinces([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Provinces.ToList(), request);
+            return ConvertDataToJson(db.Provinces, request);
         }
         public ActionResult Province(long id)
         {
@@ -192,7 +195,7 @@ namespace MahtaKala.Controllers
         }
         public ActionResult GetAllCities([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Cities.Include(c => c.Province).ToList(), request);
+            return ConvertDataToJson(db.Cities.Include(c => c.Province), request);
         }
         public ActionResult City(long id)
         {
@@ -260,7 +263,7 @@ namespace MahtaKala.Controllers
         }
         public ActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Categories.Include(c => c.Parent).ToList(), request);
+            return ConvertDataToJson(db.Categories.Include(c => c.Parent), request);
         }
         public ActionResult Category(long id)
         {
@@ -321,7 +324,7 @@ namespace MahtaKala.Controllers
         }
         public ActionResult GetAllBrands([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Brands.ToList(), request);
+            return ConvertDataToJson(db.Brands, request);
         }
         public ActionResult Brand(long id)
         {
@@ -380,9 +383,9 @@ namespace MahtaKala.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request)
+        public IActionResult Product_Read([DataSourceRequest] DataSourceRequest request)
         {
-            var data = await db.Products.Select(a => new ProductConciseModel
+            var data = db.Products.Select(a => new ProductConciseModel
             {
                 Id = a.Id,
                 Brand = a.Brand.Name,
@@ -391,7 +394,7 @@ namespace MahtaKala.Controllers
                 Thubmnail = a.Thubmnail,
                 Price = a.Prices.FirstOrDefault().Price,
                 DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice
-            }).ToListAsync();
+            });
 
             return ConvertDataToJson(data, request);
         }
@@ -560,6 +563,9 @@ namespace MahtaKala.Controllers
 
         #endregion
 
+
+        #region Order
+
         public ActionResult BuyHistory()
         {
             ViewData["Title"] = "گزارش خرید ها";
@@ -568,22 +574,88 @@ namespace MahtaKala.Controllers
 
         public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
         {
-            var data = await db.Orders.Where(o => o.State == OrderState.Payed || o.State == OrderState.Delivered)
+            var data = await db.Orders.Where(o => o.State == OrderState.Payed ||
+                                                  o.State == OrderState.Delivered ||
+                                                  o.State == OrderState.Sent)
                 .Select(a => new
                 {
                     Id = a.Id,
                     Price = a.TotalPrice,
                     Date = a.OrrderDate,
-                    Name = a.User.FirstName + " " + a.User.LastName
+                    Name = a.User.FirstName + " " + a.User.LastName,
+                    State = a.State
                 }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
                 {
                     Id = a.Id,
                     Date = GetPersianDate(a.Date),
                     Price = (long)a.Price,
-                    Customer = a.Name
+                    Customer = a.Name,
+                    State = Enum.GetName(typeof(OrderState), a.State)
                 });
-            return Json(data);
+
+            var list = JsonConvert.SerializeObject(data, Formatting.None,
+                    new JsonSerializerSettings()
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    });
+            return Content(list, "application/json");
         }
+
+        public async Task<ActionResult> ConfirmSent(long Id, string DelivererId)
+        {
+            var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
+            if (order == null)
+            {
+                throw new EntityNotFoundException<Order>(Id);
+            }
+            var user = await db.Users.Where(u => u.Id == order.UserId).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                throw new EntityNotFoundException<User>(order.UserId);
+            }
+            if (order.State == OrderState.Payed)
+            {
+                order.State = OrderState.Sent;
+                order.DelivererNo = DelivererId;
+                var code = await smsService.SendOTP(user.MobileNumber, Messages.Messages.Order.DeliveredOTPMessage);
+                order.TrackNo = code.ToString();
+                order.SentDateTime = DateTime.Now;
+            }
+            else
+            {
+                return Json(new { success = false, message = Messages.Messages.Order.ErrorConvertStateToSent });
+            }
+            await db.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+
+        public async Task<ActionResult> ConfirmDelivered(long Id, string TrackNo)
+        {
+            var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
+            if (order == null)
+            {
+                throw new EntityNotFoundException<Order>(Id);
+            }
+            if(order.TrackNo != TrackNo)
+            {
+                return Json(new { success = false, message = Messages.Messages.Order.ErrorWrongTrackNo });
+            }    
+            if (order.State == OrderState.Sent)
+            {
+                order.State = OrderState.Delivered;
+            }
+            else
+            {
+                return Json(new { success = false, message = Messages.Messages.Order.ErrorConvertStateToDelivered });
+            }
+            await db.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+
+
+        #endregion
+
+
 
         string GetPersianDate(DateTime d)
         {
@@ -591,7 +663,7 @@ namespace MahtaKala.Controllers
             return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay.ToString()}";
         }
 
-        private ContentResult ConvertDataToJson<T>(IEnumerable<T> data, [DataSourceRequest] DataSourceRequest request)
+        private ContentResult ConvertDataToJson<T>(IQueryable<T> data, [DataSourceRequest] DataSourceRequest request)
         {
 
             var list = JsonConvert.SerializeObject(data.ToDataSourceResult(request), Formatting.None,

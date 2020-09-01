@@ -11,5 +11,6 @@ namespace MahtaKala.Models
         public string Date { get; set; }
         public long Price { get; set; }
         public string Customer { get; set; }
+        public string State { get; set; }
     }
 }

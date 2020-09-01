@@ -13,6 +13,7 @@ namespace MahtaKala.GeneralServices
         void SaveFile(byte[] file, string path, string fileName);
         byte[] GetFile(string path, string fileName);
         void DeleteFile(string path, string fileName);
+        string GetAbsolutePath(string path);
     }
     public class FileService : IFileService
     {
@@ -44,7 +45,7 @@ namespace MahtaKala.GeneralServices
 
 
 
-        private string GetAbsolutePath(string path)
+        public string GetAbsolutePath(string path)
         {
             if (path.StartsWith("~"))
             {
