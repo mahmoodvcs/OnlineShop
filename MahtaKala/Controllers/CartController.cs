@@ -38,7 +38,6 @@ namespace MahtaKala.Controllers
             this.imageService = imageService;
         }
         private readonly IHttpContextAccessor contextAccessor;
-        public HttpContext Current => contextAccessor.HttpContext;
 
         public IActionResult Index()
         {
@@ -48,7 +47,7 @@ namespace MahtaKala.Controllers
 
         public ActionResult ShoppingBag()
         {
-            string sessionId = Current.Session.Id;
+       
             List<ShppingCart> cartItems;
             if (UserId != 0)
             {
@@ -56,7 +55,8 @@ namespace MahtaKala.Controllers
             }
             else
             {
-                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == sessionId).ToList();
+                CartCookie cartCookie = new CartCookie(contextAccessor);
+                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == cartCookie.GetCartCookie()).ToList();
             }
 
             foreach (var item in cartItems)
@@ -69,7 +69,7 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public ActionResult AddToCart(int id, int count = 1)
         {
-            string sessionId = Current.Session.Id;
+            CartCookie cartCookie = new CartCookie(contextAccessor);
             ShppingCart cartItem;
             if (UserId > 0)
             {
@@ -77,7 +77,8 @@ namespace MahtaKala.Controllers
             }
             else
             {
-                cartItem = db.ShppingCarts.FirstOrDefault(c => c.SessionId == sessionId && c.ProductPriceId == id);
+           
+                cartItem = db.ShppingCarts.FirstOrDefault(c => c.SessionId == cartCookie.GetCartCookie() && c.ProductPriceId == id);
             }
 
             if (cartItem == null)
@@ -87,7 +88,7 @@ namespace MahtaKala.Controllers
                 if (UserId > 0)
                     cartItem.UserId = UserId;
                 else
-                    cartItem.SessionId = sessionId;
+                    cartItem.SessionId = cartCookie.GetCartCookie();
                 cartItem.Count = 0;
                 cartItem.DateCreated = DateTime.Now;
                 db.ShppingCarts.Add(cartItem);
@@ -139,7 +140,7 @@ namespace MahtaKala.Controllers
             var user = User;
             if (user == null)
             {
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("index", "Account");
             }
             var getCartItems = GetCartItems();
             if (getCartItems.Count() == 0)
@@ -270,8 +271,8 @@ namespace MahtaKala.Controllers
             }
             else
             {
-                string sessionId = Current.Session.Id;
-                return db.ShppingCarts.Where(a => a.SessionId == sessionId).Sum(a => a.Count);
+                CartCookie cartCookie = new CartCookie(contextAccessor);
+                return db.ShppingCarts.Where(a => a.SessionId == cartCookie.GetCartCookie()).Sum(a => a.Count);
             }
         }
 
@@ -285,8 +286,8 @@ namespace MahtaKala.Controllers
             }
             else
             {
-                string sessionId = Current.Session.Id;
-                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == sessionId).ToList();
+                CartCookie cartCookie = new CartCookie(contextAccessor);
+                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == cartCookie.GetCartCookie()).ToList();
             }
             foreach (var item in cartItems)
             {

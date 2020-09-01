@@ -1,5 +1,6 @@
 ﻿using MahtaKala.Controllers;
 using MahtaKala.Entities;
+using MahtaKala.Infrustructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,6 @@ namespace MahtaKala.ViewComponents
         }
 
         private readonly IHttpContextAccessor contextAccessor;
-        public HttpContext Current => contextAccessor.HttpContext;
         private User user;
         public new User User
         {
@@ -44,8 +44,8 @@ namespace MahtaKala.ViewComponents
             }
             else
             {
-                string sessionId = Current.Session.Id;
-                count = await _db.ShppingCarts.Where(a => a.SessionId == sessionId).SumAsync(a => a.Count);
+                CartCookie cartCookie = new CartCookie(contextAccessor);
+                count = await _db.ShppingCarts.Where(a => a.SessionId == cartCookie.GetCartCookie()).SumAsync(a => a.Count);
             }
             return View(count);
         }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
+using MahtaKala.Infrustructure;
 using MahtaKala.Models;
 using MahtaKala.Models.UserModels;
 using MahtaKala.Services;
@@ -39,7 +40,6 @@ namespace MahtaKala.Controllers
         }
 
         private readonly IHttpContextAccessor contextAccessor;
-        public HttpContext Current => contextAccessor.HttpContext;
 
         public IActionResult Index()
         {
@@ -60,7 +60,7 @@ namespace MahtaKala.Controllers
             {
                 return View(model);
             }
-            string sessionId = Current.Session.Id;
+          
             var user = await db.Users.Where(u => u.Username == model.UserName).FirstAsync();
             if (user == null || !user.VerifyPassword(model.Password))
             {
@@ -76,8 +76,10 @@ namespace MahtaKala.Controllers
                 HttpOnly = true
             });
 
-            db.ShppingCarts.Where(x => x.SessionId == sessionId).Update(x => new ShppingCart() { UserId = user.Id, SessionId = null });
 
+            CartCookie cartCookie = new CartCookie(contextAccessor);
+            db.ShppingCarts.Where(x => x.SessionId == cartCookie.GetCartCookie()).Update(x => new ShppingCart() { UserId = user.Id, SessionId = null });
+            cartCookie.RemoveCartCookie();
             if (Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
@@ -150,9 +152,11 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = "زمان ثبت درخواست به اتمام رسیده است" });
             }
 
-            string sessionId = Current.Session.Id;
+
             var authResp = await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
-            db.ShppingCarts.Where(x => x.SessionId == sessionId).Update(x => new ShppingCart() { UserId = user.Id, SessionId = null });
+            CartCookie cartCookie = new CartCookie(contextAccessor);
+            db.ShppingCarts.Where(x => x.SessionId == cartCookie.GetCartCookie()).Update(x => new ShppingCart() { UserId = user.Id, SessionId = null });
+            cartCookie.RemoveCartCookie();
             Response.Cookies.Append("MahtaAuth", authResp.JwtToken, new Microsoft.AspNetCore.Http.CookieOptions
             {
                 Expires = DateTime.Now.AddYears(1),
