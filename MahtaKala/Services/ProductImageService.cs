@@ -24,6 +24,8 @@ namespace MahtaKala.Services
 
         public string GetImageUrl(long productId, string name)
         {
+            if (string.IsNullOrEmpty(name))
+                return null;
             name = name.ToLower();
             if (name.StartsWith("http://") || name.StartsWith("https://"))
                 return name;
