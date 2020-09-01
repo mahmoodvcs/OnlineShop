@@ -2,6 +2,7 @@
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,8 +17,9 @@ namespace MahtaKala.Services
         public ProductImageService(
             ImagesPathStrategy pathStrategy,
             IConfiguration configuration,
-            IPathService pathService)
-            :base(pathStrategy, pathService)
+            IPathService pathService,
+            ILogger<ImageServiceBase> logger)
+            :base(pathStrategy, pathService, logger)
         {
             ImagesPath = configuration.GetSection("AppSettings")["ProductImagesPath"];
         }

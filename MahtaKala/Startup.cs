@@ -2,6 +2,7 @@ using MahtaKala.Entities;
 using MahtaKala.Entities.ExceptionHandling;
 using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Payment;
+using MahtaKala.GeneralServices.SMS;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
 using MahtaKala.Middlewares;
@@ -91,7 +92,7 @@ namespace MahtaKala
 
         private static void RegisterMyServices(IServiceCollection services)
         {
-            services.AddScoped<ISMSService, PayamSMSService>();
+            services.AddScoped<ISMSService, PayamSMSV2>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBankPaymentService, PardakhtNovinService>();
             services.AddScoped<IFileService, FileService>();

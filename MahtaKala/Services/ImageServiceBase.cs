@@ -1,4 +1,5 @@
 ﻿using MahtaKala.SharedServices;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,21 +12,30 @@ namespace MahtaKala.Services
     {
         protected readonly ImagesPathStrategy pathStrategy;
         protected readonly IPathService pathService;
+        private readonly ILogger<ImageServiceBase> logger;
+
         public string ImagesPath { get; protected set; }
         public ImageServiceBase(
             ImagesPathStrategy pathStrategy,
-            IPathService pathService)
+            IPathService pathService,
+            ILogger<ImageServiceBase> logger)
         {
             this.pathStrategy = pathStrategy;
             this.pathService = pathService;
-
+            this.logger = logger;
         }
 
         public byte[] GetImage(long productId, string name)
         {
             if (name.StartsWith("http://") || name.StartsWith("https://"))
                 return null;
-            return File.ReadAllBytes(pathStrategy.GetPath(ImagesPath, productId, name));
+            var path = pathStrategy.GetPath(ImagesPath, productId, name);
+            if (!File.Exists(path))
+            {
+                logger.LogError("Image file does not exit: " + path);
+                return null;
+            }
+            return File.ReadAllBytes(path);
         }
 
         public async Task SaveImage(long id, string name, Stream stream)

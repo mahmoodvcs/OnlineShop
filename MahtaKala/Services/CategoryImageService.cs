@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.SharedServices;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,8 @@ namespace MahtaKala.Services
     {
         public CategoryImageService(ImagesPathStrategy pathStrategy,
             IConfiguration configuration,
-            IPathService pathService) : base(pathStrategy, pathService)
+            ILogger<ImageServiceBase> logger,
+            IPathService pathService) : base(pathStrategy, pathService, logger)
         {
             ImagesPath = configuration.GetSection("AppSettings")["CategoryImagesPath"];
         }
