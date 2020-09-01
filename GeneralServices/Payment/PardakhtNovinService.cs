@@ -145,6 +145,7 @@ namespace MahtaKala.GeneralServices.Payment
                 if (result.@return.Result == "erSucceed")
                 {
                     payment.State = PaymentState.Succeeded;
+                    payment.Order.State = OrderState.Paid;
                     //TODO: Store CustomerRefNum
                 }
             }

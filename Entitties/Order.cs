@@ -25,7 +25,7 @@ namespace MahtaKala.Entities
     {
         Initial,
         CheckedOut,
-        Payed,
+        Paid,
         Sent,
         Delivered
     }

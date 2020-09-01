@@ -39,6 +39,7 @@ namespace MahtaKala.GeneralServices.Payment
             dataContext.Payments.Add(payment);
             await dataContext.SaveChangesAsync();
             payment.PayToken = await bankService.GetToken(payment, returnUrl);
+            order.State = OrderState.CheckedOut;
             await dataContext.SaveChangesAsync();
             return payment;
         }

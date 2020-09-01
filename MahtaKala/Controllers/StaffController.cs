@@ -574,7 +574,7 @@ namespace MahtaKala.Controllers
 
         public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
         {
-            var data = await db.Orders.Where(o => o.State == OrderState.Payed ||
+            var data = await db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent)
                 .Select(a => new
@@ -613,7 +613,7 @@ namespace MahtaKala.Controllers
             {
                 throw new EntityNotFoundException<User>(order.UserId);
             }
-            if (order.State == OrderState.Payed)
+            if (order.State == OrderState.Paid)
             {
                 order.State = OrderState.Sent;
                 order.DelivererNo = DelivererId;

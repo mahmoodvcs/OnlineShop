@@ -32,19 +32,19 @@
             e.preventDefault();
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
             swal({
-                title: "دریافت شماره ارسال کننده",
-                text: "شماره ارسال کننده را وارد نمایید",
+                title: "دریافت شماره ی پیک",
+                text: "شماره ی پیک را وارد نمایید",
                 type: "input",
                 showCancelButton: true,
                 closeOnConfirm: false,
                 animation: "slide-from-top",
-                inputPlaceholder: "شماره ارسال کننده"
+                inputPlaceholder: "شماره ی پیک"
             },
                 function (inputValue) {
                     if (inputValue === false) return false;
 
                     if (inputValue === "") {
-                        swal.showInputError("شماره ارسال کننده را وارد نمایید");
+                        swal.showInputError("شماره ی پیک را وارد نمایید");
                         return false
                     }
 

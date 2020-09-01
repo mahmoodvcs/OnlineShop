@@ -108,7 +108,8 @@ namespace MahtaKala.Controllers
                 Payment payment = await bankPaymentService.Paid(body);
                 if (payment.State == PaymentState.Succeeded)
                 {
-                    db.ShppingCarts.Where(a => a.UserId == payment.Order.UserId).Delete();
+                    await db.ShppingCarts.Where(a => a.UserId == payment.Order.UserId).DeleteAsync();
+
                 }
                 return View(payment);
             }
