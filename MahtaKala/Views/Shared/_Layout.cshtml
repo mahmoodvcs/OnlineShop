@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="~/css/ionicons.min.css">
     <link rel="stylesheet" href="~/css/linearicons.css?v=1">
     <link rel="stylesheet" href="~/css/nice-select.css?v=1">
-    <link rel="stylesheet" href="~/css/jquery.fancybox.css?v=1">
+    <link rel="stylesheet" href="~/css/jquery.fancybox.css?v=1.2">
     <link rel="stylesheet" href="~/css/jquery-ui.min.css?v=1">
     <link rel="stylesheet" href="~/css/meanmenu.min.css?v=1">
     <link rel="stylesheet" href="~/css/nivo-slider.css?v=1">
@@ -22,10 +22,12 @@
     <link rel="stylesheet" href="~/css/default.css?v=1.1">
     <link href="~/css/toastr.css" rel="stylesheet" />
     <link href="~/css/sweetalert.css" rel="stylesheet" />
-    <link href="~/css/style.css?v=2.14" rel="stylesheet" />
+    <link href="~/css/style.css?v=2.15" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/responsive.css?v=1">
+    @RenderSection("css", false)
     <script src="~/js/vendor/jquery-3.2.1.min.js"></script>
     <script src="~/js/vendor/modernizr-3.5.0.min.js"></script>
+    @RenderSection("js", false)
 </head>
 <body dir="rtl">
     <div class="wrapper">
@@ -60,8 +62,8 @@
                         <!-- Categorie Search Box Start Here -->
                         <div class="col-lg-5 col-md-8 ml-auto mr-auto col-10">
                             <div class="categorie-search-box">
-                                <form action="#">
-                                    <input type="text" name="search" placeholder="جستجو در مهتاکالا ...">
+                                <form action="@Url.Content("~/home/category")" method="get">
+                                    <input type="text" name="term" value="@Context.Request.Query["term"]" placeholder="جستجو در مهتاکالا ...">
                                     <button><i class="lnr lnr-magnifier"></i></button>
                                 </form>
                             </div>
@@ -78,7 +80,7 @@
                                         <a href="#"><i class="lnr lnr-heart"></i></a>
                                     </li>
                                     <li>
-                                        <a href="@Url.Content("~/Account/index")"><i class="lnr lnr-user"></i><span class="my-cart"><span> <strong>ورود</strong> </span><span> ثبت نام</span></span></a>
+                                        @await Component.InvokeAsync("UserInfo")
                                     </li>
                                 </ul>
                             </div>
@@ -103,24 +105,24 @@
                                     <li class="active">
                                         <a href="@Url.Content("~/home/")">خانه</a>
                                     </li>
-                                    <li>
+                                    @*<li>
                                         <a href="#">بلاگ</a>
-                                    </li>
+                                    </li>*@
                                     <li><a href="#">درباره ما</a></li>
-                                    <li><a href="#">تماس با ما</a></li>
+                                    <li><a href="@Url.Content("~/page/contact")">تماس با ما</a></li>
                                 </ul>
                             </nav>
                             <div class="mobile-menu d-block d-lg-none">
                                 <nav>
                                     <ul>
                                         <li>
-                                            <a href="#">خانه</a>
+                                            <a href="@Url.Content("~/home/")">خانه</a>
                                         </li>
-                                        <li>
+                                        @*<li>
                                             <a href="#">بلاگ</a>
-                                        </li>
+                                        </li>*@
                                         <li><a href="#">درباره ما</a></li>
-                                        <li><a href="#">تماس با ما</a></li>
+                                        <li><a href="@Url.Content("~/page/contact")">تماس با ما</a></li>
                                     </ul>
                                 </nav>
                             </div>
@@ -227,7 +229,7 @@
                                 <h3 class="footer-title">با مهتا کالا</h3>
                                 <div class="footer-content">
                                     <ul class="footer-list">
-                                        <li><a href="#">فروش در دیجی‌کالا</a></li>
+                                        <li><a href="#">فروش در مهتا کالا</a></li>
                                         <li><a href="#">فرصت های شغلی</a></li>
                                         <li><a href="#">بلاگ</a></li>
                                         <li><a href="#">نقشه سایت</a></li>
@@ -354,7 +356,7 @@
                                     </div>
                                     <!-- Main Thumbnail Image End -->
                                     <!-- Thumbnail Description Start -->
-                                    <div class="col-lg-7 col-md-6 col-sm-7">
+                                    @*<div class="col-lg-7 col-md-6 col-sm-7">
                                         <div class="thubnail-desc fix mt-sm-40">
                                             <h3 class="product-header">لباس زمستانه</h3>
                                             <div class="pro-price mtb-30">
@@ -389,7 +391,7 @@
                                                 <a class="add-cart" href="#">اضافه کردن به سبد خرید</a>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div>*@
                                     <!-- Thumbnail Description End -->
                                 </div>
                             </div>
@@ -431,6 +433,6 @@
     <script src="~/js/jquery.blockUI.js"></script>
     <script src="~/js/toastr.min.js"></script>
     <script src="~/js/main.js?v=2.0"></script>
-    <script src="~/js/ShoppingCart.js?v=2.05"></script>
+    <script src="~/js/ShoppingCart.js?v=2.19"></script>
 </body>
 </html>

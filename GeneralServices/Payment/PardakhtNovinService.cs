@@ -1,5 +1,6 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.SharedServices;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PardakhtNovinWebService;
 using System;
@@ -108,7 +109,7 @@ namespace MahtaKala.GeneralServices.Payment
             dic.TryGetValue("refnum", out var refNum);
             dic.TryGetValue("customerrefnum", out var customerRefNum);
 
-            var payment = dataContext.Payments.Find(pid);
+            var payment = dataContext.Payments.Include(a=>a.Order).FirstOrDefault(a=>a.Id==pid);
             if (payment == null)
             {
                 logger.LogError($"Invalid Payment.Id {pid}. Does not exist.");

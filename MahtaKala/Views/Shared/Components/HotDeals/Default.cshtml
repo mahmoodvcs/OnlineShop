@@ -8,25 +8,37 @@
         <div class="hot-deal-active owl-carousel" dir="ltr">
             @foreach (var item in Model)
             {
+
                 var productPrice = item.Prices.First();
+                decimal discount;
+                var isDiscount = Util.IsDiscount(productPrice, out discount);
                 <div class="single-product">
 
                     <div class="pro-img">
                         <a href="@Url.Content("~/home/product/"+item.Id)">
-                            <img class="primary-img" src="@Url.Content(item.Thubmnail)" alt="single-product">
+                            <img class="primary-img" src="@item.Thubmnail" alt="single-product">
                         </a>
-                        <div class="countdown" data-countdown="2020/08/26"></div>
+                        <div class="countdown" data-countdown="2020/09/01"></div>
                         <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>
                     </div>
                     <div class="pro-content">
                         <div class="pro-info">
                             <h4><a href="@Url.Content("~/home/product/"+item.Id)">@item.Title</a></h4>
-                            <p><span class="price">@productPrice.DiscountPrice</span><del class="prev-price">@productPrice.Price</del></p>
-                            <div class="label-product l_sale">20<span class="symbol-percent">%</span></div>
+                            <p>
+                                <span class="price">@Util.Sub3Number(productPrice.DiscountPrice) تومان</span>
+                                @if (isDiscount)
+                                {
+                                    <del class="prev-price">@Util.Sub3Number(productPrice.Price)</del>
+                                }
+                            </p>
+                            @if (isDiscount)
+                            {
+                                <div class="label-product l_sale">@discount<span class="symbol-percent">%</span></div>
+                            }
                         </div>
                         <div class="pro-actions">
                             <div class="actions-primary">
-                            <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id">+ اضافه کردن به سبد </a>
+                                <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id"> اضافه کردن به سبد +</a>
                             </div>
                             <div class="actions-secondary">
                                 <a href="#" title="مقایسه"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>

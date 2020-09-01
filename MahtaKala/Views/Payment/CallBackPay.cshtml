@@ -1,0 +1,23 @@
+﻿@model Payment
+@{
+    Layout = "~/Views/Shared/_Account.cshtml";
+}
+<h3 class="mb-10 ptb-30 custom-title">وضعیت پرداخت</h3>
+<form>
+    @if (Model.State ==PaymentState.Succeeded)
+    {
+        <p class="mb-10"><strong class="product-size greenColor">پرداخت شما با موفقیت انجام شد</strong></p>
+        <br />
+        <p class="mb-10"><strong class="product-size">کد رهگیری : @Model.TrackingNumber</strong></p>
+
+    }
+    else
+    {
+        <p class="mb-10"><strong class="product-size redColor">متاسفانه پرداخت شما ناموفق بود!</strong></p>
+    }
+    <br />
+    <br />
+    <a href="@Url.Content("~/home/")" class="customer-btn">بازگشت به فروشگاه</a>
+    <br /> <br />
+</form>
+

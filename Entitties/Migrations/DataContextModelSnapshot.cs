@@ -35,6 +35,30 @@ namespace MahtaKala.Entities.Migrations
                     b.ToTable("Brands");
                 });
 
+            modelBuilder.Entity("MahtaKala.Entities.Category", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("ParentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(255)")
+                        .HasMaxLength(255);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("MahtaKala.Entities.City", b =>
                 {
                     b.Property<long>("Id")
@@ -175,9 +199,6 @@ namespace MahtaKala.Entities.Migrations
                     b.Property<long>("BrandId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("CategoryId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Characteristics")
                         .HasColumnType("nvarchar(max)");
 
@@ -190,6 +211,9 @@ namespace MahtaKala.Entities.Migrations
                     b.Property<string>("Properties")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("SellerId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Thubmnail")
                         .HasColumnType("nvarchar(max)");
 
@@ -201,33 +225,24 @@ namespace MahtaKala.Entities.Migrations
 
                     b.HasIndex("BrandId");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("SellerId");
 
                     b.ToTable("Products");
                 });
 
             modelBuilder.Entity("MahtaKala.Entities.ProductCategory", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("ParentId")
+                    b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(255)")
-                        .HasMaxLength(255);
+                    b.Property<long>("CategoryId")
+                        .HasColumnType("bigint");
 
-                    b.HasKey("Id");
+                    b.HasKey("ProductId", "CategoryId");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("CategoryId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("ProductCategory");
                 });
 
             modelBuilder.Entity("MahtaKala.Entities.ProductPrice", b =>
@@ -334,6 +349,30 @@ namespace MahtaKala.Entities.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("MahtaKala.Entities.Seller", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AccountBankName")
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("AccountNumber")
+                        .HasColumnType("nvarchar(30)")
+                        .HasMaxLength(30);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(255)")
+                        .HasMaxLength(255);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Seller");
                 });
 
             modelBuilder.Entity("MahtaKala.Entities.ShppingCart", b =>
@@ -499,6 +538,13 @@ namespace MahtaKala.Entities.Migrations
                     b.ToTable("Wishlists");
                 });
 
+            modelBuilder.Entity("MahtaKala.Entities.Category", b =>
+                {
+                    b.HasOne("MahtaKala.Entities.Category", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
+                });
+
             modelBuilder.Entity("MahtaKala.Entities.City", b =>
                 {
                     b.HasOne("MahtaKala.Entities.Province", "Province")
@@ -553,18 +599,24 @@ namespace MahtaKala.Entities.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MahtaKala.Entities.ProductCategory", "Category")
-                        .WithMany("Products")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("MahtaKala.Entities.Seller", "Seller")
+                        .WithMany()
+                        .HasForeignKey("SellerId");
                 });
 
             modelBuilder.Entity("MahtaKala.Entities.ProductCategory", b =>
                 {
-                    b.HasOne("MahtaKala.Entities.ProductCategory", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId");
+                    b.HasOne("MahtaKala.Entities.Category", "Category")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MahtaKala.Entities.Product", "Product")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("MahtaKala.Entities.ProductPrice", b =>

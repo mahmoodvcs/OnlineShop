@@ -1,4 +1,5 @@
 ﻿using MahtaKala.Entities;
+using MahtaKala.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,15 +11,22 @@ namespace MahtaKala.ViewComponents
 {
     public class HotDealsViewComponent : ViewComponent
     {
+        private readonly IProductImageService imageService;
         private DataContext _db;
-        public HotDealsViewComponent(DataContext db)
+        public HotDealsViewComponent(DataContext db, IProductImageService imageService)
         {
+            this.imageService = imageService;
             _db = db;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            return View(await _db.Products.Include(a => a.Prices).Take(10).ToListAsync());
+            var lst = await _db.Products.Include(a => a.Prices).Take(10).ToListAsync();
+            foreach (var item in lst)
+            {
+                imageService.FixImageUrls(item);
+            }
+            return View(lst);
         }
     }
 }

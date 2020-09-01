@@ -1,0 +1,108 @@
+﻿@model Exception
+
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <title>خطایی اتفاق افتاده است</title>
+        <link href="~/lib/kendo/css/web/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+        <style>
+                        html { box-sizing: border-box; }
+
+            *,
+            *::before,
+            *::after { box-sizing: inherit; }
+
+            body * {
+              margin: 0;
+              padding: 0;
+            }
+
+            body {
+              font: normal 100%/1.15 "tahoma";
+              background-color: #7ed0f2;
+              color: #fff;
+            }
+
+            .wrapper {
+              position: relative;
+              max-width: 1298px;
+              height: auto;
+              margin: 2em auto 0 auto;
+            }
+
+            /* https://www.flaticon.com/authors/vectors-market */
+            /* https://www.flaticon.com/authors/icomoon */
+            .box {
+                width:128px;
+                height:128px;
+              margin: 0 auto;
+              padding: 1em 1em;
+              text-align: center;
+              background: url("@Url.Content("~/img/500/flame.png")") no-repeat center/90px 90px,
+                          transparent url("@Url.Content("~/img/500/desktop-pc.png")") no-repeat center/128px 128px;
+            }
+
+            h1, p:not(:last-of-type) { text-shadow: 0 0 6px #216f79; }
+
+            h1 {
+              margin: 0 0 1rem 0;
+              font-size: 8em;
+            }
+
+            p {
+              margin-bottom: 0.5em;
+              font-size: 3em;
+            }
+
+            p > a {
+              border-bottom: 1px dashed #216f79;
+              font-style: italic;
+              text-decoration: none;
+              color: #216f79;
+            }
+
+            p > a:hover { text-shadow: 0 0 6px #216f79; }
+
+            p img { vertical-align: bottom; }
+            .desc{
+                font-size:20px;
+            }
+            .error {
+                font-size: 17px;
+                direction:ltr;
+                color:black;
+                border:1px solid #48b6c4;
+                border-radius:3px;
+                padding: 10px;
+            }
+            a{
+                font-size: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="wrapper">
+            <div class="box">
+            </div>
+            <div dir="rtl">
+                <p>
+                    خطایی در سایت اتفاق افتاده است
+                </p>
+                <p>&#58;&#40;</p>
+
+                <p class="desc">
+                    کارشناسان ما در حال بررسی خطا هستند. لطفا تا بررسی و رفع خطا شکیبا باشید.
+                </p>
+                <p class="error">
+                    @Model.Message
+                </p>
+                <p><a href="#" onclick="window.history.go(-1); return false;">بازگشت به صفحه ی قبل</a></p>
+                <p><a href="/">صفحه ی اصلی</a></p>
+            </div>
+        </div>
+
+    </body>
+
+    </html>

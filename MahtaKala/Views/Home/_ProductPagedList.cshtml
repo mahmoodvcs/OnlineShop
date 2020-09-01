@@ -1,0 +1,30 @@
+﻿@using MvcPagedList.Core;
+
+@PagedList.Pager(actionName: "search", controllerName: "home", areaName: "",
+    routeValues: new
+    {
+        term = Context.Request.Query["term"],
+        groupId = Context.Request.Query["id"]
+    },
+    ajaxAttributes: new 
+    {
+        data_ajax = "true",
+        data_ajax_update = "#ajax-show-list",
+        data_ajax_method = "GET",
+        data_ajax_mode = "replace"
+    },
+    pagerOptions: new PagerOptions
+    {
+        currentPage = (int)ViewBag.CurrentPage,
+        PageCount = (int)ViewBag.PageSize,
+        TotalItemCount = (int)ViewBag.TotalItemCount,
+        DisplayMode = PagedListDisplayMode.IfNeeded,
+        DisplayInfoArea = true,
+        LinkToNextPageFormat = "بعدی",
+        LinkToPreviousPageFormat = "قبلی",
+        CurrentLocationFormat = "صفحه",
+        PageCountFormat = "از",
+        TotalItemCountFormat = "تعداد محصول : ",
+        GetStyleSheetFileFromCdn = true,
+    })
+

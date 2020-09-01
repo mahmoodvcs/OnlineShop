@@ -23,6 +23,12 @@
     transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
 }
 
+.redColor{
+    color:red !important;
+}
+.greenColor {
+    color: green !important;
+}
 .customer-btn, .return-customer-btn {
     background: #e62e04 none repeat scroll 0 0;
     border: medium none;

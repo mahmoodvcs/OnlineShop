@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,11 +12,15 @@ using MahtaKala.Entities.Security;
 using MahtaKala.GeneralServices;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
+using MahtaKala.Models.ProductModels;
+using MahtaKala.Services;
+using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Z.EntityFramework.Plus;
 
@@ -24,17 +29,15 @@ namespace MahtaKala.Controllers
     [Authorize(UserType.Staff)]
     public class StaffController : ApiControllerBase<StaffController>
     {
-        private string ProductsImagesPath { get; set; }
-        private IFileService FileService { get; set; }
+        private readonly IProductImageService productImageService;
+        
         public StaffController(
             DataContext context,
             ILogger<StaffController> logger,
-            IConfiguration configuration,
-            IFileService fileService
+            IProductImageService productImageService
             ) : base(context, logger)
         {
-            ProductsImagesPath = configuration.GetSection("AppSettings")["ProductsImagesPath"];
-            this.FileService = fileService;
+            this.productImageService = productImageService;
         }
         public IActionResult Index()
         {
@@ -261,17 +264,17 @@ namespace MahtaKala.Controllers
         }
         public ActionResult Category(long id)
         {
-            ProductCategory productCategory = null;
+            Category productCategory = null;
             if (id == 0)
             {
-                productCategory = new ProductCategory();
+                productCategory = new Category();
             }
             else
             {
                 productCategory = db.Categories.Where(u => u.Id == id).FirstOrDefault();
                 if (productCategory == null)
                 {
-                    throw new EntityNotFoundException<ProductCategory>(id);
+                    throw new EntityNotFoundException<Category>(id);
                 }
             }
             ViewBag.Categories = db.Categories.Where(c => c.Id != id).ToList();
@@ -279,7 +282,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Category(ProductCategory model)
+        public IActionResult Category(Category model)
         {
             ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
             if (ModelState.IsValid)
@@ -297,7 +300,7 @@ namespace MahtaKala.Controllers
                 {
                     if (!db.Categories.Any(u => u.Id == model.Id))
                     {
-                        throw new EntityNotFoundException<ProductCategory>(model.Id);
+                        throw new EntityNotFoundException<Category>(model.Id);
                     }
                     db.Entry(model).State = EntityState.Modified;
                 }
@@ -377,9 +380,20 @@ namespace MahtaKala.Controllers
             return View();
         }
 
-        public IActionResult Product_Read([DataSourceRequest] DataSourceRequest request)
+        public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Products.Include(c => c.Category).ToList(), request);
+            var data = await db.Products.Select(a => new ProductConciseModel
+            {
+                Id = a.Id,
+                Brand = a.Brand.Name,
+                Category = a.ProductCategories.FirstOrDefault().Category.Title,
+                Title = a.Title,
+                Thubmnail = a.Thubmnail,
+                Price = a.Prices.FirstOrDefault().Price,
+                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice
+            }).ToListAsync();
+
+            return ConvertDataToJson(data, request);
         }
 
         [HttpPost]
@@ -402,6 +416,7 @@ namespace MahtaKala.Controllers
                 p = db.Products.Find(id);
                 if (p == null)
                     throw new EntityNotFoundException<Product>(id.Value);
+                productImageService.FixImageUrls(p);
                 var productPrices = db.ProductPrices.FirstOrDefault(a => a.ProductId == id);
                 if (productPrices != null)
                 {
@@ -421,32 +436,34 @@ namespace MahtaKala.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Product(Product model)
+        public async Task<IActionResult> Product(Product model)
         {
             ViewData["Title"] = "درج محصول";
             if (ModelState.IsValid)
             {
-                model.Properties = JsonConvert.DeserializeObject<IList<KeyValuePair<string, string>>>(Request.Form["Properties"]);
+                Product product;
                 if (model.Id == 0)
                 {
-                    db.Products.Add(model);
+                    product = new Product();
+                    db.Products.Add(product);
                 }
                 else
                 {
-                    db.Entry(model).State = EntityState.Modified;
+                    product = await db.Products.Include(p => p.ProductCategories).Include(p => p.Prices).FirstOrDefaultAsync(p => p.Id == model.Id);
                 }
+                product.Properties = JsonConvert.DeserializeObject<IList<KeyValuePair<string, string>>>(Request.Form["Properties"]);
+                product.Title = model.Title;
+                product.BrandId = model.BrandId;
+                product.Description = model.Description;
+                product.Prices = new List<ProductPrice> { 
+                    new ProductPrice
+                    {
+                        Price = model.Price,
+                        DiscountPrice = model.DiscountPrice
+                    }
+                };
 
-                var productPrices = db.ProductPrices.FirstOrDefault(a => a.ProductId == model.Id);
-                if (productPrices == null)
-                {
-                    productPrices = new ProductPrice();
-                    productPrices.Product = model;
-                    db.ProductPrices.Add(productPrices);
-                }
-                productPrices.DiscountPrice = model.DiscountPrice;
-                productPrices.Price = model.Price;
-
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return RedirectToAction("ProductList", "Staff");
             }
             return View(model);
@@ -457,7 +474,6 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<ActionResult> SaveImages(IEnumerable<IFormFile> images, long ID)
         {
-            // The Name of the Upload component is "videos"
             if (images != null)
             {
                 List<string> imageList = new List<string>();
@@ -476,19 +492,18 @@ namespace MahtaKala.Controllers
                     {
                         var fileExtension = Path.GetExtension(file.FileName);
                         var fileName = Guid.NewGuid() + fileExtension;
-                        var path = Path.Combine(ProductsImagesPath, ID.ToString());
 
-                        using var ms = new MemoryStream();
-                        file.CopyTo(ms);
-                        var fileBytes = ms.ToArray();
-                        FileService.SaveFile(fileBytes, path, fileName);
+                        using (var stream = file.OpenReadStream())
+                        {
+                            await productImageService.SaveImage(ID, fileName, stream);
+                        }
                         imageList.Add(fileName);
                     }
                 }
                 product.ImageList.AddRange(imageList);
                 db.Entry(product).State = EntityState.Modified;
                 await db.SaveChangesAsync();
-                return Json(product.ImageList);
+                return Json(productImageService.GetImageUrls(product));
             }
             // Return an empty string to signify success
             return Content("");
@@ -509,17 +524,20 @@ namespace MahtaKala.Controllers
                         throw new EntityNotFoundException<Product>(ID);
                     }
                     var file = thumbnails.First();
-                    var fileName = "Thumbnail" + Path.GetExtension(file.FileName);
-                    var path = Path.Combine(ProductsImagesPath, ID.ToString());
-                    using var ms = new MemoryStream();
-                    file.CopyTo(ms);
-                    var fileBytes = ms.ToArray();
-                    FileService.SaveFile(fileBytes, path, fileName);
+                    var fileName = $"Thumbnail-{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                    //var path = Path.Combine(ProductsImagesPath, ID.ToString());
+                    //using var ms = new MemoryStream();
+                    //file.CopyTo(ms);
+                    //var fileBytes = ms.ToArray();
+                    //FileService.SaveFile(fileBytes, path, fileName);
+                    using (var stream = file.OpenReadStream())
+                    {
+                        await productImageService.SaveImage(ID, fileName, stream);
+                    }
                     product.Thubmnail = fileName;
                     db.Entry(product).State = EntityState.Modified;
                     await db.SaveChangesAsync();
-                    return Json(product.Thubmnail);
-
+                    return Json(productImageService.GetThumbnailUrl(product));
                 }
             }
             // Return an empty string to signify success
@@ -533,23 +551,45 @@ namespace MahtaKala.Controllers
             {
                 throw new EntityNotFoundException<Product>(Id);
             }
-            var path = Path.Combine(ProductsImagesPath, Id.ToString());
-            FileService.DeleteFile(path, fileName);
+            productImageService.DeleteImage(Id, fileName);
             product.ImageList.Remove(fileName);
             db.Entry(product).State = EntityState.Modified;
             await db.SaveChangesAsync();
             return Json(product.ImageList);
-
         }
-
 
         #endregion
 
+        public ActionResult BuyHistory()
+        {
+            ViewData["Title"] = "گزارش خرید ها";
+            return View();
+        }
 
+        public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
+        {
+            var data = await db.Orders.Where(o => o.State == OrderState.Payed || o.State == OrderState.Delivered)
+                .Select(a => new
+                {
+                    Id = a.Id,
+                    Price = a.TotalPrice,
+                    Date = a.OrrderDate,
+                    Name = a.User.FirstName + " " + a.User.LastName
+                }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
+                {
+                    Id = a.Id,
+                    Date = GetPersianDate(a.Date),
+                    Price = (long)a.Price,
+                    Customer = a.Name
+                });
+            return Json(data);
+        }
 
-
-
-
+        string GetPersianDate(DateTime d)
+        {
+            PersianCalendar pc = new PersianCalendar();
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay.ToString()}";
+        }
 
         private ContentResult ConvertDataToJson<T>(IEnumerable<T> data, [DataSourceRequest] DataSourceRequest request)
         {

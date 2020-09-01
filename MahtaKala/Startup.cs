@@ -99,6 +99,9 @@ namespace MahtaKala
             services.AddSingleton<AppSettings>();
             services.AddSingleton<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IProductImageService, ProductImageService>();
+            services.AddSingleton<ICategoryImageService, CategoryImageService>();
+            services.AddSingleton<ImagesPathStrategy>();
             services.AddSession();
             services.AddKendo();
         }

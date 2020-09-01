@@ -2,6 +2,7 @@
 using MahtaKala.Infrustructure.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -43,10 +44,15 @@ namespace MahtaKala.Controllers
         }
 
         [Route("error")]
-        public ApiErrorResponse Error()
+        public ActionResult<ApiErrorResponse> Error()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = context?.Error;
+
+            if (context is IExceptionHandlerPathFeature path && !path.Path.ToLower().StartsWith("/api/"))
+            {
+                return SiteError(path, exception);
+            }
 
             if (exception is ApiException apiException)
             {
@@ -77,6 +83,15 @@ namespace MahtaKala.Controllers
             }
             sqlex = ex == null ? null : (SqlException)ex;
             return ex != null;
+        }
+
+        public ActionResult SiteError(IExceptionHandlerPathFeature pathContext, Exception ex)
+        {
+            if (ex is UnauthorizedAccessException)
+            {
+                return new RedirectToRouteResult(new RouteValueDictionary(new { controller = "Account", action = "Login", returnUrl = pathContext.Path }));
+            }
+            return View("SiteError", ex);
         }
     }
 }

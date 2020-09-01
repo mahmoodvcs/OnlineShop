@@ -2,6 +2,7 @@
 using MahtaKala.SharedServices;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +10,8 @@ namespace MahtaKala.GeneralServices.Payment
 {
     public class PaymentService
     {
+        private const int DeliveryPrice = 100000;
+
         private readonly DataContext dataContext;
         private readonly IBankPaymentService bankService;
         private readonly IPathService pathService;
@@ -18,6 +21,12 @@ namespace MahtaKala.GeneralServices.Payment
             this.dataContext = dataContext;
             this.bankService = bankService;
             this.pathService = pathService;
+        }
+
+
+        public decimal CalculateTotalPrice(Order order)
+        {
+            return order.Items.Sum(a => a.UnitPrice * a.Quantity) + DeliveryPrice;
         }
         public async Task<Entities.Payment> InitPayment(Order order, string returnUrl)
         {

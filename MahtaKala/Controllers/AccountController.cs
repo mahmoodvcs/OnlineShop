@@ -167,6 +167,14 @@ namespace MahtaKala.Controllers
             return PartialView();
         }
 
+        public IActionResult SignOut()
+        {
+            Response.Cookies.Delete("MahtaAuth");
+            return RedirectToAction("index","home");
+        }
+
+
+
         private string GetIpAddress()
         {
             if (Request.Headers.ContainsKey("X-Forwarded-For"))
@@ -174,6 +182,7 @@ namespace MahtaKala.Controllers
             else
                 return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
         }
+
 
     }
 }

@@ -38,7 +38,7 @@ namespace MahtaKala.Controllers
             int ci = 0;
             foreach (var c in categories.Take(num))
             {
-                ProductCategory cat1 = new ProductCategory()
+                Category cat1 = new Category()
                 {
                     Title = c,
                     Image = GetPicture(200, c)
@@ -46,7 +46,7 @@ namespace MahtaKala.Controllers
                 db.Categories.Add(cat1);
                 foreach (var c2 in categories.Skip(num * (ci + 1)).Take(num))
                 {
-                    ProductCategory cat = new ProductCategory()
+                    Category cat = new Category()
                     {
                         Title = c2,
                         Image = GetPicture(200, c2),
@@ -59,7 +59,7 @@ namespace MahtaKala.Controllers
                         var p = new Product()
                         {
                             Title = faker.Commerce.ProductName(),
-                            Category = cat,
+                            ProductCategories = new List<ProductCategory> { new ProductCategory { Category = cat } },
                             Brand = brands[random.Next(brands.Count)],
                             Characteristics = new List<Characteristic>()
                             {

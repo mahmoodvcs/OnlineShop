@@ -65,3 +65,104 @@ $("#cartshop").hover(function () {
         success: function (html) { $("#cart-block-content").html(html); }
     });
 });
+$(document).on("click", ".removeCart", function (e) {
+    e.preventDefault();
+    var id = $(this).data("id");
+    $.post("/Cart/RemoveFromCart", { id: id },
+        function (data) {
+            $.unblockUI();
+            if (data.success) {
+                $('#cart-status').text(data.count);
+                $.ajax({
+                    url: '/Cart/ShoppingBag/',
+                    cache: false,
+                    success: function (html) { $("#cart-block-content").html(html); }
+                });
+                toastr.success("حذف از سبد خرید با موفقیت انجام شد", '', { positionClass: "toast-bottom-left" });
+            }
+            else {
+                toastr.warning(data.msg, '', { positionClass: "toast-bottom-left" });
+            }
+        }
+    );
+});
+
+$(document).on("keyup mouseup", ".cartValue", function () {
+    var id = $(this).data("id");
+    var count = $(this).val();
+    $.post("/Cart/UpdateCart", { id: id, count: count },
+        function (data) {
+            if (data.success) {
+                $('#cart-status').text(data.count);
+                $("#finalcost" + data.id).html(data.finalcostRow);
+                $('#sumPrice').text(data.sumPrice);
+                $('#sumFinalPrice').text(data.sumFinalPrice);
+            }
+        }
+    );
+});
+$(document).on("click", ".productremove", function (e) {
+    e.preventDefault();
+    var id = $(this).data("id");
+    $.post("/Cart/DeleteItemCart", { id: id },
+        function (data) {
+            $.unblockUI();
+            if (data.success) {
+                $('#cart-status').text(data.count);
+                $('#sumPrice').text(data.sumPrice);
+                $('#sumFinalPrice').text(data.sumFinalPrice);
+                $("#itemRow" + data.id).remove();
+                toastr.success("حذف از سبد خرید با موفقیت انجام شد", '', { positionClass: "toast-bottom-left" });
+            }
+            else {
+                toastr.warning(data.msg, '', { positionClass: "toast-bottom-left" });
+            }
+        }
+    );
+});
+
+$(document).on("submit", "form#cartRequest", function (e) {
+    e.preventDefault();
+    $.blockUI({
+        message: '<img src="/img/loading.gif"/>',
+        css: {
+            border: 'none',
+            backgroundColor: 'transparent'
+        }
+    });
+    var action = $(this).attr('action');
+    var formdata = new FormData($('#cartRequest').get(0));
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        url: action,
+        cache: false,
+        data: formdata,
+        processData: false,
+        contentType: false,
+        beforeSend: function () {
+        },
+        success: function (res) {
+      
+            if (res.success) {
+                window.location.href = res.msg;
+                $.unblockUI();
+            }
+            else {
+                $.unblockUI();
+                toastr.warning(res.msg, '', { positionClass: "toast-bottom-center" });
+            }
+
+        },
+        error: function (xhr) {
+            $.unblockUI();
+            swal("خطایی در ثبت اطلاعات اتفاق افتاده است", "", "warning");
+        },
+        complete: function () {
+            $.unblockUI();
+        }
+    });
+    return false;
+});
+
+

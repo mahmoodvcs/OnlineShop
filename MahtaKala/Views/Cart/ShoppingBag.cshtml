@@ -1,29 +1,29 @@
 ﻿@model List<ShppingCart>
-    <div class="cartLsit">
-        @{ decimal sumPrice = 0; decimal sumFinalPrice = 0;}
-        @foreach (var item in Model)
-        {
-            sumPrice += item.ProductPrice.Price * item.Count;
-            sumFinalPrice += item.ProductPrice.DiscountPrice * item.Count;
-            <div class="single-cart-box">
-                <div class="cart-img">
-                    <a href="#"><img src="@Url.Content(item.ProductPrice.Product.Thubmnail)"></a>
-                    <span class="pro-quantity">@item.Count X</span>
-                </div>
-                <div class="cart-content">
-                    <h6><a href="#">@item.ProductPrice.Product.Title </a></h6>
-                    <span class="cart-price">@item.ProductPrice.Price </span>
-                    @*<span>سایز: S</span>
-                    <span>رنگ: زرد</span>*@
-                </div>
-                <a class="del-icone" href="#"><i class="ion-close"></i></a>
+<div class="cartLsit">
+    @{ decimal sumPrice = 0; decimal sumFinalPrice = 0;}
+    @foreach (var item in Model)
+    {
+        sumPrice += item.ProductPrice.Price * item.Count;
+        sumFinalPrice += item.ProductPrice.DiscountPrice * item.Count;
+        <div class="single-cart-box">
+            <div class="cart-img">
+                <a href="#"><img src="@item.ProductPrice.Product.Thubmnail"></a>
+                <span class="pro-quantity">@item.Count X</span>
             </div>
-        }
-    </div>
+            <div class="cart-content">
+                <h6><a href="#">@item.ProductPrice.Product.Title </a></h6>
+                <span class="cart-price">@Util.Sub3Number(item.ProductPrice.DiscountPrice) </span>
+                @*<span>سایز: S</span>
+                    <span>رنگ: زرد</span>*@
+            </div>
+            <a class="del-icone removeCart" data-id="@item.Id" href="#"><i class="ion-close"></i></a>
+        </div>
+    }
+</div>
 <div class="cart-footer">
     <ul class="price-content">
-        <li>قیمت <span>@sumPrice تومان</span></li>
-        <li>قیمت نهایی <span>@sumFinalPrice تومان</span></li>
+        <li>قیمت <span>@Util.Sub3Number(sumPrice) تومان</span></li>
+        <li>قیمت نهایی <span>@Util.Sub3Number(sumFinalPrice) تومان</span></li>
     </ul>
     <div class="cart-actions text-center">
         <a class="cart-checkout" href="@Url.Content("~/cart/index")">پرداخت</a>

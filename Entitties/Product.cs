@@ -18,10 +18,8 @@ namespace MahtaKala.Entities
 
         public string Description { get; set; }
 
-        [Display(Name ="دسته محصول")]
-        public long CategoryId { get; set; }
-        [Display(Name ="دسته محصول")]
-        public ProductCategory Category { get; set; }
+        public IList<ProductCategory> ProductCategories { get; set; }
+
         [Display(Name ="برند")]
         public long BrandId { get; set; }
         [Display(Name ="برند")]
@@ -30,6 +28,9 @@ namespace MahtaKala.Entities
         public IList<KeyValuePair<string, string>> Properties { get; set; }
         public IList<string> ImageList { get; set; }
         public string Thubmnail { get; set; }
+
+        public long? SellerId { get; set; }
+        public Seller Seller { get; set; }
 
         public IList<ProductPrice> Prices { get; set; }
         public IList<ProductQuantity> Quantities { get; set; }

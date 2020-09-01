@@ -33,6 +33,14 @@ namespace MahtaKala.Entities
         public string MobileNumber { get; set; }
         public UserType Type { get; set; }
 
+
+        public string FullName()
+        {
+            string name = FirstName + " " + LastName;
+            if (string.IsNullOrEmpty(name.Trim()))
+                name = Username;
+            return name;
+        }
         public ICollection<RefreshToken> RefreshTokens { get; set; }
 
 

@@ -35,6 +35,12 @@
     overflow-y: scroll;
 }
 
+.logout {
+    color: #e62e04;
+}
+.paddReigt {
+    padding-right: 50px !important;
+}
 ul#liList li {
     display: inline;
 }
@@ -3499,7 +3505,7 @@ ul.tag-list > li > a {
     font-weight: 400;
     list-style: outside none none;
     margin-bottom: 30px;
-    padding: 1em 2em 1em 3.5em;
+    padding: 1em 3em 1em 3.5em;
     position: relative;
     text-transform: capitalize;
     width: auto;
@@ -3611,7 +3617,7 @@ p.checkout-coupon input[type="submit"] {
 .ship-different-title h3 label {
     display: inline-block;
     margin-left: 20px;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 500;
 }
 
@@ -3619,7 +3625,7 @@ p.checkout-coupon input[type="submit"] {
 .country-select label,
 .checkout-form-list label {
     color: #333;
-    font-family: Montserrat, Arial, Helvetica, sans-serif;
+    font-family: IRANSansFaNum, Arial, Helvetica, sans-serif;
     margin: 0 0 5px;
     display: block;
     font-weight: 600;
@@ -3658,7 +3664,7 @@ p.checkout-coupon input[type="submit"] {
     -webkit-box-shadow: 0 0px 2px rgba(0, 0, 0, 0.075);
     box-shadow: 0 0px 2px rgba(0, 0, 0, 0.075);
     height: 34px;
-    padding: 0 0 0 10px;
+    padding: 0 10px 0 10px;
     width: 100%;
 }
 .country-select .nice-select {
@@ -3740,7 +3746,7 @@ p.checkout-coupon input[type="submit"] {
 
 .your-order-table table th {
     border-top: medium none;
-    font-family: Montserrat, Arial, Helvetica, sans-serif;
+    font-family: IRANSansFaNum, Arial, Helvetica, sans-serif;
     font-weight: normal;
     text-align: center;
     text-transform: uppercase;
