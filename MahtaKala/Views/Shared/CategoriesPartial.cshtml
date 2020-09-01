@@ -1,0 +1,24 @@
+﻿@model IList<MahtaKala.Entities.Category>
+@foreach (var item in Model)
+{
+    <li class="">
+        <a href="@Url.Content("~/home/category/"+item.Id)">
+            @if (!string.IsNullOrEmpty(item.Image))
+            {
+                <span><img src="@item.Image" class="category-icon-small"></span>
+            }
+            @item.Title
+            @if (item.Children?.Any() ?? false)
+            {
+                <i class="fa fa-angle-right" aria-hidden="true"></i>
+            }
+        </a>
+
+        @if (item.Children?.Any() ?? false)
+        {
+            <ul class="ht-dropdown mega-child">
+                @await Html.PartialAsync("CategoriesPartial", item.Children)
+            </ul>
+        }
+    </li>
+}

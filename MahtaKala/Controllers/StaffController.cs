@@ -660,7 +660,7 @@ namespace MahtaKala.Controllers
         string GetPersianDate(DateTime d)
         {
             PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay.ToString()}";
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay:hh:mm:ss}";
         }
 
         private ContentResult ConvertDataToJson<T>(IQueryable<T> data, [DataSourceRequest] DataSourceRequest request)

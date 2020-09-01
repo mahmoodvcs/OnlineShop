@@ -1,52 +1,27 @@
 ﻿@model List<MahtaKala.Entities.Category>
+@{ 
+    var data = Model.Where(a => a.ParentId == null);
+}
 <div class="col-xl-3 col-lg-4 d-none d-lg-block">
     <div class="vertical-menu mb-all-30">
         <nav>
             <ul class="vertical-menu-list">
-                @foreach (var item in Model.Where(a => a.ParentId == null).Take(10))
+
+                @await Html.PartialAsync("CategoriesPartial", data.Take(10).ToList())
+
+                @if (data.Count() > 10)
                 {
-                    <li class="">
-                        @if (Model.Where(a => a.ParentId == item.Id).Any())
-                        {
-                            <a href="@Url.Content("~/home/category/"+item.Id)">
-                                <span><img src="~/img/vertical-menu/1.png" alt="menu-icon"></span>
-                                @item.Title
-                                <i class="fa fa-angle-right" aria-hidden="true"></i>
-                            </a>
-                            <ul class="ht-dropdown mega-child">
-                                @foreach (var itemx in Model.Where(a => a.ParentId == item.ParentId))
-                                {
-                                    <li>
-                                        <a href="#">@itemx.Title <i class="fa fa-angle-right"></i></a>
-                                    </li>
-                                }
-                            </ul>
-                        }
-                        else
-                        {
-                            <a href="@Url.Content("~/home/category/"+item.Id)">
-                                <span><img src="~/img/vertical-menu/3.png" alt="menu-icon"></span>
-                                @item.Title
-                            </a>
-                        }
+                    <li id="cate-toggle" class="category-menu v-cat-menu">
+                        <ul>
+                            <li class="has-sub">
+                                <a href="#">بیشتر</a>
+                                <ul class="category-sub">
+                                    @await Html.PartialAsync("CategoriesPartial", data.Skip(10).ToList())
+                                </ul>
+                            </li>
+                        </ul>
                     </li>
                 }
-
-
-
-                <li id="cate-toggle" class="category-menu v-cat-menu">
-                    <ul>
-                        <li class="has-sub">
-                            <a href="#">بیشتر</a>
-                            <ul class="category-sub">
-                                @foreach (var item in Model.Where(a => a.ParentId == null).Skip(10))
-                                {
-                                    <li><a href="@Url.Content("~/home/category/"+item.Id)"><span><img src="~/img/vertical-menu/11.png" alt="menu-icon"></span>@item.Title</a></li>
-                                }
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
             </ul>
         </nav>
     </div>
