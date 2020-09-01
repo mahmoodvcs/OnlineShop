@@ -64,9 +64,9 @@
                             <p class="d-flex align-items-center">
                                 @if (isDiscount)
                                 {
-                                    <span class="prev-price">@productPrice.Price</span>
+                                    <span class="prev-price">@Util.Sub3Number(productPrice.Price)</span>
                                 }
-                            <span class="price">@productPrice.DiscountPrice تومان</span>
+                            <span class="price">@Util.Sub3Number(productPrice.DiscountPrice) ریال</span>
                                 @if (isDiscount)
                                 {
                                     <span class="saving-price"> @discount% تخفیف</span>

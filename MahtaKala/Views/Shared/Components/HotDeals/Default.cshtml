@@ -19,13 +19,13 @@
                             <img class="primary-img" src="@item.Thubmnail" alt="single-product">
                         </a>
                         <div class="countdown" data-countdown="2020/09/01"></div>
-                        <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>
+                       @* <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>*@
                     </div>
                     <div class="pro-content">
                         <div class="pro-info">
                             <h4><a href="@Url.Content("~/home/product/"+item.Id)">@item.Title</a></h4>
-                            <p>
-                                <span class="price">@Util.Sub3Number(productPrice.DiscountPrice) تومان</span>
+                            <p style="direction:rtl">
+                                <span class="price"> @Util.Sub3Number(productPrice.DiscountPrice) </span> ریال
                                 @if (isDiscount)
                                 {
                                     <del class="prev-price">@Util.Sub3Number(productPrice.Price)</del>
