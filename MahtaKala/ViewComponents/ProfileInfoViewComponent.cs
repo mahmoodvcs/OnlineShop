@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace MahtaKala.ViewComponents
 {
-    public class UserInfoViewComponent : ViewComponent
+    public class ProfileInfoViewComponent : ViewComponent
     {
-        public UserInfoViewComponent()
+        public ProfileInfoViewComponent()
         {
 
         }
@@ -29,23 +29,9 @@ namespace MahtaKala.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            bool isLogin = false;
-            string fullName = string.Empty;
-            string url = "~/account/index";
-            if (User != null)
-            {
-                isLogin = true;
-                fullName = user.FullName();
-                if (User.Type==UserType.Customer)
-                {
-                    url = "~/Profile/index";
-                }
-                else
-                {
-                    url = "~/staff/index";
-                }
-            }
-            var vm = (isLogin, fullName, url);
+            string fullName = User.FullName();
+            string userName = User.Username;
+            var vm = (fullName, userName);
             return View(vm);
         }
     }

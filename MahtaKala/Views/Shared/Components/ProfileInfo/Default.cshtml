@@ -1,0 +1,30 @@
+﻿@model (string,string)
+<div class="profile-sidebar">
+    <!-- SIDEBAR USERPIC -->
+    <div class="profile-userpic">
+        <img src="~/img/user.png" class="img-responsive" />
+    </div>
+    <!-- END SIDEBAR USERPIC -->
+    <!-- SIDEBAR USER TITLE -->
+    <div class="profile-usertitle">
+        <div class="profile-usertitle-name">
+            @Model.Item1
+        </div>
+        <div class="profile-usertitle-job">
+            @Model.Item2
+        </div>
+    </div>
+</div>
+<ul class="list-group">
+    <li class="list-group-item">
+        <a href="@Url.Content("~/profile/BuyHistory")">
+            سفارش های من
+        </a>
+    </li>
+    <li class="list-group-item">
+
+        <a href="@Url.Content("~/profile/Wishlist")">
+             علاقه مندی های من
+        </a>
+    </li>
+</ul>

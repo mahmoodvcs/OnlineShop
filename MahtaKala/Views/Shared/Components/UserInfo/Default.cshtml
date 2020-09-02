@@ -1,36 +1,40 @@
 ﻿@model (bool, string, string)
-@if (!Model.Item1)
-{
-    <a href="@Url.Content(Model.Item3)">
-        <i class="lnr lnr-user"></i>
+<li>
+    <a href="@Url.Content(Model.Item1?"~/profile/Wishlist":"#")"><i class="lnr lnr-heart"></i></a>
+</li>
+<li>
+    @if (!Model.Item1)
+    {
+        <a href="@Url.Content(Model.Item3)">
+            <i class="lnr lnr-user"></i>
+            <span class="my-cart">
+                <span>
+                    <strong>ورود</strong>
+                </span>
+                <span> ثبت نام</span>
+            </span>
+        </a>
+    }
+    else
+    {
+        <a href="@Url.Content(Model.Item3)">
+            <i class="lnr lnr-user"></i>
+        </a>
         <span class="my-cart">
             <span>
-                <strong>ورود</strong>
+                <strong>
+                    <a href="@Url.Content(Model.Item3)">
+                        @Model.Item2
+                    </a>
+                </strong>
             </span>
-            <span> ثبت نام</span>
-        </span>
-    </a>
-}
-else
-{
-    <a href="@Url.Content(Model.Item3)">
-        <i class="lnr lnr-user"></i>
-    </a>
-    <span class="my-cart">
-        <span>
-            <strong>
-                <a href="@Url.Content(Model.Item3)">
-                    @Model.Item2
+            <span>
+                <a class="logout" href="@Url.Content("~/Account/SignOut")">
+                    خروج
                 </a>
-            </strong>
+            </span>
         </span>
-        <span>
-            <a class="logout" href="@Url.Content("~/Account/SignOut")">
-               خروج
-            </a>
-        </span>
-    </span>
 
-}
-
+    }
+</li>
 

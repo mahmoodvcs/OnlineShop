@@ -31,24 +31,6 @@
 </head>
 <body dir="rtl">
     <div class="wrapper">
-        <div class="popup_wrapper">
-            <div class="test">
-                <span class="popup_off">بستن</span>
-                <div class="subscribe_area text-center mt-60">
-                    <h2>خبرنامه</h2>
-                    <p>
-                        برای دریافت به روزرسانی در مورد ورودهای جدید ، پیشنهادات ویژه و سایر اطلاعات تخفیف ، در قسمت زیر ثبت نام نمایید
-
-                    </p>
-                    <div class="subscribe-form-group">
-                        <form action="#">
-                            <input autocomplete="off" type="text" name="message" id="message" placeholder="آدرس ایمیل خود را وارد کنید ...">
-                            <button type="submit">ثبت ایمیل</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
         <header>
             <!-- Header Middle Start Here -->
             <div class="header-middle ptb-15">
@@ -76,12 +58,10 @@
                                     <li>
                                         @await Component.InvokeAsync("CartSummary")
                                     </li>
-                                    <li>
-                                        <a href="#"><i class="lnr lnr-heart"></i></a>
-                                    </li>
-                                    <li>
+                                  
+                                   
                                         @await Component.InvokeAsync("UserInfo")
-                                    </li>
+                                  
                                 </ul>
                             </div>
                         </div>
@@ -426,7 +406,7 @@
 
     <script src="~/js/jquery.blockUI.js"></script>
     <script src="~/js/toastr.min.js"></script>
-    <script src="~/js/main.js?v=2.0"></script>
+    <script src="~/js/main.js?v=2.3"></script>
     <script src="~/js/ShoppingCart.js?v=2.19"></script>
 </body>
 </html>

@@ -23,20 +23,36 @@
 
 });
 
+$(document).on("click", ".rmoveWishlist", function (e) {
+    e.preventDefault();
+    $.blockUI({
+        message: '<img src="/img/loading.gif"/>',
+        css: {
+            border: 'none',
+            backgroundColor: 'transparent'
+        }
+    });
+    var id = $(this).data("id");
+    $.post("/home/RemoveFromWishlists", { id: id },
+        function (data) {
+            $.unblockUI();
+            if (data.success) {
+                $("#uxTrw" + id).remove();
+                toastr.success("محصول مورد نظر از لیست علاقه مندی ها حذف شد", '', { positionClass: "toast-bottom-left" });
+            }
+        }
+    );
+
+});
+
+
+
 (function ($) {
     "use Strict";
     /*--------------------------
     1. Newsletter Popup
     ---------------------------*/
-    setTimeout(function () {
-        $('.popup_wrapper').css({
-            "opacity": "1",
-            "visibility": "visible"
-        });
-        $('.popup_off').on('click', function () {
-            $(".popup_wrapper").fadeOut(500);
-        })
-    }, 700000);
+   
 
     /*----------------------------
     2. Mobile Menu Activation

@@ -1,0 +1,41 @@
+﻿@model List<BuyHistoryModel>
+@{
+    ViewData["Title"] = "سفارش های من";
+    Layout = "~/Views/Shared/_Profile.cshtml";
+}
+<h5 class="pb-15">
+    سفارش های من
+</h5>
+<hr class="pt-15 " />
+<form action="#">
+    <div class="table-content table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>شناسه سفارش</th>
+                    <th>قیمت کل</th>
+                    <th>تاریخ سفارش</th>
+                    <th>وضعیت</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @item.Id
+                        </td>
+                        <td><span class="amount">@string.Format("{0:n0}", item.Price) ریال</span></td>
+                        <td>
+                            @item.Date
+                        </td>
+                        <td>
+                            @item.State
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+

@@ -9,6 +9,7 @@ using MahtaKala.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Controllers
 {
@@ -72,7 +73,18 @@ namespace MahtaKala.Controllers
             return Json(new { success = false });
         }
 
+        [HttpPost]
+        public IActionResult RemoveFromWishlists(int id)
+        {
+            if (UserId != 0)
+            {
+                db.Wishlists.Where(a => a.Id==id).Delete();
+                return Json(new { success = true });
+            }
+            return Json(new { success = false });
+        }
 
+        
         public IActionResult Category(int? id, string term)
         {
             var page = 1;

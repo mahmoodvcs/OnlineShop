@@ -1,0 +1,42 @@
+﻿@model List<Wishlist>
+@{
+    ViewData["Title"] = "علاقه مندی های من";
+    Layout = "~/Views/Shared/_Profile.cshtml";
+}
+    <h5 class="pb-15">
+        علاقه مندی های من
+    </h5>
+<hr class="pt-15 " />
+<form action="#">
+    <div class="table-content table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th class="product-remove"></th>
+                    <th class="product-thumbnail"></th>
+                    <th class="product-name">عنوان محصول</th>
+                    <th class="product-price">قیمت واحد</th>
+                    <th class="product-quantity">موجودی</th>
+                    <th class="product-subtotal"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var productPrice = item.Product.Prices.First();
+                    <tr id="uxTrw@(item.Id)">
+                        <td class="product-remove"> <a href="#" class="rmoveWishlist" data-id="@item.Id"><i class="fa fa-times" aria-hidden="true"></i></a></td>
+                        <td class="product-thumbnail">
+                            <a href="@Url.Content("~/home/product/"+item.ProductId)"><img src="@item.Product.Thubmnail" alt="cart-image" /></a>
+                        </td>
+                        <td class="product-name"><a href="@Url.Content("~/home/product/"+item.ProductId)">@item.Product.Title</a></td>
+                        <td class="product-price"><span class="amount">@string.Format("{0:n0}", productPrice.DiscountPrice) ریال</span></td>
+                        <td class="product-stock-status"><span>موجود</span></td>
+                        <td class="product-add-to-cart"><a href="#" class="addtocart" data-id="@productPrice.Id">اضافه کردن به سبد خرید</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+
