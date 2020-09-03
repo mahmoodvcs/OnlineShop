@@ -2,7 +2,7 @@
 @foreach (var item in Model)
 {
     <li class="">
-        <a href="@Url.Content("~/home/category/"+item.Id)">
+        <a href="@Url.Content("~/home/category?id="+item.Id)">
             @if (!string.IsNullOrEmpty(item.Image))
             {
                 <span><img src="@item.Image" class="category-icon-small"></span>

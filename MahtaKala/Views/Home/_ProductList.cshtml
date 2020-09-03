@@ -6,12 +6,12 @@
             var productPrice = item.Prices.First();
             decimal discount;
             var isDiscount = Util.IsDiscount(productPrice, out discount);
-            <div class="col-lg-4 col-md-4 col-sm-6 col-6">
+            <div class="col-lg-3 col-md-3 col-sm-6 col-6">
                 <div class="single-product">
                     <!-- Product Image Start -->
                     <div class="pro-img">
                         <a href="@Url.Content("~/home/product/"+item.Id)">
-                            <img class="primary-img" src="@item.Thubmnail" alt="single-product">
+                            <img class="primary-img imgh270" src="@item.Thubmnail" alt="single-product">
                         </a>
                       @*  <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="Quick View"><i class="lnr lnr-magnifier"></i></a>*@
                     </div>

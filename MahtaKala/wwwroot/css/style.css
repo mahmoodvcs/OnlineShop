@@ -30,6 +30,19 @@
     font-style: normal;
 }
 
+.imgh226{
+    min-height :226px !important;
+}
+.imgh380 {
+    min-height: 380px !important;
+}
+.imgh270 {
+    min-height: 270px !important;
+}
+.imgh100 {
+    min-height: 100px !important;
+}
+
 .cartLsit {
     max-height: 250px;
     overflow-y: scroll;
@@ -346,8 +359,7 @@ ul {
 
 .header-top > ul > li:hover ul.ht-dropdown,
 .cart-box ul li:hover ul.ht-dropdown,
-.vertical-menu-list > li:hover > ul.ht-dropdown,
-.vertical-menu-list ul.ht-dropdown.mega-child li:hover ul.ht-dropdown,
+.vertical-menu-list li:hover > ul.ht-dropdown,
 .header-bottom-list li:hover > ul.ht-dropdown {
     opacity: 1;
     visibility: visible;

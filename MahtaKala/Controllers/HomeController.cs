@@ -6,6 +6,7 @@ using MahtaKala.Entities;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models.ProductModels;
 using MahtaKala.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,11 +21,13 @@ namespace MahtaKala.Controllers
         public HomeController(
             DataContext dataContext, 
             ILogger<HomeController> logger,
-            IProductImageService productImageService) : base(dataContext, logger)
+            IProductImageService productImageService,
+            IHttpContextAccessor contextAccessor) : base(dataContext, logger)
         {
             this.productImageService = productImageService;
+            this.contextAccessor = contextAccessor;
         }
-
+        private readonly IHttpContextAccessor contextAccessor;
         public IActionResult Index()
         {
             return View();
@@ -99,12 +102,12 @@ namespace MahtaKala.Controllers
         }
 
         [HttpGet]
-        public ActionResult Search(int page = 1, string term = "", int? groupId = null)
+        public ActionResult Search(int page = 1, string term = "", int? id = null)
         {
             int pageSize;
             int recordsPerPage = 12;
             int totalItemCount;
-            var users = Search(page: page, recordsPerPage: recordsPerPage, groupId: groupId, term: term, pageSize: out pageSize, totalItemCount: out totalItemCount);
+            var users = Search(page: page, recordsPerPage: recordsPerPage, groupId: id, term: term, pageSize: out pageSize, totalItemCount: out totalItemCount);
             ViewBag.PageSize = pageSize;
             ViewBag.CurrentPage = page;
             ViewBag.TotalItemCount = totalItemCount;
