@@ -15,6 +15,7 @@ namespace MahtaKala.Messages
             public const string ErrorConvertStateToDelivered = "وضعیت کالا فقط از حالت ارسال شده به حالت تحویل داده شده قابل تغییر می باشد.";
             public const string ErrorWrongTrackNo = "شماره پیگیری وارد شده با شماره پیگیری همخوانی ندارد.";
             public const string DeliveredOTPMessage = "مهتا کالا: کالای شما ارسال شد. کد پیگیری {0{";
+            public const string ProductDoesNotExistInStore ="کالای {0} در انبار موجود نیست";
         }
     }
 }

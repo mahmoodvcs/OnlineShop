@@ -40,7 +40,7 @@ namespace MahtaKala.Controllers
                {
                    Id = a.Id,
                    Price = (long)a.TotalPrice,
-                   Date = GetPersianDate(a.OrrderDate),
+                   CheckoutDate = GetPersianDate(a.CheckOutData),
                    State = Enum.GetName(typeof(OrderState), a.State)
                }).ToList();
             return View(data);

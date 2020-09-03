@@ -10,6 +10,7 @@ using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
 using MahtaKala.Entities.Security;
 using MahtaKala.GeneralServices;
+using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
@@ -581,13 +582,15 @@ namespace MahtaKala.Controllers
                 {
                     Id = a.Id,
                     Price = a.TotalPrice,
-                    Date = a.OrrderDate,
+                    a.CheckOutData,
+                    a.SentDateTime,
                     Name = a.User.FirstName + " " + a.User.LastName,
                     State = a.State
                 }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
                 {
                     Id = a.Id,
-                    Date = GetPersianDate(a.Date),
+                    CheckoutDate = Util.GetPersianDate(a.CheckOutData),
+                    SendDate = Util.GetPersianDate(a.SentDateTime),
                     Price = (long)a.Price,
                     Customer = a.Name,
                     State = Enum.GetName(typeof(OrderState), a.State)
@@ -615,6 +618,7 @@ namespace MahtaKala.Controllers
             }
             if (order.State == OrderState.Paid)
             {
+                order.SentDateTime = DateTime.Now;
                 order.State = OrderState.Sent;
                 order.DelivererNo = DelivererId;
                 var code = await smsService.SendOTP(user.MobileNumber, Messages.Messages.Order.DeliveredOTPMessage);
@@ -656,12 +660,6 @@ namespace MahtaKala.Controllers
         #endregion
 
 
-
-        string GetPersianDate(DateTime d)
-        {
-            PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay:hh:mm:ss}";
-        }
 
         private ContentResult ConvertDataToJson<T>(IQueryable<T> data, [DataSourceRequest] DataSourceRequest request)
         {

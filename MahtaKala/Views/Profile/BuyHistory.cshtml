@@ -15,24 +15,28 @@
                     <th>شناسه سفارش</th>
                     <th>قیمت کل</th>
                     <th>تاریخ سفارش</th>
+                    <th>تاریخ ارسال</th>
                     <th>وضعیت</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td>
-                            @item.Id
-                        </td>
-                        <td><span class="amount">@string.Format("{0:n0}", item.Price) ریال</span></td>
-                        <td>
-                            @item.Date
-                        </td>
-                        <td>
-                            @item.State
-                        </td>
-                    </tr>
+                <tr>
+                    <td>
+                        @item.Id
+                    </td>
+                    <td><span class="amount">@string.Format("{0:n0}", item.Price) ریال</span></td>
+                    <td>
+                        @item.CheckoutDate
+                    </td>
+                    <td>
+                        @item.SendDate
+                    </td>
+                    <td>
+                        @item.State
+                    </td>
+                </tr>
                 }
             </tbody>
         </table>

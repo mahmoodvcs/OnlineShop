@@ -26,16 +26,20 @@ namespace MahtaKala.Controllers
         private readonly PaymentService paymentService;
         private readonly IPathService pathService;
         private readonly IProductImageService imageService;
+        private readonly OrderService orderService;
+
         public CartController(DataContext dataContext, ILogger<CartController> logger, IHttpContextAccessor contextAccessor,
             PaymentService paymentService,
             IPathService pathService,
-            IProductImageService imageService
+            IProductImageService imageService,
+            OrderService orderService
             ) : base(dataContext, logger)
         {
             this.contextAccessor = contextAccessor;
             this.paymentService = paymentService;
             this.pathService = pathService;
             this.imageService = imageService;
+            this.orderService = orderService;
         }
         private readonly IHttpContextAccessor contextAccessor;
 
@@ -200,7 +204,7 @@ namespace MahtaKala.Controllers
             }
 
 
-            Order order = db.Orders.Include(a => a.Items).Where(a => a.UserId == user.Id && a.State == OrderState.Initial).FirstOrDefault();
+            Order order = await orderService.GetUserOrder();
             if (order == null)
             {
                 order = new Order();
@@ -237,7 +241,7 @@ namespace MahtaKala.Controllers
                 order.AddressId = vm.UserData.AddressId;
             }
 
-            order.OrrderDate = DateTime.Now;
+            order.CheckOutData = DateTime.Now;
             db.OrderItems.Where(a => a.OrderId == order.Id).Delete();
             decimal sumFinalPrice = 0;
             foreach (var item in getCartItems)

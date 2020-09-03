@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -91,5 +92,15 @@ namespace MahtaKala.Helpers
             }
             return false;
         }
+
+        public static string GetPersianDate(DateTime d)
+        {
+            if (d == null)
+                return null;
+            PersianCalendar pc = new PersianCalendar();
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay:hh:mm:ss}";
+        }
+
+
     }
 }

@@ -26,7 +26,7 @@ namespace MahtaKala.GeneralServices.Payment
 
         public decimal CalculateTotalPrice(Order order)
         {
-            return order.Items.Sum(a => a.UnitPrice * a.Quantity) + DeliveryPrice;
+            return order.Items.Sum(a => a.UnitPrice * a.Quantity) + GetDeliveryPrice(order);
         }
         public async Task<Entities.Payment> InitPayment(Order order, string returnUrl)
         {
@@ -48,5 +48,10 @@ namespace MahtaKala.GeneralServices.Payment
         //{
 
         //}
+
+        public decimal GetDeliveryPrice(Order order)
+        {
+            return DeliveryPrice;
+        }
     }
 }
