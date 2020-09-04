@@ -62,14 +62,17 @@
                         </div>
                         <div class="pro-price mtb-30">
                             <p class="d-flex align-items-center">
-                                @if (isDiscount)
+                                @if (productPrice.DiscountPrice > 0)
                                 {
-                                    <span class="prev-price">@Util.Sub3Number(productPrice.Price)</span>
-                                }
-                            <span class="price">@Util.Sub3Number(productPrice.DiscountPrice) ریال</span>
-                                @if (isDiscount)
-                                {
-                                    <span class="saving-price"> @discount% تخفیف</span>
+                                    if (isDiscount)
+                                    {
+                                        <span class="prev-price">@Util.Sub3Number(productPrice.Price)</span>
+                                    }
+                                    <span class="price">@Util.Sub3Number(productPrice.DiscountPrice) ریال</span>
+                                    if (isDiscount)
+                                    {
+                                        <span class="saving-price"> @discount% تخفیف</span>
+                                    }
                                 }
                             </p>
                         </div>
@@ -97,20 +100,30 @@
                             </div>*@
                         <div class="box-quantity d-flex hot-product2">
                             <form action="#">
-                                <input class="quantity mr-15" id="uxQuantity" type="number" min="1" value="1">
+                                @if (productPrice.DiscountPrice > 0)
+                                {
+                                    <input class="quantity mr-15" id="uxQuantity" type="number" min="1" value="1">
+                                }
                             </form>
                             <div class="pro-actions">
                                 <div class="actions-primary">
-                                    <a href="#" title="" id="addtocart" data-id="@productPrice.Id" data-original-title="اضافه کردن به سبد خرید"> + اضافه کردن به سبد خرید</a>
+                                    @if (productPrice.DiscountPrice > 0)
+                                    {
+                                        <a href="#" title="" id="addtocart" data-id="@productPrice.Id" data-original-title="اضافه کردن به سبد خرید"> + اضافه کردن به سبد خرید</a>
+
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:void(0)" class="disableItem">ناموجود</a>
+
+                                    }
+
                                 </div>
                                 <div class="actions-secondary">
-                                    <a href="compare.html" title="" data-original-title="مقایسه"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
+                                    <a href="#" title="" data-original-title="مقایسه"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
                                     <a href="#" class="heart" data-id="@Model.Id" title="" data-original-title="علاقه مندی ها"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
                                 </div>
                             </div>
-                        </div>
-                        <div class="pro-ref mt-20">
-                            <p><span class="in-stock"><i class="ion-checkmark-round"></i> موجود</span></p>
                         </div>
                         <div class="socila-sharing mt-25">
                             <ul class="d-flex">
