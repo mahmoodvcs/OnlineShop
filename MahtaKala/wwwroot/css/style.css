@@ -39,8 +39,11 @@
     max-height: 380px !important;
 }
 .imgh270 {
-    min-height: 270px !important;
-    max-height: 270px !important;
+    display: block;
+    max-width: 270px;
+    max-height: 270px;
+    width: auto !important;
+    height: auto;
 }
 .imgh100 {
     min-height: 100px !important;
@@ -1200,6 +1203,11 @@ li.megamenu-img a {
 
 .pro-img {
     position: relative;
+}
+
+.prop-img-270 {
+    width: 270px;
+    height: 270px;
 }
 
 .pro-img img {
