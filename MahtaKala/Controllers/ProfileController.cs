@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.Entities;
+using MahtaKala.Helpers;
 using MahtaKala.Models;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Mvc;
@@ -75,16 +76,17 @@ namespace MahtaKala.Controllers
         public async Task<IActionResult> ProfileEdit()
         {
             var user = await db.Users.FirstOrDefaultAsync(a => a.Id == UserId);
-            return View(user);
+            UserDataVM vm = new UserDataVM();
+            vm.EmailAddress = user.EmailAddress;
+            vm.FirstName = user.FirstName;
+            vm.LastName = user.LastName;
+            vm.NationalCode = user.NationalCode;
+            return View(vm);
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProfileEdit(User vm)
+        public async Task<IActionResult> ProfileEdit(UserDataVM vm)
         {
-            if(!ModelState.IsValid)
-            {
-                return Json(new { success = false, msg = "لطفا اطلاعات را به صورت صحیح وارد کنید" });
-            }
             if (string.IsNullOrEmpty(vm.FirstName))
             {
                 return Json(new { success = false, msg = "لطفا نام را وارد کنید" });
@@ -93,7 +95,13 @@ namespace MahtaKala.Controllers
             {
                 return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
             }
-            User user = await db.Users.FirstOrDefaultAsync(a => a.Id == vm.Id);
+            if (!string.IsNullOrEmpty(vm.EmailAddress) && !Util.IsValidEmailaddress(vm.EmailAddress))
+            {
+                return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
+            }
+            
+
+            User user = await db.Users.FirstOrDefaultAsync(a => a.Id == UserId);
             user.FirstName = vm.FirstName;
             user.EmailAddress = vm.EmailAddress;
             user.LastName = vm.LastName;

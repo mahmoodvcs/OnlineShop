@@ -1,4 +1,4 @@
-﻿@model MahtaKala.Entities.User
+﻿@model UserDataVM
 @{
     ViewData["Title"] = "ویرایش اطلاعات فردی";
     Layout = "~/Views/Shared/_Profile.cshtml";
@@ -13,7 +13,6 @@ new
    @id = "editProfile"
 }))
 {
-    @Html.HiddenFor(a => a.Id)
     <div class="row">
         <div class="col-md-6">
             <div class="checkout-form-list mb-sm-30">
