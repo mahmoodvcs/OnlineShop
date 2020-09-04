@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,9 +25,9 @@ namespace MahtaKala.Services
             if (string.IsNullOrEmpty(name))
                 return null;
             name = name.ToLower();
-            if (name.StartsWith("http://") || name.StartsWith("https://"))
+            if (name.StartsWith("http://") || name.StartsWith("https://") || name.Contains("image/category?id="))
                 return name;
-            return $"{pathService.AppBaseUrl}/Image/Category?id={id}&name={name}";
+            return Path.Combine(pathService.AppBaseUrl, $"Image/Category?id={id}&name={name}");
         }
 
         public void FixImageUrls(Category c)

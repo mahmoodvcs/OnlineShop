@@ -29,9 +29,9 @@ namespace MahtaKala.Services
             if (string.IsNullOrEmpty(name))
                 return null;
             name = name.ToLower();
-            if (name.StartsWith("http://") || name.StartsWith("https://"))
+            if (name.StartsWith("http://") || name.StartsWith("https://") || name.Contains("image/product?id="))
                 return name;
-            return $"{pathService.AppBaseUrl}/Image/Product?id={productId}&name={name}";
+            return Path.Combine(pathService.AppBaseUrl, $"Image/Product?id={productId}&name={name}");
         }
         public string GetThumbnailUrl(Product p)
         {
