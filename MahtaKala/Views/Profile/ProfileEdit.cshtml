@@ -1,0 +1,49 @@
+﻿@model MahtaKala.Entities.User
+@{
+    ViewData["Title"] = "ویرایش اطلاعات فردی";
+    Layout = "~/Views/Shared/_Profile.cshtml";
+}
+<h5 class="pb-15">
+    @ViewData["Title"]
+</h5>
+<hr class="pt-15 " />
+@using (Html.BeginForm("ProfileEdit", "Profile", FormMethod.Post,
+new
+{
+   @id = "editProfile"
+}))
+{
+    @Html.HiddenFor(a => a.Id)
+    <div class="row">
+        <div class="col-md-6">
+            <div class="checkout-form-list mb-sm-30">
+                <label>نام <span class="required">*</span></label>
+                @Html.TextBoxFor(a => a.FirstName, new { @autocomplete = "off" })
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="checkout-form-list mb-30">
+                <label>نام خانوادگی <span class="required">*</span></label>
+                @Html.TextBoxFor(a => a.LastName, new { @autocomplete = "off" })
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="checkout-form-list mb-sm-30">
+                <label>کد ملی</label>
+                @Html.TextBoxFor(a => a.NationalCode, new { @autocomplete = "off" })
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="checkout-form-list mb-30">
+                <label>ایمیل</label>
+                @Html.TextBoxFor(a => a.EmailAddress, new { @autocomplete = "off" })
+            </div>
+        </div>
+        <div class="col-md-12 col-sm-12">
+            <div class="float-md-right text-md-right">
+                <input type="submit" class="btn btn-info" value="ثبت اطلاعات" />
+            </div>
+        </div>
+    </div>
+}
+

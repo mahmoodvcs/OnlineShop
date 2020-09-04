@@ -72,6 +72,38 @@ namespace MahtaKala.Controllers
             return View(data);
         }
 
+        public async Task<IActionResult> ProfileEdit()
+        {
+            var user = await db.Users.FirstOrDefaultAsync(a => a.Id == UserId);
+            return View(user);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ProfileEdit(User vm)
+        {
+            if(!ModelState.IsValid)
+            {
+                return Json(new { success = false, msg = "لطفا اطلاعات را به صورت صحیح وارد کنید" });
+            }
+            if (string.IsNullOrEmpty(vm.FirstName))
+            {
+                return Json(new { success = false, msg = "لطفا نام را وارد کنید" });
+            }
+            if (string.IsNullOrEmpty(vm.LastName))
+            {
+                return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
+            }
+            User user = await db.Users.FirstOrDefaultAsync(a => a.Id == vm.Id);
+            user.FirstName = vm.FirstName;
+            user.EmailAddress = vm.EmailAddress;
+            user.LastName = vm.LastName;
+            user.NationalCode = vm.NationalCode;
+            await db.SaveChangesAsync();
+            return Json(new { success = true, msg = "ویرایش اطلااعات با موفقیت انجام شد",name = user.FullName() });
+        }
+
+
+
         [NonAction]
         string GetPersianDate(DateTime d)
         {
