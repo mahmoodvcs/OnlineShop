@@ -30,17 +30,21 @@
     font-style: normal;
 }
 
-.imgh226{
-    min-height :226px !important;
+.imgh226 {
+    min-height: 226px !important;
+    max-height: 226px !important;
 }
 .imgh380 {
     min-height: 380px !important;
+    max-height: 380px !important;
 }
 .imgh270 {
     min-height: 270px !important;
+    max-height: 270px !important;
 }
 .imgh100 {
     min-height: 100px !important;
+    max-height: 100px !important;
 }
 
 .cartLsit {
