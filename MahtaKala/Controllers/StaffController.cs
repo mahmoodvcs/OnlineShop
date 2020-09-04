@@ -14,6 +14,7 @@ using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
+using MahtaKala.Models.StaffModels;
 using MahtaKala.Services;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Http;
@@ -43,9 +44,17 @@ namespace MahtaKala.Controllers
             this.productImageService = productImageService;
             this.smsService = smsService;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var report = new ReportModel();
+            var orders = db.Orders.Where(o => o.State == OrderState.Paid ||
+                                                  o.State == OrderState.Delivered ||
+                                                  o.State == OrderState.Sent);
+            report.TotalOrders = await orders.CountAsync();
+            report.TotalPayments = await orders.Select(o => o.TotalPrice).SumAsync();
+            report.TotalProducts = await db.Products.CountAsync();
+            report.TotalUsers = await db.Users.CountAsync();
+            return View(report);
         }
 
 
