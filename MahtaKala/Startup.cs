@@ -121,7 +121,7 @@ namespace MahtaKala
             //}
 
             app.UseRouting();
-
+            app.UseResponseCaching();
             app.UseAuthorization();
             app.UseMiddleware<JwtMiddleware>();
             app.UseSession();

@@ -22,20 +22,34 @@ namespace MahtaKala.Controllers
         public ImageController(
             DataContext context,
             ILogger<ImageController> logger,
-            IProductImageService productImageService ,
+            IProductImageService productImageService,
             ICategoryImageService categoryImageService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
             this.categoryImageService = categoryImageService;
         }
+
+        [ResponseCache(VaryByQueryKeys = new string[] { "id", "name" }, Duration = 100)]
         public FileContentResult Product(long id, string name)
         {
-            return File(productImageService.GetImage(id, name), "image/jpeg");
+            var img = productImageService.GetImage(id, name);
+            if (img == null)
+            {
+                img = new byte[0];
+            }
+            return File(img, "image/jpeg");
         }
+        [ResponseCache(VaryByQueryKeys = new string[] { "id", "name" }, Duration = 100)]
         public FileContentResult Category(long id, string name)
         {
-            return File(categoryImageService.GetImage(id, name), "image/jpeg");
+            var img = categoryImageService.GetImage(id, name);
+            if (img == null)
+            {
+                img = new byte[0];
+            }
+
+            return File(img, "image/jpeg");
         }
     }
 }
