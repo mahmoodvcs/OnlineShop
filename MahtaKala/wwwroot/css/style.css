@@ -31,23 +31,32 @@
 }
 
 .imgh226 {
+    display: block;
     min-height: 226px !important;
     max-height: 226px !important;
+    width: auto;
+    height: auto;
 }
 .imgh380 {
+    display: block;
     min-height: 380px !important;
     max-height: 380px !important;
+    width: auto;
+    height: auto;
 }
 .imgh270 {
     display: block;
-    max-width: 270px;
-    max-height: 270px;
-    width: auto !important;
+    min-height: 270px !important;
+    max-height: 270px !important;
+    width: auto;
     height: auto;
 }
 .imgh100 {
+    display: block;
     min-height: 100px !important;
     max-height: 100px !important;
+    width: auto;
+    height: auto;
 }
 
 .cartLsit {
