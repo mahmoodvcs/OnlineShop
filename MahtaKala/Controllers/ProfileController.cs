@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.Entities;
 using MahtaKala.Models;
+using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -66,7 +67,7 @@ namespace MahtaKala.Controllers
                    Id = a.Id,
                    Price = (long)a.TotalPrice,
                    CheckoutDate = GetPersianDate(a.CheckOutData),
-                   State = Enum.GetName(typeof(OrderState), a.State)
+                   State = TranslateExtentions.GetTitle(a.State)
                }).ToList();
             return View(data);
         }
@@ -75,7 +76,7 @@ namespace MahtaKala.Controllers
         string GetPersianDate(DateTime d)
         {
             PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay}";
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} - {d.ToString("hh:mm")}";
         }
     }
 }

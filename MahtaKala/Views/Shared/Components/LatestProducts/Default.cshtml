@@ -32,25 +32,45 @@
                                     <div class="pro-content">
                                         <div class="pro-info">
                                             <h4><a href="@Url.Content("~/home/product/"+item.Id)">@item.Title</a></h4>
-                                            <p style="direction:rtl">
-                                                <span class="price"> @Util.Sub3Number(productPrice.DiscountPrice) </span> ریال
+                                            @if (productPrice.DiscountPrice > 0)
+                                            {
+                                                <p style="direction:rtl">
+                                                    <span class="price">
+                                                        @Util.Sub3Number(productPrice.DiscountPrice)
+                                                    </span>
+                                                    <text>ریال</text>
+                                                    @if (isDiscount)
+                                                    {
+                                                        <del class="prev-price">@Util.Sub3Number(productPrice.Price)</del>
+                                                    }
+                                                </p>
                                                 @if (isDiscount)
                                                 {
-                                                    <del class="prev-price">@Util.Sub3Number(productPrice.Price)</del>
+                                                    <div class="label-product l_sale">@discount<span class="symbol-percent">%</span></div>
                                                 }
-                                            </p>
-                                            @if (isDiscount)
+                                            }
+                                            else
                                             {
-                                                <div class="label-product l_sale">@discount<span class="symbol-percent">%</span></div>
+                                                <p style="direction:rtl">
+                                                    ناموجود
+                                                </p>
                                             }
                                         </div>
                                         <div class="pro-actions">
                                             <div class="actions-primary">
-                                                <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id">اضافه کردن به سبد + </a>
+                                                @if (productPrice.DiscountPrice > 0)
+                                                {
+                                                    <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id"> اضافه کردن به سبد +</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="javascript:void(0)" class="disableItem">ناموجود</a>
+
+                                                }
                                             </div>
                                             <div class="actions-secondary">
                                                 <a href="#" title="مقایسه"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                                                <a href="#" title="علاقه مندی ها" class="heart" data-id="@item.Id"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
+                                                <a href="#" class="heart" data-id="@item.Id" title="علاقه مندی ها"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
                                             </div>
                                         </div>
                                     </div>

@@ -30,6 +30,11 @@
     font-style: normal;
 }
 
+.disableItem {
+    pointer-events: none;
+    cursor: default;
+}
+
 .imgh226 {
     display: block;
     min-height: 226px !important;
