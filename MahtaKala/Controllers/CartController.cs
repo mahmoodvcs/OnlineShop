@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries.Prepared;
 using NetTopologySuite.Index.Bintree;
 using Z.EntityFramework.Plus;
 
@@ -45,7 +46,7 @@ namespace MahtaKala.Controllers
 
         public IActionResult Index()
         {
-            List<ShppingCart> cartItems = GetCartItems();
+            List<ShppingCart> cartItems = GetCartItems(true);
             return View(cartItems);
         }
 
@@ -151,7 +152,7 @@ namespace MahtaKala.Controllers
             {
                 return RedirectToAction("index", "Account");
             }
-            var getCartItems = GetCartItems();
+            var getCartItems = GetCartItems(true);
             if (getCartItems.Count() == 0)
             {
                 return RedirectToAction("Category", "home");
@@ -286,7 +287,7 @@ namespace MahtaKala.Controllers
         }
 
         [NonAction]
-        private List<ShppingCart> GetCartItems()
+        private List<ShppingCart> GetCartItems(bool prepareToView = false)
         {
             List<ShppingCart> cartItems;
             if (UserId != 0)
@@ -298,9 +299,12 @@ namespace MahtaKala.Controllers
                 CartCookie cartCookie = new CartCookie(contextAccessor);
                 cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == cartCookie.GetCartCookie()).ToList();
             }
-            foreach (var item in cartItems)
+            if (prepareToView)
             {
-                imageService.FixImageUrls(item.ProductPrice.Product);
+                foreach (var item in cartItems)
+                {
+                    imageService.FixImageUrls(item.ProductPrice.Product);
+                }
             }
             return cartItems;
         }
