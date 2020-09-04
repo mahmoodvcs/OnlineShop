@@ -19,23 +19,48 @@ namespace MahtaKala.Controllers
           ILogger<ProfileController> logger) : base(dataContext, logger)
         {
         }
+        private User user;
+        public new User User
+        {
+            get
+            {
+                if (user == null)
+                {
+                    user = (User)HttpContext.Items["User"];
+                }
+                return user;
+            }
+        }
 
         public IActionResult Index()
         {
+            if (string.IsNullOrEmpty(User.FirstName) ||
+                string.IsNullOrEmpty(User.LastName) ||
+                string.IsNullOrEmpty(User.MobileNumber) ||
+                string.IsNullOrEmpty(User.Username) ||
+                string.IsNullOrEmpty(User.EmailAddress) ||
+                string.IsNullOrEmpty(User.NationalCode))
+            {
+                ViewData["EditRequired"] = true;
+            }
+            else
+            {
+                ViewData["EditRequired"] = false;
+            }
             return View();
         }
 
         public IActionResult Wishlist()
         {
-            var lst = db.Wishlists.Include(a => a.Product.Prices).Where(a=>a.UserId==UserId).ToList();
+            var lst = db.Wishlists.Include(a => a.Product.Prices).Where(a => a.UserId == UserId).ToList();
             return View(lst);
         }
 
         public IActionResult BuyHistory()
         {
-            var data =  db.Orders.Where(o => (o.State == OrderState.Paid ||
-                                                 o.State == OrderState.Delivered ||
-                                                 o.State == OrderState.Sent) && o.UserId == UserId).ToList()
+            var data = db.Orders.Where(o => (o.State == OrderState.Paid ||
+                                                o.State == OrderState.Delivered ||
+                                                o.State == OrderState.Sent) && o.UserId == UserId).ToList()
                .Select(a => new BuyHistoryModel
                {
                    Id = a.Id,
@@ -50,7 +75,7 @@ namespace MahtaKala.Controllers
         string GetPersianDate(DateTime d)
         {
             PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay:hh:mm:ss}";
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay}";
         }
     }
 }
