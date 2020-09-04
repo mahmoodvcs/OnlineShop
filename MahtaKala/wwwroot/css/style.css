@@ -1208,8 +1208,6 @@ li.megamenu-img a {
     -webkit-transition: all 0.5s ease-in-out 0s;
     transition: all 0.5s ease-in-out 0s;
     margin: 10px 0;
-}
-.single-product:hover {
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.2);
 }
 
