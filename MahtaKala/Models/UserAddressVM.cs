@@ -26,7 +26,6 @@ namespace MahtaKala.Models
         [StringLength(10)]
         public string NationalCode { get; set; }
         [StringLength(255)]
-        [EmailAddress(ErrorMessage = "آدرس ایمیل معتبر نیست")]
         public string EmailAddress { get; set; }
         public long? AddressId { get; set; }
     }

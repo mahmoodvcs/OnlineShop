@@ -197,6 +197,10 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
             }
 
+            if (!string.IsNullOrEmpty(vm.UserData.EmailAddress) && !Util.IsValidEmailaddress(vm.UserData.EmailAddress))
+            {
+                return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
+            }
             User user = db.Users.FirstOrDefault(a => a.Id == UserId);
             user.FirstName = vm.UserData.FirstName;
             user.EmailAddress = vm.UserData.EmailAddress;

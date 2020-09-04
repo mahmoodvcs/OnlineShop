@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -81,6 +82,19 @@ namespace MahtaKala.Helpers
             return value;
         }
 
+        public static bool  IsValidEmailaddress(string emailaddress)
+        {
+            try
+            {
+                MailAddress m = new MailAddress(emailaddress);
+                return true;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+        }
+
         public static bool IsDiscount(ProductPrice productPrice, out decimal discount)
         {
             discount = 0;
@@ -98,7 +112,7 @@ namespace MahtaKala.Helpers
             if (d == null)
                 return null;
             PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay}";
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.ToString("hh:mm")}";
         }
 
 
