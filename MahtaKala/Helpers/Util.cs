@@ -98,7 +98,7 @@ namespace MahtaKala.Helpers
             if (d == null)
                 return null;
             PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay:hh:mm:ss}";
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.TimeOfDay}";
         }
 
 

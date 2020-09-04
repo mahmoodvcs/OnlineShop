@@ -99,7 +99,7 @@ namespace MahtaKala
             services.AddScoped<OrderService>();
             services.AddScoped<PaymentService>();
             services.AddSingleton<AppSettings>();
-            services.AddScoped<IPathService, PathService>();
+            services.AddSingleton<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IProductImageService, ProductImageService>();
             services.AddSingleton<ICategoryImageService, CategoryImageService>();

@@ -32,99 +32,79 @@
         function ConfirmSent(e) {
             e.preventDefault();
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-            swal({
+            Swal.fire({
                 title: "دریافت شماره ی پیک",
                 text: "شماره ی پیک را وارد نمایید",
-                type: "input",
+                input: 'text',
                 showCancelButton: true,
-                closeOnConfirm: false,
-                animation: "slide-from-top",
-                inputPlaceholder: "شماره ی پیک"
-            },
-                function (inputValue) {
-                    if (inputValue === false) return false;
-
-                    if (inputValue === "") {
-                        swal.showInputError("شماره ی پیک را وارد نمایید");
-                        return false
-                    }
-
+                inputPlaceholder: "شماره ی پیک",
+                preConfirm: (value) => {
+                    if (value === false || value === "")
+                        Swal.showValidationMessage("شماره ی پیک را وارد نمایید")
+                },
+            }).then((result) => {
+                if (result.value) {
                     $.post("@Url.Action("ConfirmSent", "Staff")",
                         {
                             Id: dataItem.Id,
-                            delivererId: inputValue
+                            delivererId: result.value
                         },
                         function (response) {
                             if (response.success) {
                                 location.reload();
                             } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'خطا',
-                                    text: response.message
-                                });
+                                ShowError(response.message);
                             }
+                        })
+                        .fail(function (response) {
+                            ShowError(response.responseText);
                         });
-                });
+                }
+            });
         }
 
         function ConfirmDelivered(e) {
             e.preventDefault();
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-            swal({
-                title: "دریافت شماره پیگیری",
-                text: "شماره پیگیری را وارد نمایید",
-                type: "input",
+            Swal.fire({
+                title: "دریافت شماره ی پیگیری",
+                text: "شماره ی پیگیری را وارد نمایید",
+                input: 'text',
                 showCancelButton: true,
-                closeOnConfirm: false,
-                animation: "slide-from-top",
-                inputPlaceholder: "شماره پیگیری"
-            },
-                function (inputValue) {
-                    if (inputValue === false) return false;
-
-                    if (inputValue === "") {
-                        swal.showInputError("شماره پیگیری را وارد نمایید");
-                        return false
-                    }
-
+                inputPlaceholder: "شماره ی پیگیری",
+                preConfirm: (value) => {
+                    if (value === false || value === "")
+                        Swal.showValidationMessage("شماره ی پیگیری را وارد نمایید")
+                },
+            }).then((result) => {
+                if (result.value) {
                     $.post("@Url.Action("ConfirmDelivered", "Staff")",
                         {
                             Id: dataItem.Id,
-                            TrackNo: inputValue
+                            delivererId: result.value
                         },
                         function (response) {
                             if (response.success) {
                                 location.reload();
                             } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'خطا',
-                                    text: response.message
-                                });
+                                ShowError(response.message);
                             }
+                        })
+                        .fail(function (response) {
+                            ShowError(response.responseText);
                         });
-                });
-            ConfirmServer(e, "@Url.Action("ConfirmDelivered", "Staff")", dataItem.Id);
+                }
+            });
         }
 
-        function ConfirmServer(e, url, Id) {
+        function ShowError(message) {
 
-            $.post(url,
-                {
-                    Id: Id
-                },
-                function (response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'خطا',
-                            text: response.message
-                        });
-                    }
-                });
+            Swal.fire({
+                icon: 'error',
+                title: 'خطا',
+                text: message
+            });
         }
+
     </script>
 }
