@@ -51,7 +51,7 @@ namespace MahtaKala.Controllers
 
         public ActionResult ShoppingBag()
         {
-       
+
             List<ShppingCart> cartItems;
             if (UserId != 0)
             {
@@ -65,7 +65,7 @@ namespace MahtaKala.Controllers
 
             foreach (var item in cartItems)
             {
-               imageService.FixImageUrls(item.ProductPrice.Product);
+                imageService.FixImageUrls(item.ProductPrice.Product);
             }
             return PartialView("ShoppingBag", cartItems);
         }
@@ -81,7 +81,7 @@ namespace MahtaKala.Controllers
             }
             else
             {
-           
+
                 cartItem = db.ShppingCarts.FirstOrDefault(c => c.SessionId == cartCookie.GetCartCookie() && c.ProductPriceId == id);
             }
 
@@ -122,8 +122,13 @@ namespace MahtaKala.Controllers
             db.SaveChanges();
             var finalcostRow = Util.Sub3Number(count * cartItem.ProductPrice.DiscountPrice);
             List<ShppingCart> cartItems = GetCartItems();
-            var sumPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.Price) * cartItems.Sum(a => a.Count));
-            var sumFinalPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.DiscountPrice) * cartItems.Sum(a => a.Count));
+            decimal sumPrice = 0;
+            decimal sumFinalPrice = 0;
+            foreach (var item in cartItems)
+            {
+                sumPrice += item.ProductPrice.Price * item.Count;
+                sumFinalPrice += item.ProductPrice.DiscountPrice * item.Count;
+            }
             return Json(new { success = true, count = cartItems.Sum(a => a.Count), id, finalcostRow, sumPrice, sumFinalPrice });
         }
 
