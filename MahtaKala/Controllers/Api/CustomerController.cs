@@ -20,6 +20,7 @@ using MahtaKala.Messages;
 using MahtaKala.GeneralServices.Payment;
 using MahtaKala.Services;
 using MahtaKala.Helpers;
+using MahtaKala.Models.Payment;
 
 namespace MahtaKala.Controllers.Api
 {
@@ -265,9 +266,13 @@ namespace MahtaKala.Controllers.Api
                 Price = (long)a.Price,
                 State = TranslateExtentions.GetTitle(a.State)
             });
-
         }
 
+        //[HttpGet]
+        //public async Task<PaymentStatusResponse> PayStatus(long orderId)
+        //{
+        //    db.Payments.Where(p => p.OrderId == orderId).Where(;
 
+        //}
     }
 }

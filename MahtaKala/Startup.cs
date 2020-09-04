@@ -96,13 +96,16 @@ namespace MahtaKala
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBankPaymentService, PardakhtNovinService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<OrderService>();
             services.AddScoped<PaymentService>();
             services.AddSingleton<AppSettings>();
-            services.AddSingleton<IPathService, PathService>();
+            services.AddScoped<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IProductImageService, ProductImageService>();
             services.AddSingleton<ICategoryImageService, CategoryImageService>();
             services.AddSingleton<ImagesPathStrategy>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
+            
             services.AddSession();
             services.AddKendo();
         }

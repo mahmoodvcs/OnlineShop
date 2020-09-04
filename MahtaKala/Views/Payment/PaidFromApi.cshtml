@@ -1,13 +1,27 @@
-﻿
-@model MahtaKala.Entities.Payment
-@if (Model.State == MahtaKala.Entities.PaymentState.Succeeded)
-{
-    <h2>پرداخت موفقیت آمیز</h2>
-}
-else
-{
-    <h2>پرداخت نا موفقیت </h2>
-}
+﻿@model MahtaKala.Entities.Payment
+
+<html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    </head>
+    <body style="font-family:Tahoma;">
+
+        <div style="text-align:center">
+            @if (Model.State == MahtaKala.Entities.PaymentState.Succeeded)
+            {
+                <h2>پرداخت موفقیت آمیز</h2>
+            }
+            else
+            {
+                <h2>پرداخت نا موفقیت </h2>
+            }
 
 
-<button>بازگشت به اپلیکیشن</button>
+            <a class="btn btn-primary" href="Mahtakala://BackFromPayment?status=@Model.State">
+            بازگشت به اپلیکیشن
+            </a>
+
+        </div>
+
+    </body>
+</html>
