@@ -27,7 +27,9 @@
                     <tr id="uxTrw@(item.Id)">
                         <td class="product-remove"> <a href="#" class="rmoveWishlist" data-id="@item.Id"><i class="fa fa-times" aria-hidden="true"></i></a></td>
                         <td class="product-thumbnail">
-                            <a href="@Url.Content("~/home/product/"+item.ProductId)"><img src="@item.Product.Thubmnail" alt="cart-image" /></a>
+                            <a href="@Url.Content("~/home/product/"+item.ProductId)">
+                                <img src="@Url.Action("Product", "Image")?id=@item.ProductId&name=@item.Product.Thubmnail" alt="cart-image" />
+                            </a>
                         </td>
                         <td class="product-name"><a href="@Url.Content("~/home/product/"+item.ProductId)">@item.Product.Title</a></td>
                         <td class="product-price"><span class="amount">@string.Format("{0:n0}", productPrice.DiscountPrice) ریال</span></td>
