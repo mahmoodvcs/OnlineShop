@@ -138,6 +138,8 @@ namespace MahtaKala.Controllers.Api
             item.ProductPriceId = productPrice.Id;
             item.Quantity = addToCart.Quantity;
             item.CharacteristicValues = addToCart.CharacteristicValues;
+            item.UnitPrice = productPrice.DiscountPrice;
+            item.FinalPrice = productPrice.DiscountPrice * item.Quantity;
 
             await db.SaveChangesAsync();
             return item.Id;
