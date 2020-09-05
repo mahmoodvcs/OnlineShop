@@ -30,6 +30,20 @@ namespace MahtaKala.Controllers
         private readonly IHttpContextAccessor contextAccessor;
         public IActionResult Index()
         {
+
+            if (string.IsNullOrEmpty(User.FirstName) ||
+                string.IsNullOrEmpty(User.LastName) ||
+                string.IsNullOrEmpty(User.MobileNumber) ||
+                string.IsNullOrEmpty(User.Username) ||
+                string.IsNullOrEmpty(User.EmailAddress) ||
+                string.IsNullOrEmpty(User.NationalCode))
+            {
+                ViewBag.EditRequired = true;
+            }
+            else
+            {
+                ViewBag.EditRequired = false;
+            }
             return View();
         }
 
