@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.Entities;
 using MahtaKala.Helpers;
+using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Mvc;
@@ -76,11 +77,15 @@ namespace MahtaKala.Controllers
         public async Task<IActionResult> ProfileEdit()
         {
             var user = await db.Users.FirstOrDefaultAsync(a => a.Id == UserId);
-            UserDataVM vm = new UserDataVM();
-            vm.EmailAddress = user.EmailAddress;
-            vm.FirstName = user.FirstName;
-            vm.LastName = user.LastName;
-            vm.NationalCode = user.NationalCode;
+            var addresses = await db.Addresses.Include(a => a.City).Where(a => a.UserId == UserId).ToListAsync();
+            UserDataVM vm = new UserDataVM
+            {
+                EmailAddress = user.EmailAddress,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                NationalCode = user.NationalCode,
+                Addresses = addresses
+            };
             return View(vm);
         }
 
@@ -99,7 +104,7 @@ namespace MahtaKala.Controllers
             {
                 return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
             }
-            
+
 
             User user = await db.Users.FirstOrDefaultAsync(a => a.Id == UserId);
             user.FirstName = vm.FirstName;
@@ -107,7 +112,42 @@ namespace MahtaKala.Controllers
             user.LastName = vm.LastName;
             user.NationalCode = vm.NationalCode;
             await db.SaveChangesAsync();
-            return Json(new { success = true, msg = "ویرایش اطلااعات با موفقیت انجام شد",name = user.FullName() });
+            return Json(new { success = true, msg = "ویرایش اطلااعات با موفقیت انجام شد", name = user.FullName() });
+        }
+
+
+        public async Task<IActionResult> AddressEdit(long Id)
+        {
+            if (Id == 0)
+            {
+                return View();
+            }
+            else
+            {
+                UserAddress address = await db.Addresses.Include(a => a.City).Where(a => a.Id == Id).FirstOrDefaultAsync();
+                if (address == null)
+                {
+                    throw new EntityNotFoundException<UserAddress>(Id);
+                }
+                return View(address);
+            }
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddressEdit(UserAddress address)
+        {
+            if (address.Id == 0)
+            {
+                db.Addresses.Add(address);
+            }
+            else
+            {
+                db.Entry(address).State = EntityState.Modified;
+            }
+            address.UserId = UserId;
+            await db.SaveChangesAsync();
+            return RedirectToAction("ProfileEdit");
         }
 
 

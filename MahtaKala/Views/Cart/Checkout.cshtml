@@ -90,20 +90,20 @@ new
                                 <div class="country-select clearfix mb-30">
                                     <label>آدرس تحویل سفارش <span class="required">*</span></label>
                                     @(Html.Kendo().DropDownList()
-                                                                                                                                                                                                                                                                                                                                                     .Name("UserData.AddressId")
-                                                                                                                                                                                                                                                                                                                                                      .OptionLabel("--انتخاب نمایید--")
-                                                                                                                                                                                                                                                                                                                                                     .HtmlAttributes(new { style = "width:100%" })
-                                                                                                                                                                                                                                                                                                                                                     .DataTextField("name")
-                                                                                                                                                                                                                                                                                                                                                     .DataValueField("id")
-                                                                                                                                                                                                                                                                                                                                                     .Filter(FilterType.Contains)
-                                                                                                                                                                                                                                                                                                                                                     .DataSource(source =>
-                                                                                                                                                                                                                                                                                                                                                     {
-                                                                                                                                                                                                                                                                                                                                                         source.Read(read =>
-                                                                                                                                                                                                                                                                                                                                                         {
-                                                                                                                                                                                                                                                                                                                                                             read.Action("GetUserAddress", "Cart");
-                                                                                                                                                                                                                                                                                                                                                         }).ServerFiltering(false);
-                                                                                                                                                                                                                                                                                                                                                     })
-)
+                                        .Name("UserData.AddressId")
+                                        .OptionLabel("--انتخاب نمایید--")
+                                        .HtmlAttributes(new { style = "width:100%" })
+                                        .DataTextField("name")
+                                        .DataValueField("id")
+                                        .Filter(FilterType.Contains)
+                                        .DataSource(source =>
+                                        {
+                                            source.Read(read =>
+                                            {
+                                                read.Action("GetUserAddress", "Cart");
+                                            }).ServerFiltering(false);
+                                        })
+                                    )
                                 </div>
                             </div>
                         </div>
@@ -120,38 +120,38 @@ new
                                         <div class="country-select clearfix mb-30">
                                             <label>استان <span class="required">*</span></label>
                                             @(Html.Kendo().DropDownList()
-                                                                                                                                                                                                                                                                                                                                                     .Name("ProvinceId")
-                                                                                                                                                                                                                                                                                                                                                      .OptionLabel("--انتخاب نمایید--")
-                                                                                                                                                                                                                                                                                                                                                     .HtmlAttributes(new { style = "width:100%" })
-                                                                                                                                                                                                                                                                                                                                                     .DataTextField("name")
-                                                                                                                                                                                                                                                                                                                                                     .DataValueField("id")
-                                                                                                                                                                                                                                                                                                                                                     .Filter(FilterType.Contains)
-                                                                                                                                                                                                                                                                                                                                                     .DataSource(source =>
-                                                                                                                                                                                                                                                                                                                                                     {
-                                                                                                                                                                                                                                                                                                                                                         source.Read(read =>
-                                                                                                                                                                                                                                                                                                                                                         {
-                                                                                                                                                                                                                                                                                                                                                             read.Action("GetProvince", "Repo");
-                                                                                                                                                                                                                                                                                                                                                         }).ServerFiltering(false);
-                                                                                                                                                                                                                                                                                                                                                     })
-                            )
+                                                .Name("ProvinceId")
+                                                .OptionLabel("--انتخاب نمایید--")
+                                                .HtmlAttributes(new { style = "width:100%" })
+                                                .DataTextField("name")
+                                                .DataValueField("id")
+                                                .Filter(FilterType.Contains)
+                                                .DataSource(source =>
+                                                {
+                                                    source.Read(read =>
+                                                    {
+                                                        read.Action("GetProvince", "Repo");
+                                                    }).ServerFiltering(false);
+                                                })
+                                            )
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="country-select clearfix mb-30">
                                             <label>شهر <span class="required">*</span></label>
                                             @(Html.Kendo().DropDownList().Name("UserAddress.CityId")
-                                                                                                 .HtmlAttributes(new { style = "width:100%" })
-                                                                                                 .DataTextField("name")
-                                                                                                 .DataValueField("id")
-                                                                                                 .Filter(FilterType.Contains)
-                                                                                                 .DataSource(source =>
-                                                                                                 {
-                                                                                                     source.Read(read => { read.Action("GetCity", "Repo").Data("filterCity"); }).ServerFiltering(true);
-                                                                                                 })
-                                                                                                 .Enable(false)
-                                                                                                 .AutoBind(false)
-                                                                                                 .CascadeFrom("ProvinceId")
-                            )
+                                                .HtmlAttributes(new { style = "width:100%" })
+                                                .DataTextField("name")
+                                                .DataValueField("id")
+                                                .Filter(FilterType.Contains)
+                                                .DataSource(source =>
+                                                {
+                                                    source.Read(read => { read.Action("GetCity", "Repo").Data("filterCity"); }).ServerFiltering(true);
+                                                })
+                                                .Enable(false)
+                                                .AutoBind(false)
+                                                .CascadeFrom("ProvinceId")
+                                            )
                                             <script>
                                                 function filterCity(e) {
                                                     return {

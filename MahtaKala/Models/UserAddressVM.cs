@@ -28,5 +28,6 @@ namespace MahtaKala.Models
         [StringLength(255)]
         public string EmailAddress { get; set; }
         public long? AddressId { get; set; }
+        public IEnumerable<UserAddress> Addresses { get; set; }
     }
 }
