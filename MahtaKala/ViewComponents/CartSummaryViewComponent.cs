@@ -37,7 +37,7 @@ namespace MahtaKala.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            int count;
+            int count = 0;
             if (User != null)
             {
                 count = await _db.ShppingCarts.Where(a => a.UserId == User.Id).SumAsync(a => a.Count);
@@ -45,7 +45,10 @@ namespace MahtaKala.ViewComponents
             else
             {
                 CartCookie cartCookie = new CartCookie(contextAccessor);
-                count = await _db.ShppingCarts.Where(a => a.SessionId == cartCookie.GetCartCookie()).SumAsync(a => a.Count);
+                var sessionId = cartCookie.GetCartCookie();
+                if (sessionId != null) {
+                    count = await _db.ShppingCarts.Where(a => a.SessionId == sessionId & a.UserId == null).SumAsync(a => a.Count);
+                }
             }
             return View(count);
         }

@@ -19,7 +19,7 @@ namespace MahtaKala.Controllers
         private readonly IProductImageService productImageService;
 
         public HomeController(
-            DataContext dataContext, 
+            DataContext dataContext,
             ILogger<HomeController> logger,
             IProductImageService productImageService,
             IHttpContextAccessor contextAccessor) : base(dataContext, logger)
@@ -30,19 +30,18 @@ namespace MahtaKala.Controllers
         private readonly IHttpContextAccessor contextAccessor;
         public IActionResult Index()
         {
-
-            if (string.IsNullOrEmpty(User.FirstName) ||
-                string.IsNullOrEmpty(User.LastName) ||
-                string.IsNullOrEmpty(User.MobileNumber) ||
-                string.IsNullOrEmpty(User.Username) ||
-                string.IsNullOrEmpty(User.EmailAddress) ||
-                string.IsNullOrEmpty(User.NationalCode))
+            ViewBag.EditRequired = false;
+            if (User != null)
             {
-                ViewBag.EditRequired = true;
-            }
-            else
-            {
-                ViewBag.EditRequired = false;
+                if (string.IsNullOrEmpty(User.FirstName) ||
+                    string.IsNullOrEmpty(User.LastName) ||
+                    string.IsNullOrEmpty(User.MobileNumber) ||
+                    string.IsNullOrEmpty(User.Username) ||
+                    string.IsNullOrEmpty(User.EmailAddress) ||
+                    string.IsNullOrEmpty(User.NationalCode))
+                {
+                    ViewBag.EditRequired = true;
+                }
             }
             return View();
         }
@@ -95,13 +94,13 @@ namespace MahtaKala.Controllers
         {
             if (UserId != 0)
             {
-                db.Wishlists.Where(a => a.Id==id).Delete();
+                db.Wishlists.Where(a => a.Id == id).Delete();
                 return Json(new { success = true });
             }
             return Json(new { success = false });
         }
 
-        
+
         public IActionResult Category(int? id, string term)
         {
             var page = 1;

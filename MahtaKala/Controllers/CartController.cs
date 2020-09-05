@@ -61,7 +61,8 @@ namespace MahtaKala.Controllers
             else
             {
                 CartCookie cartCookie = new CartCookie(contextAccessor);
-                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == cartCookie.GetCartCookie()).ToList();
+                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product)
+                    .Where(c => c.SessionId == cartCookie.GetCartCookie() && c.UserId == null).ToList();
             }
 
             foreach (var item in cartItems)
@@ -75,15 +76,18 @@ namespace MahtaKala.Controllers
         public ActionResult AddToCart(int id, int count = 1)
         {
             CartCookie cartCookie = new CartCookie(contextAccessor);
-            ShppingCart cartItem;
+            ShppingCart cartItem = null;
             if (UserId > 0)
             {
                 cartItem = db.ShppingCarts.FirstOrDefault(c => c.UserId == UserId && c.ProductPriceId == id);
             }
             else
             {
-
-                cartItem = db.ShppingCarts.FirstOrDefault(c => c.SessionId == cartCookie.GetCartCookie() && c.ProductPriceId == id);
+                var sessionId = cartCookie.GetCartCookie();
+                if (sessionId != null)
+                {
+                    cartItem = db.ShppingCarts.FirstOrDefault(c => c.SessionId == sessionId && c.UserId == null && c.ProductPriceId == id);
+                }
             }
 
             if (cartItem == null)
@@ -286,7 +290,10 @@ namespace MahtaKala.Controllers
             else
             {
                 CartCookie cartCookie = new CartCookie(contextAccessor);
-                return db.ShppingCarts.Where(a => a.SessionId == cartCookie.GetCartCookie()).Sum(a => a.Count);
+                var sessionId = cartCookie.GetCartCookie();
+                if (sessionId == null)
+                    return 0;
+                return db.ShppingCarts.Where(a => a.SessionId == sessionId && a.UserId == null).Sum(a => a.Count);
             }
         }
 
@@ -301,7 +308,11 @@ namespace MahtaKala.Controllers
             else
             {
                 CartCookie cartCookie = new CartCookie(contextAccessor);
-                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.SessionId == cartCookie.GetCartCookie()).ToList();
+                var sessionId = cartCookie.GetCartCookie();
+                if(sessionId == null)
+                    return new List<ShppingCart>();
+                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product)
+                    .Where(c => c.UserId == null && c.SessionId == sessionId).ToList();
             }
             if (prepareToView)
             {

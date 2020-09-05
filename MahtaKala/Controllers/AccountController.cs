@@ -78,7 +78,8 @@ namespace MahtaKala.Controllers
 
 
             CartCookie cartCookie = new CartCookie(contextAccessor);
-            db.ShppingCarts.Where(x => x.SessionId == cartCookie.GetCartCookie()).Update(x => new ShppingCart() { UserId = user.Id, SessionId = null });
+            db.ShppingCarts.Where(x => x.SessionId == cartCookie.GetCartCookie() && x.UserId == null)
+                .Update(x => new ShppingCart() { UserId = user.Id, SessionId = null });
             cartCookie.RemoveCartCookie();
             if (Url.IsLocalUrl(returnUrl))
             {
@@ -155,7 +156,8 @@ namespace MahtaKala.Controllers
 
             var authResp = await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
             CartCookie cartCookie = new CartCookie(contextAccessor);
-            db.ShppingCarts.Where(x => x.SessionId == cartCookie.GetCartCookie()).Update(x => new ShppingCart() { UserId = user.Id, SessionId = null });
+            db.ShppingCarts.Where(x => x.SessionId == cartCookie.GetCartCookie() && x.UserId == null)
+                .Update(x => new ShppingCart() { UserId = user.Id, SessionId = null });
             cartCookie.RemoveCartCookie();
             Response.Cookies.Append("MahtaAuth", authResp.JwtToken, new Microsoft.AspNetCore.Http.CookieOptions
             {

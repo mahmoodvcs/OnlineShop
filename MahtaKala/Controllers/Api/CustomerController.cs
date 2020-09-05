@@ -177,7 +177,7 @@ namespace MahtaKala.Controllers.Api
             var data = order.Items.Select(b => new CartItemModel
             {
                 Id = b.Id,
-                Product_Id = products[ b.ProductPriceId].ProductId,
+                Product_Id = products[b.ProductPriceId].ProductId,
                 Quantity = b.Quantity,
                 CharacteristicValues = b.CharacteristicValues,
                 Thumbnail = productImageService.GetImageUrl(products[b.ProductPriceId].ProductId, products[b.ProductPriceId].Thubmnail),
