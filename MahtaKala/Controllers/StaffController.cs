@@ -47,13 +47,24 @@ namespace MahtaKala.Controllers
         public async Task<IActionResult> Index()
         {
             var report = new ReportModel();
+            var user = base.User;
             var orders = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent);
-            report.TotalOrders = await orders.CountAsync();
-            report.TotalPayments = await orders.Select(o => o.TotalPrice).SumAsync();
-            report.TotalProducts = await db.Products.CountAsync();
-            report.TotalUsers = await db.Users.CountAsync();
+            if (user.Type == UserType.Admin)
+            {
+                report.TotalOrders = await orders.CountAsync();
+                report.TotalPayments = await orders.Select(o => o.TotalPrice).SumAsync();
+                report.TotalProducts = await db.Products.CountAsync();
+                report.TotalUsers = await db.Users.CountAsync();
+            }
+            else
+            {
+                report.TotalOrders = await orders.CountAsync();
+                report.TotalPayments = await orders.Select(o => o.TotalPrice).SumAsync();
+                report.TotalProducts = await db.Products.Where(p=>p.SellerId == user.Id).CountAsync();
+                report.TotalUsers = await db.Users.CountAsync();
+            }
             return View(report);
         }
 

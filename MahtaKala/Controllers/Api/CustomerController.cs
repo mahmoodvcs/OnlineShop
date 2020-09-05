@@ -119,7 +119,9 @@ namespace MahtaKala.Controllers.Api
                     Order order = new Order()
                     {
                         UserId = UserId,
-                        State = OrderState.Initial
+                        State = OrderState.Initial,
+                        CheckOutData = DateTime.Now,
+                        SentDateTime = DateTime.Now
                     };
                     item.Order = order;
                 }
