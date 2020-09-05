@@ -81,7 +81,7 @@
                     $.post("@Url.Action("ConfirmDelivered", "Staff")",
                         {
                             Id: dataItem.Id,
-                            delivererId: result.value
+                            TrackNo: result.value
                         },
                         function (response) {
                             if (response.success) {
