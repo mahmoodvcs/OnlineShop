@@ -680,6 +680,42 @@ namespace MahtaKala.Controllers
         #endregion
 
 
+        #region Seller
+        public ActionResult Sellers()
+        {
+            return View();
+        }
+        public ActionResult GetAllSellers([DataSourceRequest] DataSourceRequest request)
+        {
+            return ConvertDataToJson(db.Sellers, request);
+        }
+
+        public async Task<ActionResult> UpdateSeller(Seller seller)
+        {
+            if(seller.Id > 0)
+            {
+                var dbSeller = await db.Sellers.FindAsync(seller.Id);
+                dbSeller.Name = seller.Name;
+                dbSeller.AccountBankName = seller.AccountBankName;
+            }
+            else
+            {
+                db.Sellers.Add(seller);
+            }
+            await db.SaveChangesAsync();
+            return Json(seller);
+        }
+
+        public async Task<ActionResult> RemoveSeller(Seller seller)
+        {
+            db.Sellers.Attach(seller);
+            db.Sellers.Remove(seller);
+            await db.SaveChangesAsync();
+            return Json(null);
+        }
+
+        #endregion Seller
+
 
         private ContentResult ConvertDataToJson<T>(IQueryable<T> data, [DataSourceRequest] DataSourceRequest request)
         {

@@ -1,0 +1,45 @@
+﻿@using Kendo.Mvc.UI
+@{
+    ViewData["Title"] = "فروشنده ها";
+    Layout = "~/Views/Shared/_Staff.cshtml";
+}
+
+
+@(Html.Kendo().Grid<MahtaKala.Entities.Seller>()
+    .Name("Grid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Name);
+        columns.Bound(p => p.AccountNumber);
+        columns.Command(command => {
+            command.Edit();
+            command.Destroy();
+        }).Width(160);
+    })
+    .ToolBar(toolbar =>
+    {
+        toolbar.Create();
+    })
+    .HtmlAttributes(new { style = "height: 550px;" })
+    .Scrollable()
+    .Groupable()
+    .Sortable().
+    Editable( GridEditMode.InLine)
+    .Pageable(pageable => pageable
+        .Refresh(true)
+        .PageSizes(true)
+        .ButtonCount(5)
+    ).DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+        })
+        .Read(read => read.Action("GetAllSellers", "Staff"))
+        .Update(up => up.Action("UpdateSeller", "Staff"))
+        .Destroy(de => de.Action("RemoveSeller", "Staff"))
+        .Create(de => de.Action("UpdateSeller", "Staff"))
+
+        .PageSize(20)
+    )
+)
