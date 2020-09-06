@@ -18,18 +18,15 @@ namespace MahtaKala.Controllers
 {
     public class PaymentController : MahtaControllerBase<PaymentController>
     {
-        private readonly PaymentService paymentService;
         private readonly IBankPaymentService bankPaymentService;
         private readonly IPathService pathService;
 
         public PaymentController(
             DataContext dataContext,
             ILogger<PaymentController> logger,
-            PaymentService paymentService,
             IBankPaymentService bankPaymentService,
             IPathService pathService) : base(dataContext, logger)
         {
-            this.paymentService = paymentService;
             this.bankPaymentService = bankPaymentService;
             this.pathService = pathService;
         }

@@ -8,5 +8,8 @@ namespace MahtaKala.SharedServices
     public interface ICurrentUserService
     {
         User User { get; }
+        string AnonymousSessionId { get; }
+
+        void RemoveCartCookie();
     }
 }

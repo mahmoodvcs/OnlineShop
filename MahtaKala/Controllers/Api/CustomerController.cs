@@ -30,20 +30,17 @@ namespace MahtaKala.Controllers.Api
     [Authorize]
     public class CustomerController : ApiControllerBase<CustomerController>
     {
-        private readonly PaymentService paymentService;
         private readonly IProductImageService productImageService;
         private readonly IPathService pathService;
         private readonly OrderService orderService;
 
         public CustomerController(DataContext context,
             ILogger<CustomerController> logger,
-            PaymentService paymentService,
             IProductImageService productImageService,
             IPathService pathService,
             OrderService orderService)
             : base(context, logger)
         {
-            this.paymentService = paymentService;
             this.productImageService = productImageService;
             this.pathService = pathService;
             this.orderService = orderService;
@@ -126,7 +123,13 @@ namespace MahtaKala.Controllers.Api
                     item.Order = order;
                 }
                 else
+                {
                     item.OrderId = prevOrder.Id;
+                    var seller = db.Products.Where(p => p.Id == addToCart.Product_Id).Select(a => a.SellerId).FirstOrDefault();
+                    var priceIds = prevOrder.Items.Select(a => a.ProductPriceId);
+                    if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.SellerId != seller).Any())
+                        throw new ApiException(412, "امکان افزوردن این کالا وجود ندارد. فروشنده ی این کالا، با کالاهای قبلی متفاوت است");
+                }
 
                 db.OrderItems.Add(item);
             }
@@ -188,8 +191,8 @@ namespace MahtaKala.Controllers.Api
             return new CartModel
             {
                 Items = data,
-                DeliveryPrice = paymentService.GetDeliveryPrice(order),
-                TotlaPrice = paymentService.CalculateTotalPrice(order)
+                DeliveryPrice = orderService.GetDeliveryPrice(order),
+                TotlaPrice = orderService.CalculateTotalPrice(order)
             };
         }
 
@@ -232,11 +235,11 @@ namespace MahtaKala.Controllers.Api
             order.CheckOutData = DateTime.Now;
             //TODO: check the address
             order.AddressId = checkoutModel.AddressId;
-            order.TotalPrice = paymentService.CalculateTotalPrice(order);
+            order.TotalPrice = orderService.CalculateTotalPrice(order);
             order.State = OrderState.CheckedOut;
             await db.SaveChangesAsync();
 
-            var payment = await paymentService.InitPayment(order, pathService.AppBaseUrl + "/Payment/Paid?source=api");
+            var payment = await orderService.InitPayment(order, pathService.AppBaseUrl + "/Payment/Paid?source=api");
             string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}&source=api";
 
             return new CheckoutResponseModel

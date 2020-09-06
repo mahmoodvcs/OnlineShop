@@ -24,29 +24,26 @@ namespace MahtaKala.Controllers
 
     public class CartController : SiteControllerBase<CartController>
     {
-        private readonly PaymentService paymentService;
         private readonly IPathService pathService;
         private readonly IProductImageService imageService;
         private readonly OrderService orderService;
 
         public CartController(DataContext dataContext, ILogger<CartController> logger, IHttpContextAccessor contextAccessor,
-            PaymentService paymentService,
             IPathService pathService,
             IProductImageService imageService,
             OrderService orderService
             ) : base(dataContext, logger)
         {
             this.contextAccessor = contextAccessor;
-            this.paymentService = paymentService;
             this.pathService = pathService;
             this.imageService = imageService;
             this.orderService = orderService;
         }
         private readonly IHttpContextAccessor contextAccessor;
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            List<ShoppingCart> cartItems = GetCartItems(true);
+            List<ShoppingCart> cartItems = await GetCartItems(true);
             return View(cartItems);
         }
 
@@ -73,42 +70,14 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddToCart(int id, int count = 1)
+        public async Task<ActionResult> AddToCart(int id, int count = 1)
         {
-            CartCookie cartCookie = new CartCookie(contextAccessor);
-            ShoppingCart cartItem = null;
-            if (UserId > 0)
-            {
-                cartItem = db.ShoppingCarts.FirstOrDefault(c => c.UserId == UserId && c.ProductPriceId == id);
-            }
-            else
-            {
-                var sessionId = cartCookie.GetCartCookie();
-                if (sessionId != null)
-                {
-                    cartItem = db.ShoppingCarts.FirstOrDefault(c => c.SessionId == sessionId && c.UserId == null && c.ProductPriceId == id);
-                }
-            }
-
-            if (cartItem == null)
-            {
-                cartItem = new ShoppingCart();
-                cartItem.ProductPriceId = id;
-                if (UserId > 0)
-                    cartItem.UserId = UserId;
-                else
-                    cartItem.SessionId = cartCookie.GetCartCookie();
-                cartItem.Count = 0;
-                cartItem.DateCreated = DateTime.Now;
-                db.ShoppingCarts.Add(cartItem);
-            }
-            cartItem.Count += count;
-            db.SaveChanges();
-            return Json(new { success = true, count = GetShoppingCartCount() });
+            await orderService.AddToCart(id, count);
+            return Json(new { success = true, count = await orderService.GetShoppingCartCount() });
         }
 
         [HttpPost]
-        public ActionResult RemoveFromCart(int id)
+        public async Task<ActionResult> RemoveFromCart(int id)
         {
             var cartItem = db.ShoppingCarts.FirstOrDefault(c => c.Id == id);
             if (cartItem != null)
@@ -116,17 +85,17 @@ namespace MahtaKala.Controllers
                 db.ShoppingCarts.Remove(cartItem);
                 db.SaveChanges();
             }
-            return Json(new { success = true, count = GetShoppingCartCount() });
+            return Json(new { success = true, count = await orderService.GetShoppingCartCount() });
         }
 
         [HttpPost]
-        public ActionResult UpdateCart(int id, int count)
+        public async Task<ActionResult> UpdateCart(int id, int count)
         {
             var cartItem = db.ShoppingCarts.Include(a => a.ProductPrice).FirstOrDefault(c => c.Id == id);
             cartItem.Count = count;
             db.SaveChanges();
             var finalcostRow = Util.Sub3Number(count * cartItem.ProductPrice.DiscountPrice);
-            List<ShoppingCart> cartItems = GetCartItems();
+            List<ShoppingCart> cartItems = await GetCartItems();
             decimal sumPrice = 0;
             decimal sumFinalPrice = 0;
             foreach (var item in cartItems)
@@ -138,10 +107,10 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteItemCart(int id)
+        public async Task<ActionResult> DeleteItemCart(int id)
         {
             db.ShoppingCarts.Where(c => c.Id == id).Delete();
-            List<ShoppingCart> cartItems = GetCartItems();
+            List<ShoppingCart> cartItems = await GetCartItems();
             var sumPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.Price) * cartItems.Sum(a => a.Count));
             var sumFinalPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.DiscountPrice) * cartItems.Sum(a => a.Count));
             return Json(new { success = true, count = cartItems.Sum(a => a.Count), id, sumPrice, sumFinalPrice });
@@ -149,20 +118,20 @@ namespace MahtaKala.Controllers
 
 
 
-        public IActionResult Checkout()
+        public async Task<IActionResult> Checkout()
         {
             var user = User;
             if (user == null)
             {
                 return RedirectToAction("index", "Account");
             }
-            var getCartItems = GetCartItems(true);
+            var getCartItems = await GetCartItems(true);
             if (getCartItems.Count() == 0)
             {
                 return RedirectToAction("Category", "home");
             }
 
-            decimal postCost = PaymentService.DeliveryPrice;
+            decimal postCost = OrderService.DeliveryPrice;
             decimal sumFinalPrice = 0;
             foreach (var item in getCartItems)
             {
@@ -187,8 +156,8 @@ namespace MahtaKala.Controllers
         {
             decimal postCost = 10000;
 
-            var getCartItems = GetCartItems();
-            if (getCartItems.Count() == 0)
+            var cartItems = await GetCartItems();
+            if (cartItems.Count() == 0)
             {
                 return Json(new { success = false, msg = "سبد خرید خالی می باشد" });
             }
@@ -217,15 +186,8 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = "لطفا آدرس را انتخاب نمایید" });
             }
 
+            long addressId;
 
-            Order order = await orderService.GetUserOrder();
-            if (order == null)
-            {
-                order = new Order();
-                order.State = OrderState.Initial;
-                order.UserId = user.Id;
-                db.Orders.Add(order);
-            }
             if (vm.IsNewAddress)
             {
                 if (vm.UserAddress.CityId == 0)
@@ -248,72 +210,27 @@ namespace MahtaKala.Controllers
                 ua.Details = vm.UserAddress.Details;
                 ua.UserId = user.Id;
                 db.Addresses.Add(ua);
-                order.Address = ua;
+                await db.SaveChangesAsync();
+                addressId = ua.Id;
             }
             else
             {
-                order.AddressId = vm.UserData.AddressId;
+                addressId = vm.UserData.AddressId.Value;
             }
 
-            order.CheckOutData = DateTime.Now;
-            db.OrderItems.Where(a => a.OrderId == order.Id).Delete();
-            decimal sumFinalPrice = 0;
-            foreach (var item in getCartItems)
-            {
-                OrderItem orderItem = new OrderItem();
-                orderItem.FinalPrice = item.ProductPrice.DiscountPrice * item.Count;
-                orderItem.Order = order;
-                orderItem.UnitPrice = item.ProductPrice.DiscountPrice;
-                orderItem.ProductPriceId = item.ProductPriceId;
-                orderItem.Quantity = item.Count;
-                db.OrderItems.Add(orderItem);
-                sumFinalPrice += orderItem.FinalPrice;
-            }
-            order.TotalPrice = sumFinalPrice + postCost;
-            db.SaveChanges();
+            var order = await orderService.Checkout(addressId);
 
-            var payment = await paymentService.InitPayment(order, pathService.AppBaseUrl + "/Payment/CallBackPay");
+            var payment = await orderService.InitPayment(order, pathService.AppBaseUrl + "/Payment/CallBackPay");
             string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}&source=api";
             return Json(new { success = true, msg = payUrl });
         }
 
 
 
-
         [NonAction]
-        private int GetShoppingCartCount()
+        private async Task<List<ShoppingCart>> GetCartItems(bool prepareToView = false)
         {
-            if (UserId != 0)
-            {
-                return db.ShoppingCarts.Where(a => a.UserId == UserId).Sum(a => a.Count);
-            }
-            else
-            {
-                CartCookie cartCookie = new CartCookie(contextAccessor);
-                var sessionId = cartCookie.GetCartCookie();
-                if (sessionId == null)
-                    return 0;
-                return db.ShoppingCarts.Where(a => a.SessionId == sessionId && a.UserId == null).Sum(a => a.Count);
-            }
-        }
-
-        [NonAction]
-        private List<ShoppingCart> GetCartItems(bool prepareToView = false)
-        {
-            List<ShoppingCart> cartItems;
-            if (UserId != 0)
-            {
-                cartItems = db.ShoppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.UserId == UserId).ToList();
-            }
-            else
-            {
-                CartCookie cartCookie = new CartCookie(contextAccessor);
-                var sessionId = cartCookie.GetCartCookie();
-                if(sessionId == null)
-                    return new List<ShoppingCart>();
-                cartItems = db.ShoppingCarts.Include(a => a.ProductPrice.Product)
-                    .Where(c => c.UserId == null && c.SessionId == sessionId).ToList();
-            }
+            List<ShoppingCart> cartItems = await orderService.GetCartItems();
             if (prepareToView)
             {
                 foreach (var item in cartItems)
