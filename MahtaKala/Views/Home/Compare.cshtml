@@ -2,21 +2,58 @@
 @{
     ViewData["Title"] = "مقایسه محصولات";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    HashSet<string> sameProps = null;
+    List<Dictionary<string, string>> productProps = new List<Dictionary<string, string>>();
+    foreach (var pr in Model.Products)
+    {
+        if (sameProps == null)
+        {
+            sameProps = pr.Properties.Select(a => a.Key).ToHashSet();
+        }
+        else
+        {
+            sameProps = sameProps.Intersect(pr.Properties.Select(a => a.Key)).ToHashSet();
+        }
+        productProps.Add(pr.Properties.ToDictionary(a => a.Key, a => a.Value));
+    }
+
+    Dictionary<string, List<string>> props = new Dictionary<string, List<string>>();
+    foreach (var prop in sameProps)
+    {
+        List<string> values = new List<string>();
+        foreach (var pp in productProps)
+        {
+            values.Add(pp[prop]);
+        }
+        props.Add(prop, values);
+    }
 }
 <table>
-    <tr>
-        @foreach (var product in Model.Products)
+    <thead>
+        <tr>
+            <th></th>
+            @foreach (var product in Model.Products)
+            {
+                <th>
+                    @product.Title
+                    <br />
+                    <img src="@product.Thubmnail" />
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var prop in props.Keys)
         {
-            <td>
-                @product.Title
-                <br />
-                <img src="@product.Thubmnail" />
-            </td>
+        <tr>
+            <td>@prop</td>
+            @foreach (var v in props[prop])
+            {
+                <td>@v</td>
+            }
+        </tr>
         }
-        @foreach (var product in Model.Products)
-        {
 
-        }
-    </tr>
+    </tbody>
 
 </table>
