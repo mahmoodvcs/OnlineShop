@@ -127,6 +127,24 @@ namespace MahtaKala.Controllers
             return PartialView("_ProductList", users);
         }
 
+        public async Task<IActionResult> Compare(long firstId, long secondId)
+        {
+            ProductCompareModel model = new ProductCompareModel
+            {
+                Products = new List<Product>()
+                {
+                    await db.Products.Where(p => p.Id == firstId).FirstOrDefaultAsync(),
+                    await db.Products.Where(p => p.Id == secondId).FirstOrDefaultAsync()
+                }
+            };
+            foreach(var product in model.Products)
+            {
+                productImageService.FixImageUrls(product);
+            }
+
+            return View(model);
+        }
+
         [NonAction]
         private IEnumerable<Entities.Product> Search(int page, int recordsPerPage, int? groupId, string term, out int pageSize, out int totalItemCount)
         {

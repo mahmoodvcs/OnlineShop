@@ -1,0 +1,22 @@
+﻿@model MahtaKala.Models.ProductModels.ProductCompareModel
+@{
+    ViewData["Title"] = "مقایسه محصولات";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<table>
+    <tr>
+        @foreach (var product in Model.Products)
+        {
+            <td>
+                @product.Title
+                <br />
+                <img src="@product.Thubmnail" />
+            </td>
+        }
+        @foreach (var product in Model.Products)
+        {
+
+        }
+    </tr>
+
+</table>
