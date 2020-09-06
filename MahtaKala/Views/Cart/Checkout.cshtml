@@ -77,13 +77,13 @@ new
                             <div class="col-md-6">
                                 <div class="checkout-form-list mb-sm-30">
                                     <label>کد ملی</label>
-                                    @Html.TextBoxFor(a => a.UserData.NationalCode, new { @autocomplete = "off" })
+                                    @Html.TextBoxFor(a => a.UserData.NationalCode, new { @autocomplete = "off", @type = "number", @maxlength = "10" })
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="checkout-form-list mb-30">
                                     <label>ایمیل</label>
-                                    @Html.TextBoxFor(a => a.UserData.EmailAddress, new { @autocomplete = "off" })
+                                    @Html.TextBoxFor(a => a.UserData.EmailAddress, new { @autocomplete = "off", @type = "email" })
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -120,8 +120,7 @@ new
                                         <div class="country-select clearfix mb-30">
                                             <label>استان <span class="required">*</span></label>
                                             @(Html.Kendo().DropDownList()
-                                                .Name("ProvinceId")
-                                                .OptionLabel("--انتخاب نمایید--")
+                                                .Name("ProvinceId").Value("7")
                                                 .HtmlAttributes(new { style = "width:100%" })
                                                 .DataTextField("name")
                                                 .DataValueField("id")
@@ -139,7 +138,7 @@ new
                                     <div class="col-md-6">
                                         <div class="country-select clearfix mb-30">
                                             <label>شهر <span class="required">*</span></label>
-                                            @(Html.Kendo().DropDownList().Name("UserAddress.CityId")
+                                            @(Html.Kendo().DropDownList().Name("UserAddress.CityId").Value("268")
                                                 .HtmlAttributes(new { style = "width:100%" })
                                                 .DataTextField("name")
                                                 .DataValueField("id")

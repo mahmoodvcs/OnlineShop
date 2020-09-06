@@ -9,7 +9,7 @@ new
 {
     @Html.HiddenFor(a=>a.Id)
     <div class="form-group">
-        @Html.TextBoxFor(a => a.Code, new { @autocomplete = "off", @value= "", maxlength = "5", @placeholder = "کد تایید ...", @class = "formInputLogin" })
+        @Html.TextBoxFor(a => a.Code, new { @autocomplete = "off", @value= "", @type = "number", maxlength = "5", @placeholder = "کد تایید ...", @class = "formInputLogin" })
     </div>
     <div class="mb-10">
         <span id="timer"></span>

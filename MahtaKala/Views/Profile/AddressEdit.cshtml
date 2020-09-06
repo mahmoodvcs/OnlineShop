@@ -21,8 +21,7 @@
                     <label>استان <span class="required">*</span></label>
                     @(Html.Kendo().DropDownList()
                         .Name("ProvinceId")
-                        .Value(Model == null ? null : Model.City.ProvinceId.ToString())
-                        .OptionLabel("--انتخاب نمایید--")
+                        .Value(Model == null ? "7" : Model.City.ProvinceId.ToString())
                         .HtmlAttributes(new { style = "width:100%" })
                         .DataTextField("name")
                         .DataValueField("id")
@@ -42,7 +41,7 @@
                     <label>شهر <span class="required">*</span></label>
                     @(Html.Kendo().DropDownList().Name("CityId")
                         .HtmlAttributes(new { style = "width:100%" })
-                        .Value(Model == null ? null : Model.CityId.ToString())
+                        .Value(Model == null ? "268" : Model.CityId.ToString())
                         .DataTextField("name")
                         .DataValueField("id")
                         .Filter(FilterType.Contains)
@@ -86,7 +85,7 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="دخیره" class="btn btn-primary" />
+                <input type="submit" value="ذخیره" class="btn btn-primary" />
             </div>
         </div>
     </div>
