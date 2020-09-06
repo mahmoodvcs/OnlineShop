@@ -46,22 +46,22 @@ namespace MahtaKala.Controllers
 
         public IActionResult Index()
         {
-            List<ShppingCart> cartItems = GetCartItems(true);
+            List<ShoppingCart> cartItems = GetCartItems(true);
             return View(cartItems);
         }
 
         public ActionResult ShoppingBag()
         {
 
-            List<ShppingCart> cartItems;
+            List<ShoppingCart> cartItems;
             if (UserId != 0)
             {
-                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.UserId == UserId).ToList();
+                cartItems = db.ShoppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.UserId == UserId).ToList();
             }
             else
             {
                 CartCookie cartCookie = new CartCookie(contextAccessor);
-                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product)
+                cartItems = db.ShoppingCarts.Include(a => a.ProductPrice.Product)
                     .Where(c => c.SessionId == cartCookie.GetCartCookie() && c.UserId == null).ToList();
             }
 
@@ -76,23 +76,23 @@ namespace MahtaKala.Controllers
         public ActionResult AddToCart(int id, int count = 1)
         {
             CartCookie cartCookie = new CartCookie(contextAccessor);
-            ShppingCart cartItem = null;
+            ShoppingCart cartItem = null;
             if (UserId > 0)
             {
-                cartItem = db.ShppingCarts.FirstOrDefault(c => c.UserId == UserId && c.ProductPriceId == id);
+                cartItem = db.ShoppingCarts.FirstOrDefault(c => c.UserId == UserId && c.ProductPriceId == id);
             }
             else
             {
                 var sessionId = cartCookie.GetCartCookie();
                 if (sessionId != null)
                 {
-                    cartItem = db.ShppingCarts.FirstOrDefault(c => c.SessionId == sessionId && c.UserId == null && c.ProductPriceId == id);
+                    cartItem = db.ShoppingCarts.FirstOrDefault(c => c.SessionId == sessionId && c.UserId == null && c.ProductPriceId == id);
                 }
             }
 
             if (cartItem == null)
             {
-                cartItem = new ShppingCart();
+                cartItem = new ShoppingCart();
                 cartItem.ProductPriceId = id;
                 if (UserId > 0)
                     cartItem.UserId = UserId;
@@ -100,7 +100,7 @@ namespace MahtaKala.Controllers
                     cartItem.SessionId = cartCookie.GetCartCookie();
                 cartItem.Count = 0;
                 cartItem.DateCreated = DateTime.Now;
-                db.ShppingCarts.Add(cartItem);
+                db.ShoppingCarts.Add(cartItem);
             }
             cartItem.Count += count;
             db.SaveChanges();
@@ -110,10 +110,10 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public ActionResult RemoveFromCart(int id)
         {
-            var cartItem = db.ShppingCarts.FirstOrDefault(c => c.Id == id);
+            var cartItem = db.ShoppingCarts.FirstOrDefault(c => c.Id == id);
             if (cartItem != null)
             {
-                db.ShppingCarts.Remove(cartItem);
+                db.ShoppingCarts.Remove(cartItem);
                 db.SaveChanges();
             }
             return Json(new { success = true, count = GetShoppingCartCount() });
@@ -122,11 +122,11 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public ActionResult UpdateCart(int id, int count)
         {
-            var cartItem = db.ShppingCarts.Include(a => a.ProductPrice).FirstOrDefault(c => c.Id == id);
+            var cartItem = db.ShoppingCarts.Include(a => a.ProductPrice).FirstOrDefault(c => c.Id == id);
             cartItem.Count = count;
             db.SaveChanges();
             var finalcostRow = Util.Sub3Number(count * cartItem.ProductPrice.DiscountPrice);
-            List<ShppingCart> cartItems = GetCartItems();
+            List<ShoppingCart> cartItems = GetCartItems();
             decimal sumPrice = 0;
             decimal sumFinalPrice = 0;
             foreach (var item in cartItems)
@@ -140,8 +140,8 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public ActionResult DeleteItemCart(int id)
         {
-            db.ShppingCarts.Where(c => c.Id == id).Delete();
-            List<ShppingCart> cartItems = GetCartItems();
+            db.ShoppingCarts.Where(c => c.Id == id).Delete();
+            List<ShoppingCart> cartItems = GetCartItems();
             var sumPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.Price) * cartItems.Sum(a => a.Count));
             var sumFinalPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.DiscountPrice) * cartItems.Sum(a => a.Count));
             return Json(new { success = true, count = cartItems.Sum(a => a.Count), id, sumPrice, sumFinalPrice });
@@ -162,7 +162,7 @@ namespace MahtaKala.Controllers
                 return RedirectToAction("Category", "home");
             }
 
-            decimal postCost = 10000;
+            decimal postCost = PaymentService.DeliveryPrice;
             decimal sumFinalPrice = 0;
             foreach (var item in getCartItems)
             {
@@ -285,7 +285,7 @@ namespace MahtaKala.Controllers
         {
             if (UserId != 0)
             {
-                return db.ShppingCarts.Where(a => a.UserId == UserId).Sum(a => a.Count);
+                return db.ShoppingCarts.Where(a => a.UserId == UserId).Sum(a => a.Count);
             }
             else
             {
@@ -293,25 +293,25 @@ namespace MahtaKala.Controllers
                 var sessionId = cartCookie.GetCartCookie();
                 if (sessionId == null)
                     return 0;
-                return db.ShppingCarts.Where(a => a.SessionId == sessionId && a.UserId == null).Sum(a => a.Count);
+                return db.ShoppingCarts.Where(a => a.SessionId == sessionId && a.UserId == null).Sum(a => a.Count);
             }
         }
 
         [NonAction]
-        private List<ShppingCart> GetCartItems(bool prepareToView = false)
+        private List<ShoppingCart> GetCartItems(bool prepareToView = false)
         {
-            List<ShppingCart> cartItems;
+            List<ShoppingCart> cartItems;
             if (UserId != 0)
             {
-                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.UserId == UserId).ToList();
+                cartItems = db.ShoppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.UserId == UserId).ToList();
             }
             else
             {
                 CartCookie cartCookie = new CartCookie(contextAccessor);
                 var sessionId = cartCookie.GetCartCookie();
                 if(sessionId == null)
-                    return new List<ShppingCart>();
-                cartItems = db.ShppingCarts.Include(a => a.ProductPrice.Product)
+                    return new List<ShoppingCart>();
+                cartItems = db.ShoppingCarts.Include(a => a.ProductPrice.Product)
                     .Where(c => c.UserId == null && c.SessionId == sessionId).ToList();
             }
             if (prepareToView)

@@ -10,7 +10,7 @@ namespace MahtaKala.GeneralServices.Payment
 {
     public class PaymentService
     {
-        private const int DeliveryPrice = 100000;
+        public const int DeliveryPrice = 100000;
 
         private readonly DataContext dataContext;
         private readonly IBankPaymentService bankService;

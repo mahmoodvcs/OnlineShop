@@ -108,7 +108,7 @@
 </div>
 <script type='text/javascript'>
     $(function () {
-        if ($('#EditRequired').val() && !localStorage['NoEditRequired']) {
+        if (@ViewBag.EditRequired.ToString().ToLower()) {
             Command: toastr["error"]('<a href="@Url.Content("~/profile/profileedit")">برای ویرایش پروفایل کلیک کنید</a>', 'پروفایل شما کامل نیست')
 
                 toastr.options = {

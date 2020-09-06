@@ -40,14 +40,14 @@ namespace MahtaKala.ViewComponents
             int count = 0;
             if (User != null)
             {
-                count = await _db.ShppingCarts.Where(a => a.UserId == User.Id).SumAsync(a => a.Count);
+                count = await _db.ShoppingCarts.Where(a => a.UserId == User.Id).SumAsync(a => a.Count);
             }
             else
             {
                 CartCookie cartCookie = new CartCookie(contextAccessor);
                 var sessionId = cartCookie.GetCartCookie();
                 if (sessionId != null) {
-                    count = await _db.ShppingCarts.Where(a => a.SessionId == sessionId & a.UserId == null).SumAsync(a => a.Count);
+                    count = await _db.ShoppingCarts.Where(a => a.SessionId == sessionId & a.UserId == null).SumAsync(a => a.Count);
                 }
             }
             return View(count);

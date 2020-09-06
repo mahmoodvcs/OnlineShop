@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MahtaKala.Entities
 {
-    public class ShppingCart
+    public class ShoppingCart
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
