@@ -9,4 +9,10 @@ namespace MahtaKala.Models
     {
         public long Id { get; set; }
     }
+
+    public class IdValModel
+    {
+        public long Id { get; set; }
+        public string Title { get; set; }
+    }
 }

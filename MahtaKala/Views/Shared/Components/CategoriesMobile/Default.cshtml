@@ -1,0 +1,16 @@
+﻿@model List<MahtaKala.Entities.Category>
+@{
+    var data = Model.Where(a => a.ParentId == null);
+}
+<div class="container d-block d-lg-none">
+    <div class="vertical-menu mt-30">
+        <span class="categorie-title mobile-categorei-menu">دسته بندی ها</span>
+        <nav>
+            <div id="cate-mobile-toggle" class="category-menu sidebar-menu sidbar-style mobile-categorei-menu-list menu-hidden ">
+                <ul>
+                    @await Html.PartialAsync("CategoriesMobilePartial", data.ToList())
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>

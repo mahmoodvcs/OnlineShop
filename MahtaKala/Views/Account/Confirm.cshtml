@@ -9,7 +9,7 @@ new
 {
     @Html.HiddenFor(a=>a.Id)
     <div class="form-group">
-        @Html.TextBoxFor(a => a.Code, new { @autocomplete = "off", @value= "", maxlength = "5", @placeholder = "کد تایید ...", @class = "formInputLogin" })
+        @Html.TextBoxFor(a => a.Code, new { @autocomplete = "off", @value= "", @type = "number", maxlength = "5", @placeholder = "کد تایید ...", @class = "formInputLogin" })
     </div>
     <div class="mb-10">
         <span id="timer"></span>
@@ -20,13 +20,37 @@ new
 <script type="text/javascript">
     $("#Code").val("");
     var timer = new easytimer.Timer();
-    timer.start({ countdown: true, startValues: { seconds: 300 } });
+    timer.start({ countdown: true, startValues: { seconds: 120 } });
     $('#timer').html(timer.getTimeValues().toString(['minutes', 'seconds']));
     timer.addEventListener('secondsUpdated', function (e) {
         $('#timer').html(timer.getTimeValues().toString(['minutes', 'seconds']));
     });
     timer.addEventListener('targetAchieved', function (e) {
-        $('#timer').html('زمان به اتمام رسیده است!');
+        $('#timer').html("<a id='reCode' data-id='"+@Model.Id+"' href='#'>ارسال مجدد کد تایید</a>");
     });
 
+
+    $(document).on("click", "#reCode", function (e) {
+        e.preventDefault();
+        $.blockUI({
+            message: '<img src="/img/loading.gif"/>',
+            css: {
+                border: 'none',
+                backgroundColor: 'transparent'
+            }
+        });
+        var id = $(this).data("id");
+        $.post('/Account/ResendCode', { id: id },
+            function (data) {
+                $.unblockUI();
+                if (data.success) {
+                    $("#Code").val("");
+                    timer.reset();
+                }
+
+            }).fail(function () {
+                $.unblockUI();
+                console.log("error");
+            });
+    });
 </script>

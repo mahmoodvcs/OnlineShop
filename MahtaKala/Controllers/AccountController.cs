@@ -60,7 +60,7 @@ namespace MahtaKala.Controllers
             {
                 return View(model);
             }
-          
+
             var user = await db.Users.Where(u => u.Username == model.UserName).FirstAsync();
             if (user == null || !user.VerifyPassword(model.Password))
             {
@@ -121,7 +121,7 @@ namespace MahtaKala.Controllers
                 UserId = user.Id,
                 Code = code,
                 IssueTime = DateTime.Now,
-                ExpireTime = DateTime.Now.AddMinutes(5),
+                ExpireTime = DateTime.Now.AddMinutes(2),
             };
             db.UserActivationCodes.Add(userCode);
             await db.SaveChangesAsync();
@@ -168,6 +168,18 @@ namespace MahtaKala.Controllers
             return Redirect("~/");
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> ResendCode(int id)
+        {
+            var userActivationCode = db.UserActivationCodes.Include("User").FirstOrDefault(a => a.Id == id);
+            var code = await smsService.SendOTP(userActivationCode.User.MobileNumber, Messages.Messages.Signup.LoginOTPMessage);
+            userActivationCode.Code = code;
+            userActivationCode.ExpireTime = DateTime.Now.AddMinutes(2);
+            await db.SaveChangesAsync();
+            return Json(new { success = true });
+        }
+
         public IActionResult ResultRequest()
         {
             return PartialView();
@@ -176,7 +188,7 @@ namespace MahtaKala.Controllers
         public IActionResult SignOut()
         {
             Response.Cookies.Delete("MahtaAuth");
-            return RedirectToAction("index","home");
+            return RedirectToAction("index", "home");
         }
 
 

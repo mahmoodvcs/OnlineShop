@@ -8,7 +8,7 @@ new
 }))
 {
     <div class="form-group">
-        @Html.TextBoxFor(a => a.Mobile, new { @autocomplete = "off", @placeholder = "شماره موبایل ...", @class = "formInputLogin" })
+        @Html.TextBoxFor(a => a.Mobile, new { @autocomplete = "off", @type = "number", @placeholder = "شماره موبایل ...", @class = "formInputLogin" })
     </div>
     <input type="submit" value="ادامه" class="customer-btn">
 }

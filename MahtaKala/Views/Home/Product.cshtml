@@ -6,6 +6,7 @@
     decimal discount;
     var isDiscount = Util.IsDiscount(productPrice, out discount);
 }
+@await Component.InvokeAsync("BreadCrumb", new { categoryId = Model.CategoryId })
 <div class="main-product-thumbnail ptb-50 ptb-sm-60">
     <div class="container">
         <div class="thumb-bg">
