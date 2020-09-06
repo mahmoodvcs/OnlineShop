@@ -774,7 +774,7 @@ span.total-pro {
   padding-top: 3px;
 }
 #cate-mobile-toggle .category-sub > li > a:before {
-    content: "\f125";
+    content: "\f124";
     font-family: "Ionicons";
     font-size: 9px;
     position: absolute;

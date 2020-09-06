@@ -1,0 +1,14 @@
+﻿@model IList<MahtaKala.Entities.Category>
+@foreach (var item in Model)
+{
+
+    <li class="@(item.Children?.Any() ?? false?"has-sub":"")">
+        <a href="@Url.Content("~/home/category?id="+item.Id)">@item.Title</a>
+        @if (item.Children?.Any() ?? false)
+        {
+            <ul class="category-sub">
+                @await Html.PartialAsync("CategoriesMobilePartial", item.Children)
+            </ul>
+        }
+    </li>
+}
