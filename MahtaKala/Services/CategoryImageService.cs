@@ -27,7 +27,7 @@ namespace MahtaKala.Services
             name = name.ToLower();
             if (name.StartsWith("http://") || name.StartsWith("https://") || name.Contains("image/category?id="))
                 return name;
-            return Path.Combine(pathService.AppBaseUrl, $"Image/Category?id={id}&name={name}");
+            return $"/Image/Category?id={id}&name={name}";
         }
 
         public void FixImageUrls(Category c)

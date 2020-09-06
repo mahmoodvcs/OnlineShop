@@ -31,7 +31,7 @@ namespace MahtaKala.Services
             name = name.ToLower();
             if (name.StartsWith("http://") || name.StartsWith("https://") || name.Contains("image/product?id="))
                 return name;
-            return Path.Combine(pathService.AppBaseUrl, $"Image/Product?id={productId}&name={name}");
+            return $"/Image/Product?id={productId}&name={name}";
         }
         public string GetThumbnailUrl(Product p)
         {
