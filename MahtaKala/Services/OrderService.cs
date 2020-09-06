@@ -75,7 +75,7 @@ namespace MahtaKala.Services
                     SessionId = currentUserService.AnonymousSessionId,
                     DateCreated = DateTime.Now,
                 };
-                if (User!= null)
+                if (User != null)
                     cartItem.UserId = User.Id;
                 else
                     cartItem.SessionId = currentUserService.AnonymousSessionId;
@@ -91,7 +91,7 @@ namespace MahtaKala.Services
 
         private IQueryable<ShoppingCart> GetCartQuery()
         {
-            var query = db.ShoppingCarts.AsQueryable();
+            var query = db.ShoppingCarts.Include(a => a.ProductPrice.Product).AsQueryable();
             if (User == null)
                 query = query.Where(c => c.SessionId == currentUserService.AnonymousSessionId && c.UserId == null);
             else
