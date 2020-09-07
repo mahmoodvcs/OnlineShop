@@ -11,5 +11,9 @@ namespace MahtaKala.Models.StaffModels
         public int TotalProducts { get; set; }
         public int TotalOrders { get; set; }
         public Decimal TotalPayments { get; set; }
+
+        public List<ChartModel> OrderChart { get; set; }
+        public List<ChartModel> SaleChart { get; set; }
+
     }
 }

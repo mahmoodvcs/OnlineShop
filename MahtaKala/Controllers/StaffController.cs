@@ -51,19 +51,49 @@ namespace MahtaKala.Controllers
             var orders = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent);
+            var orderChart = orders.OrderBy(o => o.CheckOutData)
+                .GroupBy(o => o.CheckOutData.Date)
+                .Select(o => new
+                {
+                    Date = o.Key,
+                    Value = o.Count()
+                })
+                .AsEnumerable()
+                .Select(o => new ChartModel
+                {
+                    Date = GetPersianDate(o.Date),
+                    Value = o.Value
+                }).ToList();
+            var saleChart = orders.OrderBy(o => o.CheckOutData)
+                .GroupBy(o => o.CheckOutData.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    Value = g.Sum(o => o.TotalPrice)
+                })
+                .AsEnumerable()
+                .Select(g => new ChartModel
+                {
+                    Date = GetPersianDate(g.Date),
+                    Value = g.Value
+                }).ToList();
             if (user.Type == UserType.Admin)
             {
                 report.TotalOrders = await orders.CountAsync();
                 report.TotalPayments = await orders.Select(o => o.TotalPrice).SumAsync();
                 report.TotalProducts = await db.Products.CountAsync();
                 report.TotalUsers = await db.Users.CountAsync();
+                report.OrderChart = orderChart;
+                report.SaleChart = saleChart;
             }
             else
             {
                 report.TotalOrders = await orders.CountAsync();
                 report.TotalPayments = await orders.Select(o => o.TotalPrice).SumAsync();
-                report.TotalProducts = await db.Products.Where(p=>p.SellerId == user.Id).CountAsync();
+                report.TotalProducts = await db.Products.Where(p => p.SellerId == user.Id).CountAsync();
                 report.TotalUsers = await db.Users.CountAsync();
+                report.OrderChart = orderChart;
+                report.SaleChart = saleChart;
             }
             return View(report);
         }
@@ -489,7 +519,7 @@ namespace MahtaKala.Controllers
                 product.BrandId = model.BrandId;
                 product.Description = model.Description;
                 product.Disabled = model.Disabled;
-                product.Prices = new List<ProductPrice> { 
+                product.Prices = new List<ProductPrice> {
                     new ProductPrice
                     {
                         Price = model.Price,
@@ -670,10 +700,10 @@ namespace MahtaKala.Controllers
             {
                 throw new EntityNotFoundException<Order>(Id);
             }
-            if(order.TrackNo != TrackNo)
+            if (order.TrackNo != TrackNo)
             {
                 return Json(new { success = false, message = Messages.Messages.Order.ErrorWrongTrackNo });
-            }    
+            }
             if (order.State == OrderState.Sent)
             {
                 order.State = OrderState.Delivered;
@@ -702,7 +732,7 @@ namespace MahtaKala.Controllers
 
         public async Task<ActionResult> UpdateSeller(Seller seller)
         {
-            if(seller.Id > 0)
+            if (seller.Id > 0)
             {
                 var dbSeller = await db.Sellers.FindAsync(seller.Id);
                 dbSeller.Name = seller.Name;
@@ -736,6 +766,15 @@ namespace MahtaKala.Controllers
                         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                     });
             return Content(list, "application/json");
+        }
+
+
+
+        [NonAction]
+        string GetPersianDate(DateTime d)
+        {
+            PersianCalendar pc = new PersianCalendar();
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)}";
         }
     }
 }
