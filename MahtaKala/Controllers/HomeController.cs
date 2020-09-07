@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Kendo.Mvc.Extensions;
+using Kendo.Mvc.UI;
 using MahtaKala.Entities;
+using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
+using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
 using MahtaKala.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Controllers
@@ -102,33 +107,6 @@ namespace MahtaKala.Controllers
             return Json(new { success = false });
         }
 
-
-        public IActionResult Category(int? id, string term)
-        {
-            var page = 1;
-            int pageSize;
-            int recordsPerPage = 12;
-            int totalItemCount;
-            var vm = Search(page: 1, recordsPerPage: recordsPerPage, groupId: id, term: term, pageSize: out pageSize, totalItemCount: out totalItemCount);
-            ViewBag.PageSize = pageSize;
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalItemCount = totalItemCount;
-            return View(vm);
-        }
-
-        [HttpGet]
-        public ActionResult Search(int page = 1, string term = "", int? id = null)
-        {
-            int pageSize;
-            int recordsPerPage = 12;
-            int totalItemCount;
-            var users = Search(page: page, recordsPerPage: recordsPerPage, groupId: id, term: term, pageSize: out pageSize, totalItemCount: out totalItemCount);
-            ViewBag.PageSize = pageSize;
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalItemCount = totalItemCount;
-            return PartialView("_ProductList", users);
-        }
-
         public async Task<IActionResult> Compare(long firstId, long secondId)
         {
             ProductCompareModel model = new ProductCompareModel
@@ -145,6 +123,75 @@ namespace MahtaKala.Controllers
             }
 
             return View(model);
+        }
+
+        //public IActionResult Category(int? id, string term)
+        //{
+        //    var vm = (id, term);
+        //    return View(vm);
+        //}
+        //public ActionResult Endless_Scrolling_Read([DataSourceRequest] DataSourceRequest request, int? id, string term)
+        //{
+        //    var queryable = productService.Products();
+        //    if (!string.IsNullOrEmpty(term))
+        //    {
+        //        queryable = queryable.Where(c => c.Title.Contains(term));
+        //    }
+        //    if (id.HasValue)
+        //    {
+        //        queryable = queryable.Where(c => c.ProductCategories.Any(pc => pc.CategoryId == id));
+        //    }
+        //    var res = queryable.Select(a => new
+        //    {
+        //        a.Id,
+        //        Price = a.Prices.First(),
+        //        a.Thubmnail,
+        //        a.Title
+        //    }).ToDataSourceResultAsync(request, a => new ProductVM
+        //    {
+        //        Id = a.Id,
+        //        Title = a.Title,
+        //        Thubmnail = productImageService.GetImageUrl(a.Id,a.Thubmnail)
+        //    });
+        //    var list = JsonConvert.SerializeObject(res, Formatting.None,
+        //          new JsonSerializerSettings()
+        //          {
+        //              ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        //          });
+        //    return Content(list, "application/json");
+        //}
+
+
+
+
+
+
+
+        public IActionResult Category(int? id, string term)
+        {
+            var page = 1;
+            int pageSize;
+            int recordsPerPage = 12;
+            int totalItemCount;
+            var vm = Search(page: 1, recordsPerPage: recordsPerPage, groupId: id, term: term, pageSize: out pageSize, totalItemCount: out totalItemCount);
+            ViewBag.PageSize = pageSize;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalItemCount = totalItemCount;
+            return View(vm);
+        }
+
+
+        [HttpGet]
+        public ActionResult Search(int page = 1, string term = "", int? id = null)
+        {
+            int pageSize;
+            int recordsPerPage = 12;
+            int totalItemCount;
+            var users = Search(page: page, recordsPerPage: recordsPerPage, groupId: id, term: term, pageSize: out pageSize, totalItemCount: out totalItemCount);
+            ViewBag.PageSize = pageSize;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalItemCount = totalItemCount;
+            return PartialView("_ProductList", users);
         }
 
         [NonAction]

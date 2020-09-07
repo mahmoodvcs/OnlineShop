@@ -14,14 +14,11 @@
                 <div class="col-lg-5 mb-all-40">
                     <!-- Thumbnail Large Image start -->
                     <div class="tab-content">
-                        <div id="thumb1" class="tab-pane fade show  active">
-                            <a data-fancybox="images" href="@Model.Thubmnail"><img src="@Model.Thubmnail" alt="product-view"></a>
-                        </div>
                         @{
-                            int i = 2;
+                            int i = 1;
                             foreach (var img in Model.Images)
                             {
-                                <div id="thumb@(i)" class="tab-pane fade show">
+                                <div id="thumb@(i)" class="tab-pane fade show  @(i==1?"active":"") ">
                                     <a data-fancybox="images" href="@img"><img src="@img" alt="product-view"></a>
                                 </div>
                                 i++;
@@ -32,12 +29,11 @@
                     <!-- Thumbnail Image End -->
                     <div class="product-thumbnail mt-15">
                         <div class="thumb-menu owl-carousel nav tabs-area" role="tablist" dir="ltr">
-                            <a class="active" data-toggle="tab" href="#thumb1"><img src="@(Model.Thubmnail)" alt="product-thumbnail"></a>
                             @{
-                                i = 2;
+                                i = 1;
                                 foreach (var img in Model.Images)
                                 {
-                                    <a data-toggle="tab" href="#thumb@(i)"><img src="@img" alt="product-thumbnail"></a>
+                                    <a class="@(i==1?"active":"") " data-toggle="tab" href="#thumb@(i)"><img src="@img" alt="product-thumbnail"></a>
                                     i++;
                                 }
                             }

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace MahtaKala.Services
@@ -23,7 +24,7 @@ namespace MahtaKala.Services
         public string GetImageUrl(long id, string name)
         {
             if (string.IsNullOrEmpty(name))
-                return null;
+                return "/img/logo3.png";
             name = name.ToLower();
             if (name.StartsWith("http://") || name.StartsWith("https://") || name.Contains("image/category?id="))
                 return name;
