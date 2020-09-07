@@ -46,6 +46,10 @@ namespace MahtaKala.Controllers
         }
         public async Task<IActionResult> Index()
         {
+            if(base.User.Type == UserType.Delivery)
+            {
+                return RedirectToAction("BuyHistory");
+            }
             var report = new ReportModel();
             var user = base.User;
             var orders = db.Orders.Where(o => o.State == OrderState.Paid ||
@@ -643,12 +647,15 @@ namespace MahtaKala.Controllers
 
         #region Order
 
+
+        [Authorize(UserType.Delivery)]
         public ActionResult BuyHistory()
         {
             ViewData["Title"] = "گزارش خرید ها";
             return View();
         }
 
+        [Authorize(UserType.Delivery)]
         public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
         {
             var data = await db.Orders.Where(o => o.State == OrderState.Paid ||
@@ -680,6 +687,7 @@ namespace MahtaKala.Controllers
             return Content(list, "application/json");
         }
 
+        [Authorize(UserType.Delivery)]
         public async Task<ActionResult> ConfirmSent(long Id, string DelivererId)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
@@ -709,6 +717,7 @@ namespace MahtaKala.Controllers
             return Json(new { success = true });
         }
 
+        [Authorize(UserType.Delivery)]
         public async Task<ActionResult> ConfirmDelivered(long Id, string TrackNo)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
