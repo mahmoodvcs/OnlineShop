@@ -13,6 +13,7 @@
         function (data) {
             $.unblockUI();
             if (data.success) {
+                $('#countHeart').text(data.count);
                 toastr.success("محصول مورد نظر به لیست علاقه مندی ها افزوده شد", '', { positionClass: "toast-bottom-left" });
             }
             else {

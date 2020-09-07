@@ -1,0 +1,9 @@
+﻿@model (bool, int)
+<li>
+    <a href="@Url.Content(Model.Item1?"~/profile/Wishlist":"#")">
+        <i class="lnr lnr-heart"></i>
+        <span class="my-cart">
+            <span class="total-pro" id="countHeart">@Model.Item2</span>
+        </span>
+    </a>
+</li>
