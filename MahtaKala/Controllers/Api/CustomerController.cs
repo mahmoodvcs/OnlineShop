@@ -113,12 +113,19 @@ namespace MahtaKala.Controllers.Api
 
                 if (prevOrder == null)
                 {
+                    var now = DateTime.Now;
+                    var tomarrow = new DateTime(now.Year,
+                                 now.Month,
+                                 now.Day + 1,
+                                 9,
+                                 0,
+                                 0);
                     Order order = new Order()
                     {
                         UserId = UserId,
                         State = OrderState.Initial,
-                        CheckOutData = DateTime.Now,
-                        SentDateTime = DateTime.Now
+                        CheckOutData = now,
+                        SentDateTime = now.TimeOfDay > new TimeSpan(12, 0, 0) ? tomarrow : now
                     };
                     item.Order = order;
                 }
