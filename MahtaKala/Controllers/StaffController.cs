@@ -11,6 +11,7 @@ using MahtaKala.Entities;
 using MahtaKala.Entities.Security;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
+using MahtaKala.Infrustructure.ActionFilter;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
@@ -634,6 +635,7 @@ namespace MahtaKala.Controllers
             return Content(list, "application/json");
         }
 
+        [AjaxAction]
         public async Task<ActionResult> ConfirmSent(long Id, string DelivererId)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
@@ -663,6 +665,7 @@ namespace MahtaKala.Controllers
             return Json(new { success = true });
         }
 
+        [AjaxAction]
         public async Task<ActionResult> ConfirmDelivered(long Id, string TrackNo)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
