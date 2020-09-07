@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,16 @@ namespace MahtaKala.Infrustructure
                 }
                 return userId;
             }
+        }
+
+        public IActionResult KendoJson(object data)
+        {
+            var json = JsonConvert.SerializeObject(data, Formatting.None,
+                new JsonSerializerSettings()
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+            return Content(json, "application/json");
         }
 
 
