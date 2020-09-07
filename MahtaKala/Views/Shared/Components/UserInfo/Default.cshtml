@@ -1,8 +1,5 @@
 ﻿@model (bool, string, string)
 <li>
-    <a href="@Url.Content(Model.Item1?"~/profile/Wishlist":"#")"><i class="lnr lnr-heart"></i></a>
-</li>
-<li>
     @if (!Model.Item1)
     {
         <a href="@Url.Content(Model.Item3)">

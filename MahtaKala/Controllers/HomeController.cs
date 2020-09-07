@@ -73,7 +73,7 @@ namespace MahtaKala.Controllers
 
 
         [HttpPost]
-        public IActionResult AddToWishlists(int id)
+        public async Task<IActionResult> AddToWishlists(int id)
         {
             if (UserId != 0)
             {
@@ -86,8 +86,8 @@ namespace MahtaKala.Controllers
                     db.Wishlists.Add(p);
                     db.SaveChanges();
                 }
-                return Json(new { success = true });
-
+                int count = await db.Wishlists.Where(a => a.UserId == UserId).CountAsync();
+                return Json(new { success = true, count });
             }
             return Json(new { success = false });
         }
@@ -140,7 +140,7 @@ namespace MahtaKala.Controllers
                     await db.Products.Where(p => p.Id == secondId).FirstOrDefaultAsync()
                 }
             };
-            foreach(var product in model.Products)
+            foreach (var product in model.Products)
             {
                 productImageService.FixImageUrls(product);
             }
