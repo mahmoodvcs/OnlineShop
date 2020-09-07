@@ -176,6 +176,22 @@ namespace MahtaKala.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public async Task<JsonResult> UserDestroy(long id)
+        {
+            if(await db.Products.AnyAsync(p=>p.SellerId == id))
+            {
+
+                return Json(new { Success = false, msg = "کاربر دارای کالا می باشد." });
+            }
+            else
+            {
+                await db.Users.Where(u => u.Id == id).DeleteAsync();
+                await db.SaveChangesAsync();
+            }
+            return Json(new { Success = true });
+        }
+
         #endregion
 
 
