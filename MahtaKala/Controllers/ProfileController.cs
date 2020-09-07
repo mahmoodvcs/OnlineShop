@@ -69,7 +69,8 @@ namespace MahtaKala.Controllers
                    Id = a.Id,
                    Price = (long)a.TotalPrice,
                    CheckoutDate = GetPersianDate(a.CheckOutData),
-                   State = TranslateExtentions.GetTitle(a.State)
+                   State = TranslateExtentions.GetTitle(a.State),
+                   SendDate = GetPersianDate(a.SentDateTime)
                }).ToList();
             return View(data);
         }
@@ -94,15 +95,18 @@ namespace MahtaKala.Controllers
         {
             if (string.IsNullOrEmpty(vm.FirstName))
             {
-                return Json(new { success = false, msg = "لطفا نام را وارد کنید" });
+                ModelState.AddModelError(nameof(vm.FirstName), "لطفا نام را وارد کنید");
+                return View(vm);
             }
             if (string.IsNullOrEmpty(vm.LastName))
             {
-                return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
+                ModelState.AddModelError(nameof(vm.LastName), "لطفا نام خانوادگی را وارد کنید");
+                return View(vm);
             }
             if (!string.IsNullOrEmpty(vm.EmailAddress) && !Util.IsValidEmailaddress(vm.EmailAddress))
             {
-                return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
+                ModelState.AddModelError(nameof(vm.EmailAddress), "لطفا ایمیل را به صورت صحیح وارد کنید");
+                return View(vm);
             }
 
 
@@ -112,7 +116,7 @@ namespace MahtaKala.Controllers
             user.LastName = vm.LastName;
             user.NationalCode = vm.NationalCode;
             await db.SaveChangesAsync();
-            return Json(new { success = true, msg = "ویرایش اطلااعات با موفقیت انجام شد", name = user.FullName() });
+            return RedirectToAction("Index");
         }
 
 
@@ -156,7 +160,7 @@ namespace MahtaKala.Controllers
         string GetPersianDate(DateTime d)
         {
             PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} - {d.ToString("hh:mm")}";
+            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} - {d.TimeOfDay}";
         }
     }
 }

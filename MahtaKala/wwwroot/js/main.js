@@ -89,6 +89,19 @@ $(document).on("submit", "form#editProfile", function (e) {
     });
     return false;
 });
+$(document).on("click", ".compare-to", function (e) {
+    e.preventDefault();
+    var oldId = localStorage['CompareId'];
+    var id = $(this).data("id");
+    if (oldId) {
+        localStorage.removeItem('CompareId');
+        location.href = '/Home/Compare?firstId=' + oldId + '&secondId=' + id;
+    } else {
+        localStorage['CompareId'] = id;
+        toastr.success("محصول مورد نظر به لیست مقایسه اضافه شد.", '', { positionClass: "toast-bottom-left" });
+    }
+    return false;
+});
 
 
 (function ($) {
