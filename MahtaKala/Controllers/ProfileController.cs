@@ -94,18 +94,15 @@ namespace MahtaKala.Controllers
         {
             if (string.IsNullOrEmpty(vm.FirstName))
             {
-                ModelState.AddModelError(nameof(vm.FirstName), "لطفا نام را وارد کنید");
-                return View(vm);
+                return Json(new { success = false, msg = "لطفا نام را وارد کنید" });
             }
             if (string.IsNullOrEmpty(vm.LastName))
             {
-                ModelState.AddModelError(nameof(vm.LastName), "لطفا نام خانوادگی را وارد کنید");
-                return View(vm);
+                return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
             }
             if (!string.IsNullOrEmpty(vm.EmailAddress) && !Util.IsValidEmailaddress(vm.EmailAddress))
             {
-                ModelState.AddModelError(nameof(vm.EmailAddress), "لطفا ایمیل را به صورت صحیح وارد کنید");
-                return View(vm);
+                return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
             }
 
 
@@ -116,7 +113,7 @@ namespace MahtaKala.Controllers
             user.NationalCode = vm.NationalCode;
             user.MobileNumber = vm.Mobile;
             await db.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return Json(new { success = true, msg = "ویرایش اطلااعات با موفقیت انجام شد", name = user.FullName() });
         }
 
 
