@@ -7,11 +7,7 @@
     @ViewData["Title"]
 </h5>
 <hr class="pt-15 " />
-@using (Html.BeginForm("ProfileEdit", "Profile", FormMethod.Post,
-new
-{
-   @id = "editProfile"
-}))
+@using (Html.BeginForm("ProfileEdit", "Profile", FormMethod.Post, new { encType = "multipart/form-data" }))
 {
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 <div class="row">

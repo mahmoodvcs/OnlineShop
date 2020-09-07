@@ -1,6 +1,6 @@
 ﻿@model MahtaKala.Models.StaffModels.ReportModel
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "صفحه اصلی";
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
@@ -52,4 +52,69 @@
             </div>
         </div>
     </div>
+
+    <div class="form-group row">
+        <div class="col-lg-6">
+            <div id="orderChart">
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div id="saleChart">
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<script>
+    var saleChartJson = @Html.Raw(Json.Serialize(Model.SaleChart));
+    var values = []
+    var dates = []
+    saleChartJson.forEach(function (item) {
+        values.push(item.value);
+        dates.push(item.date);
+    });
+    var saleOptions = {
+        chart: {
+            type: 'area'
+        },
+        series: [{
+            name: 'مبلغ پرداخت شده',
+            data: values
+        }],
+        xaxis: {
+            categories: dates
+        }
+    }
+
+    var saleChart = new ApexCharts(document.querySelector("#saleChart"), saleOptions);
+
+    saleChart.render();
+
+
+
+
+    var orderChartJson = @Html.Raw(Json.Serialize(Model.OrderChart));
+    var values = []
+    var dates = []
+    orderChartJson.forEach(function (item) {
+        values.push(item.value);
+        dates.push(item.date);
+    });
+    var orderOptions = {
+        chart: {
+            type: 'area'
+        },
+        series: [{
+            name: 'تعداد محصولات خریداری شده',
+            data: values
+        }],
+        xaxis: {
+            categories: dates
+        }
+    }
+
+    var orderChart = new ApexCharts(document.querySelector("#orderChart"), orderOptions);
+
+    orderChart.render();
+</script>

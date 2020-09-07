@@ -40,9 +40,7 @@ namespace MahtaKala.Controllers
             if (string.IsNullOrEmpty(User.FirstName) ||
                 string.IsNullOrEmpty(User.LastName) ||
                 string.IsNullOrEmpty(User.MobileNumber) ||
-                string.IsNullOrEmpty(User.Username) ||
-                string.IsNullOrEmpty(User.EmailAddress) ||
-                string.IsNullOrEmpty(User.NationalCode))
+                string.IsNullOrEmpty(User.EmailAddress))
             {
                 ViewData["EditRequired"] = true;
             }

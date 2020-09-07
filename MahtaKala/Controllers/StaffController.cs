@@ -47,24 +47,58 @@ namespace MahtaKala.Controllers
         }
         public async Task<IActionResult> Index()
         {
+            if(base.User.Type == UserType.Delivery)
+            {
+                return RedirectToAction("BuyHistory");
+            }
             var report = new ReportModel();
             var user = base.User;
             var orders = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent);
+            var orderChart = orders.OrderBy(o => o.CheckOutData)
+                .GroupBy(o => o.CheckOutData.Value.Date)
+                .Select(o => new
+                {
+                    Date = o.Key,
+                    Value = o.Count()
+                })
+                .AsEnumerable()
+                .Select(o => new ChartModel
+                {
+                    Date = Util.GetPersianDate(o.Date),
+                    Value = o.Value
+                }).ToList();
+            var saleChart = orders.OrderBy(o => o.CheckOutData)
+                .GroupBy(o => o.CheckOutData.Value.Date)
+                .Select(g => new
+                {
+                    Date = g.Key,
+                    Value = g.Sum(o => o.TotalPrice)
+                })
+                .AsEnumerable()
+                .Select(g => new ChartModel
+                {
+                    Date = Util.GetPersianDate(g.Date),
+                    Value = g.Value
+                }).ToList();
             if (user.Type == UserType.Admin)
             {
                 report.TotalOrders = await orders.CountAsync();
                 report.TotalPayments = await orders.Select(o => o.TotalPrice).SumAsync();
                 report.TotalProducts = await db.Products.CountAsync();
                 report.TotalUsers = await db.Users.CountAsync();
+                report.OrderChart = orderChart;
+                report.SaleChart = saleChart;
             }
             else
             {
                 report.TotalOrders = await orders.CountAsync();
                 report.TotalPayments = await orders.Select(o => o.TotalPrice).SumAsync();
-                report.TotalProducts = await db.Products.Where(p=>p.SellerId == user.Id).CountAsync();
+                report.TotalProducts = await db.Products.Where(p => p.SellerId == user.Id).CountAsync();
                 report.TotalUsers = await db.Users.CountAsync();
+                report.OrderChart = orderChart;
+                report.SaleChart = saleChart;
             }
             return View(report);
         }
@@ -145,6 +179,22 @@ namespace MahtaKala.Controllers
                 return RedirectToAction("UserList");
             }
             return View(model);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> UserDestroy(long id)
+        {
+            if(await db.Products.AnyAsync(p=>p.SellerId == id))
+            {
+
+                return Json(new { Success = false, msg = "کاربر دارای کالا می باشد." });
+            }
+            else
+            {
+                await db.Users.Where(u => u.Id == id).DeleteAsync();
+                await db.SaveChangesAsync();
+            }
+            return Json(new { Success = true });
         }
 
         #endregion
@@ -401,7 +451,7 @@ namespace MahtaKala.Controllers
 
         public IActionResult ProductList()
         {
-            ViewData["Title"] = "لیست محصولات";
+            ViewData["Title"] = "لیست کالا و خدمات";
             return View();
         }
 
@@ -442,7 +492,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public IActionResult Product(long? id)
         {
-            ViewData["Title"] = "درج محصول";
+            ViewData["Title"] = "درج کالا و خدمات";
 
             Product p;
             if (id.HasValue)
@@ -472,7 +522,7 @@ namespace MahtaKala.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Product(Product model)
         {
-            ViewData["Title"] = "درج محصول";
+            ViewData["Title"] = "درج کالا و خدمات";
             if (ModelState.IsValid)
             {
                 Product product;
@@ -490,7 +540,7 @@ namespace MahtaKala.Controllers
                 product.BrandId = model.BrandId;
                 product.Description = model.Description;
                 product.Disabled = model.Disabled;
-                product.Prices = new List<ProductPrice> { 
+                product.Prices = new List<ProductPrice> {
                     new ProductPrice
                     {
                         Price = model.Price,
@@ -598,12 +648,15 @@ namespace MahtaKala.Controllers
 
         #region Order
 
+
+        [Authorize(UserType.Delivery)]
         public ActionResult BuyHistory()
         {
             ViewData["Title"] = "گزارش خرید ها";
             return View();
         }
 
+        [Authorize(UserType.Delivery)]
         public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
         {
             var data = await db.Orders.Where(o => o.State == OrderState.Paid ||
@@ -636,6 +689,7 @@ namespace MahtaKala.Controllers
         }
 
         [AjaxAction]
+        [Authorize(UserType.Delivery)]
         public async Task<ActionResult> ConfirmSent(long Id, string DelivererId)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
@@ -666,6 +720,7 @@ namespace MahtaKala.Controllers
         }
 
         [AjaxAction]
+        [Authorize(UserType.Delivery)]
         public async Task<ActionResult> ConfirmDelivered(long Id, string TrackNo)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
@@ -673,10 +728,10 @@ namespace MahtaKala.Controllers
             {
                 throw new EntityNotFoundException<Order>(Id);
             }
-            if(order.TrackNo != TrackNo)
+            if (order.TrackNo != TrackNo)
             {
                 return Json(new { success = false, message = Messages.Messages.Order.ErrorWrongTrackNo });
-            }    
+            }
             if (order.State == OrderState.Sent)
             {
                 order.State = OrderState.Delivered;
@@ -705,7 +760,7 @@ namespace MahtaKala.Controllers
 
         public async Task<ActionResult> UpdateSeller(Seller seller)
         {
-            if(seller.Id > 0)
+            if (seller.Id > 0)
             {
                 var dbSeller = await db.Sellers.FindAsync(seller.Id);
                 dbSeller.Name = seller.Name;

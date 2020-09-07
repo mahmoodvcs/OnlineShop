@@ -1,6 +1,6 @@
 ﻿@using Kendo.Mvc.UI
 @{
-    ViewData["Title"] = "Users";
+    ViewData["Title"] = "لیست کاربران";
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
@@ -15,7 +15,8 @@
         columns.Bound(p => p.MobileNumber);
         columns.Bound(p => p.EmailAddress);
         columns.Bound(p => p.NationalCode);
-        columns.Command(command => command.Custom("Edit").Click("editUser")).Width(160);
+        columns.Command(command => command.Custom("ویرایش").Click("editUser")).Width(160);
+        columns.Command(command => command.Custom("حذف").Click("RemoveUser")).Width(90);
     })
     .HtmlAttributes(new { style = "height: 550px;" })
     .ToolBar(toolbar =>
@@ -49,9 +50,51 @@
     </div>
 </script>
 
-<script>
-    function editUser(e) {
-        window.location.href = '/Staff/User/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
-        return false;
-    }
-</script>
+@section js{
+    <script>
+        function editUser(e) {
+            window.location.href = '/Staff/User/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
+            return false;
+        }
+
+
+        function RemoveUser(e) {
+            e.preventDefault();
+            var id = this.dataItem($(e.currentTarget).closest("tr")).Id;
+            Swal.fire({
+                title: "از حذف این آیتم مطمئن هستید؟",
+                text: "در صورتی که برای این آیتم رکوردی درج شده باشد حذف می شود و این کار غیر قابل بازگشت می باشد",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "بلی مطمئنم",
+                cancelButtonText: "انصراف می دم"
+            }).then(result => {
+                if (result.value) {
+
+                    $.ajax({
+                        url: '@Url.Content("~/Staff/UserDestroy/")' + id,
+                        dataType: "json",
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+                        cache: false,
+                        success: function (data) {
+
+                            if (data.success) {
+                                var grid = $("#Grid").data("kendoGrid");
+                                grid.dataSource.read();
+                                Swal.fire("حذف رکورد با موفقیت انجام شد", "", "success");
+                            }
+                            else {
+                                Swal.fire(data.msg, "", "warning");
+                            }
+                        },
+                        error: function (xhr) {
+                            Swal.fire("خطایی  در حذف اطلاعات اتفاق افتاده است", "", "warning");
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

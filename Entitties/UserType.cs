@@ -9,6 +9,7 @@ namespace MahtaKala.Entities
         Customer,
         Admin,
         Staff,
-        Seller
+        Seller,
+        Delivery
     }
 }
