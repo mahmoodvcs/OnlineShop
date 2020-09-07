@@ -195,6 +195,23 @@ namespace MahtaKala.Controllers.Api
         }
 
         /// <summary>
+        /// سبد خرید را خالی میکند
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> EmptyCart()
+        {
+            var order = await orderService.GetUserOrder();
+            if (order != null)
+            {
+                db.Orders.Attach(order);
+                db.Orders.Remove(order);
+                await db.SaveChangesAsync();
+            }
+            return Ok();
+        }
+
+        /// <summary>
         /// قلم را از سبد خرید حذف میکند
         /// </summary>
         /// <param name="id"></param>
