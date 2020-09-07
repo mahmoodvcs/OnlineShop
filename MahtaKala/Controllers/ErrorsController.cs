@@ -1,4 +1,5 @@
 ﻿using MahtaKala.Entities.ExceptionHandling;
+using MahtaKala.Infrustructure.ActionFilter;
 using MahtaKala.Infrustructure.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +50,10 @@ namespace MahtaKala.Controllers
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = context?.Error;
 
-            if (context is IExceptionHandlerPathFeature path && !path.Path.ToLower().StartsWith("/api/"))
+            
+            if (context is IExceptionHandlerPathFeature path 
+                && !path.Path.ToLower().StartsWith("/api/")
+                && !(exception is ApiException))
             {
                 return SiteError(path, exception);
             }

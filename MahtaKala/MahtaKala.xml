@@ -17,6 +17,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:MahtaKala.Controllers.Api.CustomerController.EmptyCart">
+            <summary>
+            سبد خرید را خالی میکند
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:MahtaKala.Controllers.Api.CustomerController.RemoveFromCart(System.Int64)">
             <summary>
             قلم را از سبد خرید حذف میکند

@@ -14,66 +14,72 @@ new
 }))
 {
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    <div class="row">
-        <div class="col-md-6">
-            <div class="checkout-form-list mb-sm-30">
-                <label>نام <span class="required">*</span></label>
-                @Html.TextBoxFor(a => a.FirstName, new { @autocomplete = "off" })
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="checkout-form-list mb-30">
-                <label>نام خانوادگی <span class="required">*</span></label>
-                @Html.TextBoxFor(a => a.LastName, new { @autocomplete = "off" })
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="checkout-form-list mb-sm-30">
-                <label>کد ملی</label>
-                @Html.TextBoxFor(a => a.NationalCode, new { @autocomplete = "off" })
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="checkout-form-list mb-30">
-                <label>ایمیل</label>
-                @Html.TextBoxFor(a => a.EmailAddress, new { @autocomplete = "off" })
-            </div>
-        </div>
-        <div class="col-md-12 col-sm-12">
-            <a class="btn btn-success" href="@Url.Content("~/Profile/AddressEdit")">اضافه کردن آدرس جدید</a>
-            <div class="table-content table-responsive">
-                <br />
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="address-city">نام شهر</th>
-                            <th class="address-title">عنوان</th>
-                            <th class="address-postal-code">کد پستی</th>
-                            <th class="address-details">جزئیات</th>
-                            <th class="address-edit">ویرایش آدرس</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Addresses)
-                        {
-                            <tr id="uxTrw@(item.Id)">
-                                <td class="address-city"><span>@item.City.Name</span></td>
-                                <td class="address-title"><span>@item.Title</span></td>
-                                <td class="address-postal-code"><span>@item.PostalCode</span></td>
-                                <td class="address-details"><span>@item.Details</span></td>
-                                <td class="address-edit"><a class="btn btn-primary" href="@Url.Content("~/Profile/AddressEdit/"+item.Id)">ویراش</a></td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="col-md-12 col-sm-12">
-            <div class="float-md-right text-md-right">
-                <br />
-                <input type="submit" class="btn btn-info" value="ثبت اطلاعات" />
-            </div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="checkout-form-list mb-sm-30">
+            <label>نام <span class="required">*</span></label>
+            @Html.TextBoxFor(a => a.FirstName, new { @autocomplete = "off" })
         </div>
     </div>
+    <div class="col-md-6">
+        <div class="checkout-form-list mb-30">
+            <label>نام خانوادگی <span class="required">*</span></label>
+            @Html.TextBoxFor(a => a.LastName, new { @autocomplete = "off" })
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="checkout-form-list mb-sm-30">
+            <label>کد ملی</label>
+            @Html.TextBoxFor(a => a.NationalCode, new { @autocomplete = "off" })
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="checkout-form-list mb-30">
+            <label>ایمیل</label>
+            @Html.TextBoxFor(a => a.EmailAddress, new { @autocomplete = "off" })
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="checkout-form-list mb-30">
+            <label>شماره موبایل</label>
+            @Html.TextBoxFor(a => a.Mobile, new { @autocomplete = "off" })
+        </div>
+    </div>
+    <div class="col-md-12 col-sm-12">
+        <a class="btn btn-success" href="@Url.Content("~/Profile/AddressEdit")">اضافه کردن آدرس جدید</a>
+        <div class="table-content table-responsive">
+            <br />
+            <table>
+                <thead>
+                    <tr>
+                        <th class="address-city">نام شهر</th>
+                        <th class="address-title">عنوان</th>
+                        <th class="address-postal-code">کد پستی</th>
+                        <th class="address-details">جزئیات</th>
+                        <th class="address-edit">ویرایش آدرس</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Addresses)
+                    {
+                        <tr id="uxTrw@(item.Id)">
+                            <td class="address-city"><span>@item.City.Name</span></td>
+                            <td class="address-title"><span>@item.Title</span></td>
+                            <td class="address-postal-code"><span>@item.PostalCode</span></td>
+                            <td class="address-details"><span>@item.Details</span></td>
+                            <td class="address-edit"><a class="btn btn-primary" href="@Url.Content("~/Profile/AddressEdit/"+item.Id)">ویراش</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-12 col-sm-12">
+        <div class="float-md-right text-md-right">
+            <br />
+            <input type="submit" class="btn btn-info" value="ثبت اطلاعات" />
+        </div>
+    </div>
+</div>
 }
 

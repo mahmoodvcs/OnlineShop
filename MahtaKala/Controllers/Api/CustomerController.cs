@@ -117,8 +117,6 @@ namespace MahtaKala.Controllers.Api
                     {
                         UserId = UserId,
                         State = OrderState.Initial,
-                        CheckOutData = DateTime.Now,
-                        SentDateTime = DateTime.Now
                     };
                     item.Order = order;
                 }
@@ -194,6 +192,23 @@ namespace MahtaKala.Controllers.Api
                 DeliveryPrice = orderService.GetDeliveryPrice(order),
                 TotlaPrice = orderService.CalculateTotalPrice(order)
             };
+        }
+
+        /// <summary>
+        /// سبد خرید را خالی میکند
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> EmptyCart()
+        {
+            var order = await orderService.GetUserOrder();
+            if (order != null)
+            {
+                db.Orders.Attach(order);
+                db.Orders.Remove(order);
+                await db.SaveChangesAsync();
+            }
+            return Ok();
         }
 
         /// <summary>

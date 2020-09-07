@@ -11,15 +11,15 @@ namespace MahtaKala.Entities
         public long Id { get; set; }
         public long UserId { get; set; }
         public User User { get; set; }
-        public DateTime CheckOutData { get; set; }
+        public DateTime? CheckOutData { get; set; }
         public decimal TotalPrice { get; set; }
         public OrderState State { get; set; }
-        public IList<OrderItem> Items { get; set; }
+        public IList<OrderItem> Items { get; set; } = new List<OrderItem>();
         public UserAddress Address { get; set; }
         public long? AddressId { get; set; }
         public string TrackNo { get; set; }
         public string DelivererNo { get; set; }
-        public DateTime SentDateTime { get; set; }
+        public DateTime? SentDateTime { get; set; }
     }
     public enum OrderState
     {

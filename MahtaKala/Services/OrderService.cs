@@ -122,6 +122,7 @@ namespace MahtaKala.Services
             order.State = OrderState.Initial;
             order.UserId = User.Id;
             order.AddressId = addressId;
+            order.CheckOutData = DateTime.Now;
             db.Orders.Add(order);
             var cartItems = await GetCartItems();
             foreach (var item in cartItems)

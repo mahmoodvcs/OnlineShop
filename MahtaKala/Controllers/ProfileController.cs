@@ -68,9 +68,9 @@ namespace MahtaKala.Controllers
                {
                    Id = a.Id,
                    Price = (long)a.TotalPrice,
-                   CheckoutDate = GetPersianDate(a.CheckOutData),
+                   CheckoutDate = Util.GetPersianDate(a.CheckOutData),
                    State = TranslateExtentions.GetTitle(a.State),
-                   SendDate = GetPersianDate(a.SentDateTime)
+                   SendDate = Util.GetPersianDate(a.SentDateTime)
                }).ToList();
             return View(data);
         }
@@ -85,7 +85,8 @@ namespace MahtaKala.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 NationalCode = user.NationalCode,
-                Addresses = addresses
+                Addresses = addresses,
+                Mobile = user.MobileNumber
             };
             return View(vm);
         }
@@ -115,6 +116,7 @@ namespace MahtaKala.Controllers
             user.EmailAddress = vm.EmailAddress;
             user.LastName = vm.LastName;
             user.NationalCode = vm.NationalCode;
+            user.MobileNumber = vm.Mobile;
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
@@ -152,15 +154,6 @@ namespace MahtaKala.Controllers
             address.UserId = UserId;
             await db.SaveChangesAsync();
             return RedirectToAction("ProfileEdit");
-        }
-
-
-
-        [NonAction]
-        string GetPersianDate(DateTime d)
-        {
-            PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} - {d.TimeOfDay}";
         }
     }
 }
