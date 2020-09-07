@@ -18,12 +18,12 @@ namespace MahtaKala.ActionFilter
     public class AuthorizeAttribute : ActionFilterAttribute
     {
         public AuthorizeAttribute() { }
-        public AuthorizeAttribute(UserType userType)
+        public AuthorizeAttribute(params UserType[] userType)
         {
-            UserType = userType;
+            UserTypes = userType;
         }
 
-        public UserType? UserType { get; }
+        public UserType[] UserTypes { get; }
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
@@ -38,7 +38,7 @@ namespace MahtaKala.ActionFilter
             {
                 throw new UnauthorizedAccessException();
             }
-            else if (UserType != null && user.Type != UserType && user.Type != Entities.UserType.Admin)
+            else if (UserTypes != null && !UserTypes.Contains(user.Type) && user.Type != Entities.UserType.Admin)
             {
                 throw new AccessDeniedException();
             }

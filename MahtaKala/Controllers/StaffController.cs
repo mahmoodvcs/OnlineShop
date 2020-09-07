@@ -29,7 +29,6 @@ using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Controllers
 {
-    [Authorize(UserType.Staff)]
     public class StaffController : ApiControllerBase<StaffController>
     {
         private readonly IProductImageService productImageService;
@@ -45,6 +44,7 @@ namespace MahtaKala.Controllers
             this.productImageService = productImageService;
             this.smsService = smsService;
         }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery, UserType.Seller })]
         public async Task<IActionResult> Index()
         {
             if(base.User.Type == UserType.Delivery)
@@ -202,14 +202,17 @@ namespace MahtaKala.Controllers
 
         #region Provinces
 
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult ProvinceList()
         {
             return View();
         }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult GetAllProvinces([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Provinces, request);
         }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult Province(long id)
         {
             Province province = null;
@@ -229,6 +232,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult Province(Province model)
         {
             if (ModelState.IsValid)
@@ -261,14 +265,17 @@ namespace MahtaKala.Controllers
 
         #region City
 
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult CityList()
         {
             return View();
         }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult GetAllCities([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Cities.Include(c => c.Province), request);
         }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult City(long id)
         {
             City city = null;
@@ -289,6 +296,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult City(City model)
         {
             ViewBag.Provinces = db.Provinces.ToList();
@@ -329,14 +337,17 @@ namespace MahtaKala.Controllers
 
         #region Category
 
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult CategoryList()
         {
             return View();
         }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Categories.Include(c => c.Parent), request);
         }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult Category(long id)
         {
             Category productCategory = null;
@@ -357,6 +368,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult Category(Category model)
         {
             ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
@@ -390,14 +402,17 @@ namespace MahtaKala.Controllers
 
         #region Brand
 
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult BrandList()
         {
             return View();
         }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult GetAllBrands([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Brands, request);
         }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult Brand(long id)
         {
             Brand brand = null;
@@ -417,6 +432,7 @@ namespace MahtaKala.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult Brand(Brand model)
         {
             if (ModelState.IsValid)
@@ -449,12 +465,14 @@ namespace MahtaKala.Controllers
 
         #region Product
 
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult ProductList()
         {
             ViewData["Title"] = "لیست کالا و خدمات";
             return View();
         }
 
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult Product_Read([DataSourceRequest] DataSourceRequest request)
         {
             var data = db.Products.Select(a => new ProductConciseModel
@@ -472,6 +490,7 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public async Task<JsonResult> Product_Destroy(long id)
         {
             if (db.OrderItems.Any(a => a.ProductPrice.ProductId == id))
@@ -490,6 +509,7 @@ namespace MahtaKala.Controllers
         }
 
         [HttpGet]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult Product(long? id)
         {
             ViewData["Title"] = "درج کالا و خدمات";
@@ -520,6 +540,7 @@ namespace MahtaKala.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public async Task<IActionResult> Product(Product model)
         {
             ViewData["Title"] = "درج کالا و خدمات";
@@ -649,14 +670,14 @@ namespace MahtaKala.Controllers
         #region Order
 
 
-        [Authorize(UserType.Delivery)]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public ActionResult BuyHistory()
         {
             ViewData["Title"] = "گزارش خرید ها";
             return View();
         }
 
-        [Authorize(UserType.Delivery)]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
         {
             var data = await db.Orders.Where(o => o.State == OrderState.Paid ||
@@ -689,7 +710,7 @@ namespace MahtaKala.Controllers
         }
 
         [AjaxAction]
-        [Authorize(UserType.Delivery)]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public async Task<ActionResult> ConfirmSent(long Id, string DelivererId)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
@@ -720,7 +741,7 @@ namespace MahtaKala.Controllers
         }
 
         [AjaxAction]
-        [Authorize(UserType.Delivery)]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public async Task<ActionResult> ConfirmDelivered(long Id, string TrackNo)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
