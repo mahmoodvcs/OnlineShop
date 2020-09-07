@@ -122,7 +122,9 @@ namespace MahtaKala.Services
             order.State = OrderState.Initial;
             order.UserId = User.Id;
             order.AddressId = addressId;
-            order.CheckOutData = DateTime.Now;
+            var now = DateTime.Now;
+            order.CheckOutData = now;
+            order.SentDateTime = now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(16);
             db.Orders.Add(order);
             var cartItems = await GetCartItems();
             foreach (var item in cartItems)

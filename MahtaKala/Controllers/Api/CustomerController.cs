@@ -247,7 +247,9 @@ namespace MahtaKala.Controllers.Api
                 throw new ApiException(400, Messages.Messages.Order.EmptyCart);
             }
 
-            order.CheckOutData = DateTime.Now;
+            var now = DateTime.Now;
+            order.CheckOutData = now;
+            order.SentDateTime = now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(16);
             //TODO: check the address
             order.AddressId = checkoutModel.AddressId;
             order.TotalPrice = orderService.CalculateTotalPrice(order);
