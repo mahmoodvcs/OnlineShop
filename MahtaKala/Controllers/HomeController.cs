@@ -167,7 +167,7 @@ namespace MahtaKala.Controllers
 
 
 
-        public IActionResult Category(int? id, string term)
+        public IActionResult Category(long? id, string term)
         {
             var page = 1;
             int pageSize;
@@ -177,6 +177,7 @@ namespace MahtaKala.Controllers
             ViewBag.PageSize = pageSize;
             ViewBag.CurrentPage = page;
             ViewBag.TotalItemCount = totalItemCount;
+            ViewBag.groupId = id;
             return View(vm);
         }
 
@@ -195,7 +196,7 @@ namespace MahtaKala.Controllers
         }
 
         [NonAction]
-        private IEnumerable<Entities.Product> Search(int page, int recordsPerPage, int? groupId, string term, out int pageSize, out int totalItemCount)
+        private IEnumerable<Entities.Product> Search(int page, int recordsPerPage, long? groupId, string term, out int pageSize, out int totalItemCount)
         {
             var queryable = productService.Products().Include(a => a.Prices).AsQueryable();
             if (!string.IsNullOrEmpty(term))

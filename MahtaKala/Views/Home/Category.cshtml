@@ -2,17 +2,14 @@
 @{
     ViewData["Title"] = "جستجو";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    long? id = (long?)ViewBag.groupId;
 }
-<div class="breadcrumb-area mt-30">
-    <div class="container">
-        <div class="breadcrumb">
-            <ul class="d-flex align-items-center">
-                <li><a href="@Url.Content("~/home/")">خانه</a></li>
-                <li class="active"><a href="#">دسته بندی</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
+@if (id.HasValue)
+{
+    <text>
+        @await Component.InvokeAsync("BreadCrumb", new { categoryId = id })
+    </text>
+}
 <div class="main-shop-page pt-30 pb-100 ptb-sm-60">
     <div class="container">
         <div class="row">
