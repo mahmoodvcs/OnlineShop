@@ -446,7 +446,7 @@ namespace MahtaKala.Controllers
 
         public IActionResult ProductList()
         {
-            ViewData["Title"] = "لیست محصولات";
+            ViewData["Title"] = "لیست کالا و خدمات";
             return View();
         }
 
@@ -487,7 +487,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public IActionResult Product(long? id)
         {
-            ViewData["Title"] = "درج محصول";
+            ViewData["Title"] = "درج کالا و خدمات";
 
             Product p;
             if (id.HasValue)
@@ -517,7 +517,7 @@ namespace MahtaKala.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Product(Product model)
         {
-            ViewData["Title"] = "درج محصول";
+            ViewData["Title"] = "درج کالا و خدمات";
             if (ModelState.IsValid)
             {
                 Product product;
