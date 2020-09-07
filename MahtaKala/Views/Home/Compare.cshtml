@@ -8,27 +8,34 @@
     {
         if (sameProps == null)
         {
-            sameProps = pr.Properties.Select(a => a.Key).ToHashSet();
+            if (pr.Properties != null)
+            {
+                sameProps = pr.Properties.Select(a => a.Key).ToHashSet();
+            }
         }
-        else
+        else if (pr.Properties != null)
         {
             sameProps = sameProps.Intersect(pr.Properties.Select(a => a.Key)).ToHashSet();
         }
-        productProps.Add(pr.Properties.ToDictionary(a => a.Key, a => a.Value));
+        if (pr.Properties != null)
+            productProps.Add(pr.Properties.ToDictionary(a => a.Key, a => a.Value));
     }
 
     Dictionary<string, List<string>> props = new Dictionary<string, List<string>>();
-    foreach (var prop in sameProps)
+    if (sameProps != null)
     {
-        List<string> values = new List<string>();
-        foreach (var pp in productProps)
+        foreach (var prop in sameProps)
         {
-            values.Add(pp[prop]);
+            List<string> values = new List<string>();
+            foreach (var pp in productProps)
+            {
+                values.Add(pp[prop]);
+            }
+            props.Add(prop, values);
         }
-        props.Add(prop, values);
     }
 }
-<table>
+<table class="table table-bordered table-striped table-primary">
     <thead>
         <tr>
             <th></th>
@@ -45,13 +52,13 @@
     <tbody>
         @foreach (var prop in props.Keys)
         {
-        <tr>
-            <td>@prop</td>
-            @foreach (var v in props[prop])
-            {
-                <td>@v</td>
-            }
-        </tr>
+            <tr>
+                <td>@prop</td>
+                @foreach (var v in props[prop])
+                {
+                    <td>@v</td>
+                }
+            </tr>
         }
 
     </tbody>
