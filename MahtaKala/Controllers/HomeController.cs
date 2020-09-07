@@ -17,14 +17,17 @@ namespace MahtaKala.Controllers
     public class HomeController : SiteControllerBase<HomeController>
     {
         private readonly IProductImageService productImageService;
+        private readonly ProductService productService;
 
         public HomeController(
             DataContext dataContext,
             ILogger<HomeController> logger,
             IProductImageService productImageService,
+            ProductService productService,
             IHttpContextAccessor contextAccessor) : base(dataContext, logger)
         {
             this.productImageService = productImageService;
+            this.productService = productService;
             this.contextAccessor = contextAccessor;
         }
         private readonly IHttpContextAccessor contextAccessor;
@@ -130,7 +133,7 @@ namespace MahtaKala.Controllers
         [NonAction]
         private IEnumerable<Entities.Product> Search(int page, int recordsPerPage, int? groupId, string term, out int pageSize, out int totalItemCount)
         {
-            var queryable = db.Products.Include(a => a.Prices).AsQueryable();
+            var queryable = productService.Products().Include(a => a.Prices).AsQueryable();
             if (!string.IsNullOrEmpty(term))
             {
                 queryable = queryable.Where(c => c.Title.Contains(term));

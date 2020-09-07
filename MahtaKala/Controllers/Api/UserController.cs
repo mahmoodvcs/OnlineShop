@@ -228,7 +228,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<AddressModel>> Address()
         {
-            var list = db.Addresses.Where(a => a.UserId == UserId);
+            var list = db.Addresses.Where(a => a.UserId == UserId && !a.Disabled);
             return await list.Select(a => new AddressModel
             {
                 Id = a.Id,
@@ -290,7 +290,13 @@ namespace MahtaKala.Controllers
             var address = db.Addresses.Find(id);
             if (address == null)
                 throw new EntityNotFoundException<UserAddress>(id);
-            db.Addresses.Remove(address);
+            if (address.UserId != UserId)
+                throw new BadRequestException("آدرس متعلق به کاربر جاری نیست");
+
+            if (db.Orders.Any(o => o.AddressId == id))
+                address.Disabled = true;
+            else
+                db.Addresses.Remove(address);
             await db.SaveChangesAsync();
             return StatusCode(200);
         }

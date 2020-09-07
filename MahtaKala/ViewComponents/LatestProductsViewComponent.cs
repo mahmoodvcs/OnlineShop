@@ -11,17 +11,17 @@ namespace MahtaKala.ViewComponents
 {
     public class LatestProductsViewComponent : ViewComponent
     {
+        private readonly ProductService productService;
         private readonly IProductImageService imageService;
-        private DataContext _db;
-        public LatestProductsViewComponent(DataContext db, IProductImageService imageService)
+        public LatestProductsViewComponent(ProductService productService, IProductImageService imageService)
         {
+            this.productService = productService;
             this.imageService = imageService;
-            _db = db;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var lst = await _db.Products.Include(a => a.Prices).Take(12).ToListAsync();
+            var lst = await productService.Products().Include(a => a.Prices).Take(12).ToListAsync();
             foreach (var item in lst)
             {
                 imageService.FixImageUrls(item);

@@ -104,6 +104,8 @@ namespace MahtaKala
             services.AddSingleton<ICategoryImageService, CategoryImageService>();
             services.AddSingleton<ImagesPathStrategy>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<ProductService>();
+            services.AddScoped<CategoryService>();
             
             services.AddSession();
             services.AddKendo();

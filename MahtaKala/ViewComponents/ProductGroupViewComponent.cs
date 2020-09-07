@@ -13,22 +13,26 @@ namespace MahtaKala.ViewComponents
     public class ProductGroupViewComponent : ViewComponent
     {
         private readonly IProductImageService imageService;
-        private DataContext _db;
-        public ProductGroupViewComponent(DataContext db, IProductImageService imageService)
+        private readonly ProductService productService;
+        private readonly CategoryService categoryService;
+        public ProductGroupViewComponent(IProductImageService imageService,
+            ProductService productService,
+            CategoryService categoryService)
         {
             this.imageService = imageService;
-            _db = db;
+            this.productService = productService;
+            this.categoryService = categoryService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
             List<ProductGroupListVM> productGroupList = new List<ProductGroupListVM>();
-            var lstGroup = await _db.Categories.Where(a => a.ParentId == null).ToListAsync();
+            var lstGroup = await categoryService.Categories().Where(a => a.ParentId == null).ToListAsync();
             foreach (var item in lstGroup)
             {
                 ProductGroupListVM vm = new ProductGroupListVM();
                 vm.GroupName = item.Title;
-                var lst = await _db.Products.Include(a => a.Prices).Where(c=> c.ProductCategories.Any(pc => pc.CategoryId == item.Id)).Take(10).ToListAsync();
+                var lst = await productService.Products().Include(a => a.Prices).Where(c=> c.ProductCategories.Any(pc => pc.CategoryId == item.Id)).Take(10).ToListAsync();
                 foreach (var itemx in lst)
                 {
                     imageService.FixImageUrls(itemx);

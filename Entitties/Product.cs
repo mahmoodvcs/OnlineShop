@@ -39,6 +39,7 @@ namespace MahtaKala.Entities
         public decimal Price { get; set; }
         [NotMapped]
         public decimal DiscountPrice { get; set; }
+        public bool Disabled { get; set; }
 
     }
 

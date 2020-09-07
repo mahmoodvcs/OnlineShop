@@ -10,6 +10,7 @@
     .Columns(columns =>
     {
         columns.Bound(p => p.Title);
+        columns.Bound(p => p.Disabled);
         columns.Command(command => command.Custom("Edit").Click("editEntity")).Width(160);
     })
     .ToolBar(toolbar =>

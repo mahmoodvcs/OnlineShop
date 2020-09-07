@@ -421,11 +421,20 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
-        public JsonResult Product_Destroy(long id)
+        public async Task<JsonResult> Product_Destroy(long id)
         {
-            db.ProductQuantities.Where(a => a.ProductId == id).Delete();
-            db.ProductPrices.Where(a => a.ProductId == id).Delete();
-            db.Products.Where(a => a.Id == id).Delete();
+            if (db.OrderItems.Any(a => a.ProductPrice.ProductId == id))
+            {
+                var prod = await db.Products.FindAsync(id);
+                prod.Disabled = true;
+                await db.SaveChangesAsync();
+            }
+            else
+            {
+                db.ProductQuantities.Where(a => a.ProductId == id).Delete();
+                db.ProductPrices.Where(a => a.ProductId == id).Delete();
+                db.Products.Where(a => a.Id == id).Delete();
+            }
             return Json(new { Success = true });
         }
 
@@ -479,6 +488,7 @@ namespace MahtaKala.Controllers
                 product.Title = model.Title;
                 product.BrandId = model.BrandId;
                 product.Description = model.Description;
+                product.Disabled = model.Disabled;
                 product.Prices = new List<ProductPrice> { 
                     new ProductPrice
                     {

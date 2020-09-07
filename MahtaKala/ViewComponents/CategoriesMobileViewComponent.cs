@@ -11,18 +11,18 @@ namespace MahtaKala.ViewComponents
 {
     public class CategoriesMobileViewComponent : ViewComponent
     {
-        private DataContext _db;
+        private readonly CategoryService categoryService;
         private readonly ICategoryImageService categoryImageService;
 
-        public CategoriesMobileViewComponent(DataContext db, ICategoryImageService categoryImageService)
+        public CategoriesMobileViewComponent(CategoryService categoryService, ICategoryImageService categoryImageService)
         {
-            _db = db;
+            this.categoryService = categoryService;
             this.categoryImageService = categoryImageService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var data = await _db.Categories.ToListAsync();
+            var data = await categoryService.Categories().ToListAsync();
             return View(data);
         }
     }

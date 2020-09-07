@@ -12,16 +12,19 @@ namespace MahtaKala.ViewComponents
     public class BestSellersViewComponent: ViewComponent
     {
         private readonly IProductImageService imageService;
+        private readonly ProductService productService;
         private DataContext _db;
-        public BestSellersViewComponent(DataContext db, IProductImageService imageService)
+        public BestSellersViewComponent(DataContext db, IProductImageService imageService,
+            ProductService productService)
         {
             this.imageService = imageService;
+            this.productService = productService;
             _db = db;
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var lst = await _db.Products.Include(a => a.Prices).Take(10).ToListAsync();
+            var lst = await productService.Products().Include(a => a.Prices).Take(10).ToListAsync();
             foreach (var item in lst)
             {
                 imageService.FixImageUrls(item);

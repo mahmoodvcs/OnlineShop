@@ -9,44 +9,48 @@
 {
     @Html.AntiForgeryToken()
 
-    <div class="form-horizontal">
-        <h4>@ViewData["Title"]</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.Id)
+<div class="form-horizontal">
+    <h4>@ViewData["Title"]</h4>
+    <hr />
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.Id)
 
 
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.ParentId, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-
-                @Html.DropDownListFor(
-                     model => model.ParentId,
-                     new SelectList(ViewBag.Categories, "Id", "Title", Model.ParentId),
-                     "-- Select --",
-                     new { htmlAttributes = new { @class = "form-control" } }
-                )
-                @Html.ValidationMessageFor(model => model.ParentId, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-
-
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="دخیره" class="btn btn-primary" />
-            </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+            @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
         </div>
     </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Disabled, htmlAttributes: new { @class = "control-label" })
+            @Html.EditorFor(model => model.Disabled, new { htmlAttributes = new { @class = "form-control" } })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.ParentId, htmlAttributes: new { @class = "control-label col-md-2" })
+        <div class="col-md-10">
+
+            @Html.DropDownListFor(
+                 model => model.ParentId,
+                 new SelectList(ViewBag.Categories, "Id", "Title", Model.ParentId),
+                 "-- Select --",
+                 new { htmlAttributes = new { @class = "form-control" } }
+            )
+            @Html.ValidationMessageFor(model => model.ParentId, "", new { @class = "text-danger" })
+        </div>
+    </div>
+
+
+
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="دخیره" class="btn btn-primary" />
+        </div>
+    </div>
+</div>
 }

@@ -1,6 +1,8 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.Models;
+using MahtaKala.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +14,19 @@ namespace MahtaKala.ViewComponents
     public class BreadCrumbViewComponent : ViewComponent
     {
         private DataContext _db;
-        public BreadCrumbViewComponent(DataContext db)
+        private readonly ProductService productService;
+        private readonly CategoryService categoryService;
+
+        public BreadCrumbViewComponent(DataContext db, ProductService productService, CategoryService categoryService)
         {
             _db = db;
+            this.productService = productService;
+            this.categoryService = categoryService;
         }
 
         private void GetGroup(long id, ref List<IdValModel> lst)
         {
-            var p = _db.Categories.FirstOrDefault(a => a.Id == id);
+            var p = categoryService.Categories().FirstOrDefaultAsync(a => a.Id == id).Result;
             if (p != null)
             {
                 IdValModel v = new IdValModel();

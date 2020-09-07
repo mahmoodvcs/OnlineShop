@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Dissolve;
+using AuthorizeAttribute = MahtaKala.ActionFilter.AuthorizeAttribute;
 
 namespace MahtaKala.Controllers
 {
@@ -28,16 +29,22 @@ namespace MahtaKala.Controllers
     {
         private readonly ICategoryImageService categoryImageService;
         private readonly IProductImageService imageService;
+        private readonly CategoryService categoryService;
+        private readonly ProductService productService;
 
         public ProductController(
             DataContext context,
             ILogger<ProductController> logger,
             ICategoryImageService categoryImageService,
-            IProductImageService imageService)
+            IProductImageService imageService,
+            CategoryService categoryService,
+            ProductService productService)
             : base(context, logger)
         {
             this.categoryImageService = categoryImageService;
             this.imageService = imageService;
+            this.categoryService = categoryService;
+            this.productService = productService;
         }
 
 
@@ -84,7 +91,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<Category>> Category([FromQuery] long? parent)
         {
-            var data = await db.Categories.Where(c => c.ParentId == parent).ToListAsync();
+            var data = await categoryService.Categories().Where(c => c.ParentId == parent).ToListAsync();
             foreach (var item in data)
             {
                 item.Image = categoryImageService.GetImageUrl(item.Id, item.Image);
@@ -97,6 +104,7 @@ namespace MahtaKala.Controllers
         /// <returns></returns>
         /// <response code="200">Success. The category was Deleted.</response>
         [HttpDelete]
+        [Authorize(UserType.Admin)]
         public async Task<IActionResult> DeleteCategory([FromQuery] long id)
         {
             var category = await db.Categories.FirstOrDefaultAsync(c => c.Id == id);
@@ -114,6 +122,7 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
+        [Authorize(UserType.Admin)]
         public async Task Product([FromBody] ProductUpdateModel productMode)
         {
             Product product;
@@ -146,6 +155,7 @@ namespace MahtaKala.Controllers
         //}
 
         [HttpDelete]
+        [Authorize(UserType.Admin)]
         public async Task<StatusCodeResult> DeleteProduct(long id)
         {
             var product = await db.Products.FirstOrDefaultAsync(c => c.Id == id);
@@ -213,13 +223,13 @@ namespace MahtaKala.Controllers
         [NonAction]
         public async Task<List<ProductConciseModel>> GetProductsData(IEnumerable<long> categoryIds, int offset, int page)
         {
-            var categories = db.Categories.AsQueryable();
+            var categories = categoryService.Categories().AsQueryable();
 
             if (categoryIds.Count() > 0)
                 categories = categories.Where(c => categoryIds.Contains(c.Id));
 
             var query = from cat in categories
-                        from prc in cat.ProductCategories
+                        from prc in cat.ProductCategories.Where(c => !c.Product.Disabled)
                         orderby prc.ProductId
                         select new ProductConciseModel
                         {
@@ -244,7 +254,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<ProductConciseModel>> Search([FromQuery] string q, [FromQuery] int? offset, [FromQuery] int? page)
         {
-            var products = (IQueryable<Product>)db.Products.Where(p => p.Title.Contains(q))
+            var products = (IQueryable<Product>)productService.Products().Where(p => p.Title.Contains(q))
                 .OrderBy(p => p.Id);
 
             if (offset.HasValue)
@@ -301,7 +311,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<CategoryWithProductsModel>> AllCategories([FromQuery] int numProducts = 0)
         {
-            List<Category> categories = await db.Categories.ToListAsync();
+            List<Category> categories = await categoryService.Categories().ToListAsync();
             List<CategoryWithProductsModel> result = new List<CategoryWithProductsModel>();
             CreateHierarchy(null, result, categories.Where(c => c.ParentId == null).ToList());
             if (numProducts > 0)
