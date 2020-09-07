@@ -82,7 +82,7 @@ $(document).on("submit", "form#editProfile", function (e) {
         },
         error: function (xhr) {
             $.unblockUI();
-            swal("خطایی در ثبت اطلاعات اتفاق افتاده است", "", "warning");
+            swal.fire("خطایی در ثبت اطلاعات اتفاق افتاده است", "", "warning");
         },
         complete: function () {
             $.unblockUI();

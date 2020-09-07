@@ -27,6 +27,9 @@ namespace MahtaKala.Models
         public string NationalCode { get; set; }
         [StringLength(255)]
         public string EmailAddress { get; set; }
+        [StringLength(15)]
+        [RegularExpression(@"^(\+98|0)?9\d{9}$", ErrorMessage = "شماره موبایل معتبر نیست")]
+        public string Mobile { get; set; }
         public long? AddressId { get; set; }
         public IEnumerable<UserAddress> Addresses { get; set; }
     }

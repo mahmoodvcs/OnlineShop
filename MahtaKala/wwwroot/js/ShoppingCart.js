@@ -156,7 +156,7 @@ $(document).on("submit", "form#cartRequest", function (e) {
         },
         error: function (xhr) {
             $.unblockUI();
-            swal("خطایی در ثبت اطلاعات اتفاق افتاده است", "", "warning");
+            swal.fire("خطایی در ثبت اطلاعات اتفاق افتاده است", "", "error" );
         },
         complete: function () {
             $.unblockUI();

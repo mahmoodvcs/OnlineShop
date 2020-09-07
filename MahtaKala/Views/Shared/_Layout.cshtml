@@ -24,6 +24,9 @@
     <link href="~/css/sweetalert.css" rel="stylesheet" />
     <link href="~/css/style.css?v=2.19" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/responsive.css?v=1">
+    <link href="~/assets/plugins/global/plugins.bundle.rtl.css?v=7.0.6" rel="stylesheet" type="text/css" />
+    @*<link href="~/assets/css/style.bundle.rtl.css" rel="stylesheet" type="text/css" />*@
+
     @RenderSection("css", false)
     <script src="~/js/vendor/jquery-3.2.1.min.js"></script>
     <script src="~/js/vendor/modernizr-3.5.0.min.js"></script>
@@ -116,7 +119,7 @@
             @await Component.InvokeAsync("CategoriesMobile")
         </header>
         @if (!(ViewContext.RouteData.Values["controller"].ToString().ToLower() == "home"
-           && ViewContext.RouteData.Values["action"].ToString().ToLower() == "index"))
+          && ViewContext.RouteData.Values["action"].ToString().ToLower() == "index"))
         {
             <div class="main-page-banner home-3">
                 <div class="container">
@@ -131,65 +134,65 @@
 
         @RenderBody()
         <footer class="off-white-bg2 pt-95 bdr-top pt-sm-55">
- 
+
             <div class="footer-top">
                 <div class="container">
                     <div class="row">
                         @*<div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="single-footer mb-sm-40">
-                                <h3 class="footer-title">راهنمای خرید از مهتاکالا</h3>
-                                <div class="footer-content">
-                                    <ul class="footer-list">
-                                        <li><a href="#">نحوه ثبت سفارش</a></li>
-                                        <li><a href="#">رویه ارسال سفارش</a></li>
-                                        <li><a href="#">شیوه های پرداخت</a></li>
-                                        <li><a href="#">ثبت شکایت</a></li>
-                                    </ul>
+                                <div class="single-footer mb-sm-40">
+                                    <h3 class="footer-title">راهنمای خرید از مهتاکالا</h3>
+                                    <div class="footer-content">
+                                        <ul class="footer-list">
+                                            <li><a href="#">نحوه ثبت سفارش</a></li>
+                                            <li><a href="#">رویه ارسال سفارش</a></li>
+                                            <li><a href="#">شیوه های پرداخت</a></li>
+                                            <li><a href="#">ثبت شکایت</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-         
-                        <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="single-footer mb-sm-40">
-                                <h3 class="footer-title">خدمات مشتریان</h3>
-                                <div class="footer-content">
-                                    <ul class="footer-list">
-                                        <li><a href="#">پاسخ به پرسش‌های متداول</a></li>
-                                        <li><a href="#">شرایط استفاده</a></li>
-                                        <li><a href="#">حریم خصوصی</a></li>
-                                        <li><a href="#">رویه‌های بازگرداندن کالا</a></li>
-                                    </ul>
+
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <div class="single-footer mb-sm-40">
+                                    <h3 class="footer-title">خدمات مشتریان</h3>
+                                    <div class="footer-content">
+                                        <ul class="footer-list">
+                                            <li><a href="#">پاسخ به پرسش‌های متداول</a></li>
+                                            <li><a href="#">شرایط استفاده</a></li>
+                                            <li><a href="#">حریم خصوصی</a></li>
+                                            <li><a href="#">رویه‌های بازگرداندن کالا</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                   
-                        <div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="single-footer mb-sm-40">
-                                <h3 class="footer-title">با مهتا کالا</h3>
-                                <div class="footer-content">
-                                    <ul class="footer-list">
-                                        <li><a href="#">فروش در مهتا کالا</a></li>
-                                        <li><a href="#">فرصت های شغلی</a></li>
-                                        <li><a href="#">بلاگ</a></li>
-                                        <li><a href="#">نقشه سایت</a></li>
-                                    </ul>
+
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <div class="single-footer mb-sm-40">
+                                    <h3 class="footer-title">با مهتا کالا</h3>
+                                    <div class="footer-content">
+                                        <ul class="footer-list">
+                                            <li><a href="#">فروش در مهتا کالا</a></li>
+                                            <li><a href="#">فرصت های شغلی</a></li>
+                                            <li><a href="#">بلاگ</a></li>
+                                            <li><a href="#">نقشه سایت</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>*@
+                            </div>*@
                         @*<div class="col-lg-2 col-md-4 col-sm-6">
-                            <div class="single-footer mb-sm-40">
-                                <h3 class="footer-title">تماس با ما</h3>
-                                <div class="footer-content">
-                                    <ul class="footer-list address-content">
-                                        <li><i class="lnr lnr-map-marker"></i> تهران</li>
-                                        <li><i class="lnr lnr-envelope"></i><a href="#">info@mahtakala.ir </a></li>
-                                        <li>
-                                            <i class="lnr lnr-phone-handset"></i>  02188656453
-                                        </li>
-                                    </ul>
+                                <div class="single-footer mb-sm-40">
+                                    <h3 class="footer-title">تماس با ما</h3>
+                                    <div class="footer-content">
+                                        <ul class="footer-list address-content">
+                                            <li><i class="lnr lnr-map-marker"></i> تهران</li>
+                                            <li><i class="lnr lnr-envelope"></i><a href="#">info@mahtakala.ir </a></li>
+                                            <li>
+                                                <i class="lnr lnr-phone-handset"></i>  02188656453
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>*@
+                            </div>*@
                         <!-- Single Footer Start -->
                         <!-- Single Footer Start -->
                         <div class="col-lg-4 col-md-6 col-sm-6">
@@ -221,19 +224,19 @@
             </div>
 
             @*<div class="footer-middle text-center">
-                <div class="container">
-                    <div class="footer-middle-content pt-20 pb-30">
-                        <ul class="social-footer">
-                            <li><a href="https://www.facebook.com/"><i class="fa fa-facebook"></i></a></li>
-                            <li><a href="https://twitter.com/"><i class="fa fa-twitter"></i></a></li>
-                            <li><a href="https://plus.google.com/"><i class="fa fa-google-plus"></i></a></li>
-                            <li><a href="https://www.linkedin.com/"><i class="fa fa-linkedin"></i></a></li>
-                            <li><a href="#"><img src="~/img/icon/social-img1.png" alt="google play"></a></li>
-                            <li><a href="#"><img src="~/img/icon/social-img2.png" alt="app store"></a></li>
-                        </ul>
+                    <div class="container">
+                        <div class="footer-middle-content pt-20 pb-30">
+                            <ul class="social-footer">
+                                <li><a href="https://www.facebook.com/"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="https://twitter.com/"><i class="fa fa-twitter"></i></a></li>
+                                <li><a href="https://plus.google.com/"><i class="fa fa-google-plus"></i></a></li>
+                                <li><a href="https://www.linkedin.com/"><i class="fa fa-linkedin"></i></a></li>
+                                <li><a href="#"><img src="~/img/icon/social-img1.png" alt="google play"></a></li>
+                                <li><a href="#"><img src="~/img/icon/social-img2.png" alt="app store"></a></li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-            </div>*@
+                </div>*@
 
             <div class="footer-bottom pb-30">
                 <div class="container">
@@ -342,6 +345,7 @@
             </div>*@
     </div>
 
+    <script src="~/assets/plugins/global/plugins.bundle.js"></script>
     <script src="~/js/jquery-migrate-3.0.0.js"></script>
     <script src="~/js/jquery.validate.min.js"></script>
     <script src="~/js/jquery.validate.unobtrusive.min.js"></script>

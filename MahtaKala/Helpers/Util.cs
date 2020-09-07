@@ -107,12 +107,12 @@ namespace MahtaKala.Helpers
             return false;
         }
 
-        public static string GetPersianDate(DateTime d)
+        public static string GetPersianDate(DateTime? d)
         {
             if (d == null)
                 return null;
             PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d)}/{pc.GetMonth(d)}/{pc.GetDayOfMonth(d)} {d.ToString("hh:mm")}";
+            return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} {d.Value.ToString("hh:mm")}";
         }
 
 
