@@ -68,6 +68,11 @@ namespace MahtaKala.Services
             var cartItem = await cart.FirstOrDefaultAsync(c => c.ProductPriceId == productPriceId);
             if (cartItem == null)
             {
+                var seller = db.ProductPrices.Where(p => p.Id == productPriceId).Select(a => a.Product.SellerId).FirstOrDefault();
+                var priceIds = cart.Select(a => a.ProductPriceId);
+                if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.SellerId != seller).Any())
+                    throw new Exception("امکان افزوردن این کالا وجود ندارد. فروشنده ی این کالا، با کالاهای قبلی متفاوت است");
+
                 cartItem = new ShoppingCart
                 {
                     ProductPriceId = productPriceId,

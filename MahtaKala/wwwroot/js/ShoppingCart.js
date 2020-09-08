@@ -1,4 +1,5 @@
-﻿$(document).on("click", ".addtocart", function (e) {
+﻿
+$(document).on("click", ".addtocart", function (e) {
     e.preventDefault();
     $.blockUI({
         message: '<img src="/img/loading.gif"/>',
@@ -9,18 +10,25 @@
     });
     var recordid = $(this).data("id");
     if (recordid != '') {
-        $.post("/Cart/AddToCart", { id: recordid },
-            function (data) {
+        $.ajax({
+            url: "/Cart/AddToCart",
+            data: { id: recordid },
+            method: "POST",
+            success: function (data) {
                 $.unblockUI();
                 if (data.success) {
                     $('#cart-status').text(data.count);
                     toastr.success("محصول مورد نظر به سبد خرید افزوده شد", '', { positionClass: "toast-bottom-left" });
                 }
                 else {
-                    toastr.warning(data.msg, '', { positionClass: "toast-bottom-left" });
+                    toastr.warning(data.message, '', { positionClass: "toast-bottom-left" });
                 }
+            },
+            error: function (data) {
+                $.unblockUI();
+                swal.fire(data.responseJSON.message, "", "error");
             }
-        );
+        });
     }
     else {
         $.unblockUI();

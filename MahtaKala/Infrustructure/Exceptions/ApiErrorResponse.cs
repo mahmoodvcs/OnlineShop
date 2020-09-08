@@ -10,6 +10,7 @@ namespace MahtaKala.Infrustructure.Exceptions
         public int Code { get; set; }
         public string Type { get; set; }
         public string Message { get; set; }
+        public bool Success => Code == 200;
 
         public ApiErrorResponse(int code, string type, string message)
         {

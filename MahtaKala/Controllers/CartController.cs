@@ -7,6 +7,7 @@ using MahtaKala.Entities;
 using MahtaKala.GeneralServices.Payment;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
+using MahtaKala.Infrustructure.ActionFilter;
 using MahtaKala.Models;
 using MahtaKala.Models.CustomerModels;
 using MahtaKala.Services;
@@ -70,6 +71,7 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
+        [AjaxAction]
         public async Task<ActionResult> AddToCart(int id, int count = 1)
         {
             await orderService.AddToCart(id, count);
