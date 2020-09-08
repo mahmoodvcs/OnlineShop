@@ -51,19 +51,21 @@
                         <th class="address-title">عنوان</th>
                         <th class="address-postal-code">کد پستی</th>
                         <th class="address-details">جزئیات</th>
-                        <th class="address-edit">ویرایش آدرس</th>
+                        <th class="address-edit"></th>
+                        <th class="address-edit"></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model.Addresses)
                     {
-                        <tr id="uxTrw@(item.Id)">
-                            <td class="address-city"><span>@item.City.Name</span></td>
-                            <td class="address-title"><span>@item.Title</span></td>
-                            <td class="address-postal-code"><span>@item.PostalCode</span></td>
-                            <td class="address-details"><span>@item.Details</span></td>
-                                <td class="address-edit"><a class="btn btn-primary" href="@Url.Content("~/Profile/AddressEdit/"+item.Id)">ویرایش</a></td>
-                        </tr>
+                    <tr id="uxTrw@(item.Id)">
+                        <td class="address-city"><span>@item.City.Name</span></td>
+                        <td class="address-title"><span>@item.Title</span></td>
+                        <td class="address-postal-code"><span>@item.PostalCode</span></td>
+                        <td class="address-details"><span>@item.Details</span></td>
+                        <td class="address-edit"><a class="btn btn-primary" href="@Url.Content("~/Profile/AddressEdit/"+item.Id)">ویرایش</a></td>
+                        <td class="address-edit"><a class="btn btn-danger" href="@Url.Content("~/Profile/RemoveAddress/"+item.Id)">حذف</a></td>
+                    </tr>
                     }
                 </tbody>
             </table>

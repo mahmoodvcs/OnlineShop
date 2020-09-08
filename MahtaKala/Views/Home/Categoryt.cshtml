@@ -1,0 +1,64 @@
+﻿@model (int?, string)
+@{
+    ViewData["Title"] = "جستجو";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section css{
+    <link href="~/lib/kendo/css/web/kendo.rtl.min.css" rel="stylesheet" />
+    <link href="~/lib/kendo/css/web/kendo.bootstrap.mobile.min.css" rel="stylesheet" />
+    <link href="~/lib/kendo/css/web/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+}
+@section js{
+    <script src="~/lib/kendo/js/kendo.all.min.js"></script>
+    <script src="~/lib/kendo/js/kendo.aspnetmvc.min.js"></script>
+    <script src="~/lib/kendo/js/kendo.timezones.min.js"></script>
+    <script src="~/js/kendo.fa-IR.js"></script>
+}
+<div class="breadcrumb-area mt-30">
+    <div class="container">
+        <div class="breadcrumb">
+            <ul class="d-flex align-items-center">
+                <li><a href="@Url.Content("~/home/")">خانه</a></li>
+                <li class="active"><a href="#">دسته بندی</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="main-shop-page pt-30 pb-100 ptb-sm-60">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 order-1 order-lg-2">
+                <div class="main-categorie mb-all-40">
+
+                    <script type="text/x-kendo-template" id="templatex">
+                        <div class='col-lg-3 col-md-3 col-sm-6 col-6'>
+                            <div class='single-product'>
+                                <div class='pro-img prop-img-270'>
+                                    <a href='@Url.Content("~/home/product/")#= Id #'>
+                                        <img class='primary-img imgh270' src='#=Thubmnail#' alt='single-product'>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </script>
+
+                    <div class="tab-content fix">
+                        @(Html.Kendo().ListView<ProductVM>()
+            .Name("listView")
+            .TagName("div")
+            .ClientTemplateId("templatex")
+            .Scrollable(ListViewScrollableMode.Endless)
+            .HtmlAttributes(new { style = "height:350px;" })
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .Read(read => read.Action("Endless_Scrolling_Read", "home"))
+                .PageSize(9)
+            )
+    )
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

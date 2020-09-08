@@ -76,7 +76,7 @@ namespace MahtaKala.Controllers
         public async Task<IActionResult> ProfileEdit()
         {
             var user = await db.Users.FirstOrDefaultAsync(a => a.Id == UserId);
-            var addresses = await db.Addresses.Include(a => a.City).Where(a => a.UserId == UserId).ToListAsync();
+            var addresses = await db.Addresses.Include(a => a.City).Where(a => a.UserId == UserId && !a.Disabled).ToListAsync();
             UserDataVM vm = new UserDataVM
             {
                 EmailAddress = user.EmailAddress,
@@ -148,6 +148,17 @@ namespace MahtaKala.Controllers
             }
             address.UserId = UserId;
             await db.SaveChangesAsync();
+            return RedirectToAction("ProfileEdit");
+        }
+
+        public IActionResult RemoveAddress(long id)
+        {
+            var p = db.Addresses.FirstOrDefault(a=>a.Id==id);
+            if (db.Orders.Where(a => a.AddressId == id).Any())
+                p.Disabled = true;
+            else
+                db.Addresses.Remove(p);
+            db.SaveChanges();
             return RedirectToAction("ProfileEdit");
         }
     }
