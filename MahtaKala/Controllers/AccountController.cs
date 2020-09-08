@@ -68,15 +68,7 @@ namespace MahtaKala.Controllers
                 ModelState.AddModelError(string.Empty, "نام کاربری و یا رمز عبور اشتباه است.");
                 return View(model);
             }
-            var userService = new UserService(db, configuration, smsService);
-            var authResp = await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
-
-            Response.Cookies.Append("MahtaAuth", authResp.JwtToken, new Microsoft.AspNetCore.Http.CookieOptions
-            {
-                Expires = DateTime.Now.AddYears(1),
-                HttpOnly = true
-            });
-
+            await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
 
             CartCookie cartCookie = new CartCookie(contextAccessor);
             db.ShoppingCarts.Where(x => x.SessionId == cartCookie.GetCartCookie() && x.UserId == null)
@@ -90,7 +82,7 @@ namespace MahtaKala.Controllers
         }
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("MahtaAuth");
+            userService.Logout();
             return RedirectToAction("Index", "Home");
         }
 

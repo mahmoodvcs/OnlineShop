@@ -27,26 +27,33 @@ namespace MahtaKala.Services
         User GetById(long id);
         Task Update(User user);
         void CreateAdminUserIfNotExist();
+        void Logout();
     }
 
     public class UserService : IUserService
     {
         private DataContext context;
+        private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ISMSService smsService;
         private readonly string jwtSecret;
 
         public UserService(
             DataContext context,
             IConfiguration configuration,
+            IHttpContextAccessor httpContextAccessor,
             ISMSService smsService)
         {
             this.context = context;
+            this.httpContextAccessor = httpContextAccessor;
             this.smsService = smsService;
             jwtSecret = configuration.GetSection("AppSettings")["JwtSecret"];
         }
 
         public async Task<AuthenticateResponse> Authenticate(User user, string ipAddress, UserClient client)
         {
+            if (user.Type != UserType.Customer)
+                return await AuthenticateStaff(user, ipAddress);
+
             // authentication successful so generate jwt and refresh tokens
             var jwtToken = GenerateJwtToken(user, client);
             RefreshToken refreshToken = null;
@@ -60,6 +67,39 @@ namespace MahtaKala.Services
                 await context.SaveChangesAsync();
             }
             return new AuthenticateResponse(user, jwtToken, refreshToken?.Token);
+        }
+
+        TimeSpan GetTokenExpiration(User user, UserClient client)
+        {
+            if (user.Type != UserType.Customer)
+                return TimeSpan.FromDays(1);
+            if (client == UserClient.WebSite)
+                return TimeSpan.FromDays(365);
+            return TimeSpan.FromMinutes(15);
+        }
+
+        public async Task<AuthenticateResponse> AuthenticateStaff(User user, string ipAddress)
+        {
+            DateTime expireTime = DateTime.Now + GetTokenExpiration(user, UserClient.WebSite);
+            var jwtToken = GenerateJwtToken(user, UserClient.WebSite);
+
+            //context.RefreshTokens.Add(new Entities.RefreshToken
+            //{
+            //    UserId = user.Id,
+            //    Token = jwtToken,
+            //    Expires = expireTime,
+            //    Created= DateTime.Now,
+            //    CreatedByIp = ipAddress
+            //});
+            //context.RefreshTokens.
+            //await context.SaveChangesAsync();
+
+            httpContextAccessor.HttpContext.Response.Cookies.Append(AuthCookieName, jwtToken, new CookieOptions
+            {
+                HttpOnly = true,
+            });
+
+            return new AuthenticateResponse(user, jwtToken, null);
         }
 
         public async Task<AuthenticateResponse> RefreshToken(string token, string ipAddress)
@@ -81,7 +121,7 @@ namespace MahtaKala.Services
             await context.SaveChangesAsync();
 
             // generate new jwt
-            var jwtToken = GenerateJwtToken(user);
+            var jwtToken = GenerateJwtToken(user, UserClient.Api);
 
             return new AuthenticateResponse(user, jwtToken, newRefreshToken.Token);
         }
@@ -114,7 +154,7 @@ namespace MahtaKala.Services
 
         // helper methods
 
-        private string GenerateJwtToken(User user, UserClient? client = null)
+        private string GenerateJwtToken(User user, UserClient client)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(jwtSecret);
@@ -126,7 +166,7 @@ namespace MahtaKala.Services
                     new Claim(ClaimTypes.Role, user.Type.ToString()),
                     new Claim(ClaimTypes.GivenName, $"{user.FirstName} {user.LastName}"),
                 }),
-                Expires = client == UserClient.WebSite ? DateTime.UtcNow.AddYears(1) : DateTime.UtcNow.AddMinutes(15),
+                Expires = DateTime.Now + GetTokenExpiration(user, client),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -155,10 +195,10 @@ namespace MahtaKala.Services
             await context.SaveChangesAsync();
         }
 
-        public const string authCookieName = "MahtaAuth";
+        public const string AuthCookieName = "MahtaAuth";
         public Cookie GetAuthCookie(User user, string jwtToken)
         {
-            Cookie cookie = new Cookie(authCookieName, jwtToken);
+            Cookie cookie = new Cookie(AuthCookieName, jwtToken);
             cookie.HttpOnly = true;
             cookie.Expires = DateTime.Now.AddYears(1);
             return cookie;
@@ -180,7 +220,10 @@ namespace MahtaKala.Services
             }
         }
 
-
+        public void Logout()
+        {
+            httpContextAccessor.HttpContext.Response.Cookies.Delete(AuthCookieName);
+        }
     }
 
     public enum UserClient
