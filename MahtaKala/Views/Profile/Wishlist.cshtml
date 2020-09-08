@@ -3,9 +3,9 @@
     ViewData["Title"] = "علاقه مندی های من";
     Layout = "~/Views/Shared/_Profile.cshtml";
 }
-    <h5 class="pb-15">
-        علاقه مندی های من
-    </h5>
+<h5 class="pb-15">
+    علاقه مندی های من
+</h5>
 <hr class="pt-15 " />
 <form action="#">
     <div class="table-content table-responsive">
@@ -39,6 +39,13 @@
                 }
             </tbody>
         </table>
+    </div>
+    <div class="row">
+        <div class="col-md-8 col-sm-12">
+            <div class="buttons-cart mt-10">
+                <a href="@Url.Content("~/home/category")">ادامه خرید</a>
+            </div>
+        </div>
     </div>
 </form>
 
