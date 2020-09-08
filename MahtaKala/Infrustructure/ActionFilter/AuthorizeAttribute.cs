@@ -40,6 +40,17 @@ namespace MahtaKala.ActionFilter
             }
             else if (UserTypes != null && !UserTypes.Contains(user.Type) && user.Type != Entities.UserType.Admin)
             {
+                if(user.Type == UserType.Customer)
+                {
+                    context.Result = new RedirectToRouteResult(
+                                   new RouteValueDictionary
+                                   {
+                                       { "action", "Login" },
+                                       { "controller", "Account" }
+                                   });
+                    base.OnActionExecuting(context);
+                    return;
+                }
                 throw new AccessDeniedException();
             }
             base.OnActionExecuting(context);
