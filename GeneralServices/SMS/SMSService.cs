@@ -18,7 +18,7 @@ namespace MahtaKala.GeneralServices
 
         public async Task<int> SendOTP(string number, string message)
         {
-            var code = new Random().Next(1000, 99999);
+            var code = new Random().Next(10000, 99999);
             var ok = await Send(number, string.Format(message, code));
             if (ok)
                 return code;
