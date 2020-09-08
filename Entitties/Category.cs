@@ -15,6 +15,7 @@ namespace MahtaKala.Entities
         public long Id { get; set; }
         [StringLength(255)]
         [Display(Name ="نام")]
+        [Required(ErrorMessage = "نام را وارد کنید")]
         public string Title { get; set; }
         public string Image { get; set; }
         [Display(Name ="دسته ی والد")]
