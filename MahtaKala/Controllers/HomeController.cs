@@ -109,13 +109,13 @@ namespace MahtaKala.Controllers
 
         public async Task<IActionResult> Compare(long firstId, long secondId)
         {
+            List<long> ids = new List<long>
+            {
+                firstId, secondId
+            };
             ProductCompareModel model = new ProductCompareModel
             {
-                Products = new List<Product>()
-                {
-                    await db.Products.Where(p => p.Id == firstId).FirstOrDefaultAsync(),
-                    await db.Products.Where(p => p.Id == secondId).FirstOrDefaultAsync()
-                }
+                Products = await db.Products.Include(a => a.Prices).Where(a => ids.Contains(a.Id)).ToListAsync()
             };
             foreach (var product in model.Products)
             {

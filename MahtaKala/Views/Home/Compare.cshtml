@@ -36,20 +36,36 @@
     }
 }
 <table class="table table-bordered table-striped table-primary">
-    <thead>
+    <thead align="center" style="text-align:center">
         <tr>
             <th></th>
             @foreach (var product in Model.Products)
             {
                 <th>
-                    @product.Title
-                    <br />
-                    <img class="primary-img imgh380" src="@product.Thubmnail" />
-                </th>
+                    <a href="~/Home/Product/@product.Id">@product.Title</a>
+</th>
             }
         </tr>
     </thead>
     <tbody>
+        <tr>
+            <td></td>
+            @foreach (var product in Model.Products)
+            {
+                <td>
+                    <a href="~/Home/Product/@product.Id"><img class="primary-img imgh380" src="@product.Thubmnail" /></a>
+                </td>
+            }
+        </tr>
+        <tr>
+            <td>قیمت</td>
+            @foreach (var product in Model.Products)
+            {
+                <td>
+                    @product.Prices.FirstOrDefault()?.DiscountPrice.ToString("N0")
+                </td>
+            }
+        </tr>
         @foreach (var prop in props.Keys)
         {
             <tr>
@@ -63,4 +79,4 @@
 
     </tbody>
 
-</table>
+    </table>
