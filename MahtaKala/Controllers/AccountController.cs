@@ -195,7 +195,7 @@ namespace MahtaKala.Controllers
                 HttpOnly = true
             });
 
-            return Redirect("~/");
+            return Json(new { success = true });
         }
 
 

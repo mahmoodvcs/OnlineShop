@@ -96,7 +96,7 @@ namespace MahtaKala
                     options.UseNetTopologySuite();
                 });
             });
-
+            services.AddMvc(options => { options.UseCustomStringModelBinder(); });
             RegisterMyServices(services);
         }
 
@@ -116,7 +116,6 @@ namespace MahtaKala
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<ProductService>();
             services.AddScoped<CategoryService>();
-            
             services.AddKendo();
         }
 
