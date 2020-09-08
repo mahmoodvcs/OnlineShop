@@ -126,7 +126,7 @@ namespace MahtaKala.Controllers.Api
                     var seller = db.Products.Where(p => p.Id == addToCart.Product_Id).Select(a => a.SellerId).FirstOrDefault();
                     var priceIds = prevOrder.Items.Select(a => a.ProductPriceId);
                     if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.SellerId != seller).Any())
-                        throw new ApiException(412, "امکان افزوردن این کالا وجود ندارد. فروشنده ی این کالا، با کالاهای قبلی متفاوت است");
+                        throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_DefferentSeller);
                 }
 
                 db.OrderItems.Add(item);
