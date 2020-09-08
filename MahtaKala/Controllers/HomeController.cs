@@ -125,48 +125,6 @@ namespace MahtaKala.Controllers
             return View(model);
         }
 
-        //public IActionResult Category(int? id, string term)
-        //{
-        //    var vm = (id, term);
-        //    return View(vm);
-        //}
-        //public ActionResult Endless_Scrolling_Read([DataSourceRequest] DataSourceRequest request, int? id, string term)
-        //{
-        //    var queryable = productService.Products();
-        //    if (!string.IsNullOrEmpty(term))
-        //    {
-        //        queryable = queryable.Where(c => c.Title.Contains(term));
-        //    }
-        //    if (id.HasValue)
-        //    {
-        //        queryable = queryable.Where(c => c.ProductCategories.Any(pc => pc.CategoryId == id));
-        //    }
-        //    var res = queryable.Select(a => new
-        //    {
-        //        a.Id,
-        //        Price = a.Prices.First(),
-        //        a.Thubmnail,
-        //        a.Title
-        //    }).ToDataSourceResultAsync(request, a => new ProductVM
-        //    {
-        //        Id = a.Id,
-        //        Title = a.Title,
-        //        Thubmnail = productImageService.GetImageUrl(a.Id,a.Thubmnail)
-        //    });
-        //    var list = JsonConvert.SerializeObject(res, Formatting.None,
-        //          new JsonSerializerSettings()
-        //          {
-        //              ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-        //          });
-        //    return Content(list, "application/json");
-        //}
-
-
-
-
-
-
-
         public IActionResult Category(long? id, string term)
         {
             var page = 1;

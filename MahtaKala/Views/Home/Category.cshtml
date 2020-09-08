@@ -8,6 +8,7 @@
 {
     <text>
         @await Component.InvokeAsync("BreadCrumb", new { categoryId = id })
+        @await Component.InvokeAsync("SubCategory", new { categoryId = id })
     </text>
 }
 <div class="main-shop-page pt-30 pb-100 ptb-sm-60">
