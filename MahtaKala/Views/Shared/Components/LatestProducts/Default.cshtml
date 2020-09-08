@@ -32,7 +32,7 @@
                                     <div class="pro-content">
                                         <div class="pro-info">
                                             <h4><a href="@Url.Content("~/home/product/"+item.Id)">@item.Title</a></h4>
-                                            @if (productPrice.DiscountPrice > 0)
+                                            @if (productPrice.DiscountPrice > 0 && !item.Disabled)
                                             {
                                                 <p style="direction:rtl">
                                                     <span class="price">
@@ -58,7 +58,7 @@
                                         </div>
                                         <div class="pro-actions">
                                             <div class="actions-primary">
-                                                @if (productPrice.DiscountPrice > 0)
+                                                @if (productPrice.DiscountPrice > 0 && !item.Disabled)
                                                 {
                                                     <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id"> اضافه کردن به سبد +</a>
                                                 }
