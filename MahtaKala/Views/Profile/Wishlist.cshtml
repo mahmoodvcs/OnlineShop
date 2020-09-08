@@ -16,7 +16,6 @@
                     <th class="product-thumbnail"></th>
                     <th class="product-name">عنوان محصول</th>
                     <th class="product-price">قیمت واحد</th>
-                    <th class="product-quantity">موجودی</th>
                     <th class="product-subtotal"></th>
                 </tr>
             </thead>
@@ -33,7 +32,7 @@
                         </td>
                         <td class="product-name"><a href="@Url.Content("~/home/product/"+item.ProductId)">@item.Product.Title</a></td>
                         <td class="product-price"><span class="amount">@string.Format("{0:n0}", productPrice.DiscountPrice) ریال</span></td>
-                        <td class="product-stock-status"><span>موجود</span></td>
+                  
                         <td class="product-add-to-cart"><a href="#" class="addtocart" data-id="@productPrice.Id">اضافه کردن به سبد خرید</a></td>
                     </tr>
                 }

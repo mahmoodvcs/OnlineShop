@@ -24,6 +24,23 @@
 
 });
 
+
+$(document).on("click", "#uxAddressModal", function (e) {
+    e.preventDefault();
+    $('#myModalContent').load('/cart/UserAddress', function () {
+        $('#myModal').modal({
+            keyboard: true
+        }, 'show');
+    });
+});
+
+function BindUserAddress() {
+    var grid = $("#UserData_AddressId").data("kendoDropDownList");
+    grid.dataSource.read();
+    grid.refresh();
+}
+
+
 $(document).on("click", ".rmoveWishlist", function (e) {
     e.preventDefault();
     $.blockUI({

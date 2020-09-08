@@ -188,7 +188,7 @@ namespace MahtaKala.Controllers
 
             await orderService.MigrateAnonymousUserShoppingCart(user.Id);
 
-            return Redirect("~/");
+            return Json(new { success = true });
         }
 
 
