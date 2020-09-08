@@ -20,15 +20,18 @@ namespace MahtaKala.Controllers
     {
         private readonly IBankPaymentService bankPaymentService;
         private readonly IPathService pathService;
+        private ISMSService SMSService { get; set; }
 
         public PaymentController(
             DataContext dataContext,
             ILogger<PaymentController> logger,
             IBankPaymentService bankPaymentService,
-            IPathService pathService) : base(dataContext, logger)
+            IPathService pathService,
+            ISMSService smsService) : base(dataContext, logger)
         {
             this.bankPaymentService = bankPaymentService;
             this.pathService = pathService;
+            this.SMSService = smsService;
         }
 
         public async Task<ActionResult> Pay(long pid, string uid)
@@ -89,6 +92,7 @@ namespace MahtaKala.Controllers
                 var body = await reader.ReadToEndAsync();
 
                 Payment payment = await bankPaymentService.Paid(body);
+                SendPaymentSMS(payment);
                 //if (source == "api")
                 return View("PaidFromApi", payment);
                 //else
@@ -106,9 +110,20 @@ namespace MahtaKala.Controllers
                 if (payment.State == PaymentState.Succeeded)
                 {
                     await db.ShoppingCarts.Where(a => a.UserId == payment.Order.UserId).DeleteAsync();
-
+                    SendPaymentSMS(payment);
                 }
                 return View(payment);
+            }
+        }
+
+        private void SendPaymentSMS(Payment payment)
+        {
+            if (payment.State == PaymentState.Succeeded && payment.Order.State == OrderState.Paid)
+            {
+                string message = string.Format(Messages.Messages.Order.OrderPaymentSuccessMessage, 
+                    payment.TrackingNumber,
+                    payment.Order.SentDateTime.ToString());
+                SMSService.Send(User.MobileNumber, message);
             }
         }
 
