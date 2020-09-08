@@ -372,29 +372,28 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult Category(Category model)
         {
-            ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
             if (ModelState.IsValid)
             {
                 if (model.Id == 0)
                 {
-                    if (string.IsNullOrEmpty(model.Title))
-                    {
-                        ModelState.AddModelError(nameof(model.Title), "Title Required.");
-                        return View(model);
-                    }
                     db.Categories.Add(model);
                 }
                 else
                 {
-                    if (!db.Categories.Any(u => u.Id == model.Id))
+                    var cat = db.Categories.Find(model.Id);
+                    if (cat == null)
                     {
                         throw new EntityNotFoundException<Category>(model.Id);
                     }
-                    db.Entry(model).State = EntityState.Modified;
+                    cat.Order = model.Order;
+                    cat.Title = model.Title;
+                    cat.Disabled = model.Disabled;
+                    cat.Published = model.Published;
                 }
                 db.SaveChanges();
                 return RedirectToAction("CategoryList");
             }
+            ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
             return View(model);
         }
 
