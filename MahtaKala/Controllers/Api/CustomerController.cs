@@ -93,59 +93,8 @@ namespace MahtaKala.Controllers.Api
         [HttpPost]
         public async Task<long> AddToCart([FromBody] AddToCartModel addToCart)
         {
-            var prevOrder = await orderService.GetUserOrder();
-            OrderItem item;
-            if (addToCart.Id > 0)
-            {
-                item = await db.OrderItems.FirstOrDefaultAsync(a => a.Order.UserId == UserId && a.Id == addToCart.Id);
-                if (item == null)
-                    throw new EntityNotFoundException<OrderItem>(addToCart.Id);
-                if (item.OrderId != prevOrder?.Id)
-                {
-                    //TODO: Debug log
-                    logger.LogCritical("Order does not exist " + item.OrderId);
-                    throw new ApiException(500, Messages.Messages.Order.OrderItemDoesNotBelongToOrder);
-                }
-            }
-            else
-            {
-                item = new OrderItem();
-
-                if (prevOrder == null)
-                {
-                    Order order = new Order()
-                    {
-                        UserId = UserId,
-                        State = OrderState.Initial,
-                    };
-                    item.Order = order;
-                }
-                else
-                {
-                    item.OrderId = prevOrder.Id;
-                    var seller = db.Products.Where(p => p.Id == addToCart.Product_Id).Select(a => a.SellerId).FirstOrDefault();
-                    var priceIds = prevOrder.Items.Select(a => a.ProductPriceId);
-                    if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.SellerId != seller).Any())
-                        throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_DefferentSeller);
-                }
-
-                db.OrderItems.Add(item);
-            }
-
             var productPrice = db.ProductPrices.First(a => a.ProductId == addToCart.Product_Id);
-            if (productPrice.Price == 0)
-            {
-                var prodName = await db.Products.Where(a => a.Id == productPrice.ProductId).Select(a => a.Title).FirstOrDefaultAsync();
-                throw new ApiException(400, string.Format(Messages.Messages.Order.ProductDoesNotExistInStore, prodName));
-            }
-            item.ProductPriceId = productPrice.Id;
-            item.Quantity = addToCart.Quantity;
-            item.CharacteristicValues = addToCart.CharacteristicValues;
-            item.UnitPrice = productPrice.DiscountPrice;
-            item.FinalPrice = productPrice.DiscountPrice * item.Quantity;
-
-            await db.SaveChangesAsync();
-            return item.Id;
+            return await orderService.AddToCart(productPrice.Id, addToCart.Quantity);
         }
 
         /// <summary>
@@ -155,42 +104,27 @@ namespace MahtaKala.Controllers.Api
         [HttpGet]
         public async Task<CartModel> Cart()
         {
-            var order = await orderService.GetUserOrder();
-            if (order == null || order.Items.Count == 0)
-            {
-                return new CartModel
+            var items = await orderService.GetCartQuery()
+                .Select(a => new CartItemModel
                 {
-                    Items = new List<CartItemModel>(),
-                    DeliveryPrice = 0,
-                    TotlaPrice = 0
-                };
+                    Id = a.Id,
+                    Product_Id = a.ProductPrice.ProductId,
+                    CharacteristicValues = null,
+                    Quantity = a.Count,
+                    Price = a.ProductPrice.DiscountPrice,
+                    Thumbnail = a.ProductPrice.Product.Thubmnail,
+                    Title = a.ProductPrice.Product.Title
+                }).ToListAsync();
+            foreach (var item in items)
+            {
+                item.Thumbnail = productImageService.GetImageUrl(item.Product_Id, item.Thumbnail);
             }
-            var priceIds = order.Items.Select(a => a.ProductPriceId);
-            var products = db.ProductPrices.Where(a => priceIds.Contains(a.Id))
-                .Select(a => new
-                {
-                    a.Id,
-                    a.Product.Title,
-                    a.ProductId,
-                    a.Product.Thubmnail
-                }).ToDictionary(a => a.Id);
-
-            var data = order.Items.Select(b => new CartItemModel
-            {
-                Id = b.Id,
-                Product_Id = products[b.ProductPriceId].ProductId,
-                Quantity = b.Quantity,
-                CharacteristicValues = b.CharacteristicValues,
-                Thumbnail = productImageService.GetImageUrl(products[b.ProductPriceId].ProductId, products[b.ProductPriceId].Thubmnail),
-                Title = products[b.ProductPriceId].Title,
-                Price = b.UnitPrice
-            }).ToList();
 
             return new CartModel
             {
-                Items = data,
-                DeliveryPrice = orderService.GetDeliveryPrice(order),
-                TotlaPrice = orderService.CalculateTotalPrice(order)
+                Items = items,
+                DeliveryPrice = OrderService.DeliveryPrice,
+                TotlaPrice = items.Sum(a=>a.Quantity * a.Price) + OrderService.DeliveryPrice
             };
         }
 
@@ -201,13 +135,7 @@ namespace MahtaKala.Controllers.Api
         [HttpPost]
         public async Task<IActionResult> EmptyCart()
         {
-            var order = await orderService.GetUserOrder();
-            if (order != null)
-            {
-                db.Orders.Attach(order);
-                db.Orders.Remove(order);
-                await db.SaveChangesAsync();
-            }
+            await orderService.EmptyCart();
             return Ok();
         }
 
@@ -219,15 +147,8 @@ namespace MahtaKala.Controllers.Api
         [HttpDelete]
         public async Task<StatusCodeResult> RemoveFromCart(long id)
         {
-            //TODO: orderService.GetUserOrder();
-            var item = await db.OrderItems.FirstOrDefaultAsync(a => a.Order.UserId == UserId && a.Order.State == OrderState.Initial && a.Id == id);
-            if (item == null)
-                //TODO: Debug log
-                throw new EntityNotFoundException<OrderItem>(id);
-
-            db.OrderItems.Remove(item);
-            await db.SaveChangesAsync();
-            return StatusCode(200);
+            await orderService.RemoveFromCart(id);
+            return Ok();
         }
 
 
@@ -240,21 +161,7 @@ namespace MahtaKala.Controllers.Api
         [HttpPost]
         public async Task<CheckoutResponseModel> Checkout(CheckoutModel checkoutModel)
         {
-            var order = await orderService.GetUserOrder();
-
-            if (order == null || order.Items.Count == 0)
-            {
-                throw new ApiException(400, Messages.Messages.Order.EmptyCart);
-            }
-
-            var now = DateTime.Now;
-            order.CheckOutData = now;
-            order.SentDateTime = now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(16);
-            //TODO: check the address
-            order.AddressId = checkoutModel.AddressId;
-            order.TotalPrice = orderService.CalculateTotalPrice(order);
-            order.State = OrderState.CheckedOut;
-            await db.SaveChangesAsync();
+            var order = await orderService.Checkout(checkoutModel.AddressId);
 
             var payment = await orderService.InitPayment(order, pathService.AppBaseUrl + "/Payment/Paid?source=api");
             string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}&source=api";

@@ -48,20 +48,10 @@ namespace MahtaKala.Controllers
             return View(cartItems);
         }
 
-        public ActionResult ShoppingBag()
+        public async Task<ActionResult> ShoppingBag()
         {
 
-            List<ShoppingCart> cartItems;
-            if (UserId != 0)
-            {
-                cartItems = db.ShoppingCarts.Include(a => a.ProductPrice.Product).Where(c => c.UserId == UserId).ToList();
-            }
-            else
-            {
-                CartCookie cartCookie = new CartCookie(contextAccessor);
-                cartItems = db.ShoppingCarts.Include(a => a.ProductPrice.Product)
-                    .Where(c => c.SessionId == cartCookie.GetCartCookie() && c.UserId == null).ToList();
-            }
+            List<ShoppingCart> cartItems = await orderService.GetCartItems();
 
             foreach (var item in cartItems)
             {
@@ -79,23 +69,18 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> RemoveFromCart(int id)
+        public async Task<ActionResult> RemoveFromCart(long id)
         {
-            var cartItem = db.ShoppingCarts.FirstOrDefault(c => c.Id == id);
-            if (cartItem != null)
-            {
-                db.ShoppingCarts.Remove(cartItem);
-                db.SaveChanges();
-            }
+            await orderService.RemoveFromCart(id);
             return Json(new { success = true, count = await orderService.GetShoppingCartCount() });
         }
 
         [HttpPost]
         public async Task<ActionResult> UpdateCart(int id, int count)
         {
-            var cartItem = db.ShoppingCarts.Include(a => a.ProductPrice).FirstOrDefault(c => c.Id == id);
+            var cartItem = await orderService.GetCartQuery().FirstOrDefaultAsync(c => c.Id == id);
             cartItem.Count = count;
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             var finalcostRow = Util.Sub3Number(count * cartItem.ProductPrice.DiscountPrice);
             List<ShoppingCart> cartItems = await GetCartItems();
             decimal sumPrice = 0;
@@ -111,7 +96,7 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<ActionResult> DeleteItemCart(int id)
         {
-            db.ShoppingCarts.Where(c => c.Id == id).Delete();
+            orderService.GetCartQuery().Where(c => c.Id == id).Delete();
             List<ShoppingCart> cartItems = await GetCartItems();
             var sumPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.Price) * cartItems.Sum(a => a.Count));
             var sumFinalPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.DiscountPrice) * cartItems.Sum(a => a.Count));
@@ -156,8 +141,6 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<IActionResult> Checkout(CheckOutVM vm)
         {
-            decimal postCost = 10000;
-
             var cartItems = await GetCartItems();
             if (cartItems.Count() == 0)
             {

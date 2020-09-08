@@ -66,21 +66,32 @@ namespace MahtaKala.Services
                 context.Update(user);
                 await context.SaveChangesAsync();
             }
+            else
+            {
+                httpContextAccessor.HttpContext.Response.Cookies.Append(AuthCookieName, jwtToken, new CookieOptions
+                {
+                    Expires = GetTokenExpirationTime(user, client),
+                    HttpOnly = true
+                });
+            }
             return new AuthenticateResponse(user, jwtToken, refreshToken?.Token);
         }
 
-        TimeSpan GetTokenExpiration(User user, UserClient client)
+        DateTime GetTokenExpirationTime(User user, UserClient client)
         {
+            TimeSpan span;
             if (user.Type != UserType.Customer)
-                return TimeSpan.FromDays(1);
-            if (client == UserClient.WebSite)
-                return TimeSpan.FromDays(365);
-            return TimeSpan.FromMinutes(15);
+                span = TimeSpan.FromDays(1);
+            else if (client == UserClient.WebSite)
+                span = TimeSpan.FromDays(365);
+            else
+                span =TimeSpan.FromMinutes(15);
+            return DateTime.Now + span;
         }
 
         public async Task<AuthenticateResponse> AuthenticateStaff(User user, string ipAddress)
         {
-            DateTime expireTime = DateTime.Now + GetTokenExpiration(user, UserClient.WebSite);
+            DateTime expireTime = GetTokenExpirationTime(user, UserClient.WebSite);
             var jwtToken = GenerateJwtToken(user, UserClient.WebSite);
 
             //context.RefreshTokens.Add(new Entities.RefreshToken
@@ -166,7 +177,7 @@ namespace MahtaKala.Services
                     new Claim(ClaimTypes.Role, user.Type.ToString()),
                     new Claim(ClaimTypes.GivenName, $"{user.FirstName} {user.LastName}"),
                 }),
-                Expires = DateTime.Now + GetTokenExpiration(user, client),
+                Expires = GetTokenExpirationTime(user, client).ToUniversalTime(),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

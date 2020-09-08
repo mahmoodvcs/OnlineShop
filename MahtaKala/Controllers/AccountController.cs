@@ -26,17 +26,20 @@ namespace MahtaKala.Controllers
         private readonly IUserService userService;
         private readonly ISMSService smsService;
         private readonly IConfiguration configuration;
+        private readonly OrderService orderService;
 
         public AccountController(
             ISMSService smsService,
             IUserService userService,
             DataContext dataContext,
             IConfiguration configuration,
+            OrderService orderService,
             ILogger<AccountController> logger, IHttpContextAccessor contextAccessor) : base(dataContext, logger)
         {
             this.smsService = smsService;
             this.userService = userService;
             this.configuration = configuration;
+            this.orderService = orderService;
             this.contextAccessor = contextAccessor;
         }
 
@@ -70,10 +73,8 @@ namespace MahtaKala.Controllers
             }
             await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
 
-            CartCookie cartCookie = new CartCookie(contextAccessor);
-            db.ShoppingCarts.Where(x => x.SessionId == cartCookie.GetCartCookie() && x.UserId == null)
-                .Update(x => new ShoppingCart() { UserId = user.Id, SessionId = null });
-            cartCookie.RemoveCartCookie();
+            await orderService.MigrateAnonymousUserShoppingCart(user.Id);
+            
             if (Url.IsLocalUrl(returnUrl))
             {
                 return Redirect(returnUrl);
@@ -183,17 +184,9 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = "زمان ثبت درخواست به اتمام رسیده است" });
             }
 
-
             var authResp = await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
-            CartCookie cartCookie = new CartCookie(contextAccessor);
-            db.ShoppingCarts.Where(x => x.SessionId == cartCookie.GetCartCookie() && x.UserId == null)
-                .Update(x => new ShoppingCart() { UserId = user.Id, SessionId = null });
-            cartCookie.RemoveCartCookie();
-            Response.Cookies.Append("MahtaAuth", authResp.JwtToken, new Microsoft.AspNetCore.Http.CookieOptions
-            {
-                Expires = DateTime.Now.AddYears(1),
-                HttpOnly = true
-            });
+
+            await orderService.MigrateAnonymousUserShoppingCart(user.Id);
 
             return Redirect("~/");
         }
@@ -217,11 +210,9 @@ namespace MahtaKala.Controllers
 
         public IActionResult SignOut()
         {
-            Response.Cookies.Delete("MahtaAuth");
+            userService.Logout();
             return RedirectToAction("index", "home");
         }
-
-
 
         private string GetIpAddress()
         {

@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.Entities.Migrations;
 using MahtaKala.GeneralServices.Payment;
+using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.SharedServices;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Services
 {
@@ -62,7 +64,7 @@ namespace MahtaKala.Services
             return order;
         }
 
-        public async Task AddToCart(int productPriceId, int count = 1)
+        public async Task<long> AddToCart(long productPriceId, int count = 1)
         {
             var cart = GetCartQuery();
             var cartItem = await cart.FirstOrDefaultAsync(c => c.ProductPriceId == productPriceId);
@@ -92,9 +94,15 @@ namespace MahtaKala.Services
                 cartItem.Count += count;
             }
             await db.SaveChangesAsync();
+            return cartItem.Id;
         }
 
-        private IQueryable<ShoppingCart> GetCartQuery()
+        internal async Task RemoveFromCart(long id)
+        {
+            await GetCartQuery().Where(a => a.Id == id).DeleteAsync();
+        }
+
+        public IQueryable<ShoppingCart> GetCartQuery()
         {
             var query = db.ShoppingCarts.Include(a => a.ProductPrice.Product).AsQueryable();
             if (User == null)
@@ -106,7 +114,7 @@ namespace MahtaKala.Services
 
         public async Task<int> GetShoppingCartCount()
         {
-            return await GetCartQuery().CountAsync();
+            return await GetCartQuery().SumAsync(a => a.Count);
         }
 
         public async Task<List<ShoppingCart>> GetCartItems()
@@ -119,10 +127,27 @@ namespace MahtaKala.Services
             return items;
         }
 
+        public async Task MigrateAnonymousUserShoppingCart(long userId)
+        {
+            var cartItems = db.ShoppingCarts.Where(a => a.SessionId == currentUserService.AnonymousSessionId).ToList();
+            foreach (var item in cartItems)
+            {
+                item.SessionId = null;
+                item.UserId = userId;
+            }
+            await db.SaveChangesAsync();
+            currentUserService.RemoveCartCookie();
+        }
+
         public async Task<Order> Checkout(long addressId)
         {
             if (User == null)
                 throw new InvalidOperationException("User is not logged in.");
+
+            var cartItems = await GetCartItems();
+            if (cartItems.Count == 0)
+                throw new BadRequestException(Messages.Messages.Order.EmptyCart);
+
             var order = new Order();
             order.State = OrderState.Initial;
             order.UserId = User.Id;
@@ -131,7 +156,6 @@ namespace MahtaKala.Services
             order.CheckOutData = now;
             order.SentDateTime = now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(16);
             db.Orders.Add(order);
-            var cartItems = await GetCartItems();
             foreach (var item in cartItems)
             {
                 OrderItem orderItem = new OrderItem();
@@ -147,6 +171,10 @@ namespace MahtaKala.Services
             return order;
         }
 
+        public async Task EmptyCart()
+        {
+            await GetCartQuery().DeleteAsync();
+        }
 
         public decimal CalculateTotalPrice(Order order)
         {

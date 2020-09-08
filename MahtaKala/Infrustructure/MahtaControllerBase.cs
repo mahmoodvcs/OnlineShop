@@ -49,6 +49,7 @@ namespace MahtaKala.Infrustructure
             }
         }
 
+        [NonAction]
         public IActionResult KendoJson(object data)
         {
             var json = JsonConvert.SerializeObject(data, Formatting.None,

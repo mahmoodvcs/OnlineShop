@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Controllers;
 using MahtaKala.Entities;
 using MahtaKala.Infrustructure;
+using MahtaKala.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,13 +16,16 @@ namespace MahtaKala.ViewComponents
     public class CartSummaryViewComponent : ViewComponent
     {
         private DataContext _db;
-        public CartSummaryViewComponent(DataContext db, IHttpContextAccessor contextAccessor)
+        public CartSummaryViewComponent(DataContext db, IHttpContextAccessor contextAccessor,
+             OrderService orderService)
         {
             _db = db;
             this.contextAccessor = contextAccessor;
+            this.orderService = orderService;
         }
 
         private readonly IHttpContextAccessor contextAccessor;
+        private readonly OrderService orderService;
         private User user;
         public new User User
         {
@@ -37,19 +41,7 @@ namespace MahtaKala.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            int count = 0;
-            if (User != null)
-            {
-                count = await _db.ShoppingCarts.Where(a => a.UserId == User.Id).SumAsync(a => a.Count);
-            }
-            else
-            {
-                CartCookie cartCookie = new CartCookie(contextAccessor);
-                var sessionId = cartCookie.GetCartCookie();
-                if (sessionId != null) {
-                    count = await _db.ShoppingCarts.Where(a => a.SessionId == sessionId & a.UserId == null).SumAsync(a => a.Count);
-                }
-            }
+            var count = await orderService.GetShoppingCartCount();
             return View(count);
         }
     }
