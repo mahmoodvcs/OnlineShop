@@ -10,7 +10,6 @@ namespace MahtaKala.Models
     public class CheckOutVM
     {
         public UserDataVM UserData { get; set; }
-        public UserAddress UserAddress { get; set; }
         public int CartItemCount { get; set; }
         public string Cost { get; set; }
         public string PostCost { get; set; }

@@ -156,8 +156,6 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<IActionResult> Checkout(CheckOutVM vm)
         {
-            decimal postCost = 10000;
-
             var cartItems = await GetCartItems();
             if (cartItems.Count() == 0)
             {
@@ -183,50 +181,42 @@ namespace MahtaKala.Controllers
             user.LastName = vm.UserData.LastName;
             user.NationalCode = vm.UserData.NationalCode;
 
-            if (!vm.IsNewAddress && vm.UserData.AddressId == null)
+            if (!vm.UserData.AddressId.HasValue)
             {
                 return Json(new { success = false, msg = "لطفا آدرس را انتخاب نمایید" });
             }
 
-            long addressId;
-
-            if (vm.IsNewAddress)
-            {
-                if (vm.UserAddress.CityId == 0)
-                {
-                    return Json(new { success = false, msg = "لطفا شهر را انتخاب نمایید" });
-                }
-                if (string.IsNullOrEmpty(vm.UserAddress.Details))
-                {
-                    return Json(new { success = false, msg = "لطفا آدرس را وارد نمایید" });
-                }
-                if (string.IsNullOrEmpty(vm.UserAddress.PostalCode))
-                {
-                    return Json(new { success = false, msg = "لطفا کد پستی را وارد نمایید" });
-                }
-
-                var ua = new UserAddress();
-                ua.CityId = vm.UserAddress.CityId;
-                ua.Title = vm.UserAddress.Title;
-                ua.PostalCode = vm.UserAddress.PostalCode;
-                ua.Details = vm.UserAddress.Details;
-                ua.UserId = user.Id;
-                db.Addresses.Add(ua);
-                await db.SaveChangesAsync();
-                addressId = ua.Id;
-            }
-            else
-            {
-                addressId = vm.UserData.AddressId.Value;
-            }
-
-            var order = await orderService.Checkout(addressId);
-
+            var order = await orderService.Checkout(vm.UserData.AddressId.Value);
             var payment = await orderService.InitPayment(order, pathService.AppBaseUrl + "/Payment/CallBackPay");
             string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}&source=api";
             return Json(new { success = true, msg = payUrl });
         }
 
+
+        public IActionResult UserAddress()
+        {
+            var p = new UserAddress();
+            p.UserId = UserId;
+            return PartialView("UserAddress", p);
+        }
+
+        [HttpPost]
+        public IActionResult UserAddress(UserAddress model)
+        {
+            if (string.IsNullOrEmpty(model.Title))
+                return Json(new { success = false, msg = "لطفا عنوان را وارد نمایید" });
+            if (string.IsNullOrEmpty(model.PostalCode))
+                return Json(new { success = false, msg = "لطفا کد پستی را وارد نمایید" });
+            if (model.PostalCode.Length != 10)
+                return Json(new { success = false, msg = "کد پستی را به صورت 10 رقم وارد نمایید" });
+            if (model.CityId==0)
+                return Json(new { success = false, msg = "لطفا شهر را انتخاب نمایید" });
+            if (string.IsNullOrEmpty(model.Details))
+                return Json(new { success = false, msg = "لطفا آدرس را وارد نمایید" });
+            db.Addresses.Add(model);
+            db.SaveChanges();
+            return Json(new { success = true, msg = "ثبت آدرس جدید با موفقیت انجام شد" });
+        }
 
 
         [NonAction]
@@ -245,7 +235,7 @@ namespace MahtaKala.Controllers
 
         public JsonResult GetUserAddress()
         {
-            var lst = db.Addresses.Where(a => a.UserId == UserId).Select(a => new { a.Id, Name = (a.City.Province.Name + "-" + a.City.Name + "-" + a.Details) });
+            var lst = db.Addresses.Where(a => a.UserId == UserId).OrderByDescending(a => a.Id).Select(a => new { a.Id, Name = (a.City.Province.Name + "-" + a.City.Name + "-" + a.Details) });
             return Json(lst);
         }
     }

@@ -14,6 +14,14 @@
     <script src="~/lib/kendo/js/kendo.timezones.min.js"></script>
     <script src="~/js/kendo.fa-IR.js"></script>
 
+    <script>
+        function filterCity(e) {
+            return {
+                provinceId: $("#ProvinceId").val(),
+                name: e.filter.filters[0].value
+            };
+        }
+    </script>
 }
 <!-- Breadcrumb Start -->
 <div class="breadcrumb-area mt-30">
@@ -92,7 +100,6 @@ new
                                     <label>آدرس تحویل سفارش <span class="required">*</span></label>
                                     @(Html.Kendo().DropDownList()
                                         .Name("UserData.AddressId")
-                                        .OptionLabel("--انتخاب نمایید--")
                                         .HtmlAttributes(new { style = "width:100%" })
                                         .DataTextField("name")
                                         .DataValueField("id")
@@ -110,77 +117,10 @@ new
                         </div>
                         <div class="different-address">
                             <div class="ship-different-title">
-                                <h3>
-                                    @Html.CheckBoxFor(a => a.IsNewAddress, new { id = "ship-box", name = "IsNewAddress" })
-                                    <label>به آدرس دیگری ارسال شود؟</label>
-                                </h3>
-                            </div>
-                            <div id="ship-box-info">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="country-select clearfix mb-30">
-                                            <label>استان <span class="required">*</span></label>
-                                            @(Html.Kendo().DropDownList()
-                                                .Name("ProvinceId").Value("7")
-                                                .HtmlAttributes(new { style = "width:100%" })
-                                                .DataTextField("name")
-                                                .DataValueField("id")
-                                                .Filter(FilterType.Contains)
-                                                .DataSource(source =>
-                                                {
-                                                    source.Read(read =>
-                                                    {
-                                                        read.Action("GetProvince", "Repo");
-                                                    }).ServerFiltering(false);
-                                                })
-                                            )
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="country-select clearfix mb-30">
-                                            <label>شهر <span class="required">*</span></label>
-                                            @(Html.Kendo().DropDownList().Name("UserAddress.CityId").Value("268")
-                                                .HtmlAttributes(new { style = "width:100%" })
-                                                .DataTextField("name")
-                                                .DataValueField("id")
-                                                .Filter(FilterType.Contains)
-                                                .DataSource(source =>
-                                                {
-                                                    source.Read(read => { read.Action("GetCity", "Repo").Data("filterCity"); }).ServerFiltering(true);
-                                                })
-                                                .Enable(false)
-                                                .AutoBind(false)
-                                                .CascadeFrom("ProvinceId")
-                                            )
-                                            <script>
-                                                function filterCity(e) {
-                                                    return {
-                                                        provinceId: $("#ProvinceId").val(),
-                                                        name: e.filter.filters[0].value
-                                                    };
-                                                }
-                                            </script>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="checkout-form-list mb-30">
-                                            <label>عنوان <span class="required">*</span></label>
-                                            @Html.TextBoxFor(a => a.UserAddress.Title, new { @autocomplete = "off" })
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="checkout-form-list mb-30">
-                                            <label>کد پستی <span class="required">*</span></label>
-                                            @Html.TextBoxFor(a => a.UserAddress.PostalCode, new {type="number", maxlength = "10", @autocomplete = "off" })
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="checkout-form-list mb-30">
-                                            <label>آدرس <span class="required">*</span></label>
-                                            @Html.TextBoxFor(a => a.UserAddress.Details, new { @autocomplete = "off" })
-                                        </div>
-                                    </div>
-                                </div>
+                                <a class="btn btn-info" id="uxAddressModal" href="javascript:void(0)">
+                                    <i class="fa fa-plus"></i>
+                                    اضافه کردن آدرس جدید
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -222,4 +162,3 @@ new
         </div>
     }
 </div>
-

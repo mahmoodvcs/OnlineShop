@@ -1,0 +1,130 @@
+﻿@model MahtaKala.Entities.UserAddress
+<div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">
+        درج آدرس جدید
+    </h5>
+</div>
+
+<form method="post"
+      asp-controller="cart"
+      asp-action="UserAddress"
+      class="horizontal-form"
+      role="form"
+      data-ajax="true"
+      encType="multipart/form-data"
+      id="attach-Form">
+
+    @Html.HiddenFor(a => a.UserId)
+    <div class="modal-body checkbox-form">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="checkout-form-list mt-15">
+                    <label>عنوان <span class="required">*</span></label>
+                    @Html.TextBoxFor(a => a.Title, new { @autocomplete = "off" })
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="checkout-form-list mt-15">
+                    <label>کد پستی <span class="required">*</span></label>
+                    @Html.TextBoxFor(a => a.PostalCode, new { @autocomplete = "off" ,type = "number", maxlength = "10" })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="checkout-form-list mt-15">
+                    <label>استان <span class="required">*</span></label>
+                    @(Html.Kendo().DropDownList()
+                        .Name("ProvinceId")
+                        .Value("7")
+                        .HtmlAttributes(new { style = "width:100%" })
+                        .DataTextField("name")
+                        .DataValueField("id")
+                        .Filter(FilterType.Contains)
+                        .DataSource(source =>
+                        {
+                            source.Read(read =>
+                            {
+                                read.Action("GetProvince", "Repo");
+                            }).ServerFiltering(false);
+                        })
+                    )
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="checkout-form-list mt-15">
+                    <label>شهر <span class="required">*</span></label>
+                    @(Html.Kendo().DropDownList().Name("CityId")
+                        .HtmlAttributes(new { style = "width:100%" })
+                        .Value("268")
+                        .DataTextField("name")
+                        .DataValueField("id")
+                        .Filter(FilterType.Contains)
+                        .DataSource(source =>
+                        {
+                            source.Read(read => { read.Action("GetCity", "Repo").Data("filterCity"); }).ServerFiltering(true);
+                        })
+                        .Enable(false)
+                        .AutoBind(false)
+                        .CascadeFrom("ProvinceId")
+                    )
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="checkout-form-list mt-15">
+                    <label>آدرس <span class="required">*</span></label>
+                    @Html.TextBoxFor(a => a.Details, new { @autocomplete = "off" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            انصراف
+        </button>
+        <button type="submit" class="btn btn-primary">
+            ذخیره
+        </button>
+    </div>
+</form>
+<script>
+    $('form#attach-Form').submit(function (e) {
+        e.preventDefault();
+        $.blockUI({
+            message: '<img src="/img/loading.gif"/>',
+            css: {
+                border: 'none',
+                backgroundColor: 'transparent'
+            }
+        });
+        var action = $(this).attr('action');
+        var formData = new FormData($(this).get(0));
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            url: action,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                $.unblockUI();
+                if (data.success) {
+                    $('#myModal').modal('toggle');
+                    BindUserAddress();
+                    toastr.success(data.msg, '', { positionClass: "toast-bottom-left" });
+                }
+                else {
+                    toastr.warning(data.msg, '', { positionClass: "toast-bottom-left" });
+                }
+            },
+            complete: function () {
+                $.unblockUI();
+            }
+        });
+
+        return false;
+    });
+</script>
