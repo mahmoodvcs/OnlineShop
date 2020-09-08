@@ -122,7 +122,7 @@ namespace MahtaKala.Controllers
             {
                 string message = string.Format(Messages.Messages.Order.OrderPaymentSuccessMessage, 
                     payment.TrackingNumber,
-                    payment.Order.SentDateTime.ToString());
+                    payment.Order.SentDateTime?.ToString("yyyy/MM/dd HH:mm"));
                 SMSService.Send(User.MobileNumber, message);
             }
         }
