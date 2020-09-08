@@ -102,8 +102,11 @@
     <ProjectReference Include="..\SharedServices\SharedServices.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Aspose.Cells">
+      <HintPath>..\lib\Aspose.Cells.dll</HintPath>
+    </Reference>
     <Reference Include="Kendo.Mvc">
-      <HintPath>..\Docs\Kendo.Mvc.dll</HintPath>
+      <HintPath>..\lib\Kendo.Mvc.dll</HintPath>
     </Reference>
   </ItemGroup>
 
