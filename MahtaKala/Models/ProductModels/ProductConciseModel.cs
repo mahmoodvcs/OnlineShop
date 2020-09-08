@@ -18,5 +18,7 @@ namespace MahtaKala.Models.ProductModels
         public decimal? DiscountPrice { get; set; }
         [JsonIgnore]
         public bool Disabled { get; set; }
+        [JsonIgnore]
+        public bool Published { get; internal set; }
     }
 }

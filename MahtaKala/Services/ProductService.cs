@@ -16,7 +16,7 @@ namespace MahtaKala.Services
         }
         public IQueryable<Product> Products()
         {
-            return db.Products.Where(a => !a.Disabled).OrderBy(a => a.Prices.Any(p => p.DiscountPrice > 0) ? 0 : 1);
+            return db.Products.Where(a => a.Published).OrderBy(a => !a.Disabled && a.Prices.Any(p => p.DiscountPrice > 0) ? 0 : 1);
         }
     }
 }

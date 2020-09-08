@@ -103,9 +103,13 @@
                     @Html.TextBoxFor(a => a.DiscountPrice, new { @class = "form-control", @type = "number" })
                     @Html.ValidationMessageFor(a => a.DiscountPrice)
                 </div>
-                <div class="col-lg-6">
-                    <label>عدم نمایش (غیر فعال):</label>
+                <div class="col-lg-3">
+                    <label>غیر فعال:</label>
                     @Html.CheckBoxFor(a => a.Disabled)
+                </div>
+                <div class="col-lg-3">
+                    <label>منتشر شده</label>
+                    @Html.CheckBoxFor(a => a.Published)
                 </div>
             </div>
             <div class="form-group row">

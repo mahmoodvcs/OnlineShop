@@ -10,6 +10,7 @@
     columns.Bound(p => p.Brand).Title("برند");
     columns.Bound(p => p.Price).Title("قیمت");
     columns.Bound(p => p.Disabled).Title("غیر فعال");
+    columns.Bound(p => p.Published).Title("منتشر شده");
     columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
     columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
 
@@ -60,7 +61,7 @@
         function RemoveQuestion(e) {
             e.preventDefault();
             var id = this.dataItem($(e.currentTarget).closest("tr")).Id;
-            swal({
+            swal.fire({
                 title: "از حذف این آیتم مطمئن هستید؟",
                 text: "در صورتی که برای این آیتم رکوردی درج شده باشد حذف می شود و این کار غیر قابل بازگشت می باشد",
                 type: "warning",
@@ -70,10 +71,8 @@
                 cancelButtonText: "انصراف می دم",
                 closeOnConfirm: false,
                 closeOnCancel: true
-            },
-                function (isConfirm) {
-                    if (isConfirm) {
-
+            }).then(function (result) {
+                if (result.value) {
                         $.ajax({
                             url: '@Url.Content("~/Staff/Product_Destroy/")' + id,
                             dataType: "json",
@@ -82,17 +81,17 @@
                             cache: false,
                             success: function (data) {
 
-                                if (data.Success) {
+                                if (data.success) {
                                     var grid = $("#grid").data("kendoGrid");
                                     grid.dataSource.read();
-                                    swal("حذف رکورد با موفقیت انجام شد", "", "success");
+                                    swal.fire("حذف رکورد با موفقیت انجام شد", "", "success");
                                 }
                                 else {
-                                    swal(data.msg, "", "warning");
+                                    swal.fire(data.message, "", "warning");
                                 }
                             },
                             error: function (xhr) {
-                                swal("خطایی  در حذف اطلاعات اتفاق افتاده است", "", "warning");
+                                swal.fire("خطایی  در حذف اطلاعات اتفاق افتاده است", "", "warning");
                             }
                         });
                     }

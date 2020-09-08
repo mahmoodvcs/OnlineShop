@@ -1,4 +1,3 @@
-using BotDetect.Web;
 using MahtaKala.Entities;
 using MahtaKala.Entities.ExceptionHandling;
 using MahtaKala.GeneralServices;

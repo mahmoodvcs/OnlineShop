@@ -9,30 +9,36 @@
 {
     @Html.AntiForgeryToken()
 
-<div class="form-horizontal">
-    <h4>@ViewData["Title"]</h4>
-    <hr />
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    @Html.HiddenFor(model => model.Id)
+    <div class="form-horizontal">
+        <h4>@ViewData["Title"]</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
 
 
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
+    <div class="form-group row">
+        <div class="col-lg-3">
+            @Html.LabelFor(model => model.Title)
             @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
             @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
         </div>
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(model => model.Disabled, htmlAttributes: new { @class = "control-label" })
+        <div class="col-lg-3">
+            @Html.LabelFor(model => model.Disabled)
             @Html.EditorFor(model => model.Disabled, new { htmlAttributes = new { @class = "form-control" } })
-    </div>
+        </div>
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.ParentId, htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
+        <div class="col-lg-3">
+            @Html.LabelFor(model => model.Published)
+            @Html.EditorFor(model => model.Published, new { htmlAttributes = new { @class = "form-control" } })
+        </div>
+        <div class="col-lg-3">
+            @Html.LabelFor(model => model.Order)
+            @Html.EditorFor(model => model.Order, new { htmlAttributes = new { @class = "form-control" } })
+        </div>
+
+        <div class="col-lg-6">
+            @Html.LabelFor(model => model.ParentId)
 
             @Html.DropDownListFor(
                  model => model.ParentId,
@@ -47,10 +53,10 @@
 
 
 
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" value="دخیره" class="btn btn-primary" />
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="دخیره" class="btn btn-primary" />
+            </div>
         </div>
     </div>
-</div>
 }

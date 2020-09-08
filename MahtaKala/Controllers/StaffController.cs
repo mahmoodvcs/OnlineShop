@@ -55,7 +55,8 @@ namespace MahtaKala.Controllers
             var user = base.User;
             var orders = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
-                                                  o.State == OrderState.Sent);
+                                                  o.State == OrderState.Sent)
+                        .Where(a=>a.CheckOutData != null);
             var orderChart = orders.OrderBy(o => o.CheckOutData)
                 .GroupBy(o => o.CheckOutData.Value.Date)
                 .Select(o => new
@@ -483,7 +484,9 @@ namespace MahtaKala.Controllers
                 Title = a.Title,
                 Thubmnail = a.Thubmnail,
                 Price = a.Prices.FirstOrDefault().Price,
-                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice
+                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
+                Disabled = a.Disabled,
+                Published = a.Published
             });
 
             return ConvertDataToJson(data, request);
@@ -496,8 +499,9 @@ namespace MahtaKala.Controllers
             if (db.OrderItems.Any(a => a.ProductPrice.ProductId == id))
             {
                 var prod = await db.Products.FindAsync(id);
-                prod.Disabled = true;
+                prod.Published = false;
                 await db.SaveChangesAsync();
+                return Json(new { Success = false, Message = "محصول در سفارش استفاده شده است. از حالت انتشار خارج میشود" });
             }
             else
             {
@@ -561,6 +565,7 @@ namespace MahtaKala.Controllers
                 product.BrandId = model.BrandId;
                 product.Description = model.Description;
                 product.Disabled = model.Disabled;
+                product.Published = model.Published;
                 product.Prices = new List<ProductPrice> {
                     new ProductPrice
                     {
@@ -730,7 +735,6 @@ namespace MahtaKala.Controllers
                 order.DelivererNo = DelivererId;
                 var code = await smsService.SendOTP(user.MobileNumber, Messages.Messages.Order.DeliveredOTPMessage);
                 order.TrackNo = code.ToString();
-                order.SentDateTime = DateTime.Now;
             }
             else
             {
@@ -808,7 +812,6 @@ namespace MahtaKala.Controllers
 
         private ContentResult ConvertDataToJson<T>(IQueryable<T> data, [DataSourceRequest] DataSourceRequest request)
         {
-
             var list = JsonConvert.SerializeObject(data.ToDataSourceResult(request), Formatting.None,
                     new JsonSerializerSettings()
                     {

@@ -39,11 +39,15 @@ namespace MahtaKala.Entities
             modelBuilder.Entity<ProductCategory>()
                 .HasOne(pc => pc.Product)
                 .WithMany(p=>p.ProductCategories)
-                .HasForeignKey(bc => bc.ProductId);
+                .HasForeignKey(bc => bc.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<ProductCategory>()
                 .HasOne(pc => pc.Category)
                 .WithMany(c=>c.ProductCategories)
-                .HasForeignKey(pc => pc.CategoryId);
+                .HasForeignKey(pc => pc.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<OrderItem>().HasOne(a => a.ProductPrice).WithMany(a => a.OrderItems).OnDelete(DeleteBehavior.Restrict);
         }
 
         public DbSet<User> Users{ get; set; }

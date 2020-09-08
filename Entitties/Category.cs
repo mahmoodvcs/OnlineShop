@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -23,7 +24,11 @@ namespace MahtaKala.Entities
         public Category Parent { get; set; }
         public IList<Category> Children { get; set; }
         public IList<ProductCategory> ProductCategories { get; set; }
-        [Display(Name ="عدم نمایش (غیر فعال)")]
+        [Display(Name ="غیر فعال")]
         public bool Disabled { get; set; }
+        [Display(Name ="منتشر شده")]
+        public bool Published { get; set; }
+        [Display(Name ="ترتیب")]
+        public int Order { get; set; }
     }
 }

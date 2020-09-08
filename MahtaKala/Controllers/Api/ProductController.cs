@@ -229,7 +229,7 @@ namespace MahtaKala.Controllers
                 categories = categories.Where(c => categoryIds.Contains(c.Id));
 
             var query = from cat in categories
-                        from prc in cat.ProductCategories.Where(c => !c.Product.Disabled)
+                        from prc in cat.ProductCategories.Where(c => c.Product.Published)
                         orderby prc.ProductId
                         select new ProductConciseModel
                         {

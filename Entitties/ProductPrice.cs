@@ -20,5 +20,8 @@ namespace MahtaKala.Entities
         public IList<CharacteristicValue> CharacteristicValues { get; set; }
         public decimal Price { get; set; }
         public decimal DiscountPrice { get; set; }
+
+        public IList<OrderItem> OrderItems { get; set; }
+
     }
 }

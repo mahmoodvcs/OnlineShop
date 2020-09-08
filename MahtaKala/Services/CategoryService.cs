@@ -17,7 +17,7 @@ namespace MahtaKala.Services
 
         public IQueryable<Category> Categories()
         {
-            return db.Categories.Where(a => !a.Disabled);
+            return db.Categories.Where(a => a.Published).OrderBy(a => a.Disabled ? 0 : 1).ThenBy(a => a.Order);
         }
     }
 }
