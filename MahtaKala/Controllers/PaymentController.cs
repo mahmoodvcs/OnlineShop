@@ -120,11 +120,10 @@ namespace MahtaKala.Controllers
         {
             if (payment.State == PaymentState.Succeeded && payment.Order.State == OrderState.Paid)
             {
-                string message = "مهتاکالا: پرداخت با موفقیت انجام شد. کد ره گیری:" +
-                    payment.TrackingNumber +
-                    " تاریخ تخمینی ارسال: " +
-                    payment.Order.SentDateTime.ToString();
-                SMSService.Send(User.MobileNumber, Messages.Messages.Signup.LoginOTPMessage);
+                string message = string.Format(Messages.Messages.Order.OrderPaymentSuccessMessage, 
+                    payment.TrackingNumber,
+                    payment.Order.SentDateTime.ToString());
+                SMSService.Send(User.MobileNumber, message);
             }
         }
 

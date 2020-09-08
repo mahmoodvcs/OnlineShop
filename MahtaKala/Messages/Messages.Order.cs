@@ -17,6 +17,7 @@ namespace MahtaKala.Messages
             public const string DeliveredOTPMessage = "مهتا کالا: کالای شما ارسال شد. کد پیگیری {0}";
             public const string ProductDoesNotExistInStore ="کالای {0} در انبار موجود نیست";
             public const string CannotAddProduct_DefferentSeller = "امکان افزودن این کالا وجود ندارد. فروشنده ی این کالا، با کالاهای قبلی متفاوت است";
+            public const string OrderPaymentSuccessMessage = "مهتاکالا: پرداخت انجام شد. کد رهگیری {0}. تاریخ تخمینی ارسال کالا: {1}";
         }
     }
 }
