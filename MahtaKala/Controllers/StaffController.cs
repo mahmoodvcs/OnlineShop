@@ -32,16 +32,19 @@ namespace MahtaKala.Controllers
     public class StaffController : ApiControllerBase<StaffController>
     {
         private readonly IProductImageService productImageService;
+        private readonly ImportService importService;
         private readonly ISMSService smsService;
 
         public StaffController(
             DataContext context,
             ILogger<StaffController> logger,
             ISMSService smsService,
-            IProductImageService productImageService
+            IProductImageService productImageService,
+            ImportService importService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
+            this.importService = importService;
             this.smsService = smsService;
         }
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery, UserType.Seller })]
@@ -808,6 +811,38 @@ namespace MahtaKala.Controllers
 
         #endregion Seller
 
+
+        [HttpGet]
+        public ActionResult ImportProductPrices()
+        {
+            ViewBag.Message = TempData["Message"];
+            ViewBag.Error = TempData["Error"];
+            return View();
+        }
+        [HttpPost]
+        public async Task<ActionResult> ImportProductPrices(IEnumerable<IFormFile> files)
+        {
+            var file = files.FirstOrDefault();
+            if (file == null)
+                ViewBag.Error = "فایل انتخاب نشده است";
+            else
+            {
+                try
+                {
+                    var count = await importService.ImportProductCountAndPrices(file.OpenReadStream());
+                    TempData["Message"] = $"تعداد {count} سطر از فایل دریافت شد";
+                    return RedirectToAction("ImportProductPrices");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, ex.Message);
+                    ViewBag.Error = ex.Message;
+                }
+            }
+            return View();
+        }
+
+        [HttpGet]
 
         private ContentResult ConvertDataToJson<T>(IQueryable<T> data, [DataSourceRequest] DataSourceRequest request)
         {

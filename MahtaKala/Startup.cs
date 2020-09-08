@@ -116,6 +116,7 @@ namespace MahtaKala
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<ProductService>();
             services.AddScoped<CategoryService>();
+            services.AddScoped<ImportService>();
             
             services.AddKendo();
         }
