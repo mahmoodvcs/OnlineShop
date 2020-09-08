@@ -1,3 +1,4 @@
+using BotDetect.Web;
 using MahtaKala.Entities;
 using MahtaKala.Entities.ExceptionHandling;
 using MahtaKala.GeneralServices;
@@ -18,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using System;
 using System.IO;
 
 namespace MahtaKala
@@ -48,6 +50,14 @@ namespace MahtaKala
                 o.SubstituteApiVersionInUrl = true;
             });
 
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(20);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MahtaShop API", Version = "v1" });
@@ -75,6 +85,7 @@ namespace MahtaKala
             {
                 options.AutomaticAuthentication = false;
             });
+
 
             //services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
             services.AddSingleton(Configuration);
@@ -107,7 +118,6 @@ namespace MahtaKala
             services.AddScoped<ProductService>();
             services.AddScoped<CategoryService>();
             
-            services.AddSession();
             services.AddKendo();
         }
 
@@ -120,6 +130,8 @@ namespace MahtaKala
             //{
             //    app.UseSpaStaticFiles();
             //}
+            
+            //app.UseSimpleCaptcha(Configuration.GetSection("BotDetect"));
 
             app.UseRouting();
             app.UseResponseCaching();

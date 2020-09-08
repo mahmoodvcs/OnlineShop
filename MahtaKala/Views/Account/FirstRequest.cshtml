@@ -8,9 +8,13 @@ new
 }))
 {
     <div class="form-group">
-        @Html.TextBoxFor(a => a.Mobile, new { @autocomplete = "off", @type = "number", @placeholder = "شماره موبایل ...", @class = "formInputLogin" })
+        @Html.TextBoxFor(a => a.Mobile, new { @type = "number", @placeholder = "شماره موبایل ...", @class = "formInputLogin" })
     </div>
-    <input type="submit" value="ادامه" class="customer-btn">
+    @if (!string.IsNullOrEmpty(Model?.Error))
+    {
+        <div class="alert alert-danger" id="#alertMsg">@Model.Error</div>
+    }
+    <input type="submit" value="ادامه" class="customer-btn" id="signupBtn" disabled="@(!string.IsNullOrEmpty(Model?.Error))">
 }
 <p class="ptb-15">
     با ورود و یا ثبت نام در مهتاکالا شما شرایط و قوانین استفاده از سرویس های سایت ‌مهتاکالا و قوانین حریم خصوصی آن را می‌پذیرید.

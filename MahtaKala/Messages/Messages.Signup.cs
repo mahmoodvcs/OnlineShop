@@ -11,6 +11,7 @@ namespace MahtaKala.Messages
         {
             public const string PhoneNumberIsNotValid = "شماره تلفن وارد شده معتبر نیست";
             public const string LoginOTPMessage = "کد ورود به فروشگاه مهتاکالا: {0}";
+            public const string MaxSignupAttemptReached = "لطفا بعد از گذشت {0} دقیقه و {1} ثانیه مجددا تلاش کنید";
         }
     }
 }

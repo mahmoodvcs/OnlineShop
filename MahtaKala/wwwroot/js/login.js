@@ -1,4 +1,5 @@
-﻿$(document).on("submit", "form#FirstRequest", function (e) {  
+﻿
+$(document).on("submit", "form#FirstRequest", function (e) {  
     e.preventDefault();
     $.blockUI({
         message: '<img src="/img/loading.gif"/>',

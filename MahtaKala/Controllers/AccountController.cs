@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bogus.Extensions;
 using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
@@ -93,15 +94,49 @@ namespace MahtaKala.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult FirstRequest()
+        TimeSpan GetSignupWaitMinuts()
+        {
+            var attempts = HttpContext.Session.GetInt32("SignupAttemps");
+            var lastSignup = HttpContext.Session.Get<DateTime?>("SignupLastAttemp");
+            if (lastSignup != null)
+            {
+                double waitMins;
+                if (attempts < 4)
+                    waitMins = 1;
+                else
+                    waitMins = Math.Pow(2, attempts.Value - 3);
+                if (lastSignup.Value.AddMinutes(waitMins) > DateTime.Now)
+                    return lastSignup.Value.AddMinutes(waitMins) - DateTime.Now;
+            }
+            return TimeSpan.Zero;
+        }
+        void SetSignupAttemp()
+        {
+            var attempts = HttpContext.Session.GetInt32("SignupAttemps");
+            attempts = (attempts ?? 0) + 1;
+            HttpContext.Session.Set<DateTime?>("SignupLastAttemp", DateTime.Now);
+            HttpContext.Session.SetInt32("SignupAttemps", attempts.Value);
+        }
+
+        public IActionResult FirstRequest(string number)
         {
             SignupRequest vm = new SignupRequest();
+            vm.Mobile = number;
+            var wait = GetSignupWaitMinuts();
+            if (wait > TimeSpan.Zero)
+            {
+                vm.Error = string.Format(Messages.Messages.Signup.MaxSignupAttemptReached, wait.Minutes, wait.Seconds);
+            }
             return PartialView(vm);
         }
 
         [HttpPost]
         public async Task<IActionResult> FirstRequest(SignupRequest vm)
         {
+            var wait = GetSignupWaitMinuts();
+            if (wait > TimeSpan.Zero)
+                return Json(new { success = false, msg = string.Format(Messages.Messages.Signup.MaxSignupAttemptReached, wait.Minutes, wait.Seconds) });
+
             var number = Util.NormalizePhoneNumber(vm.Mobile);
             if (!System.Text.RegularExpressions.Regex.IsMatch(number, @"^(\+98|0)?9\d{9}$"))
             {
@@ -125,6 +160,9 @@ namespace MahtaKala.Controllers
             };
             db.UserActivationCodes.Add(userCode);
             await db.SaveChangesAsync();
+
+            SetSignupAttemp();
+
             return Json(new { success = true, msg = "ارسال با موفقیت انجام شد", id = userCode.Id });
         }
 

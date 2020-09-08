@@ -8,5 +8,6 @@ namespace MahtaKala.Models.UserModels
     public class SignupRequest
     {
         public string Mobile { get; set; }
+        public string Error { get; set; }
     }
 }
