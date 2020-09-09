@@ -695,17 +695,21 @@ namespace MahtaKala.Controllers
                     Id = a.Id,
                     Price = a.TotalPrice,
                     a.CheckOutData,
-                    a.SentDateTime,
+                    a.ApproximateDeliveryDate,
+                    a.ActualDeliveryDate,
                     Name = a.User.FirstName + " " + a.User.LastName,
+                    a.SendDate,
                     State = a.State
                 }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
                 {
                     Id = a.Id,
                     CheckoutDate = Util.GetPersianDate(a.CheckOutData),
-                    SendDate = Util.GetPersianDate(a.SentDateTime),
+                    ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
+                    SendDate = Util.GetPersianDate(a.SendDate),
+                    ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
                     Price = (long)a.Price,
                     Customer = a.Name,
-                    State = Enum.GetName(typeof(OrderState), a.State)
+                    State = TranslateExtentions.GetTitle(a.State)
                 });
 
             var list = JsonConvert.SerializeObject(data, Formatting.None,
@@ -717,7 +721,7 @@ namespace MahtaKala.Controllers
         }
 
         [AjaxAction]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin }, Order = 1)]
         public async Task<ActionResult> ConfirmSent(long Id, string DelivererId)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
@@ -732,17 +736,17 @@ namespace MahtaKala.Controllers
             }
             if (order.State == OrderState.Paid)
             {
-                order.SentDateTime = DateTime.Now;
+                order.SendDate = DateTime.Now;
                 order.State = OrderState.Sent;
                 order.DelivererNo = DelivererId;
-                var code = await smsService.SendOTP(user.MobileNumber, Messages.Messages.Order.DeliveredOTPMessage);
-                order.TrackNo = code.ToString();
+                order.TrackNo = new Random().Next(100000, 999999).ToString();
+                await db.SaveChangesAsync();
+                await smsService.Send(user.MobileNumber, string.Format(Messages.Messages.Order.DeliveredOTPMessage, order.TrackNo));
             }
             else
             {
                 return Json(new { success = false, message = Messages.Messages.Order.ErrorConvertStateToSent });
             }
-            await db.SaveChangesAsync();
             return Json(new { success = true });
         }
 
@@ -762,6 +766,7 @@ namespace MahtaKala.Controllers
             if (order.State == OrderState.Sent)
             {
                 order.State = OrderState.Delivered;
+                order.ActualDeliveryDate = DateTime.Now;
             }
             else
             {

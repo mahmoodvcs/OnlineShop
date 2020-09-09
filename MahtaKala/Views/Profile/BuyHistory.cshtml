@@ -15,8 +15,10 @@
                     <th>شناسه سفارش</th>
                     <th>قیمت کل</th>
                     <th>تاریخ سفارش</th>
-                    <th>تاریخ ارسال</th>
                     <th>وضعیت</th>
+                    <th>تاریخ تقریبی تحویل</th>
+                    <th>تاریخ ارسال</th>
+                    <th>تاریخ تحویل</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,10 +33,16 @@
                         @item.CheckoutDate
                     </td>
                     <td>
+                        @item.State
+                    </td>
+                    <td>
+                        @item.ApproximateDeliveryDate
+                    </td>
+                    <td>
                         @item.SendDate
                     </td>
                     <td>
-                        @item.State
+                        @item.ActualDeliveryDate
                     </td>
                 </tr>
                 }

@@ -185,7 +185,9 @@ namespace MahtaKala.Controllers.Api
                     Id = a.Id,
                     Price = a.TotalPrice,
                     a.CheckOutData,
-                    a.SentDateTime,
+                    a.ApproximateDeliveryDate,
+                    a.ActualDeliveryDate,
+                    a.SendDate,
                     State = a.State
                 }).ToListAsync();
 
@@ -193,7 +195,9 @@ namespace MahtaKala.Controllers.Api
             {
                 Id = a.Id,
                 CheckoutDate = Util.GetPersianDate(a.CheckOutData),
-                SendDate = Util.GetPersianDate(a.SentDateTime),
+                ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
+                SendDate = Util.GetPersianDate(a.SendDate),
+                ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
                 Price = (long)a.Price,
                 State = TranslateExtentions.GetTitle(a.State)
             });

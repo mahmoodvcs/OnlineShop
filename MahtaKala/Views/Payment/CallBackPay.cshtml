@@ -4,11 +4,13 @@
 }
 <h3 class="mb-10 ptb-30 custom-title">وضعیت پرداخت</h3>
 <form>
-    @if (Model.State ==PaymentState.Succeeded)
+    @if (Model.State == PaymentState.Succeeded)
     {
         <p class="mb-10"><strong class="product-size greenColor">پرداخت شما با موفقیت انجام شد</strong></p>
         <br />
         <p class="mb-10"><strong class="product-size">کد رهگیری : @Model.TrackingNumber</strong></p>
+        <br />
+        <p class="mb-10"><strong class="product-size">زمان تخمینی ارسال کالا: @Util.GetPersianDate(Model.Order.ApproximateDeliveryDate)</strong></p>
 
     }
     else

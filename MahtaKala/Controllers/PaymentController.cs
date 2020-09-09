@@ -3,6 +3,7 @@ using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Payment;
 using MahtaKala.Infrustructure;
 using MahtaKala.Models.Payment;
+using MahtaKala.Services;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,8 @@ namespace MahtaKala.Controllers
     {
         private readonly IBankPaymentService bankPaymentService;
         private readonly IPathService pathService;
+        private readonly OrderService orderService;
+
         private ISMSService SMSService { get; set; }
 
         public PaymentController(
@@ -27,17 +30,19 @@ namespace MahtaKala.Controllers
             ILogger<PaymentController> logger,
             IBankPaymentService bankPaymentService,
             IPathService pathService,
+            OrderService orderService,
             ISMSService smsService) : base(dataContext, logger)
         {
             this.bankPaymentService = bankPaymentService;
             this.pathService = pathService;
+            this.orderService = orderService;
             this.SMSService = smsService;
         }
 
         public async Task<ActionResult> Pay(long pid, string uid)
         {
             var payment = await db.Payments.FindAsync(pid);
-            if (payment.UniqueId != uid)//TOSO:Double check
+            if (payment.UniqueId != uid)//TODO:Double check
             {
 
             }
@@ -86,33 +91,27 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<ActionResult> Paid()//didn't work [FromQuery]string source)
         {
-            using (var reader = new StreamReader(Request.Body))
-            {
-                //reader.BaseStream.Seek(0, SeekOrigin.Begin);
-                var body = await reader.ReadToEndAsync();
-
-                Payment payment = await bankPaymentService.Paid(body);
-                SendPaymentSMS(payment);
-                //if (source == "api")
-                return View("PaidFromApi", payment);
-                //else
-                //    return View(payment);
-            }
+            var payment = await DoPaymentCallbackOperations();
+            return View("PaidFromApi", payment);
         }
 
         [HttpPost]
         public async Task<ActionResult> CallBackPay()
         {
+            var payment = await DoPaymentCallbackOperations();
+            return View(payment);
+        }
+
+        private async Task<Payment> DoPaymentCallbackOperations()
+        {
             using (var reader = new StreamReader(Request.Body))
             {
                 var body = await reader.ReadToEndAsync();
                 Payment payment = await bankPaymentService.Paid(body);
+                await orderService.Paid(payment);
                 if (payment.State == PaymentState.Succeeded)
-                {
-                    await db.ShoppingCarts.Where(a => a.UserId == payment.Order.UserId).DeleteAsync();
                     SendPaymentSMS(payment);
-                }
-                return View(payment);
+                return payment;
             }
         }
 
@@ -120,10 +119,11 @@ namespace MahtaKala.Controllers
         {
             if (payment.State == PaymentState.Succeeded && payment.Order.State == OrderState.Paid)
             {
-                string message = string.Format(Messages.Messages.Order.OrderPaymentSuccessMessage, 
+                string message = string.Format(Messages.Messages.Order.OrderPaymentSuccessMessage,
                     payment.TrackingNumber,
-                    payment.Order.SentDateTime?.ToString("yyyy/MM/dd HH:mm"));
-                SMSService.Send(User.MobileNumber, message);
+                    payment.Order.ApproximateDeliveryDate?.ToString("yyyy/MM/dd HH:mm"));
+                var number = db.Users.Where(a => a.Id == payment.Order.UserId).Select(a => a.MobileNumber).Single();
+                SMSService.Send(number, message);
             }
         }
 
