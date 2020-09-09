@@ -27,7 +27,7 @@ namespace MahtaKala.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync()
         {
             List<ProductGroupListVM> productGroupList = new List<ProductGroupListVM>();
-            var lstGroup = await categoryService.Categories().Where(a => a.ParentId == null).ToListAsync();
+            var lstGroup = await categoryService.Categories().Where(a => a.ParentId == null && !a.Disabled).ToListAsync();
             foreach (var item in lstGroup)
             {
                 ProductGroupListVM vm = new ProductGroupListVM();
