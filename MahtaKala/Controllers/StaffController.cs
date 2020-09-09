@@ -560,7 +560,8 @@ namespace MahtaKala.Controllers
                 }
                 else
                 {
-                    product = await db.Products.Include(p => p.ProductCategories).Include(p => p.Prices).FirstOrDefaultAsync(p => p.Id == model.Id);
+                    product = await db.Products.Include(p => p.ProductCategories).Include(p => p.Prices)//.Where(c=>c.Active))
+                        .FirstOrDefaultAsync(p => p.Id == model.Id);
                 }
                 product.Properties = JsonConvert.DeserializeObject<IList<KeyValuePair<string, string>>>(Request.Form["Properties"]);
                 product.Title = model.Title;
@@ -568,13 +569,20 @@ namespace MahtaKala.Controllers
                 product.Description = model.Description;
                 product.Disabled = model.Disabled;
                 product.Published = model.Published;
-                product.Prices = new List<ProductPrice> {
-                    new ProductPrice
+                if (product.Prices.Any())
+                {
+                    var price = product.Prices.First();
+                    price.Price = model.Price;
+                    price.DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice;
+                }
+                else
+                {
+                    product.Prices.Add(new ProductPrice
                     {
                         Price = model.Price,
-                        DiscountPrice = model.DiscountPrice
-                    }
-                };
+                        DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice
+                    });
+                }
 
                 await db.SaveChangesAsync();
                 return RedirectToAction("ProductList", "Staff");
