@@ -30,9 +30,12 @@ namespace MahtaKala.ViewComponents
             var lstGroup = await categoryService.Categories().Where(a => a.ParentId == null && !a.Disabled).ToListAsync();
             foreach (var item in lstGroup)
             {
+                List<long> lstg = new List<long>();
+                lstg.Add(item.Id);
+                lstg.AddRange(await categoryService.Categories().Where(a => a.ParentId == item.Id && !a.Disabled).Select(a => a.Id).ToListAsync());
                 ProductGroupListVM vm = new ProductGroupListVM();
                 vm.GroupName = item.Title;
-                var lst = await productService.Products().Include(a => a.Prices).Where(c=> c.ProductCategories.Any(pc => pc.CategoryId == item.Id)).Take(10).ToListAsync();
+                var lst = await productService.Products().Include(a => a.Prices).Where(c => c.ProductCategories.Any(pc => lstg.Contains(pc.CategoryId))).Take(10).ToListAsync();
                 foreach (var itemx in lst)
                 {
                     imageService.FixImageUrls(itemx);
@@ -40,7 +43,7 @@ namespace MahtaKala.ViewComponents
                 vm.Products = lst;
                 productGroupList.Add(vm);
             }
-          
+
             return View(productGroupList);
         }
     }

@@ -2,90 +2,92 @@
 <div class="pb-45"></div>
 @foreach (var itemx in Model)
 {
-    <div class="second-arrivals-product pb-45 pb-sm-5">
-        <div class="container">
-            <div class="main-product-tab-area">
-                <div class="tab-menu mb-25">
-                    <div class="section-ttitle paddReigt">
-                        <h2>@itemx.GroupName</h2>
+  
+        <div class="second-arrivals-product pb-45 pb-sm-5">
+            <div class="container">
+                <div class="main-product-tab-area">
+                    <div class="tab-menu mb-25">
+                        <div class="section-ttitle paddReigt">
+                            <h2>@itemx.GroupName</h2>
+                        </div>
+
                     </div>
 
-                </div>
-
-                <div class="tab-content">
-                    <div class="tab-pane fade show active">
-                        <div class="best-seller-pro-active owl-carousel" dir="ltr">
-                            @foreach (var item in itemx.Products)
-                            {
-                                var productPrice = item.Prices.First();
-                                decimal discount;
-                                var isDiscount = Util.IsDiscount(productPrice, out discount);
-                                <div class="single-product">
-                                    <!-- Product Image Start -->
-                                    <div class="pro-img">
-                                        <a href="@Url.Content("~/home/product/" + item.Id)">
-                                            <img class="primary-img imgh226" src="@item.Thubmnail" alt="single-product">
-                                        </a>
-                                        @*<a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>*@
-                                    </div>
-                                    <!-- Product Image End -->
-                                    <!-- Product Content Start -->
-                                    <div class="pro-content">
-                                        <div class="pro-info">
-                                            <h4><a href="@Url.Content("~/home/product/" + item.Id)">@item.Title</a></h4>
-
-                                            @if (productPrice.DiscountPrice > 0 && !item.Disabled)
-                                            {
-                                                <p style="direction:rtl">
-                                                    <span class="price">
-                                                        @Util.Sub3Number(productPrice.DiscountPrice)
-                                                    </span>
-                                                    <text>ریال</text>
-                                                    @if (isDiscount)
-                                                    {
-                                                        <del class="prev-price">@Util.Sub3Number(productPrice.Price)</del>
-                                                    }
-                                                </p>
-                                                @if (isDiscount)
-                                                {
-                                                    <div class="label-product l_sale">@discount<span class="symbol-percent">%</span></div>
-                                                }
-                                            }
-                                            else
-                                            {
-                                                <p style="direction:rtl">
-                                                    ناموجود
-                                                </p>
-                                            }
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active">
+                            <div class="best-seller-pro-active owl-carousel" dir="ltr">
+                                @foreach (var item in itemx.Products)
+                                {
+                                    var productPrice = item.Prices.First();
+                                    decimal discount;
+                                    var isDiscount = Util.IsDiscount(productPrice, out discount);
+                                    <div class="single-product">
+                                        <!-- Product Image Start -->
+                                        <div class="pro-img">
+                                            <a href="@Url.Content("~/home/product/" + item.Id)">
+                                                <img class="primary-img imgh226" src="@item.Thubmnail" alt="single-product">
+                                            </a>
+                                            @*<a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>*@
                                         </div>
-                                        <div class="pro-actions">
-                                            <div class="actions-primary">
+                                        <!-- Product Image End -->
+                                        <!-- Product Content Start -->
+                                        <div class="pro-content">
+                                            <div class="pro-info">
+                                                <h4><a href="@Url.Content("~/home/product/" + item.Id)">@item.Title</a></h4>
+
                                                 @if (productPrice.DiscountPrice > 0 && !item.Disabled)
                                                 {
-                                                    <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id"> اضافه کردن به سبد +</a>
+                                                    <p style="direction:rtl">
+                                                        <span class="price">
+                                                            @Util.Sub3Number(productPrice.DiscountPrice)
+                                                        </span>
+                                                        <text>ریال</text>
+                                                        @if (isDiscount)
+                                                        {
+                                                            <del class="prev-price">@Util.Sub3Number(productPrice.Price)</del>
+                                                        }
+                                                    </p>
+                                                    @if (isDiscount)
+                                                    {
+                                                        <div class="label-product l_sale">@discount<span class="symbol-percent">%</span></div>
+                                                    }
                                                 }
                                                 else
                                                 {
-                                                    <a href="javascript:void(0)" class="disableItem">ناموجود</a>
-
+                                                    <p style="direction:rtl">
+                                                        ناموجود
+                                                    </p>
                                                 }
                                             </div>
-                                            <div class="actions-secondary">
-                                                <a href="#" title="مقایسه" class="compare-to" data-id="@item.Id"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                                                <a href="#" title="علاقه مندی ها" class="heart" data-id="@item.Id"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
+                                            <div class="pro-actions">
+                                                <div class="actions-primary">
+                                                    @if (productPrice.DiscountPrice > 0 && !item.Disabled)
+                                                    {
+                                                        <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id"> اضافه کردن به سبد +</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="javascript:void(0)" class="disableItem">ناموجود</a>
+
+                                                    }
+                                                </div>
+                                                <div class="actions-secondary">
+                                                    <a href="#" title="مقایسه" class="compare-to" data-id="@item.Id"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
+                                                    <a href="#" title="علاقه مندی ها" class="heart" data-id="@item.Id"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
+                                                </div>
                                             </div>
                                         </div>
+                                        <!-- Product Content End -->
                                     </div>
-                                    <!-- Product Content End -->
-                                </div>
 
-                            }
+                                }
+                            </div>
                         </div>
+
                     </div>
-
                 </div>
-            </div>
 
+            </div>
         </div>
-    </div>
+    
 }
