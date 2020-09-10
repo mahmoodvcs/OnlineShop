@@ -50,7 +50,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery, UserType.Seller })]
         public async Task<IActionResult> Index()
         {
-            if(base.User.Type == UserType.Delivery)
+            if (base.User.Type == UserType.Delivery)
             {
                 return RedirectToAction("BuyHistory");
             }
@@ -59,7 +59,7 @@ namespace MahtaKala.Controllers
             var orders = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent)
-                        .Where(a=>a.CheckOutData != null);
+                        .Where(a => a.CheckOutData != null);
             var orderChart = orders.OrderBy(o => o.CheckOutData)
                 .GroupBy(o => o.CheckOutData.Value.Date)
                 .Select(o => new
@@ -188,7 +188,7 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<JsonResult> UserDestroy(long id)
         {
-            if(await db.Products.AnyAsync(p=>p.SellerId == id))
+            if (await db.Products.AnyAsync(p => p.SellerId == id))
             {
 
                 return Json(new { Success = false, msg = "کاربر دارای کالا می باشد." });
@@ -568,13 +568,32 @@ namespace MahtaKala.Controllers
                 product.Description = model.Description;
                 product.Disabled = model.Disabled;
                 product.Published = model.Published;
-                product.Prices = new List<ProductPrice> {
-                    new ProductPrice
+                if (product.Prices == null || product.Prices.Count == 0)
+                {
+                    product.Prices = new List<ProductPrice> {
+                        new ProductPrice
+                        {
+                            Price = model.Price,
+                            DiscountPrice = model.DiscountPrice
+                        }
+                    };
+
+                }
+                else if (product.Prices[0].Price != model.Price || product.Prices[0].DiscountPrice != model.DiscountPrice)
+                {
+                    if (db.OrderItems.Any(orderItem => orderItem.ProductPriceId == product.Prices[0].Id))
                     {
-                        Price = model.Price,
-                        DiscountPrice = model.DiscountPrice
+                        if (product.Prices[0].Price != model.Price)
+                            ModelState.AddModelError(nameof(model.Price), "امکان تغییر قیمت کالای دارای خرید وجود ندراد.");
+                        else
+                            ModelState.AddModelError(nameof(model.DiscountPrice), "امکان تغییر قیمت نهایی کالای دارای خرید وجود ندراد.");
+                        return View(model);
                     }
-                };
+                    product.Prices[0].Price = model.Price;
+                    product.Prices[0].DiscountPrice = model.DiscountPrice;
+
+                }
+
 
                 await db.SaveChangesAsync();
                 return RedirectToAction("ProductList", "Staff");
