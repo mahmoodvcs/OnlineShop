@@ -36,6 +36,8 @@ namespace MahtaKala.ViewComponents
                 ProductGroupListVM vm = new ProductGroupListVM();
                 vm.GroupName = item.Title;
                 var lst = await productService.Products().Include(a => a.Prices).Where(c => c.ProductCategories.Any(pc => lstg.Contains(pc.CategoryId))).Take(10).ToListAsync();
+                if (lst == null || lst.Count == 0)
+                    continue;
                 foreach (var itemx in lst)
                 {
                     imageService.FixImageUrls(itemx);
