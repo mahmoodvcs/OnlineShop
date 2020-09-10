@@ -102,13 +102,13 @@ namespace MahtaKala.Services
             await GetCartQuery().Where(a => a.Id == id).DeleteAsync();
         }
 
-        public IQueryable<ShoppingCart> GetCartQuery()
+        public IQueryable<ShoppingCart> GetCartQuery(long? userId = null)
         {
             var query = db.ShoppingCarts.Include(a => a.ProductPrice.Product).AsQueryable();
-            if (User == null)
+            if (User == null && userId == null)
                 query = query.Where(c => c.SessionId == currentUserService.AnonymousSessionId && c.UserId == null);
             else
-                query = query.Where(c => c.UserId == User.Id);
+                query = query.Where(c => c.UserId == (userId ?? User.Id));
             return query;
         }
 
@@ -154,7 +154,7 @@ namespace MahtaKala.Services
             order.AddressId = addressId;
             var now = DateTime.Now;
             order.CheckOutData = now;
-            order.SentDateTime = now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(16);
+            order.ApproximateDeliveryDate = now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(16);
             db.Orders.Add(order);
             foreach (var item in cartItems)
             {
@@ -171,16 +171,16 @@ namespace MahtaKala.Services
             return order;
         }
 
-        public async Task EmptyCart()
+        public async Task EmptyCart(long? userId = null)
         {
-            await GetCartQuery().DeleteAsync();
+            await GetCartQuery(userId).DeleteAsync();
         }
 
         public decimal CalculateTotalPrice(Order order)
         {
             return order.Items.Sum(a => a.UnitPrice * a.Quantity) + GetDeliveryPrice(order);
         }
-        public async Task<Entities.Payment> InitPayment(Order order, string returnUrl)
+        public async Task<Payment> InitPayment(Order order, string returnUrl)
         {
             var payment = new Entities.Payment()
             {
@@ -196,10 +196,11 @@ namespace MahtaKala.Services
             return payment;
         }
 
-        //public async Task<Entities.Payment> Paid(string bankReturnBody)
-        //{
-
-        //}
+        public async Task Paid(Payment payment)
+        {
+            if (payment.State == PaymentState.Succeeded)
+                await EmptyCart(payment.Order?.UserId);
+        }
 
         public decimal GetDeliveryPrice(Order order)
         {

@@ -173,7 +173,7 @@ namespace MahtaKala.Controllers
 
             var order = await orderService.Checkout(vm.UserData.AddressId.Value);
             var payment = await orderService.InitPayment(order, pathService.AppBaseUrl + "/Payment/CallBackPay");
-            string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}&source=api";
+            string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}&source=site";
             return Json(new { success = true, msg = payUrl });
         }
 

@@ -68,7 +68,9 @@ namespace MahtaKala.Controllers
                    Price = (long)a.TotalPrice,
                    CheckoutDate = Util.GetPersianDate(a.CheckOutData),
                    State = TranslateExtentions.GetTitle(a.State),
-                   SendDate = Util.GetPersianDate(a.SentDateTime)
+                   ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
+                   SendDate = Util.GetPersianDate(a.SendDate),
+                   ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
                }).ToList();
             return View(data);
         }

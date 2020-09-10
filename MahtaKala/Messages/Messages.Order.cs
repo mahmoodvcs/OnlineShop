@@ -14,10 +14,10 @@ namespace MahtaKala.Messages
             public const string ErrorConvertStateToSent = "وضعیت کالا فقط از حالت خریداری شده به حالت ارسال شده قابل تغییر می باشد.";
             public const string ErrorConvertStateToDelivered = "وضعیت کالا فقط از حالت ارسال شده به حالت تحویل داده شده قابل تغییر می باشد.";
             public const string ErrorWrongTrackNo = "شماره پیگیری وارد شده با شماره پیگیری همخوانی ندارد.";
-            public const string DeliveredOTPMessage = "مهتا کالا: کالای شما ارسال شد. کد پیگیری {0}";
+            public const string DeliveredOTPMessage = "مهتا کالا: کالای شما ارسال شد. کد دریافت کالا: {0}. در هنگام تحویل، این کد را به پیک ارائه دهید";
             public const string ProductDoesNotExistInStore ="کالای {0} در انبار موجود نیست";
             public const string CannotAddProduct_DefferentSeller = "امکان افزودن این کالا وجود ندارد. فروشنده ی این کالا، با کالاهای قبلی متفاوت است";
-            public const string OrderPaymentSuccessMessage = "مهتاکالا: پرداخت انجام شد. کد رهگیری {0}. تاریخ تخمینی ارسال کالا: {1}";
+            public const string OrderPaymentSuccessMessage = "مهتاکالا: پرداخت انجام شد. کد رهگیری: {0}. تاریخ تخمینی ارسال کالا: {1}";
         }
     }
 }
