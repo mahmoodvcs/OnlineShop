@@ -19,7 +19,9 @@ namespace MahtaKala.Entities
         public long? AddressId { get; set; }
         public string TrackNo { get; set; }
         public string DelivererNo { get; set; }
-        public DateTime? SentDateTime { get; set; }
+        public DateTime? SendDate { get; set; }
+        public DateTime? ApproximateDeliveryDate { get; set; }
+        public DateTime? ActualDeliveryDate { get; set; }
     }
     public enum OrderState
     {

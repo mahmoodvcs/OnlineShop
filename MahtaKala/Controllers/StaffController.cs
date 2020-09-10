@@ -515,15 +515,28 @@ namespace MahtaKala.Controllers
         }
 
         [HttpGet]
+        public async Task<ActionResult> GetCategories(long? id)
+        {
+            var data = await db.Categories.Where(a => a.ParentId == id)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Title,
+                    hasChildren = a.Children.Any()
+                }).ToListAsync();
+            return Json(data);
+        }
+
+        [HttpGet]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public IActionResult Product(long? id)
+        public async Task<IActionResult> Product(long? id)
         {
             ViewData["Title"] = "درج کالا و خدمات";
 
             Product p;
             if (id.HasValue)
             {
-                p = db.Products.Find(id);
+                p = await db.Products.Include(a => a.Prices).Include(a => a.ProductCategories).Where(a => a.Id == id).FirstOrDefaultAsync();
                 if (p == null)
                     throw new EntityNotFoundException<Product>(id.Value);
                 productImageService.FixImageUrls(p);
@@ -560,7 +573,8 @@ namespace MahtaKala.Controllers
                 }
                 else
                 {
-                    product = await db.Products.Include(p => p.ProductCategories).Include(p => p.Prices).FirstOrDefaultAsync(p => p.Id == model.Id);
+                    product = await db.Products.Include(p => p.ProductCategories).Include(p => p.Prices)//.Where(c=>c.Active))
+                        .FirstOrDefaultAsync(p => p.Id == model.Id);
                 }
                 product.Properties = JsonConvert.DeserializeObject<IList<KeyValuePair<string, string>>>(Request.Form["Properties"]);
                 product.Title = model.Title;
@@ -568,32 +582,30 @@ namespace MahtaKala.Controllers
                 product.Description = model.Description;
                 product.Disabled = model.Disabled;
                 product.Published = model.Published;
-                if (product.Prices == null || product.Prices.Count == 0)
-                {
-                    product.Prices = new List<ProductPrice> {
-                        new ProductPrice
-                        {
-                            Price = model.Price,
-                            DiscountPrice = model.DiscountPrice
-                        }
-                    };
 
-                }
-                else if (product.Prices[0].Price != model.Price || product.Prices[0].DiscountPrice != model.DiscountPrice)
+                var categoryIds = Request.Form["CategoryIds"].ToArray();
+                product.ProductCategories.Clear();
+                foreach (var cat in categoryIds)
                 {
-                    if (db.OrderItems.Any(orderItem => orderItem.ProductPriceId == product.Prices[0].Id))
+                    product.ProductCategories.Add(new ProductCategory
                     {
-                        if (product.Prices[0].Price != model.Price)
-                            ModelState.AddModelError(nameof(model.Price), "امکان تغییر قیمت کالای دارای خرید وجود ندراد.");
-                        else
-                            ModelState.AddModelError(nameof(model.DiscountPrice), "امکان تغییر قیمت نهایی کالای دارای خرید وجود ندراد.");
-                        return View(model);
-                    }
-                    product.Prices[0].Price = model.Price;
-                    product.Prices[0].DiscountPrice = model.DiscountPrice;
-
+                        CategoryId = long.Parse(cat),
+                    });
                 }
-
+                if (product.Prices.Any())
+                {
+                    var price = product.Prices.First();
+                    price.Price = model.Price;
+                    price.DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice;
+                }
+                else
+                {
+                    product.Prices.Add(new ProductPrice
+                    {
+                        Price = model.Price,
+                        DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice
+                    });
+                }
 
                 await db.SaveChangesAsync();
                 return RedirectToAction("ProductList", "Staff");
@@ -714,17 +726,21 @@ namespace MahtaKala.Controllers
                     Id = a.Id,
                     Price = a.TotalPrice,
                     a.CheckOutData,
-                    a.SentDateTime,
+                    a.ApproximateDeliveryDate,
+                    a.ActualDeliveryDate,
                     Name = a.User.FirstName + " " + a.User.LastName,
+                    a.SendDate,
                     State = a.State
                 }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
                 {
                     Id = a.Id,
                     CheckoutDate = Util.GetPersianDate(a.CheckOutData),
-                    SendDate = Util.GetPersianDate(a.SentDateTime),
+                    ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
+                    SendDate = Util.GetPersianDate(a.SendDate),
+                    ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
                     Price = (long)a.Price,
                     Customer = a.Name,
-                    State = Enum.GetName(typeof(OrderState), a.State)
+                    State = TranslateExtentions.GetTitle(a.State)
                 });
 
             var list = JsonConvert.SerializeObject(data, Formatting.None,
@@ -736,7 +752,7 @@ namespace MahtaKala.Controllers
         }
 
         [AjaxAction]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin }, Order = 1)]
         public async Task<ActionResult> ConfirmSent(long Id, string DelivererId)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
@@ -751,17 +767,17 @@ namespace MahtaKala.Controllers
             }
             if (order.State == OrderState.Paid)
             {
-                order.SentDateTime = DateTime.Now;
+                order.SendDate = DateTime.Now;
                 order.State = OrderState.Sent;
                 order.DelivererNo = DelivererId;
-                var code = await smsService.SendOTP(user.MobileNumber, Messages.Messages.Order.DeliveredOTPMessage);
-                order.TrackNo = code.ToString();
+                order.TrackNo = new Random().Next(100000, 999999).ToString();
+                await db.SaveChangesAsync();
+                await smsService.Send(user.MobileNumber, string.Format(Messages.Messages.Order.DeliveredOTPMessage, order.TrackNo));
             }
             else
             {
                 return Json(new { success = false, message = Messages.Messages.Order.ErrorConvertStateToSent });
             }
-            await db.SaveChangesAsync();
             return Json(new { success = true });
         }
 
@@ -781,6 +797,7 @@ namespace MahtaKala.Controllers
             if (order.State == OrderState.Sent)
             {
                 order.State = OrderState.Delivered;
+                order.ActualDeliveryDate = DateTime.Now;
             }
             else
             {

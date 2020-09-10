@@ -6,27 +6,27 @@
 
 
 @(Html.Kendo().Grid<MahtaKala.Entities.User>()
-    .Name("Grid")
-    .Columns(columns =>
-    {
-        columns.Bound(p => p.Username);
-        columns.Bound(p => p.FirstName);
-        columns.Bound(p => p.LastName);
-        columns.Bound(p => p.MobileNumber);
-        columns.Bound(p => p.EmailAddress);
-        columns.Bound(p => p.NationalCode);
-        columns.Command(command => command.Custom("ویرایش").Click("editUser")).Width(160);
-        columns.Command(command => command.Custom("حذف").Click("RemoveUser")).Width(90);
-    })
-    .HtmlAttributes(new { style = "height: 550px;" })
-    .ToolBar(toolbar =>
-    {
-        toolbar.ClientTemplateId("GridToolbarTemplate");
-    })
-    .Scrollable()
-    .Groupable()
-    .Sortable()
-    .Filterable()
+        .Name("Grid")
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.Username);
+            columns.Bound(p => p.FirstName);
+            columns.Bound(p => p.LastName);
+            columns.Bound(p => p.MobileNumber);
+            columns.Bound(p => p.EmailAddress);
+            columns.Bound(p => p.NationalCode);
+            columns.Command(command => command.Custom("ویرایش").Click("editUser")).Width(160);
+            columns.Command(command => command.Custom("حذف").Click("RemoveUser")).Width(90);
+        })
+        .HtmlAttributes(new { style = "height: 550px;" })
+        .ToolBar(toolbar =>
+        {
+            toolbar.ClientTemplateId("GridToolbarTemplate");
+        })
+        .Scrollable()
+        .Groupable()
+        .Sortable()
+        .Filterable()
     .Pageable(pageable => pageable
         .Refresh(true)
         .PageSizes(true)
