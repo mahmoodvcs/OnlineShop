@@ -50,7 +50,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery, UserType.Seller })]
         public async Task<IActionResult> Index()
         {
-            if(base.User.Type == UserType.Delivery)
+            if (base.User.Type == UserType.Delivery)
             {
                 return RedirectToAction("BuyHistory");
             }
@@ -59,7 +59,7 @@ namespace MahtaKala.Controllers
             var orders = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent)
-                        .Where(a=>a.CheckOutData != null);
+                        .Where(a => a.CheckOutData != null);
             var orderChart = orders.OrderBy(o => o.CheckOutData)
                 .GroupBy(o => o.CheckOutData.Value.Date)
                 .Select(o => new
@@ -188,7 +188,7 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<JsonResult> UserDestroy(long id)
         {
-            if(await db.Products.AnyAsync(p=>p.SellerId == id))
+            if (await db.Products.AnyAsync(p => p.SellerId == id))
             {
 
                 return Json(new { Success = false, msg = "کاربر دارای کالا می باشد." });
@@ -515,15 +515,28 @@ namespace MahtaKala.Controllers
         }
 
         [HttpGet]
+        public async Task<ActionResult> GetCategories(long? id)
+        {
+            var data = await db.Categories.Where(a => a.ParentId == id)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Title,
+                    hasChildren = a.Children.Any()
+                }).ToListAsync();
+            return Json(data);
+        }
+
+        [HttpGet]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public IActionResult Product(long? id)
+        public async Task<IActionResult> Product(long? id)
         {
             ViewData["Title"] = "درج کالا و خدمات";
 
             Product p;
             if (id.HasValue)
             {
-                p = db.Products.Find(id);
+                p = await db.Products.Include(a => a.Prices).Include(a => a.ProductCategories).Where(a => a.Id == id).FirstOrDefaultAsync();
                 if (p == null)
                     throw new EntityNotFoundException<Product>(id.Value);
                 productImageService.FixImageUrls(p);
@@ -569,6 +582,16 @@ namespace MahtaKala.Controllers
                 product.Description = model.Description;
                 product.Disabled = model.Disabled;
                 product.Published = model.Published;
+
+                var categoryIds = Request.Form["CategoryIds"].ToArray();
+                product.ProductCategories.Clear();
+                foreach (var cat in categoryIds)
+                {
+                    product.ProductCategories.Add(new ProductCategory
+                    {
+                        CategoryId = long.Parse(cat),
+                    });
+                }
                 if (product.Prices.Any())
                 {
                     var price = product.Prices.First();
