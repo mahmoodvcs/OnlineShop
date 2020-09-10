@@ -64,6 +64,7 @@
                 .Value(Model.ProductCategories.Select(c=>c.CategoryId))
                 .DataTextField("title")
                 .DataValueField("id")
+                .ValuePrimitive(true)
                 .Checkboxes(conf =>
                 {
                     conf.CheckChildren(false);
@@ -71,8 +72,9 @@
                 .DataSource(source =>
                 {
                     source.Read(read => { read.Action("GetCategories", "Staff"); })
-                    .Model(m=>m.Id("Id"));
+                    .Model(m=>m.Id("id"));
                 })
+                .LoadOnDemand()
                 .HtmlAttributes(new { style = "width: 100%" })
                         )
                     </div>
@@ -311,7 +313,8 @@
 
     function beforeSave() {
         $("#Properties").val(JSON.stringify(propertiesDataSource.data()));
-        $("#CategoryIds").val($("#CategoryIdsTree").kendoDropDownTree().value());
+        var val = JSON.stringify($("#CategoryIdsTree").data("kendoDropDownTree").value());//.map(function (v) { return v.id }));
+        $("#CategoryIds").val(val);
     }
     function onUpload(e) {
         e.data = { ID: modelId };

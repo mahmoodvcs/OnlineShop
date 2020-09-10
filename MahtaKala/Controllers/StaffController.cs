@@ -583,13 +583,13 @@ namespace MahtaKala.Controllers
                 product.Disabled = model.Disabled;
                 product.Published = model.Published;
 
-                var categoryIds = Request.Form["CategoryIds"].ToArray();
+                var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
                 product.ProductCategories.Clear();
                 foreach (var cat in categoryIds)
                 {
                     product.ProductCategories.Add(new ProductCategory
                     {
-                        CategoryId = long.Parse(cat),
+                        CategoryId = cat
                     });
                 }
                 if (product.Prices.Any())
