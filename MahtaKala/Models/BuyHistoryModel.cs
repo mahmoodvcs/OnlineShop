@@ -9,7 +9,9 @@ namespace MahtaKala.Models
     {
         public long Id { get; set; }
         public string CheckoutDate { get; set; }
+        public string ApproximateDeliveryDate { get; set; }
         public string SendDate { get; set; }
+        public string ActualDeliveryDate { get; set; }
         public long Price { get; set; }
         public string Customer { get; set; }
         public string State { get; set; }

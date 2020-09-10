@@ -58,13 +58,20 @@
                         دسته بندی :
                     </label>
                     <div class="k-content">
-                        @(Html.Kendo().DropDownList()
-                .Name("CategoryId")
+                        <input type="hidden" name="CategoryIds" id="CategoryIds" />
+                        @(Html.Kendo().DropDownTree()
+                .Name("CategoryIdsTree")
+                .Value(Model.ProductCategories.Select(c=>c.CategoryId))
                 .DataTextField("title")
                 .DataValueField("id")
+                .Checkboxes(conf =>
+                {
+                    conf.CheckChildren(false);
+                })
                 .DataSource(source =>
                 {
-                    source.Read(read => { read.Action("GetCategories", "Repo"); });
+                    source.Read(read => { read.Action("GetCategories", "Staff"); })
+                    .Model(m=>m.Id("Id"));
                 })
                 .HtmlAttributes(new { style = "width: 100%" })
                         )
@@ -77,6 +84,7 @@
                     <div class="k-content">
                         @(Html.Kendo().DropDownList()
                 .Name("BrandId")
+                .Value(Model.BrandId.ToString())
                 .DataTextField("name")
                 .DataValueField("id")
                 .DataSource(source =>
@@ -303,6 +311,7 @@
 
     function beforeSave() {
         $("#Properties").val(JSON.stringify(propertiesDataSource.data()));
+        $("#CategoryIds").val($("#CategoryIdsTree").kendoDropDownTree().value());
     }
     function onUpload(e) {
         e.data = { ID: modelId };
