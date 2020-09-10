@@ -3,7 +3,7 @@
 {
 
     <li class="@(item.Children?.Any() ?? false?"has-sub":"")">
-        <a href="@Url.Content("~/home/category?id="+item.Id)">@item.Title</a>
+        <a class="@(item.Disabled?"DisabledLi":"")" href="@Url.Content(item.Disabled?"#":"~/home/category?id="+item.Id)">@item.Title</a>
         @if (item.Children?.Any() ?? false)
         {
             <ul class="category-sub">

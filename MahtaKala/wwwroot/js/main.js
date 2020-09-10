@@ -209,6 +209,7 @@ $(document).on("click", ".compare-to", function (e) {
     6. Hot Deal Product Activation
     -----------------------------------------------------*/
     $('.hot-deal-active').owlCarousel({
+        rtl: true,
         loop: false,
         nav: true,
         dots: false,
@@ -236,6 +237,7 @@ $(document).on("click", ".compare-to", function (e) {
         }
     })
     $('.hot-deal-active3').owlCarousel({
+        rtl: true,
         loop: false,
         nav: true,
         dots: false,
@@ -267,6 +269,7 @@ $(document).on("click", ".compare-to", function (e) {
     7. Brand Banner Activation
     -----------------------------------------------------*/
     $('.brand-banner').owlCarousel({
+        rtl: true,
         loop: true,
         nav: true,
         autoplay: true,
@@ -292,6 +295,7 @@ $(document).on("click", ".compare-to", function (e) {
         }
     })
     $('.brand-banner-sidebar').owlCarousel({
+        rtl: true,
         loop: true,
         nav: false,
         autoplay: true,
@@ -384,6 +388,7 @@ $(document).on("click", ".compare-to", function (e) {
     9. Best Seller Product Activation
     -----------------------------------------------------*/
     $('.best-seller-pro-active').owlCarousel({
+        rtl: true,
         loop: false,
         nav: true,
         dots: false,
