@@ -29,9 +29,9 @@
     font-weight: normal;
     font-style: normal;
 }
-.DisabledLi{
-    background-color:silver !important;
-    cursor: not-allowed;
+.DisabledLi {
+    pointer-events: none;
+    opacity: 0.6;
 }
 .disableItem {
     pointer-events: none;
