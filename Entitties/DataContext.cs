@@ -106,7 +106,7 @@ namespace MahtaKala.Entities
             var changedEntityNames = this.GetChangedEntityNames();
 
             this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
-            var result = base.SaveChanges();
+            var result = base.SaveChanges(acceptAllChangesOnSuccess);
             this.ChangeTracker.AutoDetectChangesEnabled = true;
 
             this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);

@@ -382,7 +382,7 @@ namespace MahtaKala.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public IActionResult Category(Category model)
+        public async Task<IActionResult> Category(Category model)
         {
             if (ModelState.IsValid)
             {
@@ -392,7 +392,7 @@ namespace MahtaKala.Controllers
                 }
                 else
                 {
-                    var cat = db.Categories.Find(model.Id);
+                    var cat = await db.Categories.FindAsync(model.Id);
                     if (cat == null)
                     {
                         throw new EntityNotFoundException<Category>(model.Id);
@@ -402,10 +402,10 @@ namespace MahtaKala.Controllers
                     cat.Disabled = model.Disabled;
                     cat.Published = model.Published;
                 }
-                db.SaveChanges();
+                await db.SaveChangesAsync();
                 return RedirectToAction("CategoryList");
             }
-            ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
+            ViewBag.Categories = db.Categories.Cacheable().Where(c => c.Id != model.Id).ToListAsync();
             return View(model);
         }
         [HttpPost]
