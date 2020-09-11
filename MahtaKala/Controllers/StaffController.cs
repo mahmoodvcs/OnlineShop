@@ -565,6 +565,7 @@ namespace MahtaKala.Controllers
         public async Task<IActionResult> Product(long? id)
         {
             ViewData["Title"] = "درج کالا و خدمات";
+            ViewBag.IsPostback = false;
 
             Product p;
             if (id.HasValue)
@@ -596,6 +597,7 @@ namespace MahtaKala.Controllers
         public async Task<IActionResult> Product(Product model)
         {
             ViewData["Title"] = "درج کالا و خدمات";
+            ViewBag.IsPostback = false;
             if (ModelState.IsValid)
             {
                 Product product;
@@ -641,7 +643,8 @@ namespace MahtaKala.Controllers
                 }
 
                 await db.SaveChangesAsync();
-                return RedirectToAction("ProductList", "Staff");
+                ViewBag.IsPostback = true;
+                return View(product);
             }
             return View(model);
         }

@@ -3,6 +3,12 @@
     ViewData["TitlNewtonsoft.Json.JsonSerializerNewtonsoft.Json.JsonSerializere"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
+@if(ViewBag.IsPostback)
+{
+    <script>
+            window.close();
+    </script>
+}
 <div class="card card-custom gutter-b example example-compact">
     @using (Html.BeginForm("Product", "Staff", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form" }))
     {
@@ -60,22 +66,22 @@
                     <div class="k-content">
                         <input type="hidden" name="CategoryIds" id="CategoryIds" />
                         @(Html.Kendo().DropDownTree()
-                .Name("CategoryIdsTree")
-                .Value(Model.ProductCategories.Select(c=>c.CategoryId))
-                .DataTextField("title")
-                .DataValueField("id")
-                .ValuePrimitive(true)
-                .Checkboxes(conf =>
-                {
-                    conf.CheckChildren(false);
-                })
-                .DataSource(source =>
-                {
-                    source.Read(read => { read.Action("GetCategories", "Staff"); })
-                    .Model(m=>m.Id("id"));
-                })
-                .LoadOnDemand()
-                .HtmlAttributes(new { style = "width: 100%" })
+                            .Name("CategoryIdsTree")
+                            .Value(Model.ProductCategories.Select(c=>c.CategoryId))
+                            .DataTextField("title")
+                            .DataValueField("id")
+                            .ValuePrimitive(true)
+                            .Checkboxes(conf =>
+                            {
+                                conf.CheckChildren(false);
+                            })
+                            .DataSource(source =>
+                            {
+                                source.Read(read => { read.Action("GetCategories", "Staff"); })
+                                .Model(m=>m.Id("id"));
+                            })
+                            .LoadOnDemand()
+                            .HtmlAttributes(new { style = "width: 100%" })
                         )
                     </div>
                 </div>
@@ -85,15 +91,15 @@
                     </label>
                     <div class="k-content">
                         @(Html.Kendo().DropDownList()
-                .Name("BrandId")
-                .Value(Model.BrandId.ToString())
-                .DataTextField("name")
-                .DataValueField("id")
-                .DataSource(source =>
-                {
-                    source.Read(read => { read.Action("GetBrands", "Repo"); });
-                })
-                .HtmlAttributes(new { style = "width: 100%" })
+                            .Name("BrandId")
+                            .Value(Model.BrandId.ToString())
+                            .DataTextField("name")
+                            .DataValueField("id")
+                            .DataSource(source =>
+                            {
+                                source.Read(read => { read.Action("GetBrands", "Repo"); });
+                            })
+                            .HtmlAttributes(new { style = "width: 100%" })
                         )
                     </div>
                 </div>
