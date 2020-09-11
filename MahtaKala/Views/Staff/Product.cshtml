@@ -3,7 +3,7 @@
     ViewData["TitlNewtonsoft.Json.JsonSerializerNewtonsoft.Json.JsonSerializere"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
-@if(ViewBag.IsPostback)
+@if(ViewBag.IsPostback != null && ViewBag.IsPostback)
 {
     <script>
             window.close();

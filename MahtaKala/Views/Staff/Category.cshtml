@@ -5,6 +5,12 @@
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
+@if(ViewBag.IsPostback != null && ViewBag.IsPostback)
+{
+    <script>
+            window.close();
+    </script>
+}
 @using (Html.BeginForm("Category", "Staff", FormMethod.Post, new { encType = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()

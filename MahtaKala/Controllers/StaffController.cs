@@ -384,6 +384,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public async Task<IActionResult> Category(Category model)
         {
+            ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
             if (ModelState.IsValid)
             {
                 if (model.Id == 0)
@@ -403,9 +404,9 @@ namespace MahtaKala.Controllers
                     cat.Published = model.Published;
                 }
                 await db.SaveChangesAsync();
-                return RedirectToAction("CategoryList");
+                ViewBag.IsPostback = true;
+                return View(model);
             }
-            ViewBag.Categories = db.Categories.Cacheable().Where(c => c.Id != model.Id).ToListAsync();
             return View(model);
         }
         [HttpPost]
@@ -558,7 +559,6 @@ namespace MahtaKala.Controllers
         public async Task<IActionResult> Product(long? id)
         {
             ViewData["Title"] = "درج کالا و خدمات";
-            ViewBag.IsPostback = false;
 
             Product p;
             if (id.HasValue)
@@ -593,7 +593,6 @@ namespace MahtaKala.Controllers
         public async Task<IActionResult> Product(Product model)
         {
             ViewData["Title"] = "درج کالا و خدمات";
-            ViewBag.IsPostback = false;
             if (ModelState.IsValid)
             {
                 Product product;

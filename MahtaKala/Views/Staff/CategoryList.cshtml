@@ -51,7 +51,10 @@
 
 <script>
     function editEntity(e) {
-        window.location.href = '/Staff/Category/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
-        return false;
+        e.preventDefault();
+        window.open(
+            '/Staff/Category/' + this.dataItem($(e.currentTarget).closest("tr")).Id,
+            '_blank'
+        );
     }
 </script>
