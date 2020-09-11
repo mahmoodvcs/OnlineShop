@@ -93,10 +93,7 @@ namespace MahtaKala
 
             services.AddDbContext<DataContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("DataContext"), options =>
-                {
-                    options.UseNetTopologySuite();
-                });
+                options.UseNpgsql(Configuration.GetConnectionString("DataContextPG")).UseSnakeCaseNamingConvention();
             });
             services.AddMvc(options => { options.UseCustomStringModelBinder(); });
             RegisterMyServices(services);
