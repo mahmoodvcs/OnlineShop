@@ -563,8 +563,9 @@ namespace MahtaKala.Controllers
             Product p;
             if (id.HasValue)
             {
-                p = await db.Products.Include(a => a.Prices).Include(a => a.ProductCategories)
-                    .ThenInclude(a => a.Category).Where(a => a.Id == id).FirstOrDefaultAsync();
+                p = await db.Products.Include(a => a.Prices)
+                    .Include(a => a.ProductCategories).ThenInclude(a => a.Category)
+                    .Where(a => a.Id == id).FirstOrDefaultAsync();
                 if (p == null)
                     throw new EntityNotFoundException<Product>(id.Value);
                 productImageService.FixImageUrls(p);
@@ -603,7 +604,9 @@ namespace MahtaKala.Controllers
                 }
                 else
                 {
-                    product = await db.Products.Include(p => p.ProductCategories).Include(p => p.Prices)//.Where(c=>c.Active))
+                    product = await db.Products
+                        .Include(a => a.ProductCategories).ThenInclude(a => a.Category)
+                        .Include(p => p.Prices)//.Where(c=>c.Active))
                         .FirstOrDefaultAsync(p => p.Id == model.Id);
                 }
                 product.Properties = JsonConvert.DeserializeObject<IList<KeyValuePair<string, string>>>(Request.Form["Properties"]);
