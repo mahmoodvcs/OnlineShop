@@ -94,7 +94,7 @@ namespace MahtaKala.Controllers.Api
         public async Task<long> AddToCart([FromBody] AddToCartModel addToCart)
         {
             var productPrice = db.ProductPrices.First(a => a.ProductId == addToCart.Product_Id);
-            return await orderService.AddToCart(productPrice.Id, addToCart.Quantity);
+            return await orderService.UpdateCart(productPrice.Id, addToCart.Quantity);
         }
 
         /// <summary>

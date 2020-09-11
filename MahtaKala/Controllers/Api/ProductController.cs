@@ -360,6 +360,7 @@ namespace MahtaKala.Controllers
                     Image = categoryImageService.GetImageUrl(c.Id, c.Image),
                     ParentId = parentId,
                     Title = c.Title,
+                    Disabled = c.Disabled
                 };
                 result.Add(cp);
                 cp.Children = new List<CategoryWithProductsModel>();

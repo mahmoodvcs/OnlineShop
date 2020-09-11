@@ -4,6 +4,7 @@ using MahtaKala.GeneralServices.Payment;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.SharedServices;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders.Physical;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,6 +69,20 @@ namespace MahtaKala.Services
         {
             var cart = GetCartQuery();
             var cartItem = await cart.FirstOrDefaultAsync(c => c.ProductPriceId == productPriceId);
+            if (cartItem != null)
+                count += cartItem.Count;
+            return await UpdateCart(cartItem, productPriceId, count);
+        }
+        public async Task<long> UpdateCart(long productPriceId, int count)
+        {
+            var cart = GetCartQuery();
+            var cartItem = await cart.FirstOrDefaultAsync(c => c.ProductPriceId == productPriceId);
+            return await UpdateCart(cartItem, productPriceId, count);
+        }
+        private async Task<long> UpdateCart(ShoppingCart item, long productPriceId, int count)
+        {
+            var cart = GetCartQuery();
+            var cartItem = await cart.FirstOrDefaultAsync(c => c.ProductPriceId == productPriceId);
             if (cartItem == null)
             {
                 var seller = db.ProductPrices.Where(p => p.Id == productPriceId).Select(a => a.Product.SellerId).FirstOrDefault();
@@ -89,10 +104,8 @@ namespace MahtaKala.Services
 
                 db.ShoppingCarts.Add(cartItem);
             }
-            else
-            {
-                cartItem.Count += count;
-            }
+            
+            cartItem.Count = count;
             await db.SaveChangesAsync();
             return cartItem.Id;
         }
