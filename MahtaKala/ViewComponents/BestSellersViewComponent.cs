@@ -24,7 +24,7 @@ namespace MahtaKala.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var lst = await productService.Products().Include(a => a.Prices).Take(10).ToListAsync();
+            var lst = await productService.ProductsView().Include(a => a.Prices).Take(10).ToListAsync();
             foreach (var item in lst)
             {
                 imageService.FixImageUrls(item);

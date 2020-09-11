@@ -8,6 +8,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Linq;
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using EFSecondLevelCache.Core;
+using EFSecondLevelCache.Core.Contracts;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace MahtaKala.Entities
 {
@@ -95,5 +100,31 @@ namespace MahtaKala.Entities
         }
 
         #endregion Get Titles
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            var changedEntityNames = this.GetChangedEntityNames();
+
+            this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
+            var result = base.SaveChanges();
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
+
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+
+            return result;
+        }
+
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            var changedEntityNames = this.GetChangedEntityNames();
+
+            this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
+            var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            this.ChangeTracker.AutoDetectChangesEnabled = true;
+
+            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+
+            return result;
+        }
     }
 }

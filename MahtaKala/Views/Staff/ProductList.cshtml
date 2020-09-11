@@ -2,11 +2,11 @@
     ViewData["Title"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
-@(Html.Kendo().Grid<MahtaKala.Models.ProductModels.ProductConciseModel>().Name("grid").Columns(columns =>
+@(Html.Kendo().Grid<MahtaKala.Entities.Models.ProductListModel>().Name("grid").Columns(columns =>
 {
     columns.Bound(p => p.Id).Title("شناسه");
     columns.Bound(p => p.Title).Title("عنوان");
-    columns.Bound(p => p.Category).Title("دسته بندی");
+    columns.Bound(p => p.Categories).Title("دسته بندی");
     columns.Bound(p => p.Brand).Title("برند");
     columns.Bound(p => p.Price).Title("قیمت");
     columns.Bound(p => p.Disabled).Title("غیر فعال");

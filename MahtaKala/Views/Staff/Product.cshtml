@@ -61,20 +61,33 @@
                         <input type="hidden" name="CategoryIds" id="CategoryIds" />
                         @(Html.Kendo().DropDownTree()
                 .Name("CategoryIdsTree")
-                .Value(Model.ProductCategories.Select(c=>c.CategoryId))
                 .DataTextField("title")
                 .DataValueField("id")
                 .ValuePrimitive(true)
+                //.Items(ad=>
+                //{
+                //    foreach (var ca in Model.ProductCategories)
+                //    {
+                //        ad.Add().Value(ca.CategoryId.ToString()).Text(ca.Category.Title);
+                //    }
+                //})
                 .Checkboxes(conf =>
                 {
                     conf.CheckChildren(false);
                 })
+                //.BindTo<Category>((List<Category>)ViewBag.Categories, (item,cat)=>{
+                //    item.Checked = Model.ProductCategories.Any(c => c.CategoryId == cat.Id);
+                //    item.Id = cat.Id.ToString();
+                //    item.Text = cat.Title;
+                //    item.HasChildren = cat.Children.Any();
+                //})
                 .DataSource(source =>
                 {
                     source.Read(read => { read.Action("GetCategories", "Staff"); })
-                    .Model(m=>m.Id("id"));
+                    .Model(m => m.Id("id"));
                 })
-                .LoadOnDemand()
+                //.LoadOnDemand()
+                .Value(Model.ProductCategories.Select(c=>c.CategoryId))
                 .HtmlAttributes(new { style = "width: 100%" })
                         )
                     </div>

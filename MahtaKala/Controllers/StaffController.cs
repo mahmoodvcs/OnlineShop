@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using EFSecondLevelCache.Core;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using MahtaKala.ActionFilter;
@@ -11,6 +12,7 @@ using MahtaKala.Entities;
 using MahtaKala.Entities.Security;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
+using MahtaKala.Infrustructure;
 using MahtaKala.Infrustructure.ActionFilter;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
@@ -33,6 +35,7 @@ namespace MahtaKala.Controllers
     {
         private readonly IProductImageService productImageService;
         private readonly ImportService importService;
+        private readonly CategoryService categoryService;
         private readonly ISMSService smsService;
 
         public StaffController(
@@ -40,11 +43,13 @@ namespace MahtaKala.Controllers
             ILogger<StaffController> logger,
             ISMSService smsService,
             IProductImageService productImageService,
-            ImportService importService
+            ImportService importService,
+            CategoryService categoryService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
             this.importService = importService;
+            this.categoryService = categoryService;
             this.smsService = smsService;
         }
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery, UserType.Seller })]
@@ -476,22 +481,10 @@ namespace MahtaKala.Controllers
         }
 
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public IActionResult Product_Read([DataSourceRequest] DataSourceRequest request)
+        public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request)
         {
-            var data = db.Products.Select(a => new ProductConciseModel
-            {
-                Id = a.Id,
-                Brand = a.Brand.Name,
-                Category = a.ProductCategories.FirstOrDefault().Category.Title,
-                Title = a.Title,
-                Thubmnail = a.Thubmnail,
-                Price = a.Prices.FirstOrDefault().Price,
-                DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
-                Disabled = a.Disabled,
-                Published = a.Published
-            });
-
-            return ConvertDataToJson(data, request);
+            var data = await db.Products.AsQueryable().Project().ToListResultAsync(request);
+            return KendoJson(data);
         }
 
         [HttpPost]
@@ -517,7 +510,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<ActionResult> GetCategories(long? id)
         {
-            var data = await db.Categories.Where(a => a.ParentId == id)
+            var data = await db.Categories.Cacheable().Where(a => a.ParentId == id)
                 .Select(a => new
                 {
                     a.Id,
@@ -536,7 +529,8 @@ namespace MahtaKala.Controllers
             Product p;
             if (id.HasValue)
             {
-                p = await db.Products.Include(a => a.Prices).Include(a => a.ProductCategories).Where(a => a.Id == id).FirstOrDefaultAsync();
+                p = await db.Products.Include(a => a.Prices).Include(a => a.ProductCategories)
+                    .ThenInclude(a => a.Category).Where(a => a.Id == id).FirstOrDefaultAsync();
                 if (p == null)
                     throw new EntityNotFoundException<Product>(id.Value);
                 productImageService.FixImageUrls(p);
@@ -554,6 +548,7 @@ namespace MahtaKala.Controllers
                     Characteristics = new List<Characteristic>()
                 };
             }
+            ViewBag.Categories = await categoryService.AllCategories();
             return View(p);
         }
 

@@ -157,7 +157,7 @@ namespace MahtaKala.Controllers
         [NonAction]
         private IEnumerable<Entities.Product> Search(int page, int recordsPerPage, long? groupId, string term, out int pageSize, out int totalItemCount)
         {
-            var queryable = productService.Products().Include(a => a.Prices).AsQueryable();
+            var queryable = productService.ProductsView().Include(a => a.Prices).AsQueryable();
             if (!string.IsNullOrEmpty(term))
             {
                 queryable = queryable.Where(c => c.Title.Contains(term));

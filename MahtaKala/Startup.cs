@@ -1,3 +1,5 @@
+using CacheManager.Core;
+using EFSecondLevelCache.Core;
 using MahtaKala.Entities;
 using MahtaKala.Entities.ExceptionHandling;
 using MahtaKala.GeneralServices;
@@ -118,6 +120,17 @@ namespace MahtaKala
             services.AddScoped<CategoryService>();
             services.AddScoped<ImportService>();
             services.AddKendo();
+
+
+            services.AddEFSecondLevelCache();
+            // Add an in-memory cache service provider
+            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
+            services.AddSingleton(typeof(ICacheManagerConfiguration),
+                new CacheManager.Core.ConfigurationBuilder()
+                        .WithJsonSerializer()
+                        .WithMicrosoftMemoryCacheHandle(instanceName: "MemoryCache1")
+                        .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
+                        .Build());
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
