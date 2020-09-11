@@ -28,7 +28,7 @@ namespace MahtaKala.Controllers
             : base(hostingEnvironment)
         {
             FileService = fileService;
-            ProductsImagesPath = configuration.GetSection("AppSettings")["ProductsImagesPath"];
+            ProductsImagesPath = configuration.GetSection("AppSettings")["ProductImagesPath"];
             ProductsEditorImagesFolder = configuration.GetSection("AppSettings")["ProductsEditorImagesFolder"];
 
         }

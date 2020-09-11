@@ -3,36 +3,40 @@
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
 @(Html.Kendo().Grid<MahtaKala.Entities.Models.ProductListModel>().Name("grid").Columns(columns =>
-{
-    columns.Bound(p => p.Id).Title("شناسه");
-    columns.Bound(p => p.Title).Title("عنوان");
+    {
+        columns.Bound(p => p.Id).Title("شناسه");
+        columns.Bound(p => p.Title).Title("عنوان");
     columns.Bound(p => p.Categories).Title("دسته بندی");
-    columns.Bound(p => p.Brand).Title("برند");
-    columns.Bound(p => p.Price).Title("قیمت");
-    columns.Bound(p => p.Disabled).Title("غیر فعال");
-    columns.Bound(p => p.Published).Title("منتشر شده");
-    columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
-    columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
+        columns.Bound(p => p.Brand).Title("برند");
+        columns.Bound(p => p.Price).Title("قیمت");
+        columns.Bound(p => p.Disabled).Title("غیر فعال");
+        columns.Bound(p => p.Published).Title("منتشر شده");
+        columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
+        columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
 
-})
-                                   .ToolBar(toolbar =>
-                                   {
-                                       toolbar.ClientTemplateId("GridToolbarTemplate");
-                                   })
-                                 .Pageable(pageable => pageable
+    })
+    .ToolBar(toolbar =>
+    {
+        toolbar.ClientTemplateId("GridToolbarTemplate");
+    })
+    .Pageable(pageable => pageable
         .Refresh(true)
         .PageSizes(true)
-        .ButtonCount(5)).Filterable().Sortable().DataSource(dataSource => dataSource
-                .Ajax()
-                .PageSize(50)
-                .Model(model =>
-                {
-                    model.Id(p => p.Id);
+        .ButtonCount(5))
+    .Filterable()
+    .Sortable()
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(50)
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
 
-                })
-                .Read(read => read.Action("Product_Read", "Staff"))
-                                                                                                                                                                                                                                                                                    )
-        )
+        })
+        .Read(read => read.Action("Product_Read", "Staff"))
+    )
+
+)
 <script id="GridToolbarTemplate" type="text/x-kendo-template">
     <div class="refreshBtnContainer">
         <a href="@Url.Content("~/Staff/Product")" class="k-pager-refresh k-link k-button">
@@ -43,18 +47,25 @@
 </script>
 @section js{
     <script type="text/javascript">
-       function EditQuestion(e) {
-           e.preventDefault();
-           var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-           var url = '@Url.Content("~/Staff/Product/")' + dataItem.Id;
-           window.location.href = url;
+
+        function EditQuestion(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            var url = '@Url.Content("~/Staff/Product/")' + dataItem.Id;
+            window.open(
+                url,
+                '_blank'
+            );
         }
 
         function ShowItem(e) {
            e.preventDefault();
            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-           var url = '@Url.Content("~/Staff/ProductItem/")' + dataItem.Id;
-           window.location.href = url;
+            var url = '@Url.Content("~/Staff/ProductItem/")' + dataItem.Id;
+            window.open(
+                url,
+                '_blank'
+            );
         }
 
 

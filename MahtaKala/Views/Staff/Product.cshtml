@@ -3,6 +3,12 @@
     ViewData["TitlNewtonsoft.Json.JsonSerializerNewtonsoft.Json.JsonSerializere"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
+@if(ViewBag.IsPostback)
+{
+    <script>
+            window.close();
+    </script>
+}
 <div class="card card-custom gutter-b example example-compact">
     @using (Html.BeginForm("Product", "Staff", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form" }))
     {
@@ -98,15 +104,15 @@
                     </label>
                     <div class="k-content">
                         @(Html.Kendo().DropDownList()
-                .Name("BrandId")
-                .Value(Model.BrandId.ToString())
-                .DataTextField("name")
-                .DataValueField("id")
-                .DataSource(source =>
-                {
-                    source.Read(read => { read.Action("GetBrands", "Repo"); });
-                })
-                .HtmlAttributes(new { style = "width: 100%" })
+                            .Name("BrandId")
+                            .Value(Model.BrandId.ToString())
+                            .DataTextField("name")
+                            .DataValueField("id")
+                            .DataSource(source =>
+                            {
+                                source.Read(read => { read.Action("GetBrands", "Repo"); });
+                            })
+                            .HtmlAttributes(new { style = "width: 100%" })
                         )
                     </div>
                 </div>
