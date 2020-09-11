@@ -32,6 +32,7 @@ namespace MahtaKala.Controllers
     public class StaffController : ApiControllerBase<StaffController>
     {
         private readonly IProductImageService productImageService;
+        private readonly ICategoryImageService categoryImageService;
         private readonly ImportService importService;
         private readonly ISMSService smsService;
 
@@ -40,10 +41,12 @@ namespace MahtaKala.Controllers
             ILogger<StaffController> logger,
             ISMSService smsService,
             IProductImageService productImageService,
+            ICategoryImageService categoryImageService,
             ImportService importService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
+            this.categoryImageService = categoryImageService;
             this.importService = importService;
             this.smsService = smsService;
         }
@@ -366,6 +369,7 @@ namespace MahtaKala.Controllers
                 {
                     throw new EntityNotFoundException<Category>(id);
                 }
+                categoryImageService.FixImageUrls(productCategory);
             }
             ViewBag.Categories = db.Categories.Where(c => c.Id != id).ToList();
             return View(productCategory);
@@ -399,6 +403,35 @@ namespace MahtaKala.Controllers
             ViewBag.Categories = db.Categories.Where(c => c.Id != model.Id).ToList();
             return View(model);
         }
+        [HttpPost]
+        public async Task<ActionResult> SaveCategoryImage(IEnumerable<IFormFile> images, long ID)
+        {
+            // The Name of the Upload component is "images"
+            if (images != null)
+            {
+                if (images.Count() > 0)
+                {
+                    var category = await db.Categories.Where(p => p.Id == ID).FirstOrDefaultAsync();
+                    if (category == null)
+                    {
+                        throw new EntityNotFoundException<Product>(ID);
+                    }
+                    var file = images.First();
+                    var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                    using (var stream = file.OpenReadStream())
+                    {
+                        await categoryImageService.SaveImage(ID, fileName, stream);
+                    }
+                    category.Image = fileName;
+                    db.Entry(category).State = EntityState.Modified;
+                    await db.SaveChangesAsync();
+                    return Json(categoryImageService.GetImageUrl(ID, category.Image));
+                }
+            }
+            // Return an empty string to signify success
+            return Content("");
+        }
+
 
         #endregion
 
