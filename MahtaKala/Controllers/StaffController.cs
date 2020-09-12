@@ -580,10 +580,11 @@ namespace MahtaKala.Controllers
             {
                 p = new Product()
                 {
-                    Characteristics = new List<Characteristic>()
+                    Characteristics = new List<Characteristic>(),
+                    ProductCategories = new List<ProductCategory>()
                 };
             }
-            ViewBag.Categories = await categoryService.AllCategories();
+            ViewBag.IsPostback = false;
             return View(p);
         }
 
