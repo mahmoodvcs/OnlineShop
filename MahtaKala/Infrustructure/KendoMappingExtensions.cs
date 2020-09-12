@@ -1,6 +1,7 @@
 ﻿using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
 using MahtaKala.Entities.Models;
+using MahtaKala.SharedServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace MahtaKala.Infrustructure
                 Brand = a.Brand,
                 Price = a.Price,
                 DiscountPrice = a.DiscountPrice,
-                Disabled = a.Disabled
+                Status = TranslateExtentions.GetTitle(a.Status)
             });
         }
     }

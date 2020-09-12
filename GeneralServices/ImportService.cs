@@ -1,6 +1,5 @@
 ﻿using Aspose.Cells;
 using MahtaKala.Entities;
-using MahtaKala.Entities.Migrations;
 using MahtaKala.GeneralServices.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Logging;

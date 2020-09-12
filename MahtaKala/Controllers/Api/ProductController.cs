@@ -181,7 +181,7 @@ namespace MahtaKala.Controllers
                     Category_Id = a.ProductCategories.FirstOrDefault().CategoryId,
                     Category = a.ProductCategories.FirstOrDefault().Category.Title,
                     Description = a.Description,
-                    Disabled = a.Disabled,
+                    Status = a.Status,
                     Title = a.Title,
                     Thubmnail = a.Thubmnail,
                     Characteristics = a.Characteristics,
@@ -200,7 +200,7 @@ namespace MahtaKala.Controllers
                 Brand = a.Brand,
                 Category_Id = a.Category_Id,
                 Category = a.Category,
-                Disabled = a.Disabled,
+                Status = a.Status,
                 Description = a.Description,
                 Title = a.Title,
                 Thubmnail = imageService.GetImageUrl(a.Id, a.Thubmnail),
@@ -238,7 +238,7 @@ namespace MahtaKala.Controllers
                             Id = prc.Product.Id,
                             Brand = prc.Product.Brand.Name,
                             Category = cat.Title,
-                            Disabled = prc.Product.Disabled,
+                            Status = prc.Product.Status,
                             Title = prc.Product.Title,
                             Thubmnail = prc.Product.Thubmnail,
                             Price = prc.Product.Prices.FirstOrDefault().Price,
@@ -279,7 +279,7 @@ namespace MahtaKala.Controllers
                 Thubmnail = imageService.GetImageUrl(a.Id, a.Thubmnail),
                 Price = a.Prices.FirstOrDefault().Price,
                 DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
-                Disabled = a.Disabled
+                Status = a.Status
             })
             .ToListAsync();
         }

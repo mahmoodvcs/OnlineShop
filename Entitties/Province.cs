@@ -16,6 +16,7 @@ namespace MahtaKala.Entities
         [Display(Name ="نام استان")]
         public string Name { get; set; }
 
+        public IList<City> Cities { get; set; }
         //public static Province[] GetAll()
         //{
         //    using (var db = new DbEntities())

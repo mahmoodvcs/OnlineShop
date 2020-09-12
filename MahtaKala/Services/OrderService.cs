@@ -1,5 +1,4 @@
 ﻿using MahtaKala.Entities;
-using MahtaKala.Entities.Migrations;
 using MahtaKala.GeneralServices.Payment;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.SharedServices;
