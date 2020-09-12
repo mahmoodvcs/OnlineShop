@@ -55,6 +55,8 @@ namespace MahtaKala.Entities
             modelBuilder.Entity<OrderItem>().HasOne(a => a.ProductPrice).WithMany(a => a.OrderItems).OnDelete(DeleteBehavior.Restrict);
         }
 
+        protected virtual bool UseCaching => true;
+
         public DbSet<User> Users{ get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<UserActivationCode> UserActivationCodes { get; set; }
@@ -103,28 +105,40 @@ namespace MahtaKala.Entities
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            var changedEntityNames = this.GetChangedEntityNames();
+            if (UseCaching)
+            {
+                var changedEntityNames = this.GetChangedEntityNames();
 
-            this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
-            var result = base.SaveChanges(acceptAllChangesOnSuccess);
-            this.ChangeTracker.AutoDetectChangesEnabled = true;
+                this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
+                var result = base.SaveChanges(acceptAllChangesOnSuccess);
+                this.ChangeTracker.AutoDetectChangesEnabled = true;
 
-            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+                this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
 
-            return result;
+                return result;
+            }
+            else
+                return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
-            var changedEntityNames = this.GetChangedEntityNames();
+            if (UseCaching)
+            {
+                var changedEntityNames = this.GetChangedEntityNames();
 
-            this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
-            var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-            this.ChangeTracker.AutoDetectChangesEnabled = true;
+                this.ChangeTracker.AutoDetectChangesEnabled = false; // for performance reasons, to avoid calling DetectChanges() again.
+                var result = await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+                this.ChangeTracker.AutoDetectChangesEnabled = true;
 
-            this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
+                this.GetService<IEFCacheServiceProvider>().InvalidateCacheDependencies(changedEntityNames);
 
-            return result;
+                return result;
+            }
+            else
+            {
+                return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            }
         }
     }
 }
