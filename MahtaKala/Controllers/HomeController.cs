@@ -65,7 +65,7 @@ namespace MahtaKala.Controllers
                     Description = p.Description,
                     Thubmnail = p.Thubmnail,
                     Title = p.Title,
-                    Disabled = p.Disabled,
+                    Status = p.Status,
                     Prices = p.Prices.ToList(),
                     Images = p.ImageList
                 }).FirstOrDefault();

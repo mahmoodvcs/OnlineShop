@@ -133,8 +133,14 @@
                     @Html.ValidationMessageFor(a => a.DiscountPrice)
                 </div>
                 <div class="col-lg-3">
-                    <label>غیر فعال:</label>
-                    @Html.CheckBoxFor(a => a.Disabled)
+                    <label>وضعیت:</label>
+                    @Html.DropDownList("Status", MahtaKala.SharedServices.TranslateExtentions.GetTitles<ProductStatus>()
+                        .Select(a=>new SelectListItem
+                        {
+                            Value = ((int)a.Key).ToString(),
+                            Text = a.Value,
+                            Selected = Model.Status == a.Key
+                        }), new { @class = "form-control", @type = "number" })
                 </div>
                 <div class="col-lg-3">
                     <label>منتشر شده</label>

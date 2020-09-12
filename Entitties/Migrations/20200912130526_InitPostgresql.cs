@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MahtaKala.Entities.Migrations
 {
-    public partial class InitPgsql : Migration
+    public partial class InitPostgresql : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -129,7 +129,7 @@ namespace MahtaKala.Entities.Migrations
                     image_list = table.Column<string>(nullable: true),
                     thubmnail = table.Column<string>(nullable: true),
                     seller_id = table.Column<long>(nullable: true),
-                    disabled = table.Column<bool>(nullable: false),
+                    status = table.Column<int>(nullable: false),
                     published = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>

@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MahtaKala.Entities.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200911180748_InitPgsql")]
-    partial class InitPgsql
+    [Migration("20200912130526_InitPostgresql")]
+    partial class InitPostgresql
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -289,10 +289,6 @@ namespace MahtaKala.Entities.Migrations
                         .HasColumnName("description")
                         .HasColumnType("text");
 
-                    b.Property<bool>("Disabled")
-                        .HasColumnName("disabled")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("ImageList")
                         .HasColumnName("image_list")
                         .HasColumnType("text");
@@ -308,6 +304,10 @@ namespace MahtaKala.Entities.Migrations
                     b.Property<long?>("SellerId")
                         .HasColumnName("seller_id")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("Status")
+                        .HasColumnName("status")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Thubmnail")
                         .HasColumnName("thubmnail")
@@ -733,7 +733,7 @@ namespace MahtaKala.Entities.Migrations
             modelBuilder.Entity("MahtaKala.Entities.City", b =>
                 {
                     b.HasOne("MahtaKala.Entities.Province", "Province")
-                        .WithMany()
+                        .WithMany("Cities")
                         .HasForeignKey("ProvinceId")
                         .HasConstraintName("fk_cities_provinces_province_id")
                         .OnDelete(DeleteBehavior.Cascade)
