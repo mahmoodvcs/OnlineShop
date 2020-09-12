@@ -84,10 +84,24 @@ namespace MahtaKala.Services
             var cartItem = await cart.FirstOrDefaultAsync(c => c.ProductPriceId == productPriceId);
             if (cartItem == null)
             {
-                var seller = db.ProductPrices.Where(p => p.Id == productPriceId).Select(a => a.Product.SellerId).FirstOrDefault();
+                var info = db.ProductPrices
+                    .Where(p => p.Id == productPriceId)
+                    .Select(a => new
+                    {
+                        a.Product.SellerId,
+                        a.Product.Status,
+                        a.Product.BuyQuota
+                    })
+                    .FirstOrDefault();
+                if (info.Status != ProductStatus.Available)
+                    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_NotAvailable)
+                if (info.BuyQuota )
+                    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_NotAvailable)
+
                 var priceIds = cart.Select(a => a.ProductPriceId);
-                if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.SellerId != seller).Any())
+                if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.SellerId != info.SellerId).Any())
                     throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_DefferentSeller);
+
 
                 cartItem = new ShoppingCart
                 {
