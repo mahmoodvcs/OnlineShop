@@ -12,13 +12,13 @@
         columns.Bound(p => p.Name);
         columns.Bound(p => p.AccountNumber);
         columns.Command(command => {
-            command.Edit();
-            command.Destroy();
-        }).Width(160);
+            command.Edit().Text("ویرایش");
+            command.Destroy().Text("حذف");
+        }).Width(200);
     })
     .ToolBar(toolbar =>
     {
-        toolbar.Create();
+        toolbar.Create().Text("مورد جدید");
     })
     .HtmlAttributes(new { style = "height: 550px;" })
     .Scrollable()

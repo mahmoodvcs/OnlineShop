@@ -23,6 +23,7 @@ namespace MahtaKala.Entities
         [StringLength(255)]
         [Display(Name = "نام شهر")]
         public string Name { get; set; }
+        [Display(Name = "مرکز استان")]
         public bool IsCenter { get; set; }
 
         //public static City[] GetAll(int provinceId)
