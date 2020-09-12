@@ -23,7 +23,7 @@
     .HtmlAttributes(new { style = "height: 550px;" })
     .Scrollable()
     .Groupable()
-    .Sortable().
+      .Sortable().Filterable().
     Editable( GridEditMode.InLine)
     .Pageable(pageable => pageable
         .Refresh(true)

@@ -17,7 +17,7 @@
         toolbar.ClientTemplateId("GridToolbarTemplate");
     })
     .HtmlAttributes(new { style = "height: 550px;" })
-    .Scrollable()
+    .Scrollable().Filterable()
     .Sortable()
     .Pageable(pageable => pageable
         .Refresh(true)
