@@ -19,21 +19,21 @@ namespace MahtaKala.Entities
 
         public string Description { get; set; }
 
-        public IList<ProductCategory> ProductCategories { get; set; }
+        public IList<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 
         [Display(Name ="برند")]
         public long BrandId { get; set; }
         [Display(Name ="برند")]
         public Brand Brand { get; set; }
         public IList<Characteristic> Characteristics { get; set; }
-        public IList<KeyValuePair<string, string>> Properties { get; set; }
+        public IList<KeyValuePair<string, string>> Properties { get; set; } = new List<KeyValuePair<string, string>>();
         public IList<string> ImageList { get; set; }
         public string Thubmnail { get; set; }
 
         public long? SellerId { get; set; }
         public Seller Seller { get; set; }
 
-        public IList<ProductPrice> Prices { get; set; }
+        public IList<ProductPrice> Prices { get; set; } = new List<ProductPrice>();
         public IList<ProductQuantity> Quantities { get; set; }
 
         [NotMapped]
