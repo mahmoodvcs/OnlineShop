@@ -40,11 +40,21 @@ namespace MahtaKala.Entities
         public decimal Price { get; set; }
         [NotMapped]
         public decimal DiscountPrice { get; set; }
-        [Display(Name ="غیر فعال")]
-        public bool Disabled { get; set; }
+        [Display(Name = "وضعیت")]
+        public ProductStatus Status { get; set; }
         [Display(Name ="منتشر شده")]
         public bool Published  { get; set; }
 
+    }
+
+    public enum ProductStatus
+    {
+        [Display(Name ="موجود")]
+        Available = 0,
+        [Display(Name ="به زودی")]
+        CommingSoon = 1,
+        [Display(Name ="ناموجود")]
+        NotAvailable = 2,
     }
 
     public class Characteristic

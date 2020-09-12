@@ -613,7 +613,7 @@ namespace MahtaKala.Controllers
                 product.Title = model.Title;
                 product.BrandId = model.BrandId;
                 product.Description = model.Description;
-                product.Disabled = model.Disabled;
+                product.Status = model.Status;
                 product.Published = model.Published;
 
                 var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));

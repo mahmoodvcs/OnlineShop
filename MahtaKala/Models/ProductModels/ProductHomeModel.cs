@@ -16,7 +16,7 @@ namespace MahtaKala.Models.ProductModels
         public string Category { get; set; }
         public string Brand { get; set; }
         public string Description { get; set; }
-        public bool Disabled { get; set; }
+        public ProductStatus Status { get; set; }
         public List<ProductPrice> Prices { get; internal set; }
     }
 }

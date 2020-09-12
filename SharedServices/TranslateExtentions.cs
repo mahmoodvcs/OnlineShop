@@ -8,6 +8,15 @@ namespace MahtaKala.SharedServices
 {
     public static class TranslateExtentions
     {
+        public static List<KeyValuePair<EnumType, string>> GetTitles<EnumType>() where EnumType : struct, IConvertible
+        {
+            List<KeyValuePair<EnumType, string>> list = new List<KeyValuePair<EnumType, string>>();
+            foreach(EnumType item in Enum.GetValues(typeof(EnumType)))
+            {
+                list.Add(new KeyValuePair<EnumType, string>(item, GetTitle(item)));
+            }
+            return list;
+        }
         public static string GetTitle<EnumType>() where EnumType : struct, IConvertible
         {
             var t = typeof(EnumType);

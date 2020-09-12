@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MahtaKala.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -16,7 +17,7 @@ namespace MahtaKala.Models.ProductModels
         public string Brand { get; set; }
         public decimal? Price { get; set; }
         public decimal? DiscountPrice { get; set; }
-        public bool Disabled { get; set; }
+        public ProductStatus Status { get; set; }
         public bool Published { get; internal set; }
     }
 }

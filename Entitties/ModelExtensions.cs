@@ -19,7 +19,7 @@ namespace MahtaKala.Entities
                 Thubmnail = a.Thubmnail,
                 Price = a.Prices.FirstOrDefault().Price,
                 DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
-                Disabled = a.Disabled,
+                Status = a.Status,
                 Published = a.Published
             });
         }

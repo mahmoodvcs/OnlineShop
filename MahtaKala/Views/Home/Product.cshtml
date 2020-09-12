@@ -59,7 +59,7 @@
                         </div>
                         <div class="pro-price mtb-30">
                             <p class="d-flex align-items-center">
-                                @if (productPrice.DiscountPrice > 0 && !Model.Disabled)
+                                @if (productPrice.DiscountPrice > 0 && Model.Status == ProductStatus.Available)
                                 {
                                     if (isDiscount)
                                     {
@@ -97,21 +97,21 @@
                             </div>*@
                         <div class="box-quantity d-flex hot-product2">
                             <form action="#">
-                                @if (productPrice.DiscountPrice > 0 && !Model.Disabled)
+                                @if (productPrice.DiscountPrice > 0 && Model.Status == ProductStatus.Available)
                                 {
                                     <input class="quantity mr-15" id="uxQuantity" type="number" min="1" value="1">
                                 }
                             </form>
                             <div class="pro-actions">
                                 <div class="actions-primary">
-                                    @if (productPrice.DiscountPrice > 0 && !Model.Disabled)
+                                    @if (productPrice.DiscountPrice > 0 && Model.Status == ProductStatus.Available)
                                     {
                                         <a href="#" title="" id="addtocart" data-id="@productPrice.Id" data-original-title="اضافه کردن به سبد خرید"> + اضافه کردن به سبد خرید</a>
 
                                     }
                                     else
                                     {
-                                        <a href="javascript:void(0)" class="disableItem">ناموجود</a>
+                                        <a href="javascript:void(0)" class="disableItem">@(Model.Status == ProductStatus.CommingSoon ? "به زودی" : "ناموجود")</a>
 
                                     }
 
