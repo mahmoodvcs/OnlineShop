@@ -14,66 +14,7 @@
                     <div class="best-seller-pro-active owl-carousel">
                         @foreach (var item in Model)
                         {
-                            var productPrice = item.Prices.First();
-                            decimal discount;
-                            var isDiscount = Util.IsDiscount(productPrice, out discount);
-                            <div class="single-product">
-                                <!-- Product Image Start -->
-                                <div class="pro-img">
-                                    <a href="@Url.Content("~/home/product/"+item.Id)">
-                                        <img class="primary-img imgh226" src="@item.Thubmnail" alt="single-product">
-                                    </a>
-                                    @*   <a href="#" class="quick_view" data-toggle="modal" data-target="#myModal" title="نمایش سریع"><i class="lnr lnr-magnifier"></i></a>*@
-                                </div>
-                                <!-- Product Image End -->
-                                <!-- Product Content Start -->
-                                <div class="pro-content">
-                                    <div class="pro-info">
-                                        <h4><a href="@Url.Content("~/home/product/"+item.Id)">@item.Title</a></h4>
-                                        @if (productPrice.DiscountPrice > 0 && item.Status == ProductStatus.Available)
-                                        {
-                                            <p style="direction:rtl">
-                                                <span class="price">
-                                                    @Util.Sub3Number(productPrice.DiscountPrice)
-                                                </span>
-                                                <text>ریال</text>
-                                                @if (isDiscount)
-                                                {
-                                                    <del class="prev-price">@Util.Sub3Number(productPrice.Price)</del>
-                                                }
-                                            </p>
-                                            @if (isDiscount)
-                                            {
-                                                <div class="label-product l_sale">@discount<span class="symbol-percent">%</span></div>
-                                            }
-                                        }
-                                        else
-                                        {
-                                    <p style="direction:rtl">
-                                        @(item.Status == ProductStatus.CommingSoon ? "به زودی" : "ناموجود")
-                                    </p>
-                                        }
-                                    </div>
-                                    <div class="pro-actions">
-                                        <div class="actions-primary">
-                                            @if (productPrice.DiscountPrice > 0 && item.Status == ProductStatus.Available)
-                                            {
-                                                <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id"> اضافه کردن به سبد +</a>
-                                            }
-                                            else
-                                            {
-                                        <a href="javascript:void(0)" class="disableItem">@(item.Status == ProductStatus.CommingSoon ? "به زودی" : "ناموجود")</a>
-
-                                            }
-                                        </div>
-                                        <div class="actions-secondary">
-                                            <a href="#" class="compare-to" data-id="@item.Id" title="مقایسه"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                                            <a href="#" class="heart" data-id="@item.Id" title="علاقه مندی ها"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Product Content End -->
-                            </div>
+                            @await Html.PartialAsync("ProductView", item)
                         }
                     </div>
 
