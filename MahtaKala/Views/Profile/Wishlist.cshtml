@@ -32,8 +32,17 @@
                         </td>
                         <td class="product-name"><a href="@Url.Content("~/home/product/"+item.ProductId)">@item.Product.Title</a></td>
                         <td class="product-price"><span class="amount">@string.Format("{0:n0}", productPrice.DiscountPrice) ریال</span></td>
-                  
-                        <td class="product-add-to-cart"><a href="#" class="addtocart" data-id="@productPrice.Id">اضافه کردن به سبد خرید</a></td>
+
+                        <td class="product-add-to-cart">
+                            @if (productPrice.DiscountPrice > 0 && item.Product.Status == ProductStatus.Available)
+                            {
+                                <a href="#" class="addtocart" data-id="@productPrice.Id">اضافه کردن به سبد خرید</a>
+                            }
+                            else
+                            {
+                        <a href="#">@(item.Product.Status == ProductStatus.CommingSoon ? "به زودی" : "ناموجود")</a>
+                            }
+                        </td>
                     </tr>
                 }
             </tbody>

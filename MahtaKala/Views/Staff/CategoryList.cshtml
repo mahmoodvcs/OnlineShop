@@ -11,9 +11,9 @@
     {
         columns.Bound(p => p.Title);
         columns.Bound(p => p.Order);
-        columns.Bound(p => p.Disabled);
-        columns.Bound(p => p.Published);
-        columns.Command(command => command.Custom("Edit").Click("editEntity")).Width(160);
+        columns.Bound(p => p.Disabled).ClientTemplate("#=Disabled?'بلی':'خیر'#");
+        columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#");
+        columns.Command(command => command.Custom("Edit").Text("ویرایش").Click("editEntity")).Width(160);
     })
     .ToolBar(toolbar =>
     {

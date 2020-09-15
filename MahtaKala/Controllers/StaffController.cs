@@ -402,6 +402,7 @@ namespace MahtaKala.Controllers
                     cat.Title = model.Title;
                     cat.Disabled = model.Disabled;
                     cat.Published = model.Published;
+                    cat.ParentId = model.ParentId;
                 }
                 await db.SaveChangesAsync();
                 ViewBag.IsPostback = true;

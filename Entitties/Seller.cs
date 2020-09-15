@@ -12,8 +12,10 @@ namespace MahtaKala.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
         [StringLength(255)]
+        [Display(Name = "نام")]
         public string Name { get; set; }
         [StringLength(30)]
+        [Display(Name = "شماره حساب کاربری")]
         public string AccountNumber { get; set; }
         [StringLength(50)]
         public string AccountBankName { get; set; }

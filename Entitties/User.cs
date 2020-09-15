@@ -16,21 +16,29 @@ namespace MahtaKala.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
         [StringLength(255)]
+        [Display(Name = "نام کاربری")]
         public string Username { get; set; }
+        [Display(Name = "رمز عبور")]
         public string Password { get; set; }
         [StringLength(255)]
+        [Display(Name = "نام")]
         public string FirstName { get; set; }
         [StringLength(255)]
+        [Display(Name = "نام خانوادگی")]
         public string LastName { get; set; }
         [StringLength(10)]
+        [Display(Name = "کد ملی")]
         public string NationalCode { get; set; }
 
         public string SecurityStamp { get; set; }
         [StringLength(255)]
+        [Display(Name = "ایمیل")]
         [EmailAddress(ErrorMessage ="آدرس ایمیل معتبر نیست")]
         public string EmailAddress { get; set; }
         [StringLength(255)]
+        [Display(Name = "شماره همراه")]
         public string MobileNumber { get; set; }
+        [Display(Name = "نوع کاربر")]
         public UserType Type { get; set; }
 
 
