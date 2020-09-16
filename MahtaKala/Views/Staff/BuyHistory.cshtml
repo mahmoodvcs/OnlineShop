@@ -15,20 +15,23 @@
     columns.Command(command => command.Custom("تایید تحویل").Click("ConfirmDelivered")).Width(90);
 
 })
-                                 .Pageable(pageable => pageable
-        .Refresh(true)
-        .PageSizes(true)
-        .ButtonCount(5)).Filterable().Sortable().DataSource(dataSource => dataSource
-                .Ajax()
-                .PageSize(50)
-                .Model(model =>
-                {
-                    model.Id(p => p.Id);
+    .Scrollable()
+    .Filterable()
+    .Sortable()
+    .Pageable(pageable => pageable
+    .Refresh(true)
+    .PageSizes(true)
+    .ButtonCount(5)).Filterable().Sortable().DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(50)
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
 
-                })
-                .Read(read => read.Action("GetBuyHistory", "Staff"))
-                                                                                                                                                                                                                                                                                    )
-        )
+            })
+            .Read(read => read.Action("GetBuyHistory", "Staff"))
+                                                                                                                                                                                                                                                                                )
+    )
 @section js{
     <script type="text/javascript">
         function ConfirmSent(e) {
