@@ -44,7 +44,9 @@ namespace MahtaKala.Entities
         public ProductStatus Status { get; set; }
         [Display(Name ="منتشر شده")]
         public bool Published  { get; set; }
-        public int? BuyQuota { get; set; }
+        public int? MinBuyQuota { get; set; }
+        public int? MaxBuyQuota { get; set; }
+        public int? BuyQoutaDays { get; set; }
     }
 
     public enum ProductStatus

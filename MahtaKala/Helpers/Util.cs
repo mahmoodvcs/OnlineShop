@@ -115,6 +115,29 @@ namespace MahtaKala.Helpers
             return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} {d.Value.ToString("HH:mm")}";
         }
 
+        public static string GetTimeSpanPersianString(TimeSpan timeSpan)
+        {
+            List<Tuple<int, string>> spans = new List<Tuple<int, string>>
+            {
+                new Tuple<int, string>(365, "سال" ),
+                new Tuple<int, string>(30, "ماه" ),
+                new Tuple<int, string>(1, "روز" ),
+            };
+
+            var days = (int)timeSpan.TotalDays;
+            List<string> parts = new List<string>();
+            foreach (var s in spans)
+            {
+                var x = days / s.Item1;
+                if (x > 0)
+                {
+                    parts.Add($"{x} {s.Item2}");
+                    days = days % x;
+                }
+            }
+            return string.Join(" و ", parts);
+        }
+
 
     }
 }

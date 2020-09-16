@@ -1,7 +1,9 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.GeneralServices.Payment;
+using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.SharedServices;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders.Physical;
 using System;
@@ -78,25 +80,46 @@ namespace MahtaKala.Services
             var cartItem = await cart.FirstOrDefaultAsync(c => c.ProductPriceId == productPriceId);
             return await UpdateCart(cartItem, productPriceId, count);
         }
-        private async Task<long> UpdateCart(ShoppingCart item, long productPriceId, int count)
+        private async Task<long> UpdateCart(ShoppingCart cartItem, long productPriceId, int count)
         {
+            var info = await db.ProductPrices
+                .Where(p => p.Id == productPriceId)
+                .Select(a => new
+                {
+                    a.Product.SellerId,
+                    a.Product.Status,
+                    a.Product.MinBuyQuota,
+                    a.Product.MaxBuyQuota,
+                    a.Product.BuyQoutaDays,
+                })
+                .FirstOrDefaultAsync();
+            if (info.MaxBuyQuota.HasValue)
+            {
+                if (count > info.MaxBuyQuota)
+                    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_MaxQuota);
+
+                var minTime = DateTime.Now.AddDays(-info.BuyQoutaDays.Value);
+                var prevProductCount = (from order in db.Orders
+                            .Where(o => o.UserId == cartItem.UserId
+                                && (o.State == OrderState.Paid || o.State == OrderState.Sent || o.State == OrderState.Delivered)
+                                && o.CheckOutData > minTime)
+                                        from orderItem in order.Items.Where(a => a.ProductPriceId == productPriceId)
+                                        select orderItem.Quantity).Sum();
+                if (prevProductCount + count > info.MaxBuyQuota)
+                {
+                    var prodName = await db.ProductPrices.Where(a => a.Id == productPriceId).Select(a => a.Product.Title).FirstOrDefaultAsync();
+                    throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_MaxQuota,
+                        Util.GetTimeSpanPersianString(TimeSpan.FromDays(info.MaxBuyQuota.Value)), prodName));
+                }
+            }
+            //if (count < info.MinBuyQuota)
+            //    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_NotAvailable);
+
             var cart = GetCartQuery();
-            var cartItem = await cart.FirstOrDefaultAsync(c => c.ProductPriceId == productPriceId);
             if (cartItem == null)
             {
-                var info = db.ProductPrices
-                    .Where(p => p.Id == productPriceId)
-                    .Select(a => new
-                    {
-                        a.Product.SellerId,
-                        a.Product.Status,
-                        a.Product.BuyQuota
-                    })
-                    .FirstOrDefault();
                 if (info.Status != ProductStatus.Available)
-                    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_NotAvailable)
-                if (info.BuyQuota )
-                    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_NotAvailable)
+                    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_NotAvailable);
 
                 var priceIds = cart.Select(a => a.ProductPriceId);
                 if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.SellerId != info.SellerId).Any())
@@ -117,7 +140,7 @@ namespace MahtaKala.Services
 
                 db.ShoppingCarts.Add(cartItem);
             }
-            
+
             cartItem.Count = count;
             await db.SaveChangesAsync();
             return cartItem.Id;
@@ -174,6 +197,8 @@ namespace MahtaKala.Services
             if (cartItems.Count == 0)
                 throw new BadRequestException(Messages.Messages.Order.EmptyCart);
 
+            CheckCartValidity(cartItems);
+
             var order = new Order();
             order.State = OrderState.Initial;
             order.UserId = User.Id;
@@ -195,6 +220,17 @@ namespace MahtaKala.Services
             order.TotalPrice = CalculateTotalPrice(order);
             await db.SaveChangesAsync();
             return order;
+        }
+
+        private void CheckCartValidity(List<ShoppingCart> cartItems)
+        {
+            foreach (var item in cartItems)
+            {
+                if (item.ProductPrice.Product.Status != ProductStatus.Available)
+                {
+                    throw new CartItemException(Messages.Messages.Order.CannotAddProduct_NotAvailable, item.ProductPrice.ProductId, item.ProductPrice.Product.Title);
+                }
+            }
         }
 
         public async Task EmptyCart(long? userId = null)
