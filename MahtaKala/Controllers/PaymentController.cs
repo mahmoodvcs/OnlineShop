@@ -127,5 +127,33 @@ namespace MahtaKala.Controllers
             }
         }
 
+        public async Task<string> ShareTest(long id)
+        {
+            var ser = (PardakhtNovinService)bankPaymentService;
+            var pay = db.Payments.Find(id);
+            var res = await ser.Share(pay, new List<ProductPaymentParty>
+            {
+                new ProductPaymentParty
+                {
+                    PaymentParty=new PaymentParty
+                    {
+                        ShabaId="IR470550330280003044776001"
+                    },
+                    Percent=5
+                },
+                new ProductPaymentParty
+                {
+                    PaymentParty=new PaymentParty
+                    {
+                        ShabaId="IR040700058800114181383001"
+                    },
+                    Percent=20
+                }
+
+            });
+
+            return res;
+        }
+
     }
 }

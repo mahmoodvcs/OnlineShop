@@ -1,4 +1,5 @@
 ﻿using MahtaKala.Entities;
+using MahtaKala.GeneralServices.Payment.PardakhtNovin;
 using MahtaKala.SharedServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -9,9 +10,14 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Security;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace MahtaKala.GeneralServices.Payment
@@ -25,6 +31,9 @@ namespace MahtaKala.GeneralServices.Payment
         const string merchant_id = "011022471";
         const string username = merchant_id;
         const string password = "440196094";
+
+        const string shareUsername = "mahtaws";
+        const string sharePassword = "Ab@123456";
 
         //public class Options
         //{
@@ -157,6 +166,55 @@ namespace MahtaKala.GeneralServices.Payment
 
             await dataContext.SaveChangesAsync();
             return payment;
+        }
+
+        const string ShareApiAddress = "http://178.252.189.82:9000/api/SettlementRequest";
+        const string inqueiryAddress = "http://178.252.189.82:9000/api/InquiryTransactionSettlement";
+        //"http://1207.0.0.1:8888";
+
+        private async Task<string> Post(string address, string body)
+        {
+            HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+            //client.DefaultRequestHeaders.Add("Content-Type", "application/json");
+            client.DefaultRequestHeaders.Add("username", shareUsername);
+            client.DefaultRequestHeaders.Add("password", sharePassword);
+
+            var content = new StringContent(body, Encoding.UTF8, "application/json");
+            var response = await client.PostAsync(address, content);
+            var resStr = await response.Content.ReadAsStringAsync();
+            return resStr;
+        }
+        public async Task<string> Share(Entities.Payment payment, List<ProductPaymentParty> items)
+        {
+            var inqres = await Post(inqueiryAddress, @"[
+	{
+		""referenceNumber"":""026021451836""
+
+    }
+]");
+            var rrn = "26021451836";
+            SettlementRequest request = new SettlementRequest()
+            {
+                referenceNumber = new string('0', 12 - rrn.Length) + rrn,
+                scatteredSettlement = new List<ScatteredSettlementDetails>()
+            };
+            foreach (var item in items)
+            {
+                request.scatteredSettlement.Add(new ScatteredSettlementDetails
+                {
+                    settlementIban = item.PaymentParty.ShabaId,
+                    sharePercent = (int)item.Percent
+                });
+            }
+
+            var reqSgtring = JsonSerializer.Serialize(request);
+            logger.LogInformation(reqSgtring);
+            var resStr = await Post(ShareApiAddress, "[" + reqSgtring + "]");
+            logger.LogInformation(resStr);
+            return resStr;
         }
 
         class PaidReturnData

@@ -77,6 +77,12 @@ namespace MahtaKala.Entities
 
         public DbSet<Seller> Sellers { get; set; }
 
+        #region Share
+        //public DbSet<PaymentParty> PaymentParties { get; set; }
+        //public DbSet<ProductPaymentParty> ProductPaymentParties { get; set; }
+        #endregion Share
+
+
         #region Get Titles
 
         private static Dictionary<Type, string> tableTitles = new Dictionary<Type, string>();

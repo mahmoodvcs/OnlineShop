@@ -45,6 +45,8 @@ namespace MahtaKala.Entities
         [Display(Name ="منتشر شده")]
         public bool Published  { get; set; }
 
+        //public IList<ProductPaymentParty> PaymentParties { get; set; }
+
     }
 
     public enum ProductStatus
