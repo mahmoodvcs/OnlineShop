@@ -22,7 +22,8 @@ namespace MahtaKala.Infrustructure
                 Brand = a.Brand,
                 Price = a.Price,
                 DiscountPrice = a.DiscountPrice,
-                Status = TranslateExtentions.GetTitle(a.Status)
+                Status = TranslateExtentions.GetTitle(a.Status),
+                Published = a.Published,
             });
         }
     }
