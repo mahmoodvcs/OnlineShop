@@ -10,7 +10,7 @@
         columns.Bound(p => p.Brand).Title("برند");
         columns.Bound(p => p.Price).Title("قیمت");
         columns.Bound(p => p.Status).Title("وضعیت");
-        columns.Bound(p => p.Published).ClientTemplate("#=Disabled?'بلی':'خیر'#").Title("منتشر شده");
+        columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#").Title("منتشر شده");
         columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
         columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
 

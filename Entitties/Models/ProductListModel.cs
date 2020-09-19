@@ -15,6 +15,6 @@ namespace MahtaKala.Entities.Models
         public decimal? Price { get; set; }
         public decimal? DiscountPrice { get; set; }
         public string Status { get; set; }
-        public bool Published { get; internal set; }
+        public bool Published { get; set; }
     }
 }
