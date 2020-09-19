@@ -82,17 +82,18 @@ namespace MahtaKala.Helpers
             return value;
         }
 
-        public static bool  IsValidEmailaddress(string emailaddress)
+        public static bool IsValidEmailaddress(string emailaddress)
         {
-            try
-            {
-                MailAddress m = new MailAddress(emailaddress);
+            Regex regex = new Regex(@"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+            return regex.IsMatch(emailaddress);
+        }
+
+        public static bool IsNumber(string text)
+        {
+            long val;
+            if (long.TryParse(text, out val))
                 return true;
-            }
-            catch (FormatException)
-            {
-                return false;
-            }
+            return false;
         }
 
         public static bool IsDiscount(ProductPrice productPrice, out decimal discount)
