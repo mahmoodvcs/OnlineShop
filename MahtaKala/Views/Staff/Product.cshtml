@@ -15,11 +15,20 @@
         })
     </script>
 }
+@if (ViewBag.ErrorMessage != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: '@ViewBag.ErrorMessage',
+        })
+    </script>
+}
 <div class="card card-custom gutter-b example example-compact">
     @using (Html.BeginForm("Product", "Staff", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form" }))
     {
         @Html.AntiForgeryToken()
-        @Html.HiddenFor(a => a.Id)
+        <input type="hidden" id="Id" name="Id" value="@Model.Id" />
         @Html.HiddenFor(a => a.Thubmnail)
         @Html.HiddenFor(a => a.ImageList)
         <div class="card-header">
