@@ -2,12 +2,25 @@
     ViewData["Title"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
-@(Html.Kendo().Grid<MahtaKala.Models.BuyHistoryModel>().Name("grid").Columns(columns =>
+<div class="filterPanel">
+    <fieldset>
+        <legend>فیلتر ها:</legend>
+        <div class="row">
+            <div class="col-lg-3">
+                <label>وضعیت</label>
+                @(Html.EnumCombo<OrderState>("stateFilter", showEmptyValue: true, isGridAdditionalData: true))
+            </div>
+        </div>
+    </fieldset>
+
+</div>
+
+    @(Html.Kendo().Grid<MahtaKala.Models.BuyHistoryModel>().Name("grid").Columns(columns =>
 {
     columns.Bound(p => p.FirstName).Title("نام");
     columns.Bound(p => p.LastName).Title("نام خانوادگی");
     columns.Bound(p => p.CheckOutData).Title("تاریخ سفارش");
-    columns.Bound(p => p.State).Title("وضعیت");//.Filterable(fc=> { fc.UI("dateFilter"); });
+    columns.Bound(p => p.State).Title("وضعیت").Filterable(false);//.Filterable(fc=> { fc.UI("dateFilter"); });
     columns.Bound(p => p.ApproximateDeliveryDate).Title("تاریخ تقریبی تحویل");
     columns.Bound(p => p.SendDate).Title("تاریخ ارسال");
     columns.Bound(p => p.ActualDeliveryDate).Title("تاریخ تحویل");
@@ -36,11 +49,11 @@
                 model.Id(p => p.Id);
 
             })
-            .Read(read => read.Action("GetBuyHistory", "Staff"))
+            .Read(read => read.Action("GetBuyHistory", "Staff").Data("getAdditionalData"))
                                                                                                                                                                                                                                                                                 )
     )
-@section js{
-    <script type="text/javascript">
+    @section js{
+        <script type="text/javascript">
         function ConfirmSent(e) {
             e.preventDefault();
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
@@ -118,5 +131,5 @@
             });
         }
 
-    </script>
-}
+        </script>
+    }

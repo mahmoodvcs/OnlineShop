@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using EFSecondLevelCache.Core;
 using Kendo.Mvc.Extensions;
@@ -22,6 +23,7 @@ using MahtaKala.Services;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -354,11 +356,24 @@ namespace MahtaKala.Controllers
         {
             return View();
         }
+
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public ActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request)
+        public IActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request, string nameFilter)
         {
-            return ConvertDataToJson(db.Categories.Include(c => c.Parent), request);
+            var query = db.Categories.Include(c => c.Parent).AsQueryable();
+            if (!string.IsNullOrEmpty(nameFilter))
+            {
+                var parts = nameFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in parts)
+                {
+                    var ss = s.Trim().ToLower();
+                    query = query.Where(a => a.Title.ToLower().Contains(ss));
+                }
+            }
+
+            return KendoJson(query.ToDataSourceResult(request));
         }
+        
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult Category(long id)
         {
@@ -549,11 +564,40 @@ namespace MahtaKala.Controllers
         }
 
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request)
+        public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request, int? stateFilter, string nameFilter, string categoryFilter)
         {
-            var data = await db.Products.AsQueryable().Project().ToListResultAsync(request);
+            var  query = db.Products.AsQueryable();
+            //FlexTextFilter<Product>(query, p => p.Title, nameFilter);
+            if (!string.IsNullOrEmpty(nameFilter))
+            {
+                var parts = nameFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in parts)
+                {
+                    var ss = s.Trim().ToLower();
+                    query = query.Where(a => a.Title.ToLower().Contains(ss));
+                }
+            }
+            if (categoryFilter != null)
+            {
+                var parts = categoryFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in parts)
+                {
+                    var ss = s.Trim().ToLower();
+                    query = query.Where(a => a.ProductCategories.Any(c => c.Category.Title.ToLower().Contains(ss)));
+                }
+            }
+            if (stateFilter != null)
+            {
+                query = query.Where(a => a.Status == (ProductStatus)stateFilter);
+            }
+            var data = await query.Project().ToListResultAsync(request);
             return KendoJson(data);
         }
+
+        //private void FlexTextFilter<T>(IQueryable<T> query, Expression<Func<T, object>> p, string text)
+        //{
+        //    query.Where(Expression.)
+        //}
 
         [HttpPost]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
@@ -787,12 +831,15 @@ namespace MahtaKala.Controllers
         }
 
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
-        public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
+        public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request, int? stateFilter)
         {
             var query = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent);
-
+            if(stateFilter != null)
+            {
+                query = query.Where(a => a.State == (OrderState)stateFilter);
+            }
 
             var data = await query
                 .Select(a => new

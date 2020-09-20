@@ -4,6 +4,18 @@
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
+<div class="filterPanel">
+    <fieldset>
+        <legend>فیلتر ها:</legend>
+        <div class="row">
+            <div class="col-lg-3">
+                <label>عنوان:</label>
+                <input type="text" name="nameFilter" class="form-control additionalData" />
+            </div>
+        </div>
+    </fieldset>
+</div>
+
 
 @(Html.Kendo().Grid<MahtaKala.Entities.Category>()
     .Name("Grid")
@@ -36,7 +48,7 @@
         {
             model.Id(p => p.Id);
         })
-        .Read(read => read.Action("GetAllCategories", "Staff"))
+        .Read(read => read.Action("GetAllCategories", "Staff").Data("getAdditionalData"))
         .PageSize(20)
     )
 )

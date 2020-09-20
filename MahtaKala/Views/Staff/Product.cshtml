@@ -141,13 +141,7 @@
                 </div>
                 <div class="col-lg-3">
                     <label>وضعیت:</label>
-                    @Html.DropDownList("Status", MahtaKala.SharedServices.TranslateExtentions.GetTitles<ProductStatus>()
-                        .Select(a => new SelectListItem
-                        {
-                            Value = ((int)a.Key).ToString(),
-                            Text = a.Value,
-                            Selected = Model.Status == a.Key
-                        }), new { @class = "form-control" })
+                    @(Html.EnumCombo<ProductStatus>("Status", Model.Status))
                 </div>
                 <div class="col-lg-3">
                     <label>منتشر شده</label>
