@@ -12,10 +12,39 @@ namespace MahtaKala.Controllers
         {
             return View();
         }
+
+        public ActionResult Aboutus()
+        {
+            return View();
+        }
         public IActionResult Contact()
         {
             return View();
         }
-        
+        public IActionResult ReturnGuarantee()
+        {
+            return View();
+        }
+        public IActionResult Delivery()
+        {
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        public IActionResult GuaranteeOriginality()
+        {
+            return View();
+        }
+
+        public IActionResult ReturnCommodityRules()
+        {
+            return View();
+        }
+      
+
     }
 }

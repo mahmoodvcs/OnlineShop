@@ -843,6 +843,7 @@ display: none;
     .form-register labe,
     .term-mini-title {
         font-size: 13px;
+        text-align: justify !important;
     }
     #list-view .single-product .pro-content h4 a,
     .review-title {

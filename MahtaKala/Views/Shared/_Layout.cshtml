@@ -22,8 +22,8 @@
     <link rel="stylesheet" href="~/css/default.css?v=1.1">
     <link href="~/css/toastr.css" rel="stylesheet" />
     <link href="~/css/sweetalert.css" rel="stylesheet" />
-    <link href="~/css/style.css?v=2.23" rel="stylesheet" />
-    <link rel="stylesheet" href="~/css/responsive.css?v=1">
+    <link href="~/css/style.css?v=2.27" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/responsive.css?v=2">
     <link href="~/assets/plugins/global/plugins.bundle.rtl.css?v=7.0.6" rel="stylesheet" type="text/css" />
     @*<link href="~/assets/css/style.bundle.rtl.css" rel="stylesheet" type="text/css" />*@
 
@@ -93,7 +93,7 @@
                                     @*<li>
                                             <a href="#">بلاگ</a>
                                         </li>*@
-                                    <li><a href="#">درباره ما</a></li>
+                                    <li><a href="@Url.Content("~/page/Aboutus")">درباره ما</a></li>
                                     <li><a href="@Url.Content("~/page/contact")">تماس با ما</a></li>
                                 </ul>
                             </nav>
@@ -121,7 +121,7 @@
             @await Component.InvokeAsync("CategoriesMobile")
         </header>
         @if (!(ViewContext.RouteData.Values["controller"].ToString().ToLower() == "home"
-         && ViewContext.RouteData.Values["action"].ToString().ToLower() == "index"))
+        && ViewContext.RouteData.Values["action"].ToString().ToLower() == "index"))
         {
             <div class="main-page-banner home-3">
                 <div class="container">
@@ -181,20 +181,22 @@
                                     </div>
                                 </div>
                             </div>*@
-                        @*<div class="col-lg-2 col-md-4 col-sm-6">
+                        <div class="col-lg-2 col-md-4 col-sm-6">
                                 <div class="single-footer mb-sm-40">
                                     <h3 class="footer-title">تماس با ما</h3>
                                     <div class="footer-content">
                                         <ul class="footer-list address-content">
-                                            <li><i class="lnr lnr-map-marker"></i> تهران</li>
                                             <li><i class="lnr lnr-envelope"></i><a href="#">info@mahtakala.ir </a></li>
                                             <li>
-                                                <i class="lnr lnr-phone-handset"></i>  02188656453
+                                                <i class="lnr lnr-phone-handset"></i>  021-88656453 
+                                            </li>
+                                            <li>
+                                                <i class="lnr lnr-phone-handset"></i>  021-88656454
                                             </li>
                                         </ul>
                                     </div>
                                 </div>
-                            </div>*@
+                            </div>
                         <!-- Single Footer Start -->
                         <!-- Single Footer Start -->
                         <div class="col-lg-4 col-md-6 col-sm-6">
@@ -205,15 +207,16 @@
                                         <li>
                                             <img class="imgFooter" src="~/img/logo-footer.png" />
                                         </li>
-                                        @*<li>
-                                                <img class="imgFooter" src="((آدرس نشان لوگوی اتحادیه))" alt="" onclick="window.open('https://www.ecunion.ir/verify/mahtakala.ir?token=51619435f0185925110e', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=580, height=600, top=30')" style="cursor:pointer">
-                                            </li>
-                                            <li>
-                                                <img id='jxlzwlaofukzjxlzwlaorgvj' class="imgFooter"  style='cursor:pointer' onclick='window.open("https://logo.samandehi.ir/Verify.aspx?id=146143&p=rfthaodsgvkarfthaodsxlao", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")'
-                                                     src='https://logo.samandehi.ir/logo.aspx?id=146143&p=nbpdshwlwlbqnbpdshwlqfti' />   </li>
-                                            <li>
-                                                <a target="_blank" href="https://trustseal.enamad.ir/?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE"><img class="imgFooter" src="https://Trustseal.eNamad.ir/logo.aspx?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE" alt="" style="cursor:pointer" id="ytzlrNw8i8c1YXJ7p9FE"></a>
-                                            </li>*@
+                                        <li>
+                                            <img class="imgFooter" src="((آدرس نشان لوگوی اتحادیه))" alt="" onclick="window.open('https://www.ecunion.ir/verify/mahtakala.ir?token=51619435f0185925110e', 'Popup','toolbar=no, location=no, statusbar=no, menubar=no, scrollbars=1, resizable=0, width=580, height=600, top=30')" style="cursor:pointer">
+                                        </li>
+                                        <li>
+                                            <img id='jxlzwlaofukzjxlzwlaorgvj' class="imgFooter" style='cursor:pointer' onclick='window.open("https://logo.samandehi.ir/Verify.aspx?id=146143&p=rfthaodsgvkarfthaodsxlao", "Popup","toolbar=no, scrollbars=no, location=no, statusbar=no, menubar=no, resizable=0, width=450, height=630, top=30")'
+                                                 src='https://logo.samandehi.ir/logo.aspx?id=146143&p=nbpdshwlwlbqnbpdshwlqfti' />
+                                        </li>
+                                        <li>
+                                            <a target="_blank" href="https://trustseal.enamad.ir/?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE"><img class="imgFooter" src="https://Trustseal.eNamad.ir/logo.aspx?id=149361&amp;Code=ytzlrNw8i8c1YXJ7p9FE" alt="" style="cursor:pointer" id="ytzlrNw8i8c1YXJ7p9FE"></a>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
@@ -245,7 +248,7 @@
 
                     <div class="copyright-text text-center">
                         <p>
-                            .کپی رایت © 2020 مَـــهــــــتــــا. همه حقوق محفوظ است
+                            کپی رایت © 2020 مَـــهــــــتــــا. همه حقوق محفوظ است.
                         </p>
                     </div>
                 </div>
