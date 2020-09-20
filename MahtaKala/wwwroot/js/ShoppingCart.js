@@ -47,7 +47,7 @@ $(document).on("click", "#addtocart", function (e) {
     var recordid = $(this).data("id");
     var quantity = $("#uxQuantity").val();
     if (recordid != '') {
-        $.post("/Cart/AddToCart", { id: recordid, count: quantity },
+        post("/Cart/AddToCart", { id: recordid, count: quantity },
             function (data) {
                 $.unblockUI();
                 if (data.success) {
@@ -98,7 +98,7 @@ $(document).on("click", ".removeCart", function (e) {
 $(document).on("keyup mouseup", ".cartValue", function () {
     var id = $(this).data("id");
     var count = $(this).val();
-    $.post("/Cart/UpdateCart", { id: id, count: count },
+    post("/Cart/UpdateCart", { id: id, count: count },
         function (data) {
             if (data.success) {
                 $('#cart-status').text(data.count);
@@ -106,13 +106,12 @@ $(document).on("keyup mouseup", ".cartValue", function () {
                 $('#sumPrice').text(data.sumPrice);
                 $('#sumFinalPrice').text(data.sumFinalPrice);
             }
-        }
-    );
+        });
 });
 $(document).on("click", ".productremove", function (e) {
     e.preventDefault();
     var id = $(this).data("id");
-    $.post("/Cart/DeleteItemCart", { id: id },
+    post("/Cart/DeleteItemCart", { id: id },
         function (data) {
             $.unblockUI();
             if (data.success) {
@@ -151,20 +150,21 @@ $(document).on("submit", "form#cartRequest", function (e) {
         beforeSend: function () {
         },
         success: function (res) {
-      
             if (res.success) {
                 window.location.href = res.msg;
-                $.unblockUI();
             }
             else {
-                $.unblockUI();
                 toastr.warning(res.msg, '', { positionClass: "toast-bottom-center" });
             }
-
         },
         error: function (xhr) {
-            $.unblockUI();
-            swal.fire("خطایی در ثبت اطلاعات اتفاق افتاده است", "", "error" );
+            var obj = JSON.parse(xhr.responseText);
+            if (obj.message) {
+                swal.fire(obj.message, "", "error");
+            }
+            else {
+                swal.fire("خطایی در ثبت اطلاعات اتفاق افتاده است", "", "error");
+            }
         },
         complete: function () {
             $.unblockUI();

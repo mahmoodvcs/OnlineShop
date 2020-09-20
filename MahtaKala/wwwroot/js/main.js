@@ -660,3 +660,28 @@ $(document).on("click", ".compare-to", function (e) {
     })
 
 })(jQuery);
+
+
+
+function post(url, data, success, additionalParams) {
+    var obj = {
+        method: "POST",
+        url: url,
+        data: data,
+        success: success,
+        error: function (xhr) {
+            try {
+                var obj = JSON.parse(xhr.responseText);
+                if (obj.message) {
+                    toastr.error(obj.message, '', { positionClass: "toast-bottom-left" });
+                }
+            }
+            catch { }
+            finally {
+                $.unblockUI();
+            }
+        }
+    };
+    obj = $.extend(obj, additionalParams);
+    $.ajax(obj);
+}
