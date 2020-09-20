@@ -439,6 +439,24 @@ namespace MahtaKala.Controllers
             return Content("");
         }
 
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public async Task<JsonResult> Category_Destroy(long id)
+        {
+            if(db.Categories.Any(c=>c.ParentId == id))
+            {
+                var category = await db.Categories.FindAsync(id);
+                category.Published = false;
+                await db.SaveChangesAsync();
+                return Json(new { Success = false, Message = "دسته بندی دارای فرزند است. از حالت انتشار خارج میشود" });
+            }
+            else
+            {
+                db.Categories.Where(c => c.Id == id).Delete();
+                return Json(new { Success = true });
+            }
+        }
+
 
         #endregion
 
