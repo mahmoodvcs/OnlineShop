@@ -23,6 +23,7 @@
     .Pageable(pageable => pageable
         .Refresh(true)
         .PageSizes(true)
+        .PageSizes(new int[] { 5, 10, 20, 50 })
         .ButtonCount(5))
     .DataSource(dataSource => dataSource
         .Ajax()
