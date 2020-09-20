@@ -498,13 +498,13 @@ namespace MahtaKala.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(model.Name))
+                {
+                    ModelState.AddModelError(nameof(model.Name), "نام را وارد کنید.");
+                    return View(model);
+                }
                 if (model.Id == 0)
                 {
-                    if (string.IsNullOrEmpty(model.Name))
-                    {
-                        ModelState.AddModelError(nameof(model.Name), "Name Required.");
-                        return View(model);
-                    }
                     db.Brands.Add(model);
                 }
                 else
@@ -519,6 +519,21 @@ namespace MahtaKala.Controllers
                 return RedirectToAction("BrandList");
             }
             return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public JsonResult Brand_Destroy(long id)
+        {
+            if (db.Products.Any(c => c.BrandId == id))
+            {
+                return Json(new { Success = false, Message = "امکان حذف برند دارای کالا نمی باشد." });
+            }
+            else
+            {
+                db.Brands.Where(c => c.Id == id).Delete();
+                return Json(new { Success = true });
+            }
         }
 
         #endregion
