@@ -82,17 +82,18 @@ namespace MahtaKala.Helpers
             return value;
         }
 
-        public static bool  IsValidEmailaddress(string emailaddress)
+        public static bool IsValidEmailaddress(string emailaddress)
         {
-            try
-            {
-                MailAddress m = new MailAddress(emailaddress);
+            Regex regex = new Regex(@"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+            return regex.IsMatch(emailaddress);
+        }
+
+        public static bool IsNumber(string text)
+        {
+            long val;
+            if (long.TryParse(text, out val))
                 return true;
-            }
-            catch (FormatException)
-            {
-                return false;
-            }
+            return false;
         }
 
         public static bool IsDiscount(ProductPrice productPrice, out decimal discount)
@@ -113,6 +114,29 @@ namespace MahtaKala.Helpers
                 return null;
             PersianCalendar pc = new PersianCalendar();
             return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} {d.Value.ToString("HH:mm")}";
+        }
+
+        public static string GetTimeSpanPersianString(TimeSpan timeSpan)
+        {
+            List<Tuple<int, string>> spans = new List<Tuple<int, string>>
+            {
+                new Tuple<int, string>(365, "سال" ),
+                new Tuple<int, string>(30, "ماه" ),
+                new Tuple<int, string>(1, "روز" ),
+            };
+
+            var days = (int)timeSpan.TotalDays;
+            List<string> parts = new List<string>();
+            foreach (var s in spans)
+            {
+                var x = days / s.Item1;
+                if (x > 0)
+                {
+                    parts.Add($"{x} {s.Item2}");
+                    days = days % x;
+                }
+            }
+            return string.Join(" و ", parts);
         }
 
 
