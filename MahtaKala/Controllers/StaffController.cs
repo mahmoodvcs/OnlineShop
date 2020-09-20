@@ -443,7 +443,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public async Task<JsonResult> Category_Destroy(long id)
         {
-            if(db.Categories.Any(c=>c.ParentId == id))
+            if (db.Categories.Any(c => c.ParentId == id))
             {
                 var category = await db.Categories.FindAsync(id);
                 category.Published = false;
@@ -789,28 +789,33 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
         {
-            var data = await db.Orders.Where(o => o.State == OrderState.Paid ||
+            var query = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
-                                                  o.State == OrderState.Sent)
+                                                  o.State == OrderState.Sent);
+
+
+            var data = await query
                 .Select(a => new
                 {
                     Id = a.Id,
-                    Price = a.TotalPrice,
+                    TotalPrice = a.TotalPrice,
                     a.CheckOutData,
                     a.ApproximateDeliveryDate,
                     a.ActualDeliveryDate,
-                    Name = a.User.FirstName + " " + a.User.LastName,
+                    a.User.FirstName,
+                    a.User.LastName,
                     a.SendDate,
                     State = a.State
                 }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
                 {
                     Id = a.Id,
-                    CheckoutDate = Util.GetPersianDate(a.CheckOutData),
+                    CheckOutData = Util.GetPersianDate(a.CheckOutData),
                     ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
                     SendDate = Util.GetPersianDate(a.SendDate),
                     ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
-                    Price = (long)a.Price,
-                    Customer = a.Name,
+                    TotalPrice = (long)a.TotalPrice,
+                    FirstName = a.FirstName,
+                    LastName = a.LastName,
                     State = TranslateExtentions.GetTitle(a.State)
                 });
 

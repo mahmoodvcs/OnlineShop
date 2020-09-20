@@ -194,11 +194,11 @@ namespace MahtaKala.Controllers.Api
             return data.Select(a => new BuyHistoryModel
             {
                 Id = a.Id,
-                CheckoutDate = Util.GetPersianDate(a.CheckOutData),
+                CheckOutData = Util.GetPersianDate(a.CheckOutData),
                 ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
                 SendDate = Util.GetPersianDate(a.SendDate),
                 ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
-                Price = (long)a.Price,
+                TotalPrice = (long)a.Price,
                 State = TranslateExtentions.GetTitle(a.State)
             });
         }
