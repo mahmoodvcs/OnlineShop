@@ -443,7 +443,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public async Task<JsonResult> Category_Destroy(long id)
         {
-            if(db.Categories.Any(c=>c.ParentId == id))
+            if (db.Categories.Any(c => c.ParentId == id))
             {
                 var category = await db.Categories.FindAsync(id);
                 category.Published = false;
@@ -657,6 +657,7 @@ namespace MahtaKala.Controllers
                 product.ProductCategories.Clear();
                 foreach (var cat in categoryIds)
                 {
+                    var parentCategory = await db.Categories.Where(c => c.ParentId == cat).FirstOrDefaultAsync();
                     product.ProductCategories.Add(new ProductCategory
                     {
                         CategoryId = cat
@@ -675,6 +676,16 @@ namespace MahtaKala.Controllers
                         Price = model.Price,
                         DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice
                     });
+                }
+                foreach (var cat in product.ProductCategories)
+                {
+                    var parentCategory = await db.Categories.Include(c=>c.Parent)
+                        .Where(c => c.ParentId == cat.CategoryId).FirstOrDefaultAsync();
+                    if (parentCategory != null)
+                    {
+                        ViewBag.ErrorMessage = string.Format("محصول را نمیتوان در دسته بندی {0} قرار داد", parentCategory.Parent.Title);
+                        return View(product);
+                    }
                 }
 
                 await db.SaveChangesAsync();
