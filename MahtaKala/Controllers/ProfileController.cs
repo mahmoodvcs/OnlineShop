@@ -102,11 +102,11 @@ namespace MahtaKala.Controllers
             {
                 return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
             }
-            if (!string.IsNullOrEmpty(vm.EmailAddress) && !Util.IsValidEmailaddress(vm.EmailAddress))
+            if (!string.IsNullOrEmpty(vm.EmailAddress))
             {
-                return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
+                if (!Util.IsValidEmailaddress(vm.EmailAddress))
+                    return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
             }
-
 
             User user = await db.Users.FirstOrDefaultAsync(a => a.Id == UserId);
             user.FirstName = vm.FirstName;
@@ -155,7 +155,7 @@ namespace MahtaKala.Controllers
 
         public IActionResult RemoveAddress(long id)
         {
-            var p = db.Addresses.FirstOrDefault(a=>a.Id==id);
+            var p = db.Addresses.FirstOrDefault(a => a.Id == id);
             if (db.Orders.Where(a => a.AddressId == id).Any())
                 p.Disabled = true;
             else
