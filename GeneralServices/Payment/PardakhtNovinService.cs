@@ -33,7 +33,7 @@ namespace MahtaKala.GeneralServices.Payment
         const string password = "440196094";
 
         const string shareUsername = "mahtaws";
-        const string sharePassword = "Ab@123456";
+        const string sharePassword = "Ab123456";
 
         //public class Options
         //{
