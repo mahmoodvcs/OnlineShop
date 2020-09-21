@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Transactions;
 using EFSecondLevelCache.Core;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
@@ -27,6 +28,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Writers;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Z.EntityFramework.Plus;
@@ -425,6 +427,7 @@ namespace MahtaKala.Controllers
             }
             return View(model);
         }
+
         [HttpPost]
         public async Task<ActionResult> SaveCategoryImage(IEnumerable<IFormFile> images, long ID)
         {
@@ -468,6 +471,7 @@ namespace MahtaKala.Controllers
             else
             {
                 db.Categories.Where(c => c.Id == id).Delete();
+                categoryImageService.DeleteImages(id);
                 return Json(new { Success = true });
             }
         }
@@ -612,9 +616,12 @@ namespace MahtaKala.Controllers
             }
             else
             {
-                db.ProductQuantities.Where(a => a.ProductId == id).Delete();
-                db.ProductPrices.Where(a => a.ProductId == id).Delete();
-                db.Products.Where(a => a.Id == id).Delete();
+                using var scope = new TransactionScope();
+                await db.ProductQuantities.Where(a => a.ProductId == id).DeleteAsync();
+                await db.ProductPrices.Where(a => a.ProductId == id).DeleteAsync();
+                await db.Products.Where(a => a.Id == id).DeleteAsync();
+                productImageService.DeleteImages(id);
+                scope.Complete();
             }
             return Json(new { Success = true });
         }
