@@ -4716,15 +4716,12 @@ a.shipping-calculator-button:hover {
 }
 
 .category-button {
-    border: 1px solid #ddd;
-    border-radius: 4px;
     -webkit-box-shadow: 0px 0px 6px -3px rgba(0,0,0,0.75);
     -moz-box-shadow: 0px 0px 6px -3px rgba(0,0,0,0.75);
     box-shadow: 0px 0px 6px -3px rgba(0,0,0,0.75);
     min-width: 90px;
     padding: 10px;
     margin: 8px;
-    background-color: #e8ffff;
 }
     .category-button img.category-icon-small{
         vertical-align:middle;
