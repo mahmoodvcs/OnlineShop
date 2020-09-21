@@ -23,7 +23,7 @@ namespace MahtaKala.Services
                 rootPath = Path.Combine(pathService.AppRoot, rootPath.Remove(0, 2));
             }
 
-            if (name.Contains('/') || name.Contains('\\'))
+            if (name != null && (name.Contains('/') || name.Contains('\\')))
                 throw new Exception("Invalid image name: " + name);
 
             if (id > 999999)
@@ -44,6 +44,9 @@ namespace MahtaKala.Services
             {
                 Directory.CreateDirectory(path);
             }
+
+            if (name == null)
+                return path;
 
             return Path.Combine(path, name);
         }

@@ -132,6 +132,16 @@ namespace MahtaKala.Controllers
             int pageSize;
             int recordsPerPage = 12;
             int totalItemCount;
+            string txtSearch = "جستجو";
+            if (!string.IsNullOrEmpty(term))
+                txtSearch = "جستجو برای " + term;
+            if (id.HasValue)
+            {
+                var c = db.Categories.FirstOrDefault(a=>a.Id==id);
+                if(c!=null)
+                    txtSearch = "جستجو در دسته بندی " + c.Title;
+            }
+            ViewData["Title"] = txtSearch;
             var vm = Search(page: 1, recordsPerPage: recordsPerPage, groupId: id, term: term, pageSize: out pageSize, totalItemCount: out totalItemCount);
             ViewBag.PageSize = pageSize;
             ViewBag.CurrentPage = page;
@@ -182,6 +192,8 @@ namespace MahtaKala.Controllers
             return data;
         }
 
+
+   
     }
 
 }

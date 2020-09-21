@@ -177,7 +177,7 @@ namespace MahtaKala.Controllers
                 {
                     Id = a.Id,
                     Brand_Id = a.BrandId,
-                    Brand = a.Brand.Name,
+                    Brand = a.Seller.Name,
                     Category_Id = a.ProductCategories.FirstOrDefault().CategoryId,
                     Category = a.ProductCategories.FirstOrDefault().Category.Title,
                     Description = a.Description,
@@ -236,7 +236,7 @@ namespace MahtaKala.Controllers
                         select new ProductConciseModel
                         {
                             Id = prc.Product.Id,
-                            Brand = prc.Product.Brand.Name,
+                            Brand = prc.Product.Seller.Name,
                             Category = cat.Title,
                             Status = prc.Product.Status,
                             Title = prc.Product.Title,
@@ -273,7 +273,7 @@ namespace MahtaKala.Controllers
             return await products.Select(a => new ProductConciseModel
             {
                 Id = a.Id,
-                Brand = a.Brand.Name,
+                Brand = a.Seller.Name,
                 Category = a.ProductCategories.FirstOrDefault().Category.Title,
                 Title = a.Title,
                 Thubmnail = imageService.GetImageUrl(a.Id, a.Thubmnail),

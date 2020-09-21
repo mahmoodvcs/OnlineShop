@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Transactions;
 using EFSecondLevelCache.Core;
 using Kendo.Mvc.Extensions;
 using Kendo.Mvc.UI;
@@ -22,9 +24,11 @@ using MahtaKala.Services;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Writers;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Z.EntityFramework.Plus;
@@ -354,11 +358,24 @@ namespace MahtaKala.Controllers
         {
             return View();
         }
+
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public ActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request)
+        public IActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request, string nameFilter)
         {
-            return ConvertDataToJson(db.Categories.Include(c => c.Parent), request);
+            var query = db.Categories.Include(c => c.Parent).AsQueryable();
+            if (!string.IsNullOrEmpty(nameFilter))
+            {
+                var parts = nameFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in parts)
+                {
+                    var ss = s.Trim().ToLower();
+                    query = query.Where(a => a.Title.ToLower().Contains(ss));
+                }
+            }
+
+            return KendoJson(query.ToDataSourceResult(request));
         }
+        
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult Category(long id)
         {
@@ -410,6 +427,7 @@ namespace MahtaKala.Controllers
             }
             return View(model);
         }
+
         [HttpPost]
         public async Task<ActionResult> SaveCategoryImage(IEnumerable<IFormFile> images, long ID)
         {
@@ -437,6 +455,25 @@ namespace MahtaKala.Controllers
             }
             // Return an empty string to signify success
             return Content("");
+        }
+
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public async Task<JsonResult> Category_Destroy(long id)
+        {
+            if (db.Categories.Any(c => c.ParentId == id))
+            {
+                var category = await db.Categories.FindAsync(id);
+                category.Published = false;
+                await db.SaveChangesAsync();
+                return Json(new { Success = false, Message = "دسته بندی دارای فرزند است. از حالت انتشار خارج میشود" });
+            }
+            else
+            {
+                db.Categories.Where(c => c.Id == id).Delete();
+                categoryImageService.DeleteImages(id);
+                return Json(new { Success = true });
+            }
         }
 
 
@@ -480,13 +517,13 @@ namespace MahtaKala.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(model.Name))
+                {
+                    ModelState.AddModelError(nameof(model.Name), "نام را وارد کنید.");
+                    return View(model);
+                }
                 if (model.Id == 0)
                 {
-                    if (string.IsNullOrEmpty(model.Name))
-                    {
-                        ModelState.AddModelError(nameof(model.Name), "Name Required.");
-                        return View(model);
-                    }
                     db.Brands.Add(model);
                 }
                 else
@@ -503,6 +540,21 @@ namespace MahtaKala.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public JsonResult Brand_Destroy(long id)
+        {
+            if (db.Products.Any(c => c.BrandId == id))
+            {
+                return Json(new { Success = false, Message = "امکان حذف برند دارای کالا نمی باشد." });
+            }
+            else
+            {
+                db.Brands.Where(c => c.Id == id).Delete();
+                return Json(new { Success = true });
+            }
+        }
+
         #endregion
 
 
@@ -516,11 +568,40 @@ namespace MahtaKala.Controllers
         }
 
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request)
+        public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request, int? stateFilter, string nameFilter, string categoryFilter)
         {
-            var data = await db.Products.AsQueryable().Project().ToListResultAsync(request);
+            var  query = db.Products.AsQueryable();
+            //FlexTextFilter<Product>(query, p => p.Title, nameFilter);
+            if (!string.IsNullOrEmpty(nameFilter))
+            {
+                var parts = nameFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in parts)
+                {
+                    var ss = s.Trim().ToLower();
+                    query = query.Where(a => a.Title.ToLower().Contains(ss));
+                }
+            }
+            if (categoryFilter != null)
+            {
+                var parts = categoryFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in parts)
+                {
+                    var ss = s.Trim().ToLower();
+                    query = query.Where(a => a.ProductCategories.Any(c => c.Category.Title.ToLower().Contains(ss)));
+                }
+            }
+            if (stateFilter != null)
+            {
+                query = query.Where(a => a.Status == (ProductStatus)stateFilter);
+            }
+            var data = await query.Project().ToListResultAsync(request);
             return KendoJson(data);
         }
+
+        //private void FlexTextFilter<T>(IQueryable<T> query, Expression<Func<T, object>> p, string text)
+        //{
+        //    query.Where(Expression.)
+        //}
 
         [HttpPost]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
@@ -535,9 +616,12 @@ namespace MahtaKala.Controllers
             }
             else
             {
-                db.ProductQuantities.Where(a => a.ProductId == id).Delete();
-                db.ProductPrices.Where(a => a.ProductId == id).Delete();
-                db.Products.Where(a => a.Id == id).Delete();
+                using var scope = new TransactionScope();
+                await db.ProductQuantities.Where(a => a.ProductId == id).DeleteAsync();
+                await db.ProductPrices.Where(a => a.ProductId == id).DeleteAsync();
+                await db.Products.Where(a => a.Id == id).DeleteAsync();
+                productImageService.DeleteImages(id);
+                scope.Complete();
             }
             return Json(new { Success = true });
         }
@@ -569,13 +653,14 @@ namespace MahtaKala.Controllers
                     .Where(a => a.Id == id).FirstOrDefaultAsync();
                 if (p == null)
                     throw new EntityNotFoundException<Product>(id.Value);
-                productImageService.FixImageUrls(p);
+                //productImageService.FixImageUrls(p);
                 var productPrices = db.ProductPrices.FirstOrDefault(a => a.ProductId == id);
                 if (productPrices != null)
                 {
                     p.DiscountPrice = productPrices.DiscountPrice;
                     p.Price = productPrices.Price;
                 }
+                p.Thubmnail = productImageService.GetImageUrl(p.Id, p.Thubmnail);
             }
             else
             {
@@ -585,6 +670,7 @@ namespace MahtaKala.Controllers
                     ProductCategories = new List<ProductCategory>()
                 };
             }
+            ViewBag.ImagePathFormat = productImageService.GetImagePathFormatString(p.Id);
             ViewBag.IsPostback = false;
             return View(p);
         }
@@ -616,11 +702,15 @@ namespace MahtaKala.Controllers
                 product.Description = model.Description;
                 product.Status = model.Status;
                 product.Published = model.Published;
+                product.MaxBuyQuota = model.MaxBuyQuota;
+                product.MinBuyQuota = model.MinBuyQuota;
+                product.BuyQuotaDays = model.BuyQuotaDays;
 
                 var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
                 product.ProductCategories.Clear();
                 foreach (var cat in categoryIds)
                 {
+                    var parentCategory = await db.Categories.Where(c => c.ParentId == cat).FirstOrDefaultAsync();
                     product.ProductCategories.Add(new ProductCategory
                     {
                         CategoryId = cat
@@ -640,9 +730,22 @@ namespace MahtaKala.Controllers
                         DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice
                     });
                 }
+                foreach (var cat in product.ProductCategories)
+                {
+                    var parentCategory = await db.Categories.Include(c=>c.Parent)
+                        .Where(c => c.ParentId == cat.CategoryId).FirstOrDefaultAsync();
+                    if (parentCategory != null)
+                    {
+                        ViewBag.ErrorMessage = string.Format("محصول را نمیتوان در دسته بندی {0} قرار داد", parentCategory.Parent.Title);
+                        return View(product);
+                    }
+                }
 
                 await db.SaveChangesAsync();
                 ViewBag.IsPostback = true;
+                ViewBag.ImagePathFormat = productImageService.GetImagePathFormatString(product.Id);
+                product.Thubmnail = productImageService.GetImageUrl(product.Id, product.Thubmnail);
+                //productImageService.FixImageUrls(product);
                 return View(product);
             }
             return View(model);
@@ -751,30 +854,38 @@ namespace MahtaKala.Controllers
         }
 
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
-        public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
+        public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request, int? stateFilter)
         {
-            var data = await db.Orders.Where(o => o.State == OrderState.Paid ||
+            var query = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
-                                                  o.State == OrderState.Sent)
+                                                  o.State == OrderState.Sent);
+            if(stateFilter != null)
+            {
+                query = query.Where(a => a.State == (OrderState)stateFilter);
+            }
+
+            var data = await query
                 .Select(a => new
                 {
                     Id = a.Id,
-                    Price = a.TotalPrice,
+                    TotalPrice = a.TotalPrice,
                     a.CheckOutData,
                     a.ApproximateDeliveryDate,
                     a.ActualDeliveryDate,
-                    Name = a.User.FirstName + " " + a.User.LastName,
+                    a.User.FirstName,
+                    a.User.LastName,
                     a.SendDate,
                     State = a.State
                 }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
                 {
                     Id = a.Id,
-                    CheckoutDate = Util.GetPersianDate(a.CheckOutData),
+                    CheckOutData = Util.GetPersianDate(a.CheckOutData),
                     ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
                     SendDate = Util.GetPersianDate(a.SendDate),
                     ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
-                    Price = (long)a.Price,
-                    Customer = a.Name,
+                    TotalPrice = (long)a.TotalPrice,
+                    FirstName = a.FirstName,
+                    LastName = a.LastName,
                     State = TranslateExtentions.GetTitle(a.State)
                 });
 

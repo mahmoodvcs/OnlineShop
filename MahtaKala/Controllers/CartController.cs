@@ -78,9 +78,7 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<ActionResult> UpdateCart(int id, int count)
         {
-            var cartItem = await orderService.GetCartQuery().FirstOrDefaultAsync(c => c.Id == id);
-            cartItem.Count = count;
-            await db.SaveChangesAsync();
+            var cartItem = await orderService.UpdateCartItem(id, count);
             var finalcostRow = Util.Sub3Number(count * cartItem.ProductPrice.DiscountPrice);
             List<ShoppingCart> cartItems = await GetCartItems();
             decimal sumPrice = 0;
@@ -96,7 +94,7 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<ActionResult> DeleteItemCart(int id)
         {
-            orderService.GetCartQuery().Where(c => c.Id == id).Delete();
+            await orderService.RemoveFromCart(id);
             List<ShoppingCart> cartItems = await GetCartItems();
             var sumPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.Price) * cartItems.Sum(a => a.Count));
             var sumFinalPrice = Util.Sub3Number(cartItems.Sum(a => a.ProductPrice.DiscountPrice) * cartItems.Sum(a => a.Count));
@@ -139,6 +137,7 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
+        [AjaxAction]
         public async Task<IActionResult> Checkout(CheckOutVM vm)
         {
             var cartItems = await GetCartItems();

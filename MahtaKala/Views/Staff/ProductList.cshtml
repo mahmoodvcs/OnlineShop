@@ -2,19 +2,40 @@
     ViewData["Title"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
-@(Html.Kendo().Grid<MahtaKala.Entities.Models.ProductListModel>().Name("grid").Columns(columns =>
-    {
-        columns.Bound(p => p.Id).Title("شناسه");
-        columns.Bound(p => p.Title).Title("عنوان");
-    columns.Bound(p => p.Categories).Title("دسته بندی");
-        columns.Bound(p => p.Brand).Title("برند");
-        columns.Bound(p => p.Price).Title("قیمت");
-        columns.Bound(p => p.Status).Title("وضعیت");
-        columns.Bound(p => p.Published).ClientTemplate("#=Disabled?'بلی':'خیر'#").Title("منتشر شده");
-        columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
-        columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
+<div class="filterPanel">
+    <fieldset>
+        <legend>فیلتر ها:</legend>
+        <div class="row">
+            <div class="col-lg-3">
+                <label>عنوان:</label>
+                <input type="text" name="nameFilter" class="form-control additionalData" />
+            </div>
+            <div class="col-lg-3">
+                <label>دسته بندی:</label>
+                <input type="text" name="categoryFilter" class="form-control additionalData" />
+            </div>
+            <div class="col-lg-3">
+                <label>وضعیت</label>
+                @(Html.EnumCombo<ProductStatus>("stateFilter", showEmptyValue: true, isGridAdditionalData: true))
+            </div>
+        </div>
+    </fieldset>
 
-    })
+</div>
+
+
+@(Html.Kendo().Grid<MahtaKala.Entities.Models.ProductListModel>().Name("grid").Columns(columns =>
+{
+    columns.Bound(p => p.Id).Title("شناسه");
+    columns.Bound(p => p.Title).Title("عنوان");
+    columns.Bound(p => p.Categories).Title("دسته بندی").Filterable(false).Sortable(false);
+    columns.Bound(p => p.Price).Title("قیمت");
+    columns.Bound(p => p.Status).Title("وضعیت").Filterable(false);
+    columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#").Title("منتشر شده");
+    columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
+    columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
+
+})
     .ToolBar(toolbar =>
     {
         toolbar.ClientTemplateId("GridToolbarTemplate");
@@ -22,6 +43,7 @@
     .Pageable(pageable => pageable
         .Refresh(true)
         .PageSizes(true)
+        .PageSizes(new int[] { 5, 10, 20, 50 })
         .ButtonCount(5))
     .Filterable()
     .Sortable()
@@ -33,8 +55,8 @@
             model.Id(p => p.Id);
 
         })
-        .Read(read => read.Action("Product_Read", "Staff"))
-    )
+        .Read(read => read.Action("Product_Read", "Staff").Data("getAdditionalData"))
+    ).Selectable()
 
 )
 <script id="GridToolbarTemplate" type="text/x-kendo-template">

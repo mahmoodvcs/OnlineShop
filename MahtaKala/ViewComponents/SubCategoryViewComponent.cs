@@ -12,29 +12,22 @@ namespace MahtaKala.ViewComponents
 {
     public class SubCategoryViewComponent : ViewComponent
     {
-        private DataContext _db;
         private readonly ProductService productService;
         private readonly CategoryService categoryService;
-
-        public SubCategoryViewComponent(DataContext db, ProductService productService, CategoryService categoryService)
+        private readonly ICategoryImageService categoryImageService;
+        public SubCategoryViewComponent(DataContext db, ProductService productService, CategoryService categoryService, ICategoryImageService categoryImageService)
         {
-            _db = db;
             this.productService = productService;
             this.categoryService = categoryService;
+            this.categoryImageService = categoryImageService;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(long categoryId)
         {
             List<IdValModel> lst = new List<IdValModel>();
             var categories = await categoryService.Categories().Where(a => a.ParentId == categoryId).ToListAsync();
-            foreach (var item in categories)
-            {
-                IdValModel vm = new IdValModel();
-                vm.Title = item.Title;
-                vm.Id = item.Id;
-                lst.Add(vm);
-            }
-            return View(lst);
+            categoryImageService.FixImageUrls(categories);
+            return View(categories);
         }
     }
 }

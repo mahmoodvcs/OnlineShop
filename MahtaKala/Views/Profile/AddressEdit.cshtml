@@ -72,7 +72,7 @@
             <div class="col-md-6">
                 <div class="checkout-form-list mb-30">
                     <label>کد پستی <span class="required">*</span></label>
-                    @Html.TextBoxFor(a => a.PostalCode, new { @autocomplete = "off" })
+                    @Html.TextBoxFor(a => a.PostalCode, new { @autocomplete = "off",type="number" , maxlength = "10" })
                 </div>
             </div>
             <div class="col-md-12">
