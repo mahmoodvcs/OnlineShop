@@ -7,7 +7,12 @@
                 <div class="row">
                     @foreach (var item in Model)
                     {
-                        <a class="btn btn-info wCategory" href="@Url.Content($"~/home/category?id={item.Id}")">@item.Title</a>
+                        <a class="btn btn-default wCategory" href="@Url.Content($"~/home/category?id={item.Id}")">
+                            <img  src="@item.Image" class="img-circle"/>
+                            <p class="pt-10">
+                                @item.Title
+                            </p>
+                        </a>
                     }
                 </div>
             </div>
