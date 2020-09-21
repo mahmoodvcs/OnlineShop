@@ -6,8 +6,14 @@
             <div class="breadcrumb">
                 <div class="row">
                     @foreach (var item in Model)
+
                     {
-                        <a class="btn btn-info wCategory" href="@Url.Content($"~/home/category?id={item.Id}")">@item.Title</a>
+                    <div class="category-button">
+                        <a class="" href="@Url.Content($"~/home/category?id={item.Id}")">
+                            <img src="@item.Image" class="category-icon-small">
+                            @item.Title
+                        </a>
+                    </div>
                     }
                 </div>
             </div>

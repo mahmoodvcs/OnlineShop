@@ -51,38 +51,42 @@ input::-webkit-inner-spin-button {
 input[type=number] {
     -moz-appearance: textfield; /* Firefox */
 }
+.primary-img{
+    object-fit: contain;
+}
 .imgh226 {
     display: block;
-    min-height: 226px !important;
+    /*    min-height: 226px !important;
     max-height: 226px !important;
     width: auto !important;
     height: auto !important;
+*/
 }
 .imgh380 {
     display: block;
-    min-height: 380px !important;
+/*    min-height: 380px !important;
     max-height: 380px !important;
     width: auto !important;
     height: auto !important;
-}
+*/}
 .imgh270 {
     display: block;
-    min-height: 270px !important;
+/*    min-height: 270px !important;
     max-height: 270px !important;
     width: auto !important;
     height: auto !important;
-}
+*/}
 .wCategory{
     margin-right:20px !important;
     margin-top:10px !important;
 }
 .imgh100 {
     display: block;
-    min-height: 100px !important;
+/*    min-height: 100px !important;
     max-height: 100px !important;
     width: auto !important;
     height: auto !important;
-}
+*/}
 
 .cartLsit {
     max-height: 250px;
@@ -1236,9 +1240,19 @@ li.megamenu-img a {
     position: relative;
 }
 
+.pro-img-226 {
+    width: 226px;
+    height: 226px;
+}
+
 .prop-img-270 {
     width: 270px;
     height: 270px;
+}
+
+.pro-img-400 {
+    width: 400px !important;
+    height: 400px !important;
 }
 
 .pro-img img {
@@ -1246,7 +1260,9 @@ li.megamenu-img a {
     backface-visibility: hidden;
     -webkit-transition: all 0.5s ease-in-out 0s;
     transition: all 0.5s ease-in-out 0s;
+    object-fit: contain;
     width: 100%;
+    height: 100%;
 }
 .pro-img .secondary-img {
     right: 0;
@@ -1254,6 +1270,20 @@ li.megamenu-img a {
     position: absolute;
     top: 0;
     z-index: 3;
+}
+
+.product-thumbnail.mt-15 .owl-item{
+    height:150px;
+}
+.product-thumbnail.mt-15 .owl-item a{
+    width: 100%;
+    height: 100%;
+}
+
+.product-thumbnail.mt-15 .owl-item img{
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
 }
 
 .single-product:hover .pro-img .secondary-img {
@@ -4684,3 +4714,19 @@ a.shipping-calculator-button:hover {
     border-top-left-radius: 0px !important;
     border-bottom-left-radius: 0px !important;
 }
+
+.category-button {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    -webkit-box-shadow: 0px 0px 6px -3px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 6px -3px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 6px -3px rgba(0,0,0,0.75);
+    min-width: 90px;
+    padding: 10px;
+    margin: 8px;
+    background-color: #e8ffff;
+}
+    .category-button img.category-icon-small{
+        vertical-align:middle;
+        display: inline;
+    }

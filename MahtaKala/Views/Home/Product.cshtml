@@ -18,8 +18,8 @@
                             int i = 1;
                             foreach (var img in Model.Images)
                             {
-                                <div id="thumb@(i)" class="tab-pane fade show  @(i==1?"active":"") ">
-                                    <a data-fancybox="images" href="@img"><img src="@img" alt="product-view"></a>
+                                <div id="thumb@(i)" class="tab-pane fade show pro-img pro-img-400 @(i==1?"active":"") ">
+                                    <a data-fancybox="images" href="@img"><img src="@img" alt="@Model.Title" title="@Model.Title"></a>
                                 </div>
                                 i++;
                             }
@@ -33,7 +33,7 @@
                                 i = 1;
                                 foreach (var img in Model.Images)
                                 {
-                                    <a class="@(i==1?"active":"") " data-toggle="tab" href="#thumb@(i)"><img src="@img" alt="product-thumbnail"></a>
+                                    <a class="@(i==1?"active":"") " data-toggle="tab" href="#thumb@(i)"><img src="@img"></a>
                                     i++;
                                 }
                             }
