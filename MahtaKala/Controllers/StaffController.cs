@@ -358,9 +358,17 @@ namespace MahtaKala.Controllers
         }
 
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public IActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request, string nameFilter)
+        public IActionResult Categories_List()
         {
-            var query = db.Categories.Include(c => c.Parent).AsQueryable();
+            var query = db.Categories.OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).AsQueryable();
+            return KendoJson(query);
+        }
+
+
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public IActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request, string nameFilter, string categoryFilter)
+        {
+            var query = db.Categories.Include(c => c.Parent).OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).AsQueryable();
             if (!string.IsNullOrEmpty(nameFilter))
             {
                 var parts = nameFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
@@ -370,10 +378,19 @@ namespace MahtaKala.Controllers
                     query = query.Where(a => a.Title.ToLower().Contains(ss));
                 }
             }
+            if (!string.IsNullOrEmpty(categoryFilter))
+            {
+                var parts = categoryFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in parts)
+                {
+                    var ss = s.Trim().ToLower();
+                    query = query.Where(a => a.Parent.Title.ToLower().Contains(ss));
+                }
+            }
 
             return KendoJson(query.ToDataSourceResult(request));
         }
-        
+
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult Category(long id)
         {
@@ -404,6 +421,11 @@ namespace MahtaKala.Controllers
             {
                 if (model.Id == 0)
                 {
+                    var index = await db.Categories.Where(c => c.ParentId == model.ParentId)
+                        .OrderByDescending(c => c.Order)
+                        .Select(c => c.Order)
+                        .FirstOrDefaultAsync();
+                    model.Order = index == 0 ? index : index + 1;
                     db.Categories.Add(model);
                 }
                 else
@@ -470,6 +492,54 @@ namespace MahtaKala.Controllers
                 db.Categories.Where(c => c.Id == id).Delete();
                 return Json(new { Success = true });
             }
+        }
+
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public async Task<JsonResult> Category_Up(long id)
+        {
+            var category = await db.Categories.FindAsync(id);
+            if (category == null)
+            {
+                return Json(new { Success = false, Message = "دسته بندی یافت نشد." });
+            }
+            var categories = await db.Categories.Where(c => c.ParentId == category.ParentId).OrderBy(c => c.Order).ToListAsync();
+            for (int i = 0; i < categories.Count; i++)
+            {
+                categories[i].Order = i;
+            }
+            var index = categories.FindIndex(c => c.Id == id);
+            if (index > 0)
+            {
+                categories[index].Order--;
+                categories[index - 1].Order++;
+            }
+            await db.SaveChangesAsync();
+            return Json(new { Success = true });
+        }
+
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public async Task<JsonResult> Category_Down(long id)
+        {
+            var category = await db.Categories.FindAsync(id);
+            if (category == null)
+            {
+                return Json(new { Success = false, Message = "دسته بندی یافت نشد." });
+            }
+            var categories = await db.Categories.Where(c => c.ParentId == category.ParentId).OrderBy(c => c.Order).ToListAsync();
+            for (int i = 0; i < categories.Count; i++)
+            {
+                categories[i].Order = i;
+            }
+            var index = categories.FindIndex(c => c.Id == id);
+            if (index < categories.Count - 1)
+            {
+                categories[index].Order++;
+                categories[index + 1].Order--;
+            }
+            await db.SaveChangesAsync();
+            return Json(new { Success = true });
         }
 
 
@@ -566,7 +636,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request, int? stateFilter, string nameFilter, string categoryFilter)
         {
-            var  query = db.Products.AsQueryable();
+            var query = db.Products.AsQueryable();
             //FlexTextFilter<Product>(query, p => p.Title, nameFilter);
             if (!string.IsNullOrEmpty(nameFilter))
             {
@@ -725,7 +795,7 @@ namespace MahtaKala.Controllers
                 }
                 foreach (var cat in product.ProductCategories)
                 {
-                    var parentCategory = await db.Categories.Include(c=>c.Parent)
+                    var parentCategory = await db.Categories.Include(c => c.Parent)
                         .Where(c => c.ParentId == cat.CategoryId).FirstOrDefaultAsync();
                     if (parentCategory != null)
                     {
@@ -852,7 +922,7 @@ namespace MahtaKala.Controllers
             var query = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent);
-            if(stateFilter != null)
+            if (stateFilter != null)
             {
                 query = query.Where(a => a.State == (OrderState)stateFilter);
             }
