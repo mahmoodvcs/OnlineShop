@@ -7,7 +7,6 @@
         columns.Bound(p => p.Id).Title("شناسه");
         columns.Bound(p => p.Title).Title("عنوان");
     columns.Bound(p => p.Categories).Title("دسته بندی");
-        columns.Bound(p => p.Brand).Title("برند");
         columns.Bound(p => p.Price).Title("قیمت");
         columns.Bound(p => p.Status).Title("وضعیت");
         columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#").Title("منتشر شده");
@@ -22,6 +21,7 @@
     .Pageable(pageable => pageable
         .Refresh(true)
         .PageSizes(true)
+        .PageSizes(new int[] { 5, 10, 20, 50 })
         .ButtonCount(5))
     .Filterable()
     .Sortable()

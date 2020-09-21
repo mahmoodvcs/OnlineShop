@@ -44,7 +44,12 @@ namespace MahtaKala.Entities
         public ProductStatus Status { get; set; }
         [Display(Name ="منتشر شده")]
         public bool Published  { get; set; }
-
+        [Display(Name = "حداقل تعداد خرید")]
+        public int? MinBuyQuota { get; set; }
+        [Display(Name = "حداکثر تعداد خرید")]
+        public int? MaxBuyQuota { get; set; }
+        [Display(Name = "بازه ی زمانی اعمال محدودیت  خرید")]
+        public int? BuyQuotaDays { get; set; }
     }
 
     public enum ProductStatus

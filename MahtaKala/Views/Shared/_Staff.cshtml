@@ -34,7 +34,7 @@
     <link href="~/lib/kendo/css/web/kendo.bootstrap.mobile.min.css" rel="stylesheet" />
     <link href="~/lib/kendo/css/web/kendo.bootstrap-v4.min.css" rel="stylesheet" />
     <link href="~/css/main.css" rel="stylesheet" />
-    <link rel="shortcut icon" href="~/assets/media/logos/favicon.ico" />
+    <link rel="shortcut icon" href="~/favicon.ico" />
 
 
     <!--begin::Global Theme Bundle(used by all pages)-->
@@ -42,7 +42,7 @@
     <script src="~/assets/plugins/global/plugins.bundle.js?v=7.0.6"></script>
     <script src="~/assets/plugins/custom/prismjs/prismjs.bundle.js?v=7.0.6"></script>
     <script src="~/assets/js/scripts.bundle.js?v=7.0.6"></script>
-   @* <script src="~/js/jquery-migrate-3.0.0.js"></script>*@
+    @* <script src="~/js/jquery-migrate-3.0.0.js"></script>*@
     <script src="~/lib/kendo/js/kendo.all.min.js"></script>
     <script src="~/lib/kendo/js/kendo.aspnetmvc.min.js"></script>
     <script src="~/lib/kendo/js/kendo.timezones.min.js"></script>
@@ -138,7 +138,7 @@
                         <ul class="menu-nav ">
                             <li class="menu-item " aria-haspopup="true">
                                 <a href="/Staff" class="menu-link ">
-                                    <i class="menu-icon flaticon-home"></i>
+                                    <i class="menu-icon flaticon-graph"></i>
                                     <span class="menu-text">داشبورد</span>
                                 </a>
                             </li>
@@ -147,43 +147,47 @@
                                 <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
                             </li>
                             <li class="menu-item  menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">
-                                <a href="javascript:;" class="menu-link menu-toggle"><i class="menu-icon flaticon-home"><span></span></i><span class="menu-text">اطلاعات پارامتریک</span><i class="menu-arrow"></i></a>
+                                <a href="javascript:;" class="menu-link menu-toggle">
+                                    <i class="menu-icon flaticon-folder-2"></i>
+                                    <span class="menu-text">اطلاعات پارامتریک</span>
+                                    <i class="menu-arrow"></i>
+                                </a>
                                 <div class="menu-submenu ">
                                     <i class="menu-arrow"></i>
                                     <ul class="menu-subnav">
                                         <li class="menu-item " aria-haspopup="true">
                                             <a href="/Staff/UserList" class="menu-link ">
-                                                <i class="menu-icon flaticon-home"></i>
+                                                <i class="menu-icon flaticon-users"></i>
                                                 <span class="menu-text">کاربران</span>
                                             </a>
                                         </li>
                                         <li class="menu-item " aria-haspopup="true">
                                             <a href="/Staff/Sellers" class="menu-link ">
-                                                <i class="menu-icon flaticon-home"></i>
+                                                <i class="menu-icon flaticon-coins"></i>
                                                 <span class="menu-text">فروشنده ها</span>
                                             </a>
                                         </li>
                                         <li class="menu-item " aria-haspopup="true">
                                             <a href="/Staff/ProvinceList" class="menu-link ">
-                                                <i class="menu-icon flaticon-home"></i>
+                                                <i class="menu-icon flaticon-placeholder-1"></i>
                                                 <span class="menu-text">استانها</span>
                                             </a>
                                         </li>
                                         <li class="menu-item " aria-haspopup="true">
                                             <a href="/Staff/CityList" class="menu-link ">
-                                                <i class="menu-icon flaticon-home"></i>
+                                                <i class="menu-icon flaticon-placeholder"></i>
                                                 <span class="menu-text">شهرها</span>
                                             </a>
                                         </li>
                                         <li class="menu-item " aria-haspopup="true">
                                             <a href="/Staff/BrandList" class="menu-link ">
-                                                <i class="menu-icon flaticon-home"></i>
+                                                <i class="menu-icon flaticon-interface-9"></i>
                                                 <span class="menu-text">برندها</span>
                                             </a>
                                         </li>
                                         <li class="menu-item " aria-haspopup="true">
                                             <a href="/Staff/ImportProductPrices" class="menu-link ">
-                                                <i class="menu-icon flaticon-home"></i>
+                                                <i class="menu-icon flaticon-edit-1"></i>
                                                 <span class="menu-text">به روز رسانی قیمت کالاها</span>
                                             </a>
                                         </li>
@@ -191,19 +195,23 @@
                                 </div>
                             </li>
                             <li class="menu-item  menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">
-                                <a href="javascript:;" class="menu-link menu-toggle"><i class="menu-icon flaticon-home"><span></span></i><span class="menu-text">کاتالوگ</span><i class="menu-arrow"></i></a>
+                                <a href="javascript:;" class="menu-link menu-toggle">
+                                    <i class="menu-icon flaticon-list-2"></i>
+                                    <span class="menu-text">کاتالوگ</span>
+                                    <i class="menu-arrow"></i>
+                                </a>
                                 <div class="menu-submenu ">
                                     <i class="menu-arrow"></i>
                                     <ul class="menu-subnav">
                                         <li class="menu-item " aria-haspopup="true">
                                             <a href="/Staff/CategoryList" class="menu-link ">
-                                                <i class="menu-icon flaticon-home"></i>
+                                                <i class="menu-icon flaticon-open-box"></i>
                                                 <span class="menu-text">دسته بندی کالا</span>
                                             </a>
                                         </li>
                                         <li class="menu-item " aria-haspopup="true">
                                             <a href="/Staff/ProductList" class="menu-link ">
-                                                <i class="menu-icon flaticon-home"></i>
+                                                <i class="menu-icon flaticon-gift"></i>
                                                 <span class="menu-text">کالا و خدمات</span>
                                             </a>
                                         </li>
@@ -212,7 +220,7 @@
                             </li>
                             <li class="menu-item " aria-haspopup="true">
                                 <a href="/Staff/BuyHistory" class="menu-link ">
-                                    <i class="menu-icon flaticon-home"></i>
+                                    <i class="menu-icon flaticon-piggy-bank"></i>
                                     <span class="menu-text">گزارش خریدها</span>
                                 </a>
                             </li>
@@ -270,10 +278,10 @@
                                 <div class="d-flex align-items-baseline flex-wrap mr-5">
                                     <!--begin::Page Title-->
                                     <h5 class="text-dark font-weight-bold my-1 mr-5">
-                                      @ViewData["Title"]
+                                        @ViewData["Title"]
                                     </h5>
                                     <!--end::Page Title-->
-                                  
+
                                 </div>
                                 <!--end::Page Heading-->
                             </div>
@@ -330,7 +338,7 @@
             <div class="d-flex align-items-center mt-5">
                 <div class="d-flex flex-column">
 
-                        <a href="/Account/Logout" class="btn btn-sm btn-light-primary font-weight-bolder py-2 px-5">خروج</a>
+                    <a href="/Account/Logout" class="btn btn-sm btn-light-primary font-weight-bolder py-2 px-5">خروج</a>
                 </div>
             </div>
             <!--end::Header-->
@@ -442,7 +450,7 @@
             "font-family": "Poppins"
         };</script>
     <!--end::Global Config-->
-    @RenderSection("js",false)
+    @RenderSection("js", false)
 </body>
 <!--end::Body-->
 </html>

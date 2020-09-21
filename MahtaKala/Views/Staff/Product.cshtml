@@ -3,10 +3,16 @@
     ViewData["TitlNewtonsoft.Json.JsonSerializerNewtonsoft.Json.JsonSerializere"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
-@if(ViewBag.IsPostback != null && ViewBag.IsPostback)
+@if (ViewBag.IsPostback != null && ViewBag.IsPostback)
 {
     <script>
-            window.close();
+        Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: 'محصول ذخیره شد.',
+            showConfirmButton: false,
+            timer: 1500
+        })
     </script>
 }
 <div class="card card-custom gutter-b example example-compact">
@@ -54,14 +60,14 @@
             <div class="form-group row">
                 <div class="col-lg-6">
                     <label>
-                        عنوان :
+                        عنوان:
                     </label>
                     @Html.TextBoxFor(a => a.Title, new { @class = "form-control" })
                     @Html.ValidationMessageFor(a => a.Title)
                 </div>
                 <div class="col-lg-3">
                     <label>
-                        دسته بندی :
+                        دسته بندی:
                     </label>
                     <div class="k-content">
                         <input type="hidden" name="CategoryIds" id="CategoryIds" />
@@ -70,6 +76,7 @@
                 .DataTextField("title")
                 .DataValueField("id")
                 .ValuePrimitive(true)
+                .Filter(FilterType.Contains)
                 //.Items(ad=>
                 //{
                 //    foreach (var ca in Model.ProductCategories)
@@ -100,7 +107,7 @@
                 </div>
                 <div class="col-lg-3">
                     <label>
-                        برند :
+                        برند:
                     </label>
                     <div class="k-content">
                         @(Html.Kendo().DropDownList()
@@ -120,14 +127,14 @@
             <div class="form-group row">
                 <div class="col-lg-3">
                     <label>
-                        قیمت :
+                        قیمت:
                     </label>
                     @Html.TextBoxFor(a => a.Price, new { @class = "form-control", @type = "number" })
                     @Html.ValidationMessageFor(a => a.Price)
                 </div>
                 <div class="col-lg-3">
                     <label>
-                        قیمت نهایی :
+                        قیمت نهایی:
                     </label>
                     @Html.TextBoxFor(a => a.DiscountPrice, new { @class = "form-control", @type = "number" })
                     @Html.ValidationMessageFor(a => a.DiscountPrice)
@@ -135,12 +142,12 @@
                 <div class="col-lg-3">
                     <label>وضعیت:</label>
                     @Html.DropDownList("Status", MahtaKala.SharedServices.TranslateExtentions.GetTitles<ProductStatus>()
-                        .Select(a=>new SelectListItem
+                        .Select(a => new SelectListItem
                         {
                             Value = ((int)a.Key).ToString(),
                             Text = a.Value,
                             Selected = Model.Status == a.Key
-                        }), new { @class = "form-control", @type = "number" })
+                        }), new { @class = "form-control" })
                 </div>
                 <div class="col-lg-3">
                     <label>منتشر شده</label>
@@ -148,41 +155,28 @@
                 </div>
             </div>
             <div class="form-group row">
-                <div class="col-lg-12">
-                    <label>
-                        توضیحات :
-                    </label>
-                    @(Html.Kendo().Editor()
-                        .Name("editor")
-                        .HtmlAttributes(new { style = "width: 100%; height:840px" })
-                        .Tools(tools => tools
-                            .Clear()
-                            .Bold().Italic().Underline()
-                            .JustifyLeft().JustifyCenter().JustifyRight()
-                            .InsertUnorderedList().InsertOrderedList()
-                            .Outdent().Indent()
-                            .CreateLink().Unlink()
-                            .InsertImage()
-                            .TableEditing()
-                            .FontName()
-                            .FontSize()
-                            .ForeColor().BackColor()
-                        )
-                        .ImageBrowser(imageBrowser => imageBrowser
-                            .Image(Url.Action("Product", "Image")+"?id=" + Model.Id + "&name={0}")
-                            .Read("Read", "ProductEditorImageBrowser", new { Id = Model.Id })
-                            .Destroy("Destroy", "ProductEditorImageBrowser", new { Id = Model.Id })
-                            .Upload("Upload", "ProductEditorImageBrowser", new { Id = Model.Id })
-                            .Thumbnail("Thumbnail", "ProductEditorImageBrowser", new { Id = Model.Id })
-                        )
-                        .Value(Model.Description)
-                    )
+                <div class="col-lg-3">
+                    <label>@Html.LabelFor(a=>a.MinBuyQuota)</label>
+                    @Html.EditorFor(a => a.MinBuyQuota, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+                <div class="col-lg-3">
+                    <label>@Html.LabelFor(a => a.MaxBuyQuota)</label>
+                    @Html.EditorFor(a => a.MaxBuyQuota, new { htmlAttributes = new { @class = "form-control" } })
+                </div>
+                <div class="col-lg-3">
+                    <label>@Html.LabelFor(a => a.BuyQuotaDays)  (روز)</label>
+                    @*@Html.DropDownList("QuotaTimeType", new SelectListItem[]
+               {
+                   new SelectListItem("روز", "Day"),
+                   new SelectListItem("ماه", "Month"),
+               })*@
+                    @Html.EditorFor(a => a.BuyQuotaDays, new { htmlAttributes = new { @class = "form-control" } })
                 </div>
             </div>
             <div class="form-group row">
                 <div class="col-lg-12">
                     <label>
-                        عکس کوچک اول @(Model.Id == 0 ? "(برای آپلود عکس ابتدا باید محصول را ذخیره نمایید.)" : "") :
+                        عکس کوچک اول @(Model.Id == 0 ? "(برای آپلود عکس ابتدا باید محصول را ذخیره نمایید.)" : ""):
                     </label>
                     <div class="k-content @(Model.Id == 0 ? "disabled-content" : "")">
                         @(Html.Kendo().Upload()
@@ -237,6 +231,39 @@
             </div>
             <div class="form-group row">
                 <div class="col-lg-12">
+                    <label>
+                        توضیحات:
+                    </label>
+                    @(Html.Kendo().Editor()
+                        .Name("editor")
+                        .HtmlAttributes(new { style = "width: 100%; height:300px" })
+                        .Tools(tools => tools
+                            .Clear()
+                            .Bold().Italic().Underline()
+                            .JustifyLeft().JustifyCenter().JustifyRight()
+                            .InsertUnorderedList().InsertOrderedList()
+                            .Outdent().Indent()
+                            .CreateLink().Unlink()
+                            .InsertImage()
+                            .TableEditing()
+                            .FontName()
+                            .FontSize()
+                            .ForeColor().BackColor()
+                        )
+                        .ImageBrowser(imageBrowser => imageBrowser
+                            .Image(Url.Action("Product", "Image")+"?id=" + Model.Id + "&name={0}")
+                            .Read("Read", "ProductEditorImageBrowser", new { Id = Model.Id })
+                            .Destroy("Destroy", "ProductEditorImageBrowser", new { Id = Model.Id })
+                            .Upload("Upload", "ProductEditorImageBrowser", new { Id = Model.Id })
+                            .Thumbnail("Thumbnail", "ProductEditorImageBrowser", new { Id = Model.Id })
+                        )
+                        .Value(Model.Description)
+                    )
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-12">
+                    <label>مشخصات:</label>
                     <div id="productPropertiesGrid"></div>
                     <input type="hidden" name="Properties" id="Properties" />
                 </div>

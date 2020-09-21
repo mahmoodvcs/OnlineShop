@@ -439,6 +439,24 @@ namespace MahtaKala.Controllers
             return Content("");
         }
 
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public async Task<JsonResult> Category_Destroy(long id)
+        {
+            if (db.Categories.Any(c => c.ParentId == id))
+            {
+                var category = await db.Categories.FindAsync(id);
+                category.Published = false;
+                await db.SaveChangesAsync();
+                return Json(new { Success = false, Message = "دسته بندی دارای فرزند است. از حالت انتشار خارج میشود" });
+            }
+            else
+            {
+                db.Categories.Where(c => c.Id == id).Delete();
+                return Json(new { Success = true });
+            }
+        }
+
 
         #endregion
 
@@ -480,13 +498,13 @@ namespace MahtaKala.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (string.IsNullOrEmpty(model.Name))
+                {
+                    ModelState.AddModelError(nameof(model.Name), "نام را وارد کنید.");
+                    return View(model);
+                }
                 if (model.Id == 0)
                 {
-                    if (string.IsNullOrEmpty(model.Name))
-                    {
-                        ModelState.AddModelError(nameof(model.Name), "Name Required.");
-                        return View(model);
-                    }
                     db.Brands.Add(model);
                 }
                 else
@@ -501,6 +519,21 @@ namespace MahtaKala.Controllers
                 return RedirectToAction("BrandList");
             }
             return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public JsonResult Brand_Destroy(long id)
+        {
+            if (db.Products.Any(c => c.BrandId == id))
+            {
+                return Json(new { Success = false, Message = "امکان حذف برند دارای کالا نمی باشد." });
+            }
+            else
+            {
+                db.Brands.Where(c => c.Id == id).Delete();
+                return Json(new { Success = true });
+            }
         }
 
         #endregion
@@ -616,6 +649,9 @@ namespace MahtaKala.Controllers
                 product.Description = model.Description;
                 product.Status = model.Status;
                 product.Published = model.Published;
+                product.MaxBuyQuota = model.MaxBuyQuota;
+                product.MinBuyQuota = model.MinBuyQuota;
+                product.BuyQuotaDays = model.BuyQuotaDays;
 
                 var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
                 product.ProductCategories.Clear();
@@ -753,28 +789,33 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request)
         {
-            var data = await db.Orders.Where(o => o.State == OrderState.Paid ||
+            var query = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
-                                                  o.State == OrderState.Sent)
+                                                  o.State == OrderState.Sent);
+
+
+            var data = await query
                 .Select(a => new
                 {
                     Id = a.Id,
-                    Price = a.TotalPrice,
+                    TotalPrice = a.TotalPrice,
                     a.CheckOutData,
                     a.ApproximateDeliveryDate,
                     a.ActualDeliveryDate,
-                    Name = a.User.FirstName + " " + a.User.LastName,
+                    a.User.FirstName,
+                    a.User.LastName,
                     a.SendDate,
                     State = a.State
                 }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
                 {
                     Id = a.Id,
-                    CheckoutDate = Util.GetPersianDate(a.CheckOutData),
+                    CheckOutData = Util.GetPersianDate(a.CheckOutData),
                     ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
                     SendDate = Util.GetPersianDate(a.SendDate),
                     ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
-                    Price = (long)a.Price,
-                    Customer = a.Name,
+                    TotalPrice = (long)a.TotalPrice,
+                    FirstName = a.FirstName,
+                    LastName = a.LastName,
                     State = TranslateExtentions.GetTitle(a.State)
                 });
 

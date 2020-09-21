@@ -11,6 +11,7 @@
     {
         columns.Bound(p => p.Name);
         columns.Command(command => command.Custom("Edit").Text("ویرایش").Click("editEntity")).Width(160);
+        columns.Command(command => command.Custom("حذف").Click("RemoveEntity")).Width(90);
     })
     .ToolBar(toolbar =>
     {
@@ -22,6 +23,7 @@
     .Pageable(pageable => pageable
         .Refresh(true)
         .PageSizes(true)
+        .PageSizes(new int[] { 5, 10, 20, 50 })
         .ButtonCount(5))
     .DataSource(dataSource => dataSource
         .Ajax()
@@ -47,5 +49,46 @@
     function editEntity(e) {
         window.location.href = '/Staff/Brand/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
         return false;
+    }
+
+
+    function RemoveEntity(e) {
+        e.preventDefault();
+        var id = this.dataItem($(e.currentTarget).closest("tr")).Id;
+        swal.fire({
+            title: "از حذف این آیتم مطمئن هستید؟",
+            text: "در صورتی که برای این آیتم رکوردی درج شده باشد حذف می شود و این کار غیر قابل بازگشت می باشد",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "بلی مطمئنم",
+            cancelButtonText: "انصراف می دم",
+            closeOnConfirm: false,
+            closeOnCancel: true
+        }).then(function (result) {
+            if (result.value) {
+                    $.ajax({
+                        url: '@Url.Content("~/Staff/Brand_Destroy/")' + id,
+                        dataType: "json",
+                        type: "POST",
+                        contentType: 'application/json; charset=utf-8',
+                        cache: false,
+                        success: function (data) {
+
+                            if (data.success) {
+                                var grid = $("#Grid").data("kendoGrid");
+                                grid.dataSource.read();
+                                swal.fire("حذف رکورد با موفقیت انجام شد", "", "success");
+                            }
+                            else {
+                                swal.fire(data.message, "", "warning");
+                            }
+                        },
+                        error: function (xhr) {
+                            swal.fire("خطایی  در حذف اطلاعات اتفاق افتاده است", "", "warning");
+                        }
+                    });
+                }
+            });
     }
 </script>

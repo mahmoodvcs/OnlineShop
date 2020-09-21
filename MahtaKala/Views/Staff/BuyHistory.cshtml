@@ -4,31 +4,41 @@
 }
 @(Html.Kendo().Grid<MahtaKala.Models.BuyHistoryModel>().Name("grid").Columns(columns =>
 {
-    columns.Bound(p => p.Customer).Title("مشتری");
-    columns.Bound(p => p.CheckoutDate).Title("تاریخ سفارش");
-    columns.Bound(p => p.State).Title("وضعیت");
+    columns.Bound(p => p.FirstName).Title("نام");
+    columns.Bound(p => p.LastName).Title("نام خانوادگی");
+    columns.Bound(p => p.CheckOutData).Title("تاریخ سفارش");
+    columns.Bound(p => p.State).Title("وضعیت");//.Filterable(fc=> { fc.UI("dateFilter"); });
     columns.Bound(p => p.ApproximateDeliveryDate).Title("تاریخ تقریبی تحویل");
     columns.Bound(p => p.SendDate).Title("تاریخ ارسال");
     columns.Bound(p => p.ActualDeliveryDate).Title("تاریخ تحویل");
-    columns.Bound(p => p.Price).Title("قیمت");
+    columns.Bound(p => p.TotalPrice).Title("قیمت");
     columns.Command(command => command.Custom("تایید ارسال").Click("ConfirmSent")).Width(90);
     columns.Command(command => command.Custom("تایید تحویل").Click("ConfirmDelivered")).Width(90);
 
 })
-                                 .Pageable(pageable => pageable
+    .Scrollable()
+    .Filterable(c=>
+    {
+        //c.Mode(GridFilterMode.Row).Operators(oc=> { oc.ForString(sc=> { sc.Contains()})});
+    })
+    .Sortable()
+    .Pageable(pageable => pageable
         .Refresh(true)
         .PageSizes(true)
-        .ButtonCount(5)).Filterable().Sortable().DataSource(dataSource => dataSource
-                .Ajax()
-                .PageSize(50)
-                .Model(model =>
-                {
-                    model.Id(p => p.Id);
+        .PageSizes(new int[] { 5, 10, 20, 50 })
+        .ButtonCount(5))
+    .Sortable()
+    .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(50)
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
 
-                })
-                .Read(read => read.Action("GetBuyHistory", "Staff"))
-                                                                                                                                                                                                                                                                                    )
-        )
+            })
+            .Read(read => read.Action("GetBuyHistory", "Staff"))
+                                                                                                                                                                                                                                                                                )
+    )
 @section js{
     <script type="text/javascript">
         function ConfirmSent(e) {
