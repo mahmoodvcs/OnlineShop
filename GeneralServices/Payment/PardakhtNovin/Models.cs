@@ -13,7 +13,7 @@ namespace MahtaKala.GeneralServices.Payment.PardakhtNovin
     public class ScatteredSettlementDetails
     {
         public string settlementIban { get; set; }
-        public int sharePercent { get; set; }
+        public int shareAmount { get; set; }
     }
     public class SettlementRequestResponse
     {

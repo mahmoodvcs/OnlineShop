@@ -132,6 +132,7 @@ namespace MahtaKala.GeneralServices.Payment
 
             payment.ReferenceNumber = refNum;
             payment.TrackingNumber = traceNo;
+            payment.PSPReferenceNumber = customerRefNum;
 
             var state = dic["state"];
             if (state.ToLower() == "ok")
@@ -170,7 +171,6 @@ namespace MahtaKala.GeneralServices.Payment
 
         const string ShareApiAddress = "http://178.252.189.82:9000/api/SettlementRequest";
         const string inqueiryAddress = "http://178.252.189.82:9000/api/InquiryTransactionSettlement";
-        //"http://1207.0.0.1:8888";
 
         private async Task<string> Post(string address, string body)
         {
@@ -187,7 +187,8 @@ namespace MahtaKala.GeneralServices.Payment
             var resStr = await response.Content.ReadAsStringAsync();
             return resStr;
         }
-        public async Task<string> Share(Entities.Payment payment, List<ProductPaymentParty> items)
+
+        public async Task<string> Share(Entities.Payment payment, List<ScatteredSettlementDetails> items)
         {
             var inqres = await Post(inqueiryAddress, @"[
 	{
@@ -195,20 +196,20 @@ namespace MahtaKala.GeneralServices.Payment
 
     }
 ]");
-            var rrn = "26021451836";
+            //var rrn = "26021451836";
             SettlementRequest request = new SettlementRequest()
             {
-                referenceNumber = new string('0', 12 - rrn.Length) + rrn,
-                scatteredSettlement = new List<ScatteredSettlementDetails>()
+                referenceNumber = new string('0', 12 - payment.PSPReferenceNumber.Length) + payment.PSPReferenceNumber,
+                scatteredSettlement = items
             };
-            foreach (var item in items)
-            {
-                request.scatteredSettlement.Add(new ScatteredSettlementDetails
-                {
-                    settlementIban = item.PaymentParty.ShabaId,
-                    sharePercent = (int)item.Percent
-                });
-            }
+            //foreach (var item in items)
+            //{
+            //    request.scatteredSettlement.Add(new ScatteredSettlementDetails
+            //    {
+            //        settlementIban = item.PaymentParty.ShabaId,
+            //        sharePercent = (int)item.Percent
+            //    });
+            //}
 
             var reqSgtring = JsonSerializer.Serialize(request);
             logger.LogInformation(reqSgtring);

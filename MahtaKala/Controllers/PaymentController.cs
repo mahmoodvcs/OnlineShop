@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Payment;
+using MahtaKala.GeneralServices.Payment.PardakhtNovin;
 using MahtaKala.Infrustructure;
 using MahtaKala.Models.Payment;
 using MahtaKala.Services;
@@ -62,31 +63,38 @@ namespace MahtaKala.Controllers
             });
         }
 
-        //public async Task<ActionResult> Test()
-        //{
-        //    var myAddress = db.Addresses.FirstOrDefault(a => a.UserId == UserId);
-        //    var prod = await db.Products.FirstAsync();
-        //    Order order = new Order
-        //    {
-        //        Address = myAddress,
-        //        OrrderDate = DateTime.Now,
-        //        UserId = UserId,
-        //        Items = new List<OrderItem>
-        //        {
-        //            new OrderItem
-        //            {
-        //                ProductPriceId = prod.Id,
-        //                Quantity = 1,
-        //                UnitPrice = 1000
-        //            }
-        //        },
-        //        TotalPrice = 1000
-        //    };
-        //    db.Add(order);
-        //    await db.SaveChangesAsync();
-        //    var pay = await paymentService.InitPayment(order, pathService.AppBaseUrl + "/Payment/Paid?source=api");
-        //    return Redirect(pathService.AppBaseUrl + $"/Payment/Pay?pid={pay.Id}&uid={pay.UniqueId}&source=api");
-        //}
+        public async Task<ActionResult> TestPay(int amount)
+        {
+            var myAddress = db.Addresses.FirstOrDefault(a => a.UserId == UserId);
+            var prod = await db.Products.Include(a=>a.Prices).FirstAsync();
+            Order order = new Order
+            {
+                Address = myAddress,
+                UserId = UserId,
+                Items = new List<OrderItem>
+                {
+                    new OrderItem
+                    {
+                        ProductPriceId = prod.Prices[0].Id,
+                        Quantity = 1,
+                        UnitPrice = amount
+                    }
+                },
+                TotalPrice = amount
+            };
+            db.Add(order);
+            await db.SaveChangesAsync();
+            var pay = await orderService.InitPayment(order, pathService.AppBaseUrl + "/Payment/CallBackPay");
+            return Redirect(pathService.AppBaseUrl + $"/Payment/Pay?pid={pay.Id}&uid={pay.UniqueId}&source=api");
+        }
+
+        [HttpPost]
+        public async Task<string> TestShare([FromQuery]string trackNo, [FromBody]List<ScatteredSettlementDetails> shares)
+        {
+            var payment = await db.Payments.FirstOrDefaultAsync(a=> a.TrackingNumber == trackNo);
+            var res = await ((PardakhtNovinService)bankPaymentService).Share(payment, shares);
+            return res;
+        }
 
         [HttpPost]
         public async Task<ActionResult> Paid()//didn't work [FromQuery]string source)
@@ -127,33 +135,33 @@ namespace MahtaKala.Controllers
             }
         }
 
-        public async Task<string> ShareTest(long id)
-        {
-            var ser = (PardakhtNovinService)bankPaymentService;
-            var pay = db.Payments.Find(id);
-            var res = await ser.Share(pay, new List<ProductPaymentParty>
-            {
-                new ProductPaymentParty
-                {
-                    PaymentParty=new PaymentParty
-                    {
-                        ShabaId="IR470550330280003044776001"
-                    },
-                    Percent=5
-                },
-                new ProductPaymentParty
-                {
-                    PaymentParty=new PaymentParty
-                    {
-                        ShabaId="IR040700058800114181383001"
-                    },
-                    Percent=20
-                }
+        //public async Task<string> ShareTest(long id)
+        //{
+        //    var ser = (PardakhtNovinService)bankPaymentService;
+        //    var pay = db.Payments.Find(id);
+        //    var res = await ser.Share(pay, new List<ProductPaymentParty>
+        //    {
+        //        new ProductPaymentParty
+        //        {
+        //            PaymentParty=new PaymentParty
+        //            {
+        //                ShabaId="IR470550330280003044776001"
+        //            },
+        //            Percent=5
+        //        },
+        //        new ProductPaymentParty
+        //        {
+        //            PaymentParty=new PaymentParty
+        //            {
+        //                ShabaId="IR040700058800114181383001"
+        //            },
+        //            Percent=20
+        //        }
 
-            });
+        //    });
 
-            return res;
-        }
+        //    return res;
+        //}
 
     }
 }

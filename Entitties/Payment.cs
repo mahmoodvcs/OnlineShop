@@ -28,6 +28,8 @@ namespace MahtaKala.Entities
         public string ReferenceNumber { get; set; }
         [StringLength(100)]
         public string TrackingNumber { get; set; }
+        [StringLength(100)]
+        public string PSPReferenceNumber { get; set; }
         public PaymentState State { get; set; }
 
         public bool IsPayable => State == PaymentState.Registerd || State == PaymentState.SentToBank;
