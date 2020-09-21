@@ -74,5 +74,6 @@ namespace MahtaKala.Services
         {
             return names.Select(a => GetImageUrl(productId, a));
         }
+
     }
 }

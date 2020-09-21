@@ -225,27 +225,28 @@ namespace MahtaKala.Controllers
         [NonAction]
         public async Task<List<ProductConciseModel>> GetProductsData(IEnumerable<long> categoryIds, int offset, int page)
         {
-            var categories = categoryService.Categories().AsQueryable();
+            var query = productService.ProductsView();
 
             if (categoryIds.Count() > 0)
-                categories = categories.Where(c => categoryIds.Contains(c.Id));
+            {
+                query = query.Where(p => p.ProductCategories.Any(c => categoryIds.Contains(c.CategoryId)));
+            }
 
-            var query = from cat in categories
-                        from prc in cat.ProductCategories.Where(c => c.Product.Published)
-                        orderby prc.ProductId
-                        select new ProductConciseModel
-                        {
-                            Id = prc.Product.Id,
-                            Brand = prc.Product.Seller.Name,
-                            Category = cat.Title,
-                            Status = prc.Product.Status,
-                            Title = prc.Product.Title,
-                            Thubmnail = prc.Product.Thubmnail,
-                            Price = prc.Product.Prices.FirstOrDefault().Price,
-                            DiscountPrice = prc.Product.Prices.FirstOrDefault().DiscountPrice
-                        };
+            query = query.Skip(offset).Take(page);
+                        
+            var data = await query.Select(prc=>
+                new ProductConciseModel
+                {
+                    Id = prc.Id,
+                    Brand = prc.Seller.Name,
+                    Category = prc.ProductCategories.First().Category.Title,
+                    Status = prc.Status,
+                    Title = prc.Title,
+                    Thubmnail = prc.Thubmnail,
+                    Price = prc.Prices.FirstOrDefault().Price,
+                    DiscountPrice = prc.Prices.FirstOrDefault().DiscountPrice
+                }).ToListAsync();
 
-            var data = await query.Skip(offset).Take(page).ToListAsync();
             foreach (var p in data)
             {
                 p.Thubmnail = imageService.GetImageUrl(p.Id, p.Thubmnail);

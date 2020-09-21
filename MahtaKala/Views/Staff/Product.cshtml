@@ -407,7 +407,7 @@
         var imgId = jQuery.parseJSON(e.XMLHttpRequest.responseText);
         $("#Thubmnail").val(imgId);
         var _img = document.getElementById('thumb-img');
-        _img.src =  getImage(imgId);
+        _img.src = imgId;
     }
     function getImage(imgId) {
         return "@Html.Raw(ViewBag.ImagePathFormat)".replace(/{(0)}/g, imgId);

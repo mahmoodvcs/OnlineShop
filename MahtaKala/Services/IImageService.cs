@@ -12,5 +12,6 @@ namespace MahtaKala.Services
         string GetImageUrl(long id, string name);
         Task SaveImage(long id, string fileName, Stream stream);
         void DeleteImage(long id, string fileName);
+        void DeleteImages(long id);
     }
 }
