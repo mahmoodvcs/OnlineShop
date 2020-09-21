@@ -646,13 +646,14 @@ namespace MahtaKala.Controllers
                     .Where(a => a.Id == id).FirstOrDefaultAsync();
                 if (p == null)
                     throw new EntityNotFoundException<Product>(id.Value);
-                productImageService.FixImageUrls(p);
+                //productImageService.FixImageUrls(p);
                 var productPrices = db.ProductPrices.FirstOrDefault(a => a.ProductId == id);
                 if (productPrices != null)
                 {
                     p.DiscountPrice = productPrices.DiscountPrice;
                     p.Price = productPrices.Price;
                 }
+                p.Thubmnail = productImageService.GetImageUrl(p.Id, p.Thubmnail);
             }
             else
             {
@@ -662,6 +663,7 @@ namespace MahtaKala.Controllers
                     ProductCategories = new List<ProductCategory>()
                 };
             }
+            ViewBag.ImagePathFormat = productImageService.GetImagePathFormatString(p.Id);
             ViewBag.IsPostback = false;
             return View(p);
         }
@@ -734,6 +736,9 @@ namespace MahtaKala.Controllers
 
                 await db.SaveChangesAsync();
                 ViewBag.IsPostback = true;
+                ViewBag.ImagePathFormat = productImageService.GetImagePathFormatString(product.Id);
+                product.Thubmnail = productImageService.GetImageUrl(product.Id, product.Thubmnail);
+                //productImageService.FixImageUrls(product);
                 return View(product);
             }
             return View(model);

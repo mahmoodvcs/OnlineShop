@@ -410,7 +410,7 @@
         _img.src =  getImage(imgId);
     }
     function getImage(imgId) {
-        return imgId;
+        return "@Html.Raw(ViewBag.ImagePathFormat)".replace(/{(0)}/g, imgId);
         //return '@Url.Action("Product", "Image")?id=' + modelId + '&name=' + imgId;
     }
     function deleteImage(imgId) {

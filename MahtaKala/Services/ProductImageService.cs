@@ -31,11 +31,16 @@ namespace MahtaKala.Services
             name = name.ToLower();
             if (name.StartsWith("http://") || name.StartsWith("https://") || name.Contains("image/product?id="))
                 return name;
-            return $"/Image/Product?id={productId}&name={name}";
+            return string.Format(GetImagePathFormatString(productId), name);
         }
         public string GetThumbnailUrl(Product p)
         {
             return GetImageUrl(p.Id, p.Thubmnail);
+        }
+
+        public string GetImagePathFormatString(long productId)
+        {
+            return $"/Image/Product?id={productId}&name={{0}}";
         }
 
         public IEnumerable<string> GetImageUrls(Product p)
