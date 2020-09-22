@@ -790,6 +790,8 @@ namespace MahtaKala.Controllers
                 product.MaxBuyQuota = model.MaxBuyQuota;
                 product.MinBuyQuota = model.MinBuyQuota;
                 product.BuyQuotaDays = model.BuyQuotaDays;
+                product.SellerId = model.SellerId;
+                product.Code = model.Code;
 
                 var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
                 product.ProductCategories.Clear();

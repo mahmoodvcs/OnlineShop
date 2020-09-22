@@ -20,7 +20,9 @@ namespace MahtaKala.Entities
                 Price = a.Prices.FirstOrDefault().Price,
                 DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
                 Status = a.Status,
-                Published = a.Published
+                Published = a.Published,
+                Seller = a.Seller.Name,
+                Code = a.Code
             });
         }
 

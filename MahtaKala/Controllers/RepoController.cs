@@ -56,7 +56,7 @@ namespace MahtaKala.Controllers
                 Id = u.Id
             }).ToDataSourceResult(req));
         }
-        public IActionResult Sellers([DataSourceRequest] DataSourceRequest req)
+        public IActionResult Sellers()
         {
             return KendoJson(db.Sellers.Select(u => new
             {
