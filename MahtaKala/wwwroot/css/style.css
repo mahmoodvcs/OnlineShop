@@ -29,9 +29,11 @@
     font-weight: normal;
     font-style: normal;
 }
-.justifycontent{
-    text-align:justify !important;
-    direction:rtl !important;
+
+
+.justifycontent {
+    text-align: justify !important;
+    direction: rtl !important;
 }
 .DisabledLi {
     pointer-events: none;
@@ -79,7 +81,15 @@ input[type=number] {
 .wCategory{
     margin-right:20px !important;
     margin-top:10px !important;
+    width:150px !important;
+    text-align:center;
+    background-color:white ;
 }
+.wCategory img {
+    margin-right:-5px !important;
+   width:135px !important;
+}
+
 .imgh100 {
     display: block;
 /*    min-height: 100px !important;

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -134,12 +135,17 @@ namespace MahtaKala
         {
             app.UseExceptionHandler("/error");
 
-            app.UseStaticFiles();
+            FileExtensionContentTypeProvider contentTypes = new FileExtensionContentTypeProvider();
+            contentTypes.Mappings[".apk"] = "application/vnd.android.package-archive";
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                ContentTypeProvider = contentTypes
+            });
             //if (!env.IsDevelopment())
             //{
             //    app.UseSpaStaticFiles();
             //}
-            
+
             //app.UseSimpleCaptcha(Configuration.GetSection("BotDetect"));
 
             app.UseRouting();

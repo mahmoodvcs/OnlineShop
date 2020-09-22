@@ -38,7 +38,7 @@
                 else
                 {
                     <p style="direction:rtl">
-                        ناموجود
+                        @(Model.Status == ProductStatus.CommingSoon ? "به زودی" : "ناموجود")
                     </p>
                 }
             </div>

@@ -1,0 +1,7 @@
+﻿@model long?
+
+@(Html.Kendo().DropDownListFor(m=>m).DataSource(
+    ds => ds.Ajax().Read("Users", "Repo")//.Model(m => m.Id("id"))
+    )
+.DataTextField("Name").DataValueField("Id")
+)

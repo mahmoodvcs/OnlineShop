@@ -24,6 +24,7 @@ using MahtaKala.Services;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -148,15 +149,23 @@ namespace MahtaKala.Controllers
                     throw new EntityNotFoundException<User>(id);
                 }
             }
+            if (user.Type == UserType.Seller)
+                ViewBag.sellerID = db.Sellers.Where(a => a.UserId == user.Id).Select(a => a.Id).FirstOrDefault();
             return View(user);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(UserType.Admin)]
-        public new IActionResult User(User model)
+        public new IActionResult User(User model, string sellerId)
         {
             if (ModelState.IsValid)
             {
+                Seller seller = null;
+                if (model.Type == UserType.Seller)
+                {
+                    seller = db.Sellers.Find(long.Parse(sellerId));
+                }
+
                 if (model.Id == 0)
                 {
                     if (string.IsNullOrEmpty(model.Password))
@@ -165,6 +174,8 @@ namespace MahtaKala.Controllers
                         return View(model);
                     }
                     db.Users.Add(model);
+                    if (seller != null)
+                        seller.User = model;
                     model.Password = PasswordHasher.Hash(model.Password, ((int)model.Type).ToString());
                 }
                 else
@@ -190,7 +201,10 @@ namespace MahtaKala.Controllers
                         user.Password = PasswordHasher.Hash(model.Password, ((int)model.Type).ToString());
                     }
                     db.Entry(user).State = EntityState.Modified;
+                    if (seller != null)
+                        seller.User = user;
                 }
+
                 db.SaveChanges();
                 return RedirectToAction("UserList");
             }
@@ -442,6 +456,7 @@ namespace MahtaKala.Controllers
                     cat.Disabled = model.Disabled;
                     cat.Published = model.Published;
                     cat.ParentId = model.ParentId;
+                    cat.Color = model.Color;
                 }
                 await db.SaveChangesAsync();
                 ViewBag.IsPostback = true;
@@ -775,6 +790,8 @@ namespace MahtaKala.Controllers
                 product.MaxBuyQuota = model.MaxBuyQuota;
                 product.MinBuyQuota = model.MinBuyQuota;
                 product.BuyQuotaDays = model.BuyQuotaDays;
+                product.SellerId = model.SellerId;
+                product.Code = model.Code;
 
                 var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
                 product.ProductCategories.Clear();
@@ -1028,8 +1045,13 @@ namespace MahtaKala.Controllers
 
 
         #region Seller
-        public ActionResult Sellers()
+        public async Task<ActionResult> Sellers()
         {
+            ViewBag.Users = await db.Users.Where(u => u.Type == UserType.Seller).Select(u => new SelectListItem
+            {
+                Text = u.FirstName + " " + u.LastName + " (" + u.Username + ")",
+                Value = u.Id.ToString()
+            }).ToListAsync();
             return View();
         }
         public ActionResult GetAllSellers([DataSourceRequest] DataSourceRequest request)
