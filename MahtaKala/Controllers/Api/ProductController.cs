@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.ActionFilter;
 using MahtaKala.Controllers.Api;
 using MahtaKala.Entities;
 using MahtaKala.Entities.Extentions;
+using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
@@ -89,14 +92,40 @@ namespace MahtaKala.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<List<Category>> Category([FromQuery] long? parent)
+        public async Task<List<CategoryModel>> Category([FromQuery] long? parent)
         {
             var data = await categoryService.Categories().Where(c => c.ParentId == parent).ToListAsync();
             foreach (var item in data)
             {
                 item.Image = categoryImageService.GetImageUrl(item.Id, item.Image);
             }
-            return data;
+            var list = new List<CategoryModel>();
+            foreach (var item in data)
+            {
+                var cat = new CategoryModel
+                {
+                    Disabled = item.Disabled,
+                    Id = item.Id,
+                    Image = item.Image,
+                    Order = item.Order,
+                    ParentId = item.ParentId,
+                    Published = item.Published,
+                    Title = item.Title,
+                };
+                if (!string.IsNullOrEmpty(item.Color))
+                {
+                    var c = Util.ParseColor(item.Color);
+                    cat.Color = new CategoryModel.ColorModel
+                    {
+                        A = c.A / 255f,
+                        R = c.R,
+                        G = c.G,
+                        B = c.B,
+                    };
+                }
+                list.Add(cat);
+            }
+            return list;
         }
         /// <summary>
         /// Removes the Category with the given ID
@@ -233,8 +262,8 @@ namespace MahtaKala.Controllers
             }
 
             query = query.Skip(offset).Take(page);
-                        
-            var data = await query.Select(prc=>
+
+            var data = await query.Select(prc =>
                 new ProductConciseModel
                 {
                     Id = prc.Id,

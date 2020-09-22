@@ -456,6 +456,7 @@ namespace MahtaKala.Controllers
                     cat.Disabled = model.Disabled;
                     cat.Published = model.Published;
                     cat.ParentId = model.ParentId;
+                    cat.Color = model.Color;
                 }
                 await db.SaveChangesAsync();
                 ViewBag.IsPostback = true;
