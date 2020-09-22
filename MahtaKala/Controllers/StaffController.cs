@@ -1080,19 +1080,25 @@ namespace MahtaKala.Controllers
                 Text = u.FirstName + " " + u.LastName + " (" + u.Username + ")",
                 Value = u.Id.ToString()
             }).ToListAsync();
+            var users = db.Users.ToList();
+            ViewData["users"] = users;
+            ViewData["defaultUser"] = users.FirstOrDefault();
             return View();
         }
         public ActionResult GetAllSellers([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Sellers, request);
+            return ConvertDataToJson(db.Sellers.Include(s=>s.User), request);
         }
 
         public async Task<ActionResult> UpdateSeller(Seller seller)
         {
+            seller.UserId = seller.User.Id;
+            seller.User = null;
             if (seller.Id > 0)
             {
                 var dbSeller = await db.Sellers.FindAsync(seller.Id);
                 dbSeller.Name = seller.Name;
+                dbSeller.UserId = seller.UserId;
                 dbSeller.AccountBankName = seller.AccountBankName;
             }
             else

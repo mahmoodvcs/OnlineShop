@@ -1,0 +1,6 @@
+﻿@model MahtaKala.Entities.User
+@(Html.Kendo().DropDownListFor(m => m)
+        .DataValueField("Id")
+        .DataTextField("Username")
+        .BindTo((System.Collections.IEnumerable)ViewData["users"])
+)
