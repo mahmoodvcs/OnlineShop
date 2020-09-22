@@ -11,6 +11,8 @@
     {
         columns.Bound(p => p.Name);
         columns.Bound(p => p.AccountNumber);
+        columns.Bound(p => p.UserId).EditorTemplateName("User");
+        //.ForeignKey(p=>p.UserId, (System.Collections.IEnumerable)ViewBag.Users, "Value", "Text");
         columns.Command(command => {
             command.Edit().Text("ویرایش");
             command.Destroy().Text("حذف");
@@ -59,7 +61,7 @@
                         }
                         //input.attr("data-namevalidation-msg", "Product Name should start with capital letter");
                         //return /^[A-Z]/.test(input.val());
-                    } else {
+                    } else if (input.is("[name='AccountNumber']")) {
                         if (input.val() === "") {
 
                             input.attr("data-namevalidation-msg", "شماره حساب نباید خالی باشد.");

@@ -15,9 +15,13 @@ namespace MahtaKala.Entities
         [Display(Name = "نام")]
         public string Name { get; set; }
         [StringLength(30)]
-        [Display(Name = "شماره حساب کاربری")]
+        [Display(Name = "شماره حساب")]
         public string AccountNumber { get; set; }
         [StringLength(50)]
         public string AccountBankName { get; set; }
+
+        public User User { get; set; }
+        public long? UserId { get; set; }
+
     }
 }
