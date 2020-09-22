@@ -121,7 +121,7 @@
             @await Component.InvokeAsync("CategoriesMobile")
         </header>
         @if (!(ViewContext.RouteData.Values["controller"].ToString().ToLower() == "home"
-        && ViewContext.RouteData.Values["action"].ToString().ToLower() == "index"))
+       && ViewContext.RouteData.Values["action"].ToString().ToLower() == "index"))
         {
             <div class="main-page-banner home-3">
                 <div class="container">
@@ -135,7 +135,7 @@
 
 
         @RenderBody()
-        <footer class="off-white-bg2 pt-95 bdr-top pt-sm-55">
+        <footer class="off-white-bg2 pt-30 bdr-top pt-sm-55">
 
             <div class="footer-top">
                 <div class="container">
@@ -182,21 +182,21 @@
                                 </div>
                             </div>*@
                         <div class="col-lg-2 col-md-4 col-sm-6">
-                                <div class="single-footer mb-sm-40">
-                                    <h3 class="footer-title">تماس با ما</h3>
-                                    <div class="footer-content">
-                                        <ul class="footer-list address-content">
-                                            <li><i class="lnr lnr-envelope"></i><a href="#">info@mahtakala.ir </a></li>
-                                            <li>
-                                                <i class="lnr lnr-phone-handset"></i>  021-88656453 
-                                            </li>
-                                            <li>
-                                                <i class="lnr lnr-phone-handset"></i>  021-88656454
-                                            </li>
-                                        </ul>
-                                    </div>
+                            <div class="single-footer mb-sm-40">
+                                <h3 class="footer-title">تماس با ما</h3>
+                                <div class="footer-content">
+                                    <ul class="footer-list address-content">
+                                        <li><i class="lnr lnr-envelope"></i><a href="#">info@mahtakala.ir </a></li>
+                                        <li>
+                                            <i class="lnr lnr-phone-handset"></i>  021-88656453
+                                        </li>
+                                        <li>
+                                            <i class="lnr lnr-phone-handset"></i>  021-88656454
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
+                        </div>
                         <!-- Single Footer Start -->
                         <!-- Single Footer Start -->
                         <div class="col-lg-4 col-md-6 col-sm-6">
@@ -228,20 +228,16 @@
                 <!-- Container End -->
             </div>
 
-            @*<div class="footer-middle text-center">
-                    <div class="container">
-                        <div class="footer-middle-content pt-20 pb-30">
-                            <ul class="social-footer">
-                                <li><a href="https://www.facebook.com/"><i class="fa fa-facebook"></i></a></li>
-                                <li><a href="https://twitter.com/"><i class="fa fa-twitter"></i></a></li>
-                                <li><a href="https://plus.google.com/"><i class="fa fa-google-plus"></i></a></li>
-                                <li><a href="https://www.linkedin.com/"><i class="fa fa-linkedin"></i></a></li>
-                                <li><a href="#"><img src="~/img/icon/social-img1.png" alt="google play"></a></li>
-                                <li><a href="#"><img src="~/img/icon/social-img2.png" alt="app store"></a></li>
-                            </ul>
-                        </div>
+            <div class="footer-middle text-center">
+                <div class="container">
+                    <div class="footer-middle-content pt-20 pb-30">
+                        <ul class="social-footer">
+                            <li><a href="@Url.Content("~/app.apk")"><img src="~/img/icon/social-img1.png" alt="اپ اندروید"></a></li>
+                            <li><a href="#"><img src="~/img/icon/social-img2.png" alt="اپ ios"></a></li>
+                        </ul>
                     </div>
-                </div>*@
+                </div>
+            </div>
 
             <div class="footer-bottom pb-30">
                 <div class="container">
