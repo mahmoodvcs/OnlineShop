@@ -927,6 +927,34 @@ namespace MahtaKala.Controllers
             return Json(product.ImageList);
         }
 
+
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public async Task<JsonResult> Product_Change_Category(ProductChangeCategoryModel model)
+        {
+            var products = await db.Products.Include(p=>p.ProductCategories).Where(p => model.ProductIds.Contains(p.Id)).ToListAsync();
+            if(products.Count == 0)
+            {
+                return Json(new { Success = false, Message = "هیچ محصولی یافت نشد." });
+            }
+            var category = await db.Categories.Where(c => c.Id == model.CategoryId).FirstOrDefaultAsync();
+            if(category == null)
+            {
+                return Json(new { Success = false, Message = "دسته بندی مورد نظر یافت نشد." });
+            }
+            foreach(var product in products)
+            {
+                product.ProductCategories.Clear();
+                product.ProductCategories.Add(new ProductCategory
+                {
+                    CategoryId = category.Id,
+                    ProductId = product.Id
+                });
+            }
+            await db.SaveChangesAsync();
+            return Json(new { Success = true });
+        }
+
         #endregion
 
 
