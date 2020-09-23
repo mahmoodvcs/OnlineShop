@@ -1,0 +1,33 @@
+﻿@model List<Product>
+@{
+    ViewData["Title"] = ViewData["Title"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    long? id = (long?)ViewBag.groupId;
+    bool isShowAlert = (bool)ViewBag.IsShowAlert;
+}
+@if (id.HasValue)
+{
+    <text>
+        @await Component.InvokeAsync("BreadCrumb", new { categoryId = id })
+        @await Component.InvokeAsync("SubCategory", new { categoryId = id })
+    </text>
+}
+<div class="main-shop-page pt-30 pb-100 ptb-sm-60">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 order-1 order-lg-2">
+                <div class="main-categorie mb-all-40">
+                    <div class="tab-content fix" id="ajax-show-list">
+                        <partial name="_ProductList" />
+                    </div>
+                    @if (isShowAlert)
+                    {
+                        <div class="alert alert-warning">
+                            در حال حاضر در این دسته بندی کالایی موجود نمی باشد.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
