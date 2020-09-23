@@ -62,7 +62,6 @@ input[type=number] {
     max-height: 226px !important;
     width: auto !important;
     height: auto !important;
-*/
 }
 .imgh380 {
     display: block;
@@ -70,25 +69,40 @@ input[type=number] {
     max-height: 380px !important;
     width: auto !important;
     height: auto !important;
+    max-width: 100% !important;
 */}
 .imgh270 {
     display: block;
 /*    min-height: 270px !important;
     max-height: 270px !important;
+    max-width: 100% !important;
     width: auto !important;
     height: auto !important;
 */}
 .wCategory{
     margin-right:20px !important;
     margin-top:10px !important;
-    width:150px !important;
+    width:210px !important;
     text-align:center;
     background-color:white ;
 }
-.wCategory img {
-    margin-right:-5px !important;
-   width:135px !important;
-}
+    .wCategory img {
+        margin-right: -5px !important;
+        min-height: 150px !important;
+        max-height: 150px !important;
+        max-width: 100% !important;
+        width: auto !important;
+        height: auto !important;
+    }
+    .wCategory p {
+        background-color: whitesmoke;
+        font-weight:bold;
+        border-radius:5px;
+        padding:5px 0 5px 0;
+        margin-top:10px;
+        margin-bottom:5px !important;
+    }
+
 
 .imgh100 {
     display: block;
@@ -96,6 +110,7 @@ input[type=number] {
     max-height: 100px !important;
     width: auto !important;
     height: auto !important;
+    max-width: 100% !important;
 */}
 
 .cartLsit {

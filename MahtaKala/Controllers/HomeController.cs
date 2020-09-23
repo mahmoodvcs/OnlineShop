@@ -135,11 +135,16 @@ namespace MahtaKala.Controllers
             string txtSearch = "جستجو";
             if (!string.IsNullOrEmpty(term))
                 txtSearch = "جستجو برای " + term;
+
+            var isParentCategories = false;
             if (id.HasValue)
             {
-                var c = db.Categories.FirstOrDefault(a=>a.Id==id);
-                if(c!=null)
+                var c = db.Categories.FirstOrDefault(a => a.Id == id);
+                if (c != null)
+                {
                     txtSearch = "جستجو در دسته بندی " + c.Title;
+                    isParentCategories = db.Categories.Any(a => a.ParentId == id);
+                }
             }
             ViewData["Title"] = txtSearch;
             var vm = Search(page: 1, recordsPerPage: recordsPerPage, groupId: id, term: term, pageSize: out pageSize, totalItemCount: out totalItemCount);
@@ -147,6 +152,7 @@ namespace MahtaKala.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalItemCount = totalItemCount;
             ViewBag.groupId = id;
+            ViewBag.IsShowAlert = (isParentCategories == false && totalItemCount <= 0);
             return View(vm);
         }
 
@@ -193,7 +199,7 @@ namespace MahtaKala.Controllers
         }
 
 
-   
+
     }
 
 }
