@@ -91,6 +91,10 @@ namespace MahtaKala.GeneralServices.Payment
                 requestparam.WSContext = w;
                 //GenerateTransactionDataToSignResult generateTransactionDataToSignResult = new GenerateTransactionDataToSignResult();
                 var generateTransactionDataToSignResult = await ipgw.GenerateTransactionDataToSignAsync(requestparam);
+                if (generateTransactionDataToSignResult.@return.Result.ToLower() != "ersucceed")
+                {
+                    throw new Exception("Error signing data: " +generateTransactionDataToSignResult.@return.Result);
+                }
                 string datatosign = generateTransactionDataToSignResult.@return.DataToSign;
                 string uniqid = generateTransactionDataToSignResult.@return.UniqueId;
                 //    step2 sign to token
