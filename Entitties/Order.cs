@@ -25,7 +25,7 @@ namespace MahtaKala.Entities
     }
     public enum OrderState
     {
-        [Display(Name ="سبد خرید")]
+        [Display(Name ="اولیه")]
         Initial = 0,
         [Display(Name ="نهایی شده")]
         CheckedOut = 1,

@@ -57,5 +57,11 @@ namespace MahtaKala.Services
             File.Delete(pathStrategy.GetPath(ImagesPath, id, fileName));
         }
 
+        public void DeleteImages(long id)
+        {
+            Directory.Delete(pathStrategy.GetPath(ImagesPath, id, null), true);
+        }
+
+
     }
 }

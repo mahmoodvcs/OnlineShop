@@ -3,15 +3,17 @@ using System;
 using MahtaKala.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MahtaKala.Entities.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200922084202_Seller_User")]
+    partial class Seller_User
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,11 +47,6 @@ namespace MahtaKala.Entities.Migrations
                         .HasColumnName("id")
                         .HasColumnType("bigint")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Color")
-                        .HasColumnName("color")
-                        .HasColumnType("character varying(30)")
-                        .HasMaxLength(30);
 
                     b.Property<bool>("Disabled")
                         .HasColumnName("disabled")
@@ -291,11 +288,6 @@ namespace MahtaKala.Entities.Migrations
                     b.Property<string>("Characteristics")
                         .HasColumnName("characteristics")
                         .HasColumnType("text");
-
-                    b.Property<string>("Code")
-                        .HasColumnName("code")
-                        .HasColumnType("character varying(200)")
-                        .HasMaxLength(200);
 
                     b.Property<string>("Description")
                         .HasColumnName("description")

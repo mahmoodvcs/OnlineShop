@@ -31,5 +31,8 @@ namespace MahtaKala.Entities
         public bool Published { get; set; }
         [Display(Name ="ترتیب")]
         public int Order { get; set; }
+        [StringLength(30)]
+        [Display(Name ="رنگ")]
+        public string Color { get; set; }
     }
 }

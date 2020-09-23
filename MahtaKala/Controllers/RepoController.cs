@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Kendo.Mvc.Extensions;
+using Kendo.Mvc.UI;
 using MahtaKala.Entities;
+using MahtaKala.Infrustructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace MahtaKala.Controllers
 {
-    public class RepoController : Controller
+    public class RepoController : MahtaControllerBase<RepoController>
     {
-        private readonly DataContext db;
-        public RepoController(DataContext context)
+        public RepoController(DataContext context, ILogger<RepoController> logger)
+            :base(context, logger)
         {
-            db = context;
         }
 
         public JsonResult GetCategories()
@@ -43,6 +46,23 @@ namespace MahtaKala.Controllers
                 xp = xp.Where(p => p.Name.Contains(name));
             }
             return Json(xp.ToList());
+        }
+
+        public IActionResult Users([DataSourceRequest] DataSourceRequest req)
+        {
+            return KendoJson(db.Users.Where(u => u.Type == UserType.Seller).Select(u => new
+            {
+                Name = u.FirstName + " " + u.LastName + " (" + u.Username + ")",
+                Id = u.Id
+            }).ToDataSourceResult(req));
+        }
+        public IActionResult Sellers()
+        {
+            return KendoJson(db.Sellers.Select(u => new
+            {
+                u.Id,
+                u.Name
+            }).ToList());
         }
     }
 }

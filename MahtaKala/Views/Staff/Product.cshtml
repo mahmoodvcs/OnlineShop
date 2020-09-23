@@ -15,11 +15,20 @@
         })
     </script>
 }
+@if (ViewBag.ErrorMessage != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: '@ViewBag.ErrorMessage',
+        })
+    </script>
+}
 <div class="card card-custom gutter-b example example-compact">
     @using (Html.BeginForm("Product", "Staff", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form" }))
     {
         @Html.AntiForgeryToken()
-        @Html.HiddenFor(a => a.Id)
+        <input type="hidden" id="Id" name="Id" value="@Model.Id" />
         @Html.HiddenFor(a => a.Thubmnail)
         @Html.HiddenFor(a => a.ImageList)
         <div class="card-header">
@@ -127,6 +136,13 @@
             <div class="form-group row">
                 <div class="col-lg-3">
                     <label>
+                        کد محصول:
+                    </label>
+                    @Html.TextBoxFor(a => a.Code, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(a => a.Code)
+                </div>
+                <div class="col-lg-3">
+                    <label>
                         قیمت:
                     </label>
                     @Html.TextBoxFor(a => a.Price, new { @class = "form-control", @type = "number" })
@@ -140,23 +156,31 @@
                     @Html.ValidationMessageFor(a => a.DiscountPrice)
                 </div>
                 <div class="col-lg-3">
-                    <label>وضعیت:</label>
-                    @Html.DropDownList("Status", MahtaKala.SharedServices.TranslateExtentions.GetTitles<ProductStatus>()
-                        .Select(a => new SelectListItem
-                        {
-                            Value = ((int)a.Key).ToString(),
-                            Text = a.Value,
-                            Selected = Model.Status == a.Key
-                        }), new { @class = "form-control" })
-                </div>
-                <div class="col-lg-3">
-                    <label>منتشر شده</label>
-                    @Html.CheckBoxFor(a => a.Published)
+                    <label>
+                        فروشنده:
+                    </label>
+                    @(Html.Kendo().DropDownListFor(a=>a.SellerId)
+                        .DataSource(ds=>ds.Read("Sellers","Repo"))
+                        .DataTextField("Name").DataValueField("Id")
+                        .HtmlAttributes(new { @class = "form-control" }))
+                    @Html.ValidationMessageFor(a => a.Code)
                 </div>
             </div>
             <div class="form-group row">
                 <div class="col-lg-3">
-                    <label>@Html.LabelFor(a=>a.MinBuyQuota)</label>
+                    <label>وضعیت:</label>
+                    @(Html.EnumCombo<ProductStatus>("Status", Model.Status))
+                </div>
+                <div class="col-lg-3">
+                    <label>
+                        منتشر شده
+                    </label>
+                    @Html.CheckBoxFor(a => a.Published, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-3">
+                    <label>@Html.LabelFor(a => a.MinBuyQuota)</label>
                     @Html.EditorFor(a => a.MinBuyQuota, new { htmlAttributes = new { @class = "form-control" } })
                 </div>
                 <div class="col-lg-3">
@@ -166,10 +190,10 @@
                 <div class="col-lg-3">
                     <label>@Html.LabelFor(a => a.BuyQuotaDays)  (روز)</label>
                     @*@Html.DropDownList("QuotaTimeType", new SelectListItem[]
-               {
-                   new SelectListItem("روز", "Day"),
-                   new SelectListItem("ماه", "Month"),
-               })*@
+                        {
+                            new SelectListItem("روز", "Day"),
+                            new SelectListItem("ماه", "Month"),
+                        })*@
                     @Html.EditorFor(a => a.BuyQuotaDays, new { htmlAttributes = new { @class = "form-control" } })
                 </div>
             </div>
@@ -404,10 +428,10 @@
         var imgId = jQuery.parseJSON(e.XMLHttpRequest.responseText);
         $("#Thubmnail").val(imgId);
         var _img = document.getElementById('thumb-img');
-        _img.src =  getImage(imgId);
+        _img.src = imgId;
     }
     function getImage(imgId) {
-        return imgId;
+        return "@Html.Raw(ViewBag.ImagePathFormat)".replace(/{(0)}/g, imgId);
         //return '@Url.Action("Product", "Image")?id=' + modelId + '&name=' + imgId;
     }
     function deleteImage(imgId) {

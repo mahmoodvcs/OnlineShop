@@ -3,15 +3,17 @@ using System;
 using MahtaKala.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MahtaKala.Entities.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200922120215_Category_Color")]
+    partial class Category_Color
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -291,11 +293,6 @@ namespace MahtaKala.Entities.Migrations
                     b.Property<string>("Characteristics")
                         .HasColumnName("characteristics")
                         .HasColumnType("text");
-
-                    b.Property<string>("Code")
-                        .HasColumnName("code")
-                        .HasColumnType("character varying(200)")
-                        .HasMaxLength(200);
 
                     b.Property<string>("Description")
                         .HasColumnName("description")

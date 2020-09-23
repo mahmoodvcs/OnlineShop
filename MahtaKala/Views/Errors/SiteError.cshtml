@@ -96,7 +96,7 @@
                     کارشناسان ما در حال بررسی خطا هستند. لطفا تا بررسی و رفع خطا شکیبا باشید.
                 </p>
                 <p class="error">
-                    @Model.ToString()
+                    @Model.ToString().Replace("\r\n", "<br/>");
                 </p>
                 <p><a href="#" onclick="window.history.go(-1); return false;">بازگشت به صفحه ی قبل</a></p>
                 <p><a href="/">صفحه ی اصلی</a></p>

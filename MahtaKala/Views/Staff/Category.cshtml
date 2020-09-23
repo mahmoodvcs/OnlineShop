@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
-@if(ViewBag.IsPostback != null && ViewBag.IsPostback)
+@if (ViewBag.IsPostback != null && ViewBag.IsPostback)
 {
     <script>
         Swal.fire({
@@ -21,54 +21,65 @@
 {
     @Html.AntiForgeryToken()
 
-<div class="form-horizontal">
-    <h4>@ViewData["Title"]</h4>
-    <hr />
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    <input type="hidden" id="Id" name="Id" value="@Model.Id" />
-    @Html.HiddenFor(model => model.Image)
+    <div class="form-horizontal">
+        <h4>@ViewData["Title"]</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <input type="hidden" id="Id" name="Id" value="@Model.Id" />
+        @Html.HiddenFor(model => model.Image)
+        @Html.HiddenFor(model => model.Order)
 
 
 
-    <div class="form-group row">
-        <div class="col-lg-3">
-            @Html.LabelFor(model => model.Title)
-            @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
-        </div>
-        <div class="col-lg-3">
-            @Html.LabelFor(model => model.Disabled)
-            @Html.EditorFor(model => model.Disabled, new { htmlAttributes = new { @class = "form-control" } })
-        </div>
+        <div class="form-group row">
+            <div class="col-lg-3">
+                @Html.LabelFor(model => model.Title)
+                @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-lg-3">
+                @Html.LabelFor(model => model.Disabled)
+                @Html.EditorFor(model => model.Disabled, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
 
-        <div class="col-lg-3">
-            @Html.LabelFor(model => model.Published)
-            @Html.EditorFor(model => model.Published, new { htmlAttributes = new { @class = "form-control" } })
-        </div>
-        <div class="col-lg-3">
-            @Html.LabelFor(model => model.Order)
-            @Html.EditorFor(model => model.Order, new { htmlAttributes = new { @class = "form-control" } })
-        </div>
+            <div class="col-lg-3">
+                @Html.LabelFor(model => model.Published)
+                @Html.EditorFor(model => model.Published, new { htmlAttributes = new { @class = "form-control" } })
+            </div>
 
-        <div class="col-lg-6">
-            @Html.LabelFor(model => model.ParentId)
+            <div class="col-lg-3">
+                @Html.LabelFor(model => model.ParentId)
 
-            @Html.DropDownListFor(
-                 model => model.ParentId,
-                 new SelectList(ViewBag.Categories, "Id", "Title", Model.ParentId),
-                 "-- Select --",
-                 new { htmlAttributes = new { @class = "form-control" } }
+                @(Html.Kendo().DropDownList()
+                .Name("ParentId")
+                .HtmlAttributes(new { style = "width:100%" })
+                .Value(Model.ParentId.ToString())
+                .OptionLabel("-- انتخاب کنید --")
+                .DataTextField("Title")
+                .DataValueField("Id")
+                .Filter(FilterType.Contains)
+                .DataSource(source =>
+                {
+                    source.Read(read =>
+                    {
+                        read.Action("Categories_List", "Staff");
+                    });
+                })
             )
-            @Html.ValidationMessageFor(model => model.ParentId, "", new { @class = "text-danger" })
+            </div>
+            <div class="col-lg-3">
+                @Html.LabelFor(a=>a.Color)
+
+                @Html.Kendo().ColorPickerFor(a=>a.Color).Opacity()
+            </div>
         </div>
-    </div>
-    <div class="form-group row">
-        <div class="col-lg-12">
-            <label>
-                عکس دسته بندی @(Model.Id == 0 ? "(برای آپلود عکس ابتدا باید دسته بندی را ذخیره نمایید.)" : "") :
-            </label>
-            <div class="k-content @(Model.Id == 0 ? "disabled-content" : "")">
-                @(Html.Kendo().Upload()
+        <div class="form-group row">
+            <div class="col-lg-12">
+                <label>
+                    عکس دسته بندی @(Model.Id == 0 ? "(برای آپلود عکس ابتدا باید دسته بندی را ذخیره نمایید.)" : "") :
+                </label>
+                <div class="k-content @(Model.Id == 0 ? "disabled-content" : "")">
+                    @(Html.Kendo().Upload()
                     .Name("images")
                     .Multiple(false)
                     .Async(a => a
@@ -81,33 +92,33 @@
                     )
                     .Validation(validation => validation.AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png", ".bmp" }))
                 )
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-lg-12">
+                <img id="img" src="@(Model.Image)" style="max-width:200px; max-height:200px;" />
+            </div>
+        </div>
+
+
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="ذخیره" class="btn btn-primary" />
             </div>
         </div>
     </div>
-    <div class="form-group row">
-        <div class="col-lg-12">
-            <img id="img" src="@(Model.Image)" style="max-width:200px; max-height:200px;" />
-        </div>
-    </div>
-
-
-
-
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" value="ذخیره" class="btn btn-primary" />
-        </div>
-    </div>
-</div>
 }
 
 <script>
-    
+
     function onImageSuccess(e) {
         var imgId = jQuery.parseJSON(e.XMLHttpRequest.responseText);
         $("#Image").val(imgId);
         var _img = document.getElementById('img');
-        _img.src =  imgId;
+        _img.src = imgId;
     }
 
     function onUpload(e) {

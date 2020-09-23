@@ -4,15 +4,36 @@
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
+<div class="filterPanel">
+    <fieldset>
+        <legend>فیلتر ها:</legend>
+        <div class="row">
+            <div class="col-lg-3">
+                <label>عنوان:</label>
+                <input type="text" name="nameFilter" class="form-control additionalData" />
+            </div>
+            <div class="col-lg-3">
+                <label>دسته بندی پدر:</label>
+                <input type="text" name="categoryFilter" class="form-control additionalData" />
+            </div>
+        </div>
+    </fieldset>
+</div>
+
 
 @(Html.Kendo().Grid<MahtaKala.Entities.Category>()
     .Name("Grid")
     .Columns(columns =>
     {
         columns.Bound(p => p.Title);
+        columns.Bound(p=>p.Parent).ClientTemplate("#=Parent!=null?Parent.Title:''#");
         columns.Bound(p => p.Order);
         columns.Bound(p => p.Disabled).ClientTemplate("#=Disabled?'بلی':'خیر'#");
         columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#");
+        columns.Bound(p => p.Id)
+            .ClientTemplate("<a href='##' onclick='moveUp(#=Id#)'><span class='k-icon k-i-sort-asc-sm'></span></a>" +
+                            "<a href='##' onclick='moveDown(#=Id#)'><span class='k-icon k-i-sort-desc-sm'></span></a>")
+            .Title("ترتیب");
         columns.Command(command => command.Custom("Edit").Text("ویرایش").Click("editEntity")).Width(160);
         columns.Command(command => command.Custom("حذف").Click("RemoveEntity")).Width(90);
     })
@@ -36,7 +57,7 @@
         {
             model.Id(p => p.Id);
         })
-        .Read(read => read.Action("GetAllCategories", "Staff"))
+        .Read(read => read.Action("GetAllCategories", "Staff").Data("getAdditionalData"))
         .PageSize(20)
     )
 )
@@ -99,5 +120,53 @@
                     });
                 }
             });
+    }
+
+    function moveUp(id) {
+        window.event.preventDefault();
+        $.ajax({
+            url: '@Url.Content("~/Staff/Category_Up/")' + id,
+            dataType: "json",
+            type: "POST",
+            contentType: 'application/json; charset=utf-8',
+            cache: false,
+            success: function (data) {
+
+                if (data.success) {
+                    var grid = $("#Grid").data("kendoGrid");
+                    grid.dataSource.read();
+                }
+                else {
+                    swal.fire(data.message, "", "warning");
+                }
+            },
+            error: function (xhr) {
+                swal.fire("خطایی اتفاق افتاده است", "", "warning");
+            }
+        });
+    }
+
+    function moveDown(id) {
+        window.event.preventDefault();
+        $.ajax({
+            url: '@Url.Content("~/Staff/Category_Down/")' + id,
+            dataType: "json",
+            type: "POST",
+            contentType: 'application/json; charset=utf-8',
+            cache: false,
+            success: function (data) {
+
+                if (data.success) {
+                    var grid = $("#Grid").data("kendoGrid");
+                    grid.dataSource.read();
+                }
+                else {
+                    swal.fire(data.message, "", "warning");
+                }
+            },
+            error: function (xhr) {
+                swal.fire("خطایی اتفاق افتاده است", "", "warning");
+            }
+        });
     }
 </script>

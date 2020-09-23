@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using MahtaKala.ActionFilter;
 using MahtaKala.Controllers.Api;
 using MahtaKala.Entities;
 using MahtaKala.Entities.Extentions;
+using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
@@ -89,14 +92,40 @@ namespace MahtaKala.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<List<Category>> Category([FromQuery] long? parent)
+        public async Task<List<CategoryModel>> Category([FromQuery] long? parent)
         {
             var data = await categoryService.Categories().Where(c => c.ParentId == parent).ToListAsync();
             foreach (var item in data)
             {
                 item.Image = categoryImageService.GetImageUrl(item.Id, item.Image);
             }
-            return data;
+            var list = new List<CategoryModel>();
+            foreach (var item in data)
+            {
+                var cat = new CategoryModel
+                {
+                    Disabled = item.Disabled,
+                    Id = item.Id,
+                    Image = item.Image,
+                    Order = item.Order,
+                    ParentId = item.ParentId,
+                    Published = item.Published,
+                    Title = item.Title,
+                };
+                if (!string.IsNullOrEmpty(item.Color))
+                {
+                    var c = Util.ParseColor(item.Color);
+                    cat.Color = new CategoryModel.ColorModel
+                    {
+                        A = c.A / 255f,
+                        R = c.R,
+                        G = c.G,
+                        B = c.B,
+                    };
+                }
+                list.Add(cat);
+            }
+            return list;
         }
         /// <summary>
         /// Removes the Category with the given ID
@@ -177,7 +206,7 @@ namespace MahtaKala.Controllers
                 {
                     Id = a.Id,
                     Brand_Id = a.BrandId,
-                    Brand = a.Brand.Name,
+                    Brand = a.Seller.Name,
                     Category_Id = a.ProductCategories.FirstOrDefault().CategoryId,
                     Category = a.ProductCategories.FirstOrDefault().Category.Title,
                     Description = a.Description,
@@ -225,27 +254,28 @@ namespace MahtaKala.Controllers
         [NonAction]
         public async Task<List<ProductConciseModel>> GetProductsData(IEnumerable<long> categoryIds, int offset, int page)
         {
-            var categories = categoryService.Categories().AsQueryable();
+            var query = productService.ProductsView();
 
             if (categoryIds.Count() > 0)
-                categories = categories.Where(c => categoryIds.Contains(c.Id));
+            {
+                query = query.Where(p => p.ProductCategories.Any(c => categoryIds.Contains(c.CategoryId)));
+            }
 
-            var query = from cat in categories
-                        from prc in cat.ProductCategories.Where(c => c.Product.Published)
-                        orderby prc.ProductId
-                        select new ProductConciseModel
-                        {
-                            Id = prc.Product.Id,
-                            Brand = prc.Product.Brand.Name,
-                            Category = cat.Title,
-                            Status = prc.Product.Status,
-                            Title = prc.Product.Title,
-                            Thubmnail = prc.Product.Thubmnail,
-                            Price = prc.Product.Prices.FirstOrDefault().Price,
-                            DiscountPrice = prc.Product.Prices.FirstOrDefault().DiscountPrice
-                        };
+            query = query.Skip(offset).Take(page);
 
-            var data = await query.Skip(offset).Take(page).ToListAsync();
+            var data = await query.Select(prc =>
+                new ProductConciseModel
+                {
+                    Id = prc.Id,
+                    Brand = prc.Seller.Name,
+                    Category = prc.ProductCategories.First().Category.Title,
+                    Status = prc.Status,
+                    Title = prc.Title,
+                    Thubmnail = prc.Thubmnail,
+                    Price = prc.Prices.FirstOrDefault().Price,
+                    DiscountPrice = prc.Prices.FirstOrDefault().DiscountPrice
+                }).ToListAsync();
+
             foreach (var p in data)
             {
                 p.Thubmnail = imageService.GetImageUrl(p.Id, p.Thubmnail);
@@ -273,7 +303,7 @@ namespace MahtaKala.Controllers
             return await products.Select(a => new ProductConciseModel
             {
                 Id = a.Id,
-                Brand = a.Brand.Name,
+                Brand = a.Seller.Name,
                 Category = a.ProductCategories.FirstOrDefault().Category.Title,
                 Title = a.Title,
                 Thubmnail = imageService.GetImageUrl(a.Id, a.Thubmnail),
