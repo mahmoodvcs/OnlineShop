@@ -147,18 +147,26 @@ namespace MahtaKala.Controllers
             }
 
             if (string.IsNullOrEmpty(vm.UserData.FirstName))
-            {
                 return Json(new { success = false, msg = "لطفا نام را وارد کنید" });
-            }
+            if (Util.IsAnyNumberInString(vm.UserData.FirstName))
+                return Json(new { success = false, msg = "لطفا برای نام از حروف استفاده نمایید" });
             if (string.IsNullOrEmpty(vm.UserData.LastName))
-            {
                 return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
+            if (Util.IsAnyNumberInString(vm.UserData.LastName))
+                return Json(new { success = false, msg = "لطفا برای نام خانوادگی از حروف استفاده نمایید" });
+            if (!string.IsNullOrEmpty(vm.UserData.EmailAddress))
+            {
+                if (!Util.IsValidEmailaddress(vm.UserData.EmailAddress))
+                    return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
+            }
+            if (!string.IsNullOrEmpty(vm.UserData.NationalCode))
+            {
+                string msg;
+                if (!Util.IsCheckNationalCode(vm.UserData.NationalCode, out msg))
+                    return Json(new { success = false, msg });
             }
 
-            if (!string.IsNullOrEmpty(vm.UserData.EmailAddress) && !Util.IsValidEmailaddress(vm.UserData.EmailAddress))
-            {
-                return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
-            }
+
             User user = db.Users.FirstOrDefault(a => a.Id == UserId);
             user.FirstName = vm.UserData.FirstName;
             user.EmailAddress = vm.UserData.EmailAddress;
