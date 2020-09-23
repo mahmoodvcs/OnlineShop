@@ -102,6 +102,10 @@ namespace MahtaKala.GeneralServices.Payment
                 tokenParams.UniqueId = uniqid;
                 tokenParams.WSContext = w;
                 var tokenResult = await ipgw.GenerateSignedDataTokenAsync(tokenParams);
+                if(tokenResult.@return.Result.ToLower() != "ersucceed")
+                {
+                    throw new Exception("Error recieving token: " + tokenResult.@return.Result);
+                }
                 return tokenResult.@return.Token;
 
             }
