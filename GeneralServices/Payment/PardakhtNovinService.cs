@@ -190,12 +190,12 @@ namespace MahtaKala.GeneralServices.Payment
 
         public async Task<string> Share(Entities.Payment payment, List<ScatteredSettlementDetails> items)
         {
-            var inqres = await Post(inqueiryAddress, @"[
-	{
-		""referenceNumber"":""026021451836""
+//            var inqres = await Post(inqueiryAddress, @"[
+//	{
+//		""referenceNumber"":""026021451836""
 
-    }
-]");
+//    }
+//]");
             //var rrn = "26021451836";
             SettlementRequest request = new SettlementRequest()
             {
