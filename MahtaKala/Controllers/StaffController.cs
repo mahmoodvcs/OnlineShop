@@ -645,17 +645,25 @@ namespace MahtaKala.Controllers
 
         #region Product
 
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public IActionResult ProductList()
         {
             ViewData["Title"] = "لیست کالا و خدمات";
             return View();
         }
 
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public async Task<IActionResult> Product_Read([DataSourceRequest] DataSourceRequest request, int? stateFilter, string nameFilter, string categoryFilter)
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
+        public async Task<IActionResult> Product_Read(
+            [DataSourceRequest] DataSourceRequest request,
+            int? stateFilter,
+            string nameFilter, 
+            string categoryFilter)
         {
             var query = db.Products.AsQueryable();
+            if (base.User.Type == UserType.Seller)
+            {
+                query = db.Products.Where(p=>p.SellerId == UserId).AsQueryable();
+            }
             //FlexTextFilter<Product>(query, p => p.Title, nameFilter);
             if (!string.IsNullOrEmpty(nameFilter))
             {
@@ -689,9 +697,23 @@ namespace MahtaKala.Controllers
         //}
 
         [HttpPost]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<JsonResult> Product_Destroy(long id)
         {
+            if (base.User.Type == UserType.Seller)
+            {
+                if(!db.Products.Any(p=>p.SellerId == UserId && p.Id == id))
+                {
+                    return Json(new { Success = false, Message = "محصول یافت نشد." });
+                }
+            }
+            else
+            {
+                if (!db.Products.Any(p => p.Id == id))
+                {
+                    return Json(new { Success = false, Message = "محصول یافت نشد." });
+                }
+            }
             if (db.OrderItems.Any(a => a.ProductPrice.ProductId == id))
             {
                 var prod = await db.Products.FindAsync(id);
@@ -725,17 +747,19 @@ namespace MahtaKala.Controllers
         }
 
         [HttpGet]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<IActionResult> Product(long? id)
         {
             ViewData["Title"] = "درج کالا و خدمات";
+            var userType = base.User.Type;
 
             Product p;
             if (id.HasValue)
             {
                 p = await db.Products.Include(a => a.Prices)
                     .Include(a => a.ProductCategories).ThenInclude(a => a.Category)
-                    .Where(a => a.Id == id).FirstOrDefaultAsync();
+                    .Where(a => a.Id == id && (userType != UserType.Seller || a.SellerId == UserId))
+                    .FirstOrDefaultAsync();
                 if (p == null)
                     throw new EntityNotFoundException<Product>(id.Value);
                 //productImageService.FixImageUrls(p);
@@ -762,7 +786,7 @@ namespace MahtaKala.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<IActionResult> Product(Product model)
         {
             ViewData["Title"] = "درج کالا و خدمات";
@@ -776,10 +800,14 @@ namespace MahtaKala.Controllers
                 }
                 else
                 {
+                    var userType = base.User.Type;
                     product = await db.Products
-                        .Include(a => a.ProductCategories).ThenInclude(a => a.Category)
+                        .Include(a => a.ProductCategories)
+                        .ThenInclude(a => a.Category)
                         .Include(p => p.Prices)//.Where(c=>c.Active))
-                        .FirstOrDefaultAsync(p => p.Id == model.Id);
+                        .FirstOrDefaultAsync(p => p.Id == model.Id && (userType != UserType.Seller || p.SellerId == UserId));
+                    if (product == null)
+                        throw new EntityNotFoundException<Product>(model.Id);
                 }
                 product.Properties = JsonConvert.DeserializeObject<IList<KeyValuePair<string, string>>>(Request.Form["Properties"]);
                 product.Title = model.Title;
@@ -929,7 +957,7 @@ namespace MahtaKala.Controllers
 
 
         [HttpPost]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<JsonResult> Product_Change_Category(ProductChangeCategoryModel model)
         {
             var products = await db.Products.Include(p=>p.ProductCategories).Where(p => model.ProductIds.Contains(p.Id)).ToListAsync();
