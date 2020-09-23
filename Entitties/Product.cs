@@ -55,6 +55,8 @@ namespace MahtaKala.Entities
         [Display(Name = "بازه ی زمانی اعمال محدودیت  خرید")]
         public int? BuyQuotaDays { get; set; }
 
+        public IList<ProductTag> Tags { get; set; }
+
         //public IList<ProductPaymentParty> PaymentParties { get; set; }
 
     }

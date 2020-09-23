@@ -298,7 +298,8 @@ namespace MahtaKala.Services
             {
                 Amount = order.TotalPrice,
                 Order = order,
-                State = PaymentState.Registerd
+                State = PaymentState.Registerd,
+                RegisterDate = DateTime.Now
             };
             db.Payments.Add(payment);
             await db.SaveChangesAsync();

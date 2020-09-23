@@ -43,13 +43,26 @@ namespace MahtaKala.Entities
                 .HasKey(bc => new { bc.ProductId, bc.CategoryId });
             modelBuilder.Entity<ProductCategory>()
                 .HasOne(pc => pc.Product)
-                .WithMany(p=>p.ProductCategories)
+                .WithMany(p => p.ProductCategories)
                 .HasForeignKey(bc => bc.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<ProductCategory>()
                 .HasOne(pc => pc.Category)
-                .WithMany(c=>c.ProductCategories)
+                .WithMany(c => c.ProductCategories)
                 .HasForeignKey(pc => pc.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProductTag>()
+                .HasKey(bc => new { bc.ProductId, bc.TagId});
+            modelBuilder.Entity<ProductTag>()
+                .HasOne(pc => pc.Product)
+                .WithMany(p => p.Tags)
+                .HasForeignKey(bc => bc.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<ProductTag>()
+                .HasOne(pc => pc.Tag)
+                .WithMany(c => c.ProductTags)
+                .HasForeignKey(pc => pc.TagId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<OrderItem>().HasOne(a => a.ProductPrice).WithMany(a => a.OrderItems).OnDelete(DeleteBehavior.Restrict);
@@ -81,6 +94,10 @@ namespace MahtaKala.Entities
         //public DbSet<PaymentParty> PaymentParties { get; set; }
         //public DbSet<ProductPaymentParty> ProductPaymentParties { get; set; }
         #endregion Share
+
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<ProductTag> ProductTags { get; set; }
+
 
 
         #region Get Titles
