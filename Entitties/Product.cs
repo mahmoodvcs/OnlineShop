@@ -33,6 +33,10 @@ namespace MahtaKala.Entities
         public long? SellerId { get; set; }
         public Seller Seller { get; set; }
 
+        [Display(Name ="کد محصول")]
+        [StringLength(200)]
+        public string Code { get; set; }
+
         public IList<ProductPrice> Prices { get; set; } = new List<ProductPrice>();
         public IList<ProductQuantity> Quantities { get; set; }
 

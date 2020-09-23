@@ -3,6 +3,7 @@
     ViewData["Title"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Layout.cshtml";
     long? id = (long?)ViewBag.groupId;
+    bool isShowAlert = (bool)ViewBag.IsShowAlert;
 }
 @if (id.HasValue)
 {
@@ -19,6 +20,12 @@
                     <div class="tab-content fix" id="ajax-show-list">
                         <partial name="_ProductList" />
                     </div>
+                    @if (isShowAlert)
+                    {
+                <div class="alert alert-warning">
+                    در حال حاضر در این دسته بندی کالایی موجود نمی باشد.
+                </div>
+                    }
                 </div>
             </div>
         </div>

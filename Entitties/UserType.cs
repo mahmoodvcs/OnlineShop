@@ -8,14 +8,14 @@ namespace MahtaKala.Entities
     public enum UserType
     {
         [Display(Name = "مشتری")]
-        Customer,
+        Customer = 0,
         [Display(Name = "ادمین")]
-        Admin,
-        [Display(Name = "")]
-        Staff,
+        Admin = 1,
+        [Display(Name = "کارمند")]
+        Staff = 2,
         [Display(Name = "فروشنده")]
-        Seller,
+        Seller = 3,
         [Display(Name = "پیک")]
-        Delivery
+        Delivery = 4
     }
 }

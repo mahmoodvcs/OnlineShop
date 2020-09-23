@@ -11,7 +11,7 @@
                 <input type="text" name="nameFilter" class="form-control additionalData" />
             </div>
             <div class="col-lg-3">
-                <label>دسته بندی:</label>
+                <label>دسته بندی پدر:</label>
                 <input type="text" name="categoryFilter" class="form-control additionalData" />
             </div>
             <div class="col-lg-3">
@@ -26,9 +26,12 @@
 
 @(Html.Kendo().Grid<MahtaKala.Entities.Models.ProductListModel>().Name("grid").Columns(columns =>
 {
+    columns.Select().Width(50);
     columns.Bound(p => p.Id).Title("شناسه");
     columns.Bound(p => p.Title).Title("عنوان");
     columns.Bound(p => p.Categories).Title("دسته بندی").Filterable(false).Sortable(false);
+    columns.Bound(p => p.Seller).Title("فروشنده");
+    columns.Bound(p => p.Code).Title("کد محصول");
     columns.Bound(p => p.Price).Title("قیمت");
     columns.Bound(p => p.Status).Title("وضعیت").Filterable(false);
     columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#").Title("منتشر شده");
@@ -47,6 +50,9 @@
         .ButtonCount(5))
     .Filterable()
     .Sortable()
+    .Selectable(c=>c.Mode(GridSelectionMode.Multiple))
+    .Events(ev => ev.Change("onChange"))
+    .PersistSelection()
     .DataSource(dataSource => dataSource
         .Ajax()
         .PageSize(50)
@@ -65,10 +71,16 @@
             <span class="k-icon k-i-add"></span>
             جدید
         </a>
+        <a href="##" onclick="groupAction()" class="k-pager-refresh k-link k-button">
+            <span class="k-icon k-i-group"></span>
+            عملیات گروهی
+        </a>
     </div>
 </script>
 @section js{
     <script type="text/javascript">
+
+        var selectedRows = null;
 
         function EditQuestion(e) {
             e.preventDefault();
@@ -129,6 +141,98 @@
                         });
                     }
                 });
+        }
+
+        function onChange(arg) {
+            selectedRows = this.selectedKeyNames();
+        }
+
+        function groupAction() {
+            window.event.preventDefault();
+            if (selectedRows == null || selectedRows.length == 0) {
+                swal.fire("حداقل یک سطر را انتخاب کنید.", "", "warning");
+                return false;
+            }
+            Swal.fire({
+                title: 'انتخاب عملیات گروهی',
+                input: 'select',
+                inputOptions: {
+                    'categoryMove': 'انتقال به دسته'
+                },
+                inputPlaceholder: 'انتخاب کنید',
+                showCancelButton: true,
+                confirmButtonText: "تایید",
+                cancelButtonText: "لغو",
+                inputValidator: (value) => {
+                    return new Promise((resolve) => {
+                        if (value == '') {
+                            resolve('یک گزینه را انتخاب کنید.')
+                        } else {
+                            resolve()
+                        }
+                    })
+                }
+            }).then(function (result) {
+                if (result.value) {
+                    if (result.value === 'categoryMove') {
+                        $.get('@Url.Content("~/Staff/Categories_List/")', function (data, status) {
+                            console.log(data);
+                            var categories = {}
+                            for (var i = 0; i < data.length; i++) {
+                                categories[data[i].Id] = data[i].Title;
+                            }
+
+                            Swal.fire({
+                                title: 'انتخاب دسته',
+                                input: 'select',
+                                inputOptions: {
+                                    categories
+                                },
+                                inputPlaceholder: 'انتخاب کنید',
+                                showCancelButton: true,
+                                confirmButtonText: "تایید",
+                                cancelButtonText: "لغو",
+                                inputValidator: (value) => {
+                                    return new Promise((resolve) => {
+                                        if (value == '') {
+                                            resolve('یک گزینه را انتخاب کنید.')
+                                        } else {
+                                            resolve()
+                                        }
+                                    })
+                                }
+                            }).then(function (result) {
+                                if (result.value) {
+                                    let model = {
+                                        ProductIds: selectedRows,
+                                        CategoryId: result.value
+                                    };
+                                    $.ajax({
+                                        url: '@Url.Content("~/Staff/Product_Change_Category/")',
+                                        type: "POST",
+                                        data: model,
+                                        contentType: 'application/x-www-form-urlencoded',
+                                        success: function (data) {
+
+                                            if (data.success) {
+                                                var grid = $("#grid").data("kendoGrid");
+                                                grid.dataSource.read();
+                                                swal.fire("عملیات با موفقیت انجام شد", "", "success");
+                                            }
+                                            else {
+                                                swal.fire(data.message, "", "warning");
+                                            }
+                                        },
+                                        error: function (xhr) {
+                                            swal.fire("خطایی  اتفاق افتاده است", "", "warning");
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    }
+                }
+            });
         }
     </script>
 }

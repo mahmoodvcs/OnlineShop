@@ -17,7 +17,7 @@ namespace MahtaKala.Services
 {
     public class OrderService
     {
-        public const int DeliveryPrice = 100000;
+        public const int DeliveryPrice = 120000;
 
         private readonly ICurrentUserService currentUserService;
         private readonly DataContext db;
