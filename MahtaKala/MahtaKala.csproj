@@ -47,6 +47,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
     <PackageReference Include="MvcPagedList.Core" Version="1.1.1" />
+    <PackageReference Include="P.Pager.Mvc.Core" Version="3.0.0" />
     <PackageReference Include="Serilog" Version="2.9.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
@@ -65,15 +66,20 @@
   <ItemGroup>
     <!-- Don't publish the SPA source files, but do show them in the project files list -->
     <Content Remove="$(SpaRoot)**" />
+    <Content Remove="img\**" />
     <Content Remove="Logs\**" />
     <None Remove="$(SpaRoot)**" />
+    <None Remove="img\**" />
     <None Remove="Logs\**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="img\**" />
     <Compile Remove="Logs\**" />
+    <EmbeddedResource Remove="img\**" />
     <EmbeddedResource Remove="Logs\**" />
+    <TypeScriptCompile Remove="img\**" />
     <TypeScriptCompile Remove="Logs\**" />
   </ItemGroup>
 

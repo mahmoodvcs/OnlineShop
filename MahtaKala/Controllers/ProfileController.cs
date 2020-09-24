@@ -95,17 +95,24 @@ namespace MahtaKala.Controllers
         public async Task<IActionResult> ProfileEdit(UserDataVM vm)
         {
             if (string.IsNullOrEmpty(vm.FirstName))
-            {
                 return Json(new { success = false, msg = "لطفا نام را وارد کنید" });
-            }
+            if (Util.IsAnyNumberInString(vm.FirstName))
+                return Json(new { success = false, msg = "لطفا برای نام از حروف استفاده نمایید" });
             if (string.IsNullOrEmpty(vm.LastName))
-            {
                 return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
-            }
+            if (Util.IsAnyNumberInString(vm.LastName))
+                return Json(new { success = false, msg = "لطفا برای نام خانوادگی از حروف استفاده نمایید" });
             if (!string.IsNullOrEmpty(vm.EmailAddress))
             {
                 if (!Util.IsValidEmailaddress(vm.EmailAddress))
                     return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
+            }
+
+            if (!string.IsNullOrEmpty(vm.NationalCode))
+            {
+                string msg;
+                if (!Util.IsCheckNationalCode(vm.NationalCode,out msg))
+                    return Json(new { success = false,  msg });
             }
 
             User user = await db.Users.FirstOrDefaultAsync(a => a.Id == UserId);
