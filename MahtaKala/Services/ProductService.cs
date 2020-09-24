@@ -16,7 +16,13 @@ namespace MahtaKala.Services
         }
         public IQueryable<Product> ProductsView()
         {
-            return db.Products.Where(a => a.Published).OrderBy(a => (int)a.Status);
+            return from product in db.Products.Where(a => a.Published)
+                   join pt in db.ProductTags on product.Id equals pt.ProductId into prodTags
+                   from pt in prodTags.DefaultIfEmpty()
+                   join tag in db.Tags on pt.TagId equals tag.Id into tags
+                   from tag in tags.DefaultIfEmpty()
+                   orderby product.Status, tag.Order, product.Prices.FirstOrDefault().DiscountPrice
+                   select product;
         }
 
     }
