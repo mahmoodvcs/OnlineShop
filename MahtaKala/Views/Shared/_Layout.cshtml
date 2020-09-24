@@ -81,8 +81,8 @@
             <div class="header-bottom  header-sticky">
                 <div class="container">
                     <div class="row align-items-center">
-                        <div class="col-xl-3 col-lg-4 col-md-6 vertical-menu d-none d-lg-block">
-                            <span class="categorie-title">همه دسته بندی ها </span>
+                        <div class="col-xl-3 col-lg-4 col-md-6 vertical-menu d-none d-lg-block" id="menulist">
+                            <span class="categorie-title" id="menulist">همه دسته بندی ها </span>
                         </div>
                         <div class="col-xl-9 col-lg-8 col-md-12 ">
                             <nav class="d-none d-lg-block">
@@ -121,7 +121,7 @@
             @await Component.InvokeAsync("CategoriesMobile")
         </header>
         @if (!(ViewContext.RouteData.Values["controller"].ToString().ToLower() == "home"
-       && ViewContext.RouteData.Values["action"].ToString().ToLower() == "index"))
+     && ViewContext.RouteData.Values["action"].ToString().ToLower() == "index"))
         {
             <div class="main-page-banner home-3">
                 <div class="container">
@@ -130,6 +130,14 @@
                     </div>
                 </div>
             </div>
+            <script>
+                $(document).on("click", function (e) {
+                    alert(e.target.id);
+                    if (e.target.id !== "menulist") {
+                        $("#ulmenulist").hide();
+                    }  
+                });
+            </script>
         }
 
 
