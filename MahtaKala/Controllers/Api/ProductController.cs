@@ -200,7 +200,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<ProductModel> Product(long id)
         {
-            var data = await db.Products
+            var data = await productService.ProductsView()
                 .Where(a => a.Id == id)
                 .Select(a => new ProductModel
                 {
