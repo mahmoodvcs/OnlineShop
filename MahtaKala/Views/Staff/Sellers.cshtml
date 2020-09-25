@@ -12,7 +12,8 @@
         columns.Bound(p => p.Name);
         columns.Bound(p => p.AccountNumber);
         //columns.Bound(p => p.UserId).EditorTemplateName("User");
-        columns.Bound(p => p.User).ClientTemplate("#=User.Username#").EditorTemplateName("UserClient");
+        columns.Bound(p => p.User).ClientTemplate("#= User ? User.Username : '' #").EditorTemplateName("User");
+        columns.Bound(p => p.Basket);
         //columns.Bound(p => p.User).ClientTemplate("#=User.Username#");
         //columns.ForeignKey(p=>p.UserId, (System.Collections.IEnumerable)ViewData["users"], "Id", "Username");
         columns.Command(command => {

@@ -20,8 +20,15 @@ namespace MahtaKala.Entities
         [StringLength(50)]
         public string AccountBankName { get; set; }
 
+
+        [Display(Name = "کاربر")]
         public User User { get; set; }
+        [Display(Name = "کاربر")]
         public long? UserId { get; set; }
+
+        [Display(Name = "نام سبد")]
+        [StringLength(100)]
+        public string Basket { get; set; }
 
     }
 }

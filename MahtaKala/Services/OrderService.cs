@@ -130,7 +130,7 @@ namespace MahtaKala.Services
                     throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_NotAvailable);
 
                 var priceIds = cart.Select(a => a.ProductPriceId);
-                if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.SellerId != info.SellerId).Any())
+                if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.Seller.Basket != info.Basket).Any())
                     throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_DefferentSeller);
 
 
@@ -164,6 +164,7 @@ namespace MahtaKala.Services
                     .Select(a => new ProductInfo
                     {
                         SellerId = a.Product.SellerId,
+                        Basket = a.Product.Seller.Basket,
                         Status = a.Product.Status,
                         MinBuyQuota = a.Product.MinBuyQuota,
                         MaxBuyQuota = a.Product.MaxBuyQuota,
@@ -181,7 +182,8 @@ namespace MahtaKala.Services
                     MaxBuyQuota = cartItem.ProductPrice.Product.MaxBuyQuota,
                     MinBuyQuota = cartItem.ProductPrice.Product.MinBuyQuota,
                     Status = cartItem.ProductPrice.Product.Status,
-                    Title = cartItem.ProductPrice.Product.Title
+                    Title = cartItem.ProductPrice.Product.Title,
+                    Basket = await db.Sellers.Where(a=>a.Id == cartItem.ProductPrice.Product.SellerId).Select(a=>a.Basket).FirstOrDefaultAsync()
                 };
             }
 
@@ -329,6 +331,7 @@ namespace MahtaKala.Services
     internal class ProductInfo
     {
         public long? SellerId { get; set; }
+        public string Basket { get; set; }
         public ProductStatus Status { get; set; }
         public int? MinBuyQuota { get; set; }
         public int? MaxBuyQuota { get; set; }

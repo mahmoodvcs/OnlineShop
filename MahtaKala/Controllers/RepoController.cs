@@ -52,7 +52,7 @@ namespace MahtaKala.Controllers
         {
             return KendoJson(db.Users.Where(u => u.Type == UserType.Seller).Select(u => new
             {
-                Name = u.FirstName + " " + u.LastName + " (" + u.Username + ")",
+                Name = u.Username,
                 Id = u.Id
             }).ToDataSourceResult(req));
         }

@@ -1120,7 +1120,7 @@ namespace MahtaKala.Controllers
 
         public async Task<ActionResult> UpdateSeller(Seller seller)
         {
-            seller.UserId = seller.User.Id;
+            seller.UserId = seller.User?.Id;
             seller.User = null;
             if (seller.Id > 0)
             {
@@ -1128,6 +1128,8 @@ namespace MahtaKala.Controllers
                 dbSeller.Name = seller.Name;
                 dbSeller.UserId = seller.UserId;
                 dbSeller.AccountBankName = seller.AccountBankName;
+                dbSeller.AccountNumber = seller.AccountNumber;
+                dbSeller.Basket = seller.Basket;
             }
             else
             {
