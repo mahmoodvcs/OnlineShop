@@ -232,6 +232,7 @@ namespace MahtaKala.Services
 
         public async Task<Order> Checkout(long addressId)
         {
+            throw new InvalidOperationException("در حال حاظر امکان پرداخت وجود ندارد.");
             if (User == null)
                 throw new InvalidOperationException("User is not logged in.");
 
