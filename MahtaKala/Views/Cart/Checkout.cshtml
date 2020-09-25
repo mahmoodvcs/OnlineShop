@@ -154,7 +154,7 @@ new
                             </table>
                         </div>
                         <div class="payment-method">
-                            <input value="پرداخت" class="return-customer-btn" style="width:100% !important" type="submit">
+                            <input value="پرداخت" class="return-customer-btn" style="width:100% !important" type="submit" onclick="stopCheckout()">
                         </div>
                     </div>
                 </div>
@@ -162,3 +162,27 @@ new
         </div>
     }
 </div>
+<script>
+    function stopCheckout() {
+        window.event.preventDefault();
+        Command: toastr["error"]("در حال حاظر امکان پرداخت وجود ندارد", "خطای پرداخت")
+
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "5000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
+    }
+</script>
