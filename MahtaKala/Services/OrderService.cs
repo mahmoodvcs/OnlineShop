@@ -222,11 +222,18 @@ namespace MahtaKala.Services
 
         public async Task MigrateAnonymousUserShoppingCart(long userId)
         {
-            var cartItems = db.ShoppingCarts.Where(a => a.SessionId == currentUserService.AnonymousSessionId).ToList();
+            var cartItems = await db.ShoppingCarts.Where(a => a.SessionId == currentUserService.AnonymousSessionId || a.UserId == userId ).ToListAsync();
             foreach (var item in cartItems)
             {
                 item.SessionId = null;
                 item.UserId = userId;
+            }
+
+            var duplicates = cartItems.GroupBy(a => a.ProductPriceId).Where(a=>a.Count()>1).ToList();
+            foreach(var d in duplicates)
+            {
+                d.First().Count += d.ElementAt(1).Count;
+                db.ShoppingCarts.Remove(d.ElementAt(1));
             }
             await db.SaveChangesAsync();
             currentUserService.RemoveCartCookie();
