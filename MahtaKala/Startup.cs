@@ -38,7 +38,12 @@ namespace MahtaKala
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
+            //services.AddCors();
+            //services.AddCors(options => options.AddPolicy(name: "AllowAll",
+            //                  builder =>
+            //                  {
+            //                      builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            //                  }));
 
             services.AddControllersWithViews();
 
@@ -149,8 +154,10 @@ namespace MahtaKala
             //}
 
             //app.UseSimpleCaptcha(Configuration.GetSection("BotDetect"));
-            app.UseCors();
             app.UseRouting();
+            
+            app.UseCorsMiddleware();
+
             app.UseResponseCaching();
             app.UseAuthorization();
             app.UseMiddleware<JwtMiddleware>();
