@@ -18,10 +18,7 @@ namespace MahtaKala.Infrustructure
 
         public async Task Invoke(HttpContext httpContext)
         {
-            httpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-            httpContext.Response.Headers.Add("Access-Control-Allow-Credentials", "false");
-            httpContext.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Date, X-Api-Version, X-File-Name");
-            httpContext.Response.Headers.Add("Access-Control-Allow-Methods", "POST,GET,PUT,PATCH,DELETE,OPTIONS");
+            AddCorsResponseHeaders(httpContext);
             if(httpContext.Request.Method.ToUpper() == "OPTIONS")
             {
                 httpContext.Response.StatusCode = 200;
@@ -30,6 +27,55 @@ namespace MahtaKala.Infrustructure
             await _next(httpContext);
             return;
         }
+
+        const string OPTIONS = "OPTIONS";
+        const string PUT = "PUT";
+        const string POST = "POST";
+        const string PATCH = "PATCH";
+        static string[] AllowedVerbs = new[] { OPTIONS, PUT, POST, PATCH, "GET", "DELETE" };
+        const string Origin = "Origin";
+        const string AccessControlRequestMethod = "Access-Control-Request-Method";
+        const string AccessControlRequestHeaders = "Access-Control-Request-Headers";
+        const string AccessControlAllowOrigin = "Access-Control-Allow-Origin";
+        const string AccessControlAllowMethods = "Access-Control-Allow-Methods";
+        const string AccessControlAllowHeaders = "Access-Control-Allow-Headers";
+        const string AccessControlAllowCredentials = "Access-Control-Allow-Credentials";
+        const string AccessControlMaxAge = "Access-Control-Max-Age";
+        const string MaxAge = "86400";
+
+
+        public static void AddCorsResponseHeaders(HttpContext context)
+        {
+            if (Array.Exists(AllowedVerbs, av => string.Compare(context.Request.Method, av, true) == 0))
+            {
+                var request = context.Request;
+                var response = context.Response;
+                var originArray = request.Headers[Origin];
+                var accessControlRequestMethodArray = request.Headers[AccessControlRequestMethod];
+                var accessControlRequestHeadersArray = request.Headers[AccessControlRequestHeaders];
+                if (originArray.Count > 0)
+                    response.Headers.Add(AccessControlAllowOrigin, originArray[0]);
+                response.Headers.Add(AccessControlAllowCredentials, bool.TrueString.ToLower());
+
+                if (accessControlRequestMethodArray.Count > 0)
+                {
+                    string accessControlRequestMethod = accessControlRequestMethodArray[0];
+                    if (!string.IsNullOrEmpty(accessControlRequestMethod))
+                    {
+                        response.Headers.Add(AccessControlAllowMethods, accessControlRequestMethod);
+                    }
+                }
+                if (accessControlRequestHeadersArray.Count > 0)
+                {
+                    string requestedHeaders = string.Join(", ", accessControlRequestHeadersArray);
+                    if (!string.IsNullOrEmpty(requestedHeaders))
+                    {
+                        response.Headers.Add(AccessControlAllowHeaders, requestedHeaders);
+                    }
+                }
+            }
+        }
+
     }
 
     // Extension method used to add the middleware to the HTTP request pipeline.
