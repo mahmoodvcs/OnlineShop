@@ -753,31 +753,28 @@ namespace MahtaKala.Controllers
             ViewData["Title"] = "درج کالا و خدمات";
             var userType = base.User.Type;
 
-            Product p;
+            EditProductModel p;
             if (id.HasValue)
             {
-                p = await db.Products.Include(a => a.Prices)
+                var pr = await db.Products.Include(a => a.Prices)
                     .Include(a => a.ProductCategories).ThenInclude(a => a.Category)
                     .Where(a => a.Id == id && (userType != UserType.Seller || a.SellerId == UserId))
                     .FirstOrDefaultAsync();
-                if (p == null)
+                if (pr == null)
                     throw new EntityNotFoundException<Product>(id.Value);
                 //productImageService.FixImageUrls(p);
-                var productPrices = db.ProductPrices.FirstOrDefault(a => a.ProductId == id);
-                if (productPrices != null)
-                {
-                    p.DiscountPrice = productPrices.DiscountPrice;
-                    p.Price = productPrices.Price;
-                }
+                p = new EditProductModel(pr);
+                //var productPrices = db.ProductPrices.FirstOrDefault(a => a.ProductId == id);
+                //if (productPrices != null)
+                //{
+                //    p.DiscountPrice = productPrices.DiscountPrice;
+                //    p.Price = productPrices.Price;
+                //}
                 p.Thubmnail = productImageService.GetImageUrl(p.Id, p.Thubmnail);
             }
             else
             {
-                p = new Product()
-                {
-                    Characteristics = new List<Characteristic>(),
-                    ProductCategories = new List<ProductCategory>()
-                };
+                p = new EditProductModel();
             }
             ViewBag.ImagePathFormat = productImageService.GetImagePathFormatString(p.Id);
             ViewBag.IsPostback = false;
@@ -787,7 +784,7 @@ namespace MahtaKala.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
-        public async Task<IActionResult> Product(Product model)
+        public async Task<IActionResult> Product(EditProductModel model)
         {
             ViewData["Title"] = "درج کالا و خدمات";
             if (ModelState.IsValid)
