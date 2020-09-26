@@ -211,6 +211,7 @@ $(document).on("click", ".compare-to", function (e) {
     $('.hot-deal-active').owlCarousel({
         rtl: true,
         loop: false,
+        lazyLoad: true,
         nav: true,
         dots: false,
         smartSpeed: 1500,
@@ -239,6 +240,7 @@ $(document).on("click", ".compare-to", function (e) {
     $('.hot-deal-active3').owlCarousel({
         rtl: true,
         loop: false,
+        lazyLoad: true,
         nav: true,
         dots: false,
         smartSpeed: 1500,
@@ -271,6 +273,7 @@ $(document).on("click", ".compare-to", function (e) {
     $('.brand-banner').owlCarousel({
         rtl: true,
         loop: true,
+        lazyLoad: true,
         nav: true,
         autoplay: true,
         dots: false,
@@ -297,6 +300,7 @@ $(document).on("click", ".compare-to", function (e) {
     $('.brand-banner-sidebar').owlCarousel({
         rtl: true,
         loop: true,
+        lazyLoad: true,
         nav: false,
         autoplay: true,
         dots: false,
@@ -332,6 +336,7 @@ $(document).on("click", ".compare-to", function (e) {
         }).owlCarousel({
             loop: false,
             nav: true,
+            lazyLoad: true,
             dots: false,
             smartSpeed: 1000,
             navText: ["<i class='lnr lnr-arrow-left'></i>", "<i class='lnr lnr-arrow-right'></i>"],
@@ -362,6 +367,7 @@ $(document).on("click", ".compare-to", function (e) {
         }).owlCarousel({
             loop: false,
             nav: true,
+            lazyLoad: true,
             dots: false,
             smartSpeed: 1000,
             navText: ["<i class='lnr lnr-arrow-left'></i>", "<i class='lnr lnr-arrow-right'></i>"],
@@ -390,6 +396,7 @@ $(document).on("click", ".compare-to", function (e) {
     $('.best-seller-pro-active').owlCarousel({
         rtl: true,
         loop: false,
+        lazyLoad: true,
         nav: true,
         dots: false,
         smartSpeed: 1500,
@@ -418,6 +425,7 @@ $(document).on("click", ".compare-to", function (e) {
     $('.trending-pro-active').owlCarousel({
         loop: false,
         nav: false,
+        lazyLoad: true,
         dots: true,
         smartSpeed: 1500,
         navText: ["<i class='lnr lnr-arrow-left'></i>", "<i class='lnr lnr-arrow-right'></i>"],
@@ -449,6 +457,7 @@ $(document).on("click", ".compare-to", function (e) {
     $('.like-pro-active').owlCarousel({
         loop: false,
         nav: false,
+        lazyLoad: true,
         dots: true,
         smartSpeed: 1500,
         navText: ["<i class='lnr lnr-arrow-left'></i>", "<i class='lnr lnr-arrow-right'></i>"],
@@ -484,6 +493,7 @@ $(document).on("click", ".compare-to", function (e) {
     }).owlCarousel({
         loop: false,
         nav: true,
+        lazyLoad: true,
         dots: false,
         smartSpeed: 1500,
         navText: ["<i class='lnr lnr-arrow-left'></i>", "<i class='lnr lnr-arrow-right'></i>"],
@@ -512,6 +522,7 @@ $(document).on("click", ".compare-to", function (e) {
     $('.side-product-active').owlCarousel({
         loop: false,
         nav: false,
+        lazyLoad: true,
         dots: false,
         smartSpeed: 1500,
         navText: ["<i class='lnr lnr-arrow-left'></i>", "<i class='lnr lnr-arrow-right'></i>"],
@@ -540,6 +551,7 @@ $(document).on("click", ".compare-to", function (e) {
     $('.latest-blog-active').owlCarousel({
         loop: false,
         nav: false,
+        lazyLoad: true,
         dots: true,
         smartSpeed: 1500,
         navText: ["<i class='lnr lnr-arrow-left'></i>", "<i class='lnr lnr-arrow-right'></i>"],
@@ -572,6 +584,7 @@ $(document).on("click", ".compare-to", function (e) {
         loop: false,
         navText: ["<i class='lnr lnr-arrow-left'></i>", "<i class='lnr lnr-arrow-right'></i>"],
         margin: 15,
+        lazyLoad: true,
         smartSpeed: 1000,
         nav: true,
         dots: false,
