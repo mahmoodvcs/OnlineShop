@@ -66,6 +66,8 @@ namespace MahtaKala.Entities
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<OrderItem>().HasOne(a => a.ProductPrice).WithMany(a => a.OrderItems).OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProductPaymentParty>().HasKey("ProductId", "PaymentPartyId");
         }
 
         protected virtual bool UseCaching => true;
@@ -91,8 +93,8 @@ namespace MahtaKala.Entities
         public DbSet<Seller> Sellers { get; set; }
 
         #region Share
-        //public DbSet<PaymentParty> PaymentParties { get; set; }
-        //public DbSet<ProductPaymentParty> ProductPaymentParties { get; set; }
+        public DbSet<PaymentParty> PaymentParties { get; set; }
+        public DbSet<ProductPaymentParty> ProductPaymentParties { get; set; }
         #endregion Share
 
         public DbSet<Tag> Tags { get; set; }
