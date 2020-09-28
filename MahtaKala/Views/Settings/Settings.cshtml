@@ -1,55 +1,57 @@
 ﻿@model List<SettingModel>
 @{
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ViewBag.Title = "تنظیمات سیستم";
 }
+<div class="main-shop-page pt-30 pb-100 ptb-sm-60">
+    <div class="container">
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3>تنظیمات سیستم</h3>
-    </div>
-    <div class="panel-body">
+        <div class="card">
+            <div class="card-header">
+                تنظیمات سیستم
+            </div>
+            <div class="card-body">
 
-        <form class="form-horizontal" method="post">
+                <form class="form-horizontal" method="post">
 
-            @foreach (var s in Model)
-            {
-                <div class="form-group">
-                    <label class="col-md-4 control-label" for="@s.Name">@s.Title</label>
-                    <div class="col-md-4 controls">
-                        @switch (s.Type)
-                        {
-                            case System.ComponentModel.DataAnnotations.DataType.Text:
-                                <input id="@s.Name" name="@s.Name" type="text"
-                                       placeholder="@s.Title" class="form-control input-md"
-                                       value="@s.Value" />
-                                break;
-                            case System.ComponentModel.DataAnnotations.DataType.MultilineText:
-                                <textarea id="@s.Name" name="@s.Name"
-                                          placeholder="@s.Title" class="form-control">
+                    @foreach (var s in Model)
+                    {
+                        <div class="form-group">
+                            <label class="col-md-4 control-label" for="@s.Name">@s.Title</label>
+                            <div class="col-md-4 controls">
+                                @switch (s.Type)
+                                {
+                                    case System.ComponentModel.DataAnnotations.DataType.Text:
+                                        <input id="@s.Name" name="@s.Name" type="text"
+                                               placeholder="@s.Title" class="form-control input-md"
+                                               value="@s.Value" />
+                                        break;
+                                    case System.ComponentModel.DataAnnotations.DataType.MultilineText:
+                                        <textarea id="@s.Name" name="@s.Name"
+                                                  placeholder="@s.Title" class="form-control">
                                 @s.Value
                             </textarea>
-                                break;
-                        }
+                                        break;
+                                }
 
 
+                            </div>
+                        </div>
+                    }
+
+                    <br />
+
+                    <br />
+                    <div class="form-group">
+                        <div class="col-xs-6 col-md-2">
+                            <button type="submit" class="btn btn-success btn-block">ذخیره</button>
+                        </div>
                     </div>
-                </div>
-            }
 
-            <br />
+                </form>
 
-            <br />
-            <div class="form-group">
-                <div class="col-xs-6 col-md-2">
-                    <button type="submit" class="btn btn-success btn-block">ذخیره</button>
-                </div>
             </div>
-
-        </form>
-
+        </div>
     </div>
 </div>
 
-<br />
-<br />
-<br />
