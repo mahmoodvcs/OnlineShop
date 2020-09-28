@@ -865,13 +865,16 @@ namespace MahtaKala.Controllers
                     }
                 }
                 product.Tags.Clear();
-                foreach (var tid in model.TagIds)
+                if (model.TagIds != null)
                 {
-                    product.Tags.Add(new ProductTag()
+                    foreach (var tid in model.TagIds)
                     {
-                        Product = product,
-                        TagId = tid
-                    });
+                        product.Tags.Add(new ProductTag()
+                        {
+                            Product = product,
+                            TagId = tid
+                        });
+                    }
                 }
 
                 await db.SaveChangesAsync();
