@@ -72,7 +72,8 @@ namespace MahtaKala.Entities
 
         protected virtual bool UseCaching => true;
 
-        public DbSet<User> Users{ get; set; }
+        public DbSet<DynamicSetting> DynamicSettings { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<UserActivationCode> UserActivationCodes { get; set; }
         public DbSet<Category> Categories { get; set; }

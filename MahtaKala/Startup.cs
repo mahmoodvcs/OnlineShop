@@ -125,6 +125,7 @@ namespace MahtaKala
             services.AddScoped<CategoryService>();
             services.AddScoped<ImportService>();
             services.AddKendo();
+            services.AddScoped<SettingsService>();
 
 
             services.AddEFSecondLevelCache();
