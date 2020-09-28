@@ -1,0 +1,62 @@
+﻿@using Kendo.Mvc.UI
+@{
+    ViewData["Title"] = "تگ ها";
+    Layout = "~/Views/Shared/_Staff.cshtml";
+}
+
+
+@(Html.Kendo().Grid<MahtaKala.Entities.Tag>()
+    .Name("Grid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Name);
+        columns.Bound(p => p.Order);
+        columns.Command(command => {
+            command.Edit().Text("ویرایش");
+            command.Destroy().Text("حذف");
+        }).Width(200);
+    })
+    .ToolBar(toolbar =>
+    {
+        toolbar.Create().Text("جدید");
+    })
+    .HtmlAttributes(new { style = "height: 550px;" })
+    .Scrollable()
+    .Sortable()
+    .Filterable()
+    .Editable(GridEditMode.InLine)
+    .Pageable(pageable => pageable
+        .Refresh(true)
+        .PageSizes(true)
+        .PageSizes(new int[] { 5, 10, 20, 50 })
+        .ButtonCount(5)
+    ).DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+        })
+        .Read(read => read.Action("GetAllTags", "Staff"))
+        .Update(up => up.Action("UpdateTag", "Staff"))
+        .Destroy(de => de.Action("RemoveTag", "Staff"))
+        .Create(de => de.Action("UpdateTag", "Staff"))
+        .PageSize(20)
+    )
+)
+
+<script type="text/javascript">
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+</script>

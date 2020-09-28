@@ -40,10 +40,13 @@ namespace MahtaKala.Models.ProductModels
             MaxBuyQuota = p.MaxBuyQuota;
             BuyQuotaDays = p.BuyQuotaDays;
             Tags = p.Tags;
+            if (Tags != null)
+                TagIds = Tags.Select(a => a.TagId).ToList();
         }
 
         public new decimal Price { get; set; }
         public decimal DiscountPrice { get; set; }
 
+        public List<long> TagIds { get; set; }
     }
 }

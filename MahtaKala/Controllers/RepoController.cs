@@ -7,6 +7,7 @@ using Kendo.Mvc.UI;
 using MahtaKala.Entities;
 using MahtaKala.Infrustructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MahtaKala.Controllers
@@ -63,6 +64,16 @@ namespace MahtaKala.Controllers
                 u.Id,
                 u.Name
             }).ToList());
+        }
+
+        public async Task<IActionResult> Tags(string text)
+        {
+            var tags = db.Tags.AsQueryable();
+            if (!string.IsNullOrEmpty(text))
+            {
+                tags = tags.Where(a => a.Name.Contains(text));
+            }
+            return KendoJson(await tags.ToListAsync());
         }
     }
 }

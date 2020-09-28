@@ -656,13 +656,13 @@ namespace MahtaKala.Controllers
         public async Task<IActionResult> Product_Read(
             [DataSourceRequest] DataSourceRequest request,
             int? stateFilter,
-            string nameFilter, 
+            string nameFilter,
             string categoryFilter)
         {
             var query = db.Products.AsQueryable();
             if (base.User.Type == UserType.Seller)
             {
-                query = db.Products.Where(p=>p.SellerId == UserId).AsQueryable();
+                query = db.Products.Where(p => p.SellerId == UserId).AsQueryable();
             }
             //FlexTextFilter<Product>(query, p => p.Title, nameFilter);
             if (!string.IsNullOrEmpty(nameFilter))
@@ -702,7 +702,7 @@ namespace MahtaKala.Controllers
         {
             if (base.User.Type == UserType.Seller)
             {
-                if(!db.Products.Any(p=>p.SellerId == UserId && p.Id == id))
+                if (!db.Products.Any(p => p.SellerId == UserId && p.Id == id))
                 {
                     return Json(new { Success = false, Message = "محصول یافت نشد." });
                 }
@@ -758,6 +758,7 @@ namespace MahtaKala.Controllers
             {
                 var pr = await db.Products.Include(a => a.Prices)
                     .Include(a => a.ProductCategories).ThenInclude(a => a.Category)
+                    .Include(p => p.Tags)
                     .Where(a => a.Id == id && (userType != UserType.Seller || a.SellerId == UserId))
                     .FirstOrDefaultAsync();
                 if (pr == null)
@@ -802,6 +803,7 @@ namespace MahtaKala.Controllers
                         .Include(a => a.ProductCategories)
                         .ThenInclude(a => a.Category)
                         .Include(p => p.Prices)//.Where(c=>c.Active))
+                        .Include(p => p.Tags)
                         .FirstOrDefaultAsync(p => p.Id == model.Id && (userType != UserType.Seller || p.SellerId == UserId));
                     if (product == null)
                         throw new EntityNotFoundException<Product>(model.Id);
@@ -852,13 +854,22 @@ namespace MahtaKala.Controllers
                         return View(product);
                     }
                 }
+                product.Tags.Clear();
+                foreach (var tid in model.TagIds)
+                {
+                    product.Tags.Add(new ProductTag()
+                    {
+                        Product = product,
+                        TagId = tid
+                    });
+                }
 
                 await db.SaveChangesAsync();
                 ViewBag.IsPostback = true;
                 ViewBag.ImagePathFormat = productImageService.GetImagePathFormatString(product.Id);
                 product.Thubmnail = productImageService.GetImageUrl(product.Id, product.Thubmnail);
                 //productImageService.FixImageUrls(product);
-                return View(product);
+                return View(model);
             }
             return View(model);
         }
@@ -957,17 +968,17 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<JsonResult> Product_Change_Category(ProductChangeCategoryModel model)
         {
-            var products = await db.Products.Include(p=>p.ProductCategories).Where(p => model.ProductIds.Contains(p.Id)).ToListAsync();
-            if(products.Count == 0)
+            var products = await db.Products.Include(p => p.ProductCategories).Where(p => model.ProductIds.Contains(p.Id)).ToListAsync();
+            if (products.Count == 0)
             {
                 return Json(new { Success = false, Message = "هیچ محصولی یافت نشد." });
             }
             var category = await db.Categories.Where(c => c.Id == model.CategoryId).FirstOrDefaultAsync();
-            if(category == null)
+            if (category == null)
             {
                 return Json(new { Success = false, Message = "دسته بندی مورد نظر یافت نشد." });
             }
-            foreach(var product in products)
+            foreach (var product in products)
             {
                 product.ProductCategories.Clear();
                 product.ProductCategories.Add(new ProductCategory
@@ -1112,7 +1123,7 @@ namespace MahtaKala.Controllers
         }
         public ActionResult GetAllSellers([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Sellers.Include(s=>s.User), request);
+            return ConvertDataToJson(db.Sellers.Include(s => s.User), request);
         }
 
         public async Task<ActionResult> UpdateSeller(Seller seller)
@@ -1145,6 +1156,43 @@ namespace MahtaKala.Controllers
         }
 
         #endregion Seller
+
+
+        #region Tags
+        public ActionResult Tags()
+        {
+            return View();
+        }
+        public ActionResult GetAllTags([DataSourceRequest] DataSourceRequest request)
+        {
+            return ConvertDataToJson(db.Tags, request);
+        }
+
+        public async Task<ActionResult> UpdateTag(Tag tag)
+        {
+            if (tag.Id > 0)
+            {
+                var dbTag = await db.Tags.FindAsync(tag.Id);
+                dbTag.Name = tag.Name;
+                dbTag.Order = tag.Order;
+            }
+            else
+            {
+                db.Tags.Add(tag);
+            }
+            await db.SaveChangesAsync();
+            return Json(tag);
+        }
+
+        public async Task<ActionResult> RemoveTag(Tag tag)
+        {
+            db.Tags.Attach(tag);
+            db.Tags.Remove(tag);
+            await db.SaveChangesAsync();
+            return Json(null);
+        }
+
+        #endregion Tags
 
 
         [HttpGet]
