@@ -11,6 +11,7 @@ namespace MahtaKala.Entities.Models
         public string Title { get; set; }
         public string Thubmnail { get; set; }
         public string Categories { get; set; }
+        public string Tags { get; set; }
         public string Brand { get; set; }
         public decimal? Price { get; set; }
         public decimal? DiscountPrice { get; set; }

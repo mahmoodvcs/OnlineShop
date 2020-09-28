@@ -19,6 +19,7 @@ namespace MahtaKala.Infrustructure
                 Title = a.Title,
                 Thubmnail = a.Thubmnail,
                 Categories = string.Join(",", a.Categories),
+                Tags = string.Join(",", a.Tags),
                 Brand = a.Brand,
                 Price = a.Price,
                 DiscountPrice = a.DiscountPrice,

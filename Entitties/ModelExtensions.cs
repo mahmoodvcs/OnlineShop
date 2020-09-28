@@ -15,6 +15,7 @@ namespace MahtaKala.Entities
                 Id = a.Id,
                 Brand = a.Brand.Name,
                 Categories = a.ProductCategories.Select(c => c.Category.Title).ToList(),
+                Tags = a.Tags.Select(c => c.Tag.Name).ToList(),
                 Title = a.Title,
                 Thubmnail = a.Thubmnail,
                 Price = a.Prices.FirstOrDefault().Price,

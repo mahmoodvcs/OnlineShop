@@ -657,7 +657,8 @@ namespace MahtaKala.Controllers
             [DataSourceRequest] DataSourceRequest request,
             int? stateFilter,
             string nameFilter,
-            string categoryFilter)
+            string categoryFilter,
+            string tagFilter)
         {
             var query = db.Products.AsQueryable();
             if (base.User.Type == UserType.Seller)
@@ -681,6 +682,15 @@ namespace MahtaKala.Controllers
                 {
                     var ss = s.Trim().ToLower();
                     query = query.Where(a => a.ProductCategories.Any(c => c.Category.Title.ToLower().Contains(ss)));
+                }
+            }
+            if (tagFilter != null)
+            {
+                var parts = tagFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in parts)
+                {
+                    var ss = s.Trim().ToLower();
+                    query = query.Where(a => a.Tags.Any(c => c.Tag.Name.ToLower().Contains(ss)));
                 }
             }
             if (stateFilter != null)
@@ -984,6 +994,31 @@ namespace MahtaKala.Controllers
                 product.ProductCategories.Add(new ProductCategory
                 {
                     CategoryId = category.Id,
+                    ProductId = product.Id
+                });
+            }
+            await db.SaveChangesAsync();
+            return Json(new { Success = true });
+        }
+
+        public async Task<JsonResult> Product_AssignTag(ProductChangeCategoryModel model)
+        {
+            var products = await db.Products.Include(p => p.Tags).Where(p => model.ProductIds.Contains(p.Id)).ToListAsync();
+            if (products.Count == 0)
+            {
+                return Json(new { Success = false, Message = "هیچ محصولی یافت نشد." });
+            }
+            //var category = await db.Categories.Where(c => c.Id == model.CategoryId).FirstOrDefaultAsync();
+            //if (category == null)
+            //{
+            //    return Json(new { Success = false, Message = "دسته بندی مورد نظر یافت نشد." });
+            //}
+            foreach (var product in products)
+            {
+                product.Tags.Clear();
+                product.Tags.Add(new ProductTag
+                {
+                    TagId = model.CategoryId,
                     ProductId = product.Id
                 });
             }

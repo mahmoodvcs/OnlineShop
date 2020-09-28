@@ -682,19 +682,22 @@ function post(url, data, success, additionalParams) {
         url: url,
         data: data,
         success: success,
-        error: function (xhr) {
-            try {
-                var obj = JSON.parse(xhr.responseText);
-                if (obj.message) {
-                    toastr.error(obj.message, '', { positionClass: "toast-bottom-left" });
-                }
-            }
-            catch { }
-            finally {
-                $.unblockUI();
-            }
-        }
+        error: handleAjaxError
     };
     obj = $.extend(obj, additionalParams);
     $.ajax(obj);
+}
+
+
+function handleAjaxError(xhr) {
+    try {
+        var obj = JSON.parse(xhr.responseText);
+        if (obj.message || obj.msg) {
+            swal.fire(obj.message || obj.msg, "", "error");
+        }
+    }
+    catch { }
+    finally {
+        $.unblockUI();
+    }
 }

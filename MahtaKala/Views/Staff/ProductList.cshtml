@@ -15,6 +15,10 @@
                 <input type="text" name="categoryFilter" class="form-control additionalData" />
             </div>
             <div class="col-lg-3">
+                <label>تگ:</label>
+                <input type="text" name="tagFilter" class="form-control additionalData" />
+            </div>
+            <div class="col-lg-3">
                 <label>وضعیت</label>
                 @(Html.EnumCombo<ProductStatus>("stateFilter", showEmptyValue: true, isGridAdditionalData: true))
             </div>
@@ -30,6 +34,7 @@
     columns.Bound(p => p.Id).Title("شناسه");
     columns.Bound(p => p.Title).Title("عنوان");
     columns.Bound(p => p.Categories).Title("دسته بندی").Filterable(false).Sortable(false);
+    columns.Bound(p => p.Tags).Title("تگ ها").Filterable(false).Sortable(false);
     columns.Bound(p => p.Seller).Title("فروشنده");
     columns.Bound(p => p.Code).Title("کد محصول");
     columns.Bound(p => p.Price).Title("قیمت");
@@ -71,10 +76,15 @@
             <span class="k-icon k-i-add"></span>
             جدید
         </a>
-        <a href="##" onclick="groupAction()" class="k-pager-refresh k-link k-button">
-            <span class="k-icon k-i-group"></span>
-            عملیات گروهی
-        </a>
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                عملیات گروهی
+            </button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="##" onclick="moveToCategory()">انتقال به دسته</a>
+                <a class="dropdown-item" href="##" onclick="assignTag()">تخصیص تگ</a>
+            </div>
+        </div>
     </div>
 </script>
 @section js{
@@ -147,92 +157,149 @@
             selectedRows = this.selectedKeyNames();
         }
 
-        function groupAction() {
+        function checkSelectedRows() {
             window.event.preventDefault();
             if (selectedRows == null || selectedRows.length == 0) {
                 swal.fire("حداقل یک سطر را انتخاب کنید.", "", "warning");
                 return false;
             }
-            Swal.fire({
-                title: 'انتخاب عملیات گروهی',
-                input: 'select',
-                inputOptions: {
-                    'categoryMove': 'انتقال به دسته'
-                },
-                inputPlaceholder: 'انتخاب کنید',
-                showCancelButton: true,
-                confirmButtonText: "تایید",
-                cancelButtonText: "لغو",
-                inputValidator: (value) => {
-                    return new Promise((resolve) => {
-                        if (value == '') {
-                            resolve('یک گزینه را انتخاب کنید.')
-                        } else {
-                            resolve()
-                        }
-                    })
+            return true;
+        }
+
+
+        function assignTag(categories) {
+            if (!checkSelectedRows())
+                return;
+
+            $.get('@Url.Content("~/Repo/Tags/")', function (data, status) {
+                var tags = {}
+                for (var i = 0; i < data.length; i++) {
+                    tags[data[i].Id] = data[i].Name;
                 }
-            }).then(function (result) {
-                if (result.value) {
-                    if (result.value === 'categoryMove') {
-                        $.get('@Url.Content("~/Staff/Categories_List/")', function (data, status) {
-                            console.log(data);
-                            var categories = {}
-                            for (var i = 0; i < data.length; i++) {
-                                categories[data[i].Id] = data[i].Title;
+
+                Swal.fire({
+                    title: 'انتخاب تگ',
+                    input: 'select',
+                    inputOptions: {
+                        tags
+                    },
+                    inputPlaceholder: 'انتخاب کنید',
+                    showCancelButton: true,
+                    confirmButtonText: "تایید",
+                    cancelButtonText: "لغو",
+                    inputValidator: (value) => {
+                        return new Promise((resolve) => {
+                            if (value == '') {
+                                resolve('یک گزینه را انتخاب کنید.')
+                            } else {
+                                resolve()
                             }
+                        })
+                    }
+                }).then(function (result) {
+                    if (result.value) {
+                        let model = {
+                            ProductIds: selectedRows,
+                            CategoryId: result.value
+                        };
+                        $.ajax({
+                            url: '@Url.Content("~/Staff/Product_AssignTag")',
+                            type: "POST",
+                            data: model,
+                            contentType: 'application/x-www-form-urlencoded',
+                            success: function (data) {
 
-                            Swal.fire({
-                                title: 'انتخاب دسته',
-                                input: 'select',
-                                inputOptions: {
-                                    categories
-                                },
-                                inputPlaceholder: 'انتخاب کنید',
-                                showCancelButton: true,
-                                confirmButtonText: "تایید",
-                                cancelButtonText: "لغو",
-                                inputValidator: (value) => {
-                                    return new Promise((resolve) => {
-                                        if (value == '') {
-                                            resolve('یک گزینه را انتخاب کنید.')
-                                        } else {
-                                            resolve()
-                                        }
-                                    })
+                                if (data.success) {
+                                    var grid = $("#grid").data("kendoGrid");
+                                    grid.dataSource.read();
+                                    swal.fire("عملیات با موفقیت انجام شد", "", "success");
                                 }
-                            }).then(function (result) {
-                                if (result.value) {
-                                    let model = {
-                                        ProductIds: selectedRows,
-                                        CategoryId: result.value
-                                    };
-                                    $.ajax({
-                                        url: '@Url.Content("~/Staff/Product_Change_Category/")',
-                                        type: "POST",
-                                        data: model,
-                                        contentType: 'application/x-www-form-urlencoded',
-                                        success: function (data) {
-
-                                            if (data.success) {
-                                                var grid = $("#grid").data("kendoGrid");
-                                                grid.dataSource.read();
-                                                swal.fire("عملیات با موفقیت انجام شد", "", "success");
-                                            }
-                                            else {
-                                                swal.fire(data.message, "", "warning");
-                                            }
-                                        },
-                                        error: function (xhr) {
-                                            swal.fire("خطایی  اتفاق افتاده است", "", "warning");
-                                        }
-                                    });
+                                else {
+                                    swal.fire(data.message, "", "warning");
                                 }
-                            });
+                            },
+                            error: handleAjaxError
                         });
                     }
-                }
+                });
             });
+
+        }
+
+
+        function moveToCategory() {
+            if (!checkSelectedRows())
+                return;
+
+            $.get('@Url.Content("~/Staff/Categories_List/")', function (data, status) {
+                console.log(data);
+                var categories = {}
+                for (var i = 0; i < data.length; i++) {
+                    categories[data[i].Id] = data[i].Title;
+                }
+
+                Swal.fire({
+                    title: 'انتخاب دسته',
+                    input: 'select',
+                    inputOptions: {
+                        categories
+                    },
+                    inputPlaceholder: 'انتخاب کنید',
+                    showCancelButton: true,
+                    confirmButtonText: "تایید",
+                    cancelButtonText: "لغو",
+                    inputValidator: (value) => {
+                        return new Promise((resolve) => {
+                            if (value == '') {
+                                resolve('یک گزینه را انتخاب کنید.')
+                            } else {
+                                resolve()
+                            }
+                        })
+                    }
+                }).then(function (result) {
+                    if (result.value) {
+                        let model = {
+                            ProductIds: selectedRows,
+                            CategoryId: result.value
+                        };
+                        $.ajax({
+                            url: '@Url.Content("~/Staff/Product_Change_Category/")',
+                            type: "POST",
+                            data: model,
+                            contentType: 'application/x-www-form-urlencoded',
+                            success: function (data) {
+
+                                if (data.success) {
+                                    var grid = $("#grid").data("kendoGrid");
+                                    grid.dataSource.read();
+                                    swal.fire("عملیات با موفقیت انجام شد", "", "success");
+                                }
+                                else {
+                                    swal.fire(data.message, "", "warning");
+                                }
+                            },
+                            error: function (xhr) {
+                                swal.fire("خطایی  اتفاق افتاده است", "", "warning");
+                            }
+                        });
+                    }
+                });
+            });
+
+        }
+
+        function handleAjaxError(xhr) {
+            try {
+                var obj = JSON.parse(xhr.responseText);
+                if (obj.message || obj.msg) {
+                    swal.fire(obj.message || obj.msg, "", "error");
+                }
+            }
+            catch { }
+            finally {
+                $.unblockUI();
+            }
         }
     </script>
 }
