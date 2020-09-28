@@ -1,4 +1,4 @@
-﻿@model Product
+﻿@model MahtaKala.Models.ProductModels.EditProductModel
 @{
     ViewData["TitlNewtonsoft.Json.JsonSerializerNewtonsoft.Json.JsonSerializere"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
@@ -177,6 +177,14 @@
                         منتشر شده
                     </label>
                     @Html.CheckBoxFor(a => a.Published, new { @class = "form-control" })
+                </div>
+                <div class="col-lg-6">
+                    <label>تگ ها</label>
+                    @(Html.Kendo().MultiSelect().Name("TagIds")
+                        .DataSource(ds=>ds.Read("Tags","Repo"))
+                        .DataValueField("Id").DataTextField("Name")
+                        .Value(Model.TagIds)
+                        )
                 </div>
             </div>
             <div class="form-group row">

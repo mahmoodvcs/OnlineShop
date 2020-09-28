@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Text;
 
 namespace MahtaKala.Entities
@@ -40,10 +41,6 @@ namespace MahtaKala.Entities
         public IList<ProductPrice> Prices { get; set; } = new List<ProductPrice>();
         public IList<ProductQuantity> Quantities { get; set; }
 
-        [NotMapped]
-        public decimal Price { get; set; }
-        [NotMapped]
-        public decimal DiscountPrice { get; set; }
         [Display(Name = "وضعیت")]
         public ProductStatus Status { get; set; }
         [Display(Name ="منتشر شده")]
@@ -59,6 +56,9 @@ namespace MahtaKala.Entities
 
         public IList<ProductPaymentParty> PaymentParties { get; set; }
 
+
+        [NotMapped]
+        public ProductPrice Price => Prices?.FirstOrDefault();
     }
 
     public enum ProductStatus
@@ -69,6 +69,8 @@ namespace MahtaKala.Entities
         CommingSoon = 1,
         [Display(Name ="ناموجود")]
         NotAvailable = 2,
+        [Display(Name = "امکان خرید ندارد")]
+        CantBuy
     }
 
     public class Characteristic
