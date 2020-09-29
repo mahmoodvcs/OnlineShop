@@ -211,6 +211,7 @@
 
                                 if (data.success) {
                                     var grid = $("#grid").data("kendoGrid");
+                                    grid.clearSelection();
                                     grid.dataSource.read();
                                     swal.fire("عملیات با موفقیت انجام شد", "", "success");
                                 }
@@ -274,6 +275,7 @@
                                     var grid = $("#grid").data("kendoGrid");
                                     grid.dataSource.read();
                                     swal.fire("عملیات با موفقیت انجام شد", "", "success");
+                                    grid.clearSelection();
                                 }
                                 else {
                                     swal.fire(data.message, "", "warning");

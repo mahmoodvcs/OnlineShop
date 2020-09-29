@@ -864,9 +864,10 @@ namespace MahtaKala.Controllers
                         return View(product);
                     }
                 }
-                product.Tags.Clear();
                 if (model.TagIds != null)
                 {
+                    product.Tags?.Clear();
+                    product.Tags = new List<ProductTag>();
                     foreach (var tid in model.TagIds)
                     {
                         product.Tags.Add(new ProductTag()
@@ -878,11 +879,7 @@ namespace MahtaKala.Controllers
                 }
 
                 await db.SaveChangesAsync();
-                ViewBag.IsPostback = true;
-                ViewBag.ImagePathFormat = productImageService.GetImagePathFormatString(product.Id);
-                product.Thubmnail = productImageService.GetImageUrl(product.Id, product.Thubmnail);
-                //productImageService.FixImageUrls(product);
-                return View(model);
+                return RedirectToAction("Product", new { id = product.Id });
             }
             return View(model);
         }
