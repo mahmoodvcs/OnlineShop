@@ -28,8 +28,9 @@ namespace MahtaKala.Services
         {
             if (string.IsNullOrEmpty(name))
                 return null;
-            name = name.ToLower();
-            if (name.StartsWith("http://") || name.StartsWith("https://") || name.Contains("image/product?id="))
+            if (name.StartsWith("http://", StringComparison.OrdinalIgnoreCase) 
+                || name.StartsWith("https://", StringComparison.OrdinalIgnoreCase) 
+                || name.Contains("image/product?id=", StringComparison.OrdinalIgnoreCase))
                 return name;
             return string.Format(GetImagePathFormatString(productId), name);
         }

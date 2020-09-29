@@ -25,8 +25,9 @@ namespace MahtaKala.Services
         {
             if (string.IsNullOrEmpty(name))
                 return "/img/logo3.png";
-            name = name.ToLower();
-            if (name.StartsWith("http://") || name.StartsWith("https://") || name.Contains("image/category?id="))
+            if (name.StartsWith("http://", StringComparison.OrdinalIgnoreCase) 
+                || name.StartsWith("https://", StringComparison.OrdinalIgnoreCase) 
+                || name.Contains("image/category?id=", StringComparison.OrdinalIgnoreCase))
                 return name;
             return $"/Image/Category?id={id}&name={name}";
         }

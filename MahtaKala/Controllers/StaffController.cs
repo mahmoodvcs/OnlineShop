@@ -918,7 +918,7 @@ namespace MahtaKala.Controllers
                 product.ImageList.AddRange(imageList);
                 db.Entry(product).State = EntityState.Modified;
                 await db.SaveChangesAsync();
-                return Json(productImageService.GetImageUrls(product));
+                return Json(product.ImageList);
             }
             // Return an empty string to signify success
             return Content("");
@@ -939,7 +939,7 @@ namespace MahtaKala.Controllers
                         throw new EntityNotFoundException<Product>(ID);
                     }
                     var file = thumbnails.First();
-                    var fileName = $"Thumbnail-{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                    var fileName = $"thumbnail-{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
                     //var path = Path.Combine(ProductsImagesPath, ID.ToString());
                     //using var ms = new MemoryStream();
                     //file.CopyTo(ms);
