@@ -56,6 +56,10 @@ namespace MahtaKala.Controllers
 
             payment.State = PaymentState.SentToBank;
             await db.SaveChangesAsync();
+            if (Request.Host.Host == "localhost" && bankPaymentService is TestBasnkService)
+            {
+                return View("TestPay", payment);
+            }
             return View(new PayModel
             {
                 Token = payment.PayToken,
@@ -63,30 +67,30 @@ namespace MahtaKala.Controllers
             });
         }
 
-        public async Task<ActionResult> TestPay(int amount)
-        {
-            var myAddress = db.Addresses.FirstOrDefault(a => a.UserId == UserId);
-            var prod = await db.Products.Include(a=>a.Prices).FirstAsync();
-            Order order = new Order
-            {
-                Address = myAddress,
-                UserId = UserId,
-                Items = new List<OrderItem>
-                {
-                    new OrderItem
-                    {
-                        ProductPriceId = prod.Prices[0].Id,
-                        Quantity = 1,
-                        UnitPrice = amount
-                    }
-                },
-                TotalPrice = amount
-            };
-            db.Add(order);
-            await db.SaveChangesAsync();
-            var pay = await orderService.InitPayment(order, pathService.AppBaseUrl + "/Payment/CallBackPay");
-            return Redirect(pathService.AppBaseUrl + $"/Payment/Pay?pid={pay.Id}&uid={pay.UniqueId}&source=api");
-        }
+        //public async Task<ActionResult> TestPay(int amount)
+        //{
+        //    var myAddress = db.Addresses.FirstOrDefault(a => a.UserId == UserId);
+        //    var prod = await db.Products.Include(a=>a.Prices).FirstAsync();
+        //    Order order = new Order
+        //    {
+        //        Address = myAddress,
+        //        UserId = UserId,
+        //        Items = new List<OrderItem>
+        //        {
+        //            new OrderItem
+        //            {
+        //                ProductPriceId = prod.Prices[0].Id,
+        //                Quantity = 1,
+        //                UnitPrice = amount
+        //            }
+        //        },
+        //        TotalPrice = amount
+        //    };
+        //    db.Add(order);
+        //    await db.SaveChangesAsync();
+        //    var pay = await orderService.InitPayment(order, pathService.AppBaseUrl + "/Payment/CallBackPay");
+        //    return Redirect(pathService.AppBaseUrl + $"/Payment/Pay?pid={pay.Id}&uid={pay.UniqueId}&source=api");
+        //}
 
         [HttpPost]
         public async Task<string> TestShare([FromQuery]string trackNo, [FromBody]List<ScatteredSettlementDetails> shares)
