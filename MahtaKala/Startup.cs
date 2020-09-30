@@ -111,7 +111,7 @@ namespace MahtaKala
         {
             services.AddScoped<ISMSService, PayamSMSV2>();
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IBankPaymentService, PardakhtNovinService>();
+            services.AddScoped<IBankPaymentService, TestBasnkService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<OrderService>();
             services.AddSingleton<AppSettings>();

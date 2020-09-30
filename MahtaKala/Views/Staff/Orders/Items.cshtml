@@ -1,0 +1,194 @@
+﻿@{
+    Layout = "~/Views/Shared/_Staff.cshtml";
+    ViewBag.Title = "اقلام فروخته شده";
+}
+<div class="filterPanel">
+    <fieldset>
+        <legend>فیلتر ها:</legend>
+        <div class="row">
+            <div class="col-lg-3">
+                <label>وضعیت</label>
+                @(Html.EnumCombo<OrderItemState>("stateFilter", showEmptyValue: true, isGridAdditionalData: true))
+            </div>
+        </div>
+    </fieldset>
+
+</div>
+
+@(Html.Kendo().Grid<MahtaKala.Models.StaffModels.OrderItemModel>().Name("grid").Columns(columns =>
+{
+    columns.Select();
+    columns.Bound(p => p.Product).Title("کالا");
+    columns.Bound(p => p.Count).Title("تعداد");
+    columns.Bound(p => p.Date).Title("تاریخ خرید");
+    columns.Bound(p => p.State).Title("وضعیت");
+    columns.Bound(p => p.Price).Title("قیمت واحد").Format("{0:n0}");
+    columns.Command(command => command.Custom("تایید ارسال").Click("ConfirmSent")).Width(90);
+    //columns.Command(command => command.Custom("تایید تحویل").Click("ConfirmDelivered")).Width(90);
+
+})
+    .Selectable(c=>c.Mode(GridSelectionMode.Multiple))
+    .Scrollable()
+    .Filterable(c=>
+    {
+        //c.Mode(GridFilterMode.Row).Operators(oc=> { oc.ForString(sc=> { sc.Contains()})});
+    })
+    .Sortable()
+    .ToolBar(c=>c.ClientTemplateId("gridToolbarTemplate"))
+    .Pageable(pageable => pageable
+        .Refresh(true)
+        .PageSizes(true)
+        .PageSizes(new int[] { 5, 10, 20, 50 })
+        .ButtonCount(5))
+    .Sortable()
+    .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(50)
+            .Model(model =>
+            {
+                model.Id(p => p.Id);
+
+            })
+            .Read(read => read.Action("GetItems", "Orders").Data("getAdditionalData"))
+                                                                                                                                                                                                                                                                                )
+    )
+
+
+
+<script id="gridToolbarTemplate" type="text/x-kendo-template">
+    <div class="btn-group">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            تغییر وضعیت
+        </button>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="##" onclick="itemsPacked()">بسته بندی شد</a>
+            <a class="dropdown-item" href="##" onclick="itemsSent()">ارسال شد</a>
+        </div>
+    </div>
+</script>
+
+
+@section js{
+    <script type="text/javascript">
+        function getSelectedIds() {
+            var grid = $("#grid").data("kendoGrid");
+            var items = grid.select();
+            var ids = [];
+            items.each(function (index, row) {
+                var d = grid.dataItem(row);
+                ids.push(d.Id);
+                // selectedItem has EntityVersionId and the rest of your model
+            });
+            return ids;
+        }
+
+        function itemsPacked() {
+            window.event.preventDefault();
+            Swal.fire({
+                title: "آیا اقلام انتخاب شده آماده ی ارسال هستند؟",
+                confirmButtonText:"بله",
+                showCancelButton: true,
+                cancelButtonText: "لغو"
+            }).then((result) => {
+                if (result.value) {
+                    $.post("@Url.Action("ConfirmPacked", "Orders")",
+                        {
+                            ids: getSelectedIds()
+                        },
+                        function (response) {
+                            if (response.success) {
+                                $("#grid").data("kendoGrid").dataSource.read();
+                            } else {
+                                ShowError(response.message);
+                            }
+                        })
+                        .fail(handleAjaxError);
+                }
+            });
+            return false;
+        }
+
+        function itemsSent() {
+            window.event.preventDefault();
+            return false;
+        }
+
+        function ConfirmSent(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            Swal.fire({
+                title: "دریافت شماره ی پیک",
+                text: "شماره ی پیک را وارد نمایید",
+                input: 'text',
+                showCancelButton: true,
+                inputPlaceholder: "شماره ی پیک",
+                preConfirm: (value) => {
+                    if (value === false || value === "")
+                        Swal.showValidationMessage("شماره ی پیک را وارد نمایید")
+                },
+            }).then((result) => {
+                if (result.value) {
+                    $.post("@Url.Action("ConfirmSent", "Staff")",
+                        {
+                            Id: dataItem.Id,
+                            delivererId: result.value
+                        },
+                        function (response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                ShowError(response.message);
+                            }
+                        })
+                        .fail(function (response) {
+                            ShowError(response.responseText);
+                        });
+                }
+            });
+        }
+
+        function ConfirmDelivered(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            Swal.fire({
+                title: "دریافت شماره ی پیگیری",
+                text: "شماره ی پیگیری را وارد نمایید",
+                input: 'text',
+                showCancelButton: true,
+                inputPlaceholder: "شماره ی پیگیری",
+                preConfirm: (value) => {
+                    if (value === false || value === "")
+                        Swal.showValidationMessage("شماره ی پیگیری را وارد نمایید")
+                },
+            }).then((result) => {
+                if (result.value) {
+                    $.post("@Url.Action("ConfirmDelivered", "Staff")",
+                        {
+                            Id: dataItem.Id,
+                            TrackNo: result.value
+                        },
+                        function (response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                ShowError(response.message);
+                            }
+                        })
+                        .fail(function (response) {
+                            ShowError(response.responseText);
+                        });
+                }
+            });
+        }
+
+        function ShowError(message) {
+
+            Swal.fire({
+                icon: 'error',
+                title: 'خطا',
+                text: message
+            });
+        }
+
+    </script>
+}

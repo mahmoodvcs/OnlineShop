@@ -121,7 +121,7 @@
             @await Component.InvokeAsync("CategoriesMobile")
         </header>
         @if (!(ViewContext.RouteData.Values["controller"].ToString().ToLower() == "home"
-     && ViewContext.RouteData.Values["action"].ToString().ToLower() == "index"))
+    && ViewContext.RouteData.Values["action"].ToString().ToLower() == "index"))
         {
             <div class="main-page-banner home-3">
                 <div class="container">
@@ -134,7 +134,7 @@
                 $(document).on("click", function (e) {
                     if (e.target.id !== "menulist") {
                         $("#ulmenulist").hide();
-                    }  
+                    }
                 });
             </script>
         }
@@ -378,5 +378,6 @@
     <script src="~/js/toastr.min.js"></script>
     <script src="~/js/main.js?v=2.21"></script>
     <script src="~/js/ShoppingCart.js?v=2.20"></script>
+    <script src="~/app/global.js"></script>
 </body>
 </html>

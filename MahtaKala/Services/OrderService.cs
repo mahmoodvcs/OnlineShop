@@ -1,4 +1,5 @@
 ﻿using MahtaKala.Entities;
+using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Payment;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
@@ -22,16 +23,19 @@ namespace MahtaKala.Services
         private readonly ICurrentUserService currentUserService;
         private readonly DataContext db;
         private readonly IBankPaymentService bankService;
+        private readonly SettingsService settingsService;
 
         public OrderService(
             ICurrentUserService currentUserService,
             DataContext dataContext,
-            IBankPaymentService bankService
+            IBankPaymentService bankService,
+            SettingsService settingsService
             )
         {
             this.currentUserService = currentUserService;
             this.db = dataContext;
             this.bankService = bankService;
+            this.settingsService = settingsService;
         }
         User User => currentUserService.User;
         public async Task<Order> GetUserOrder()
@@ -81,6 +85,40 @@ namespace MahtaKala.Services
             await UpdateCart(cartItem, cartItem.ProductPriceId, count);
             return cartItem;
         }
+
+        public async Task ChangeOrderItemsState(long[] ids, OrderItemState state, long? sellerId = null)
+        {
+
+            var query = db.OrderItems.Where(a => ids.Contains(a.Id));
+            if (sellerId != null)
+            {
+                query = query.Where(a => a.ProductPrice.Product.SellerId == sellerId.Value);
+            }
+            var items = await query.ToListAsync();
+            foreach (var item in items)
+            {
+                if (!IsValidTransition(item.State, state))
+                    throw new Exception(string.Format("امکان تغییر وضعیت از {0} به {1} وجود ندارد",
+                        TranslateExtentions.GetTitle(item.State),
+                        TranslateExtentions.GetTitle(state)
+                    ));
+                item.State = state;
+            }
+            await db.SaveChangesAsync();
+        }
+
+        bool IsValidTransition(OrderItemState from, OrderItemState to)
+        {
+            switch (to)
+            {
+                case OrderItemState.Packed:
+                    return from == OrderItemState.None;
+                case OrderItemState.Sent:
+                    return from == OrderItemState.Packed;
+            }
+            return false;
+        }
+
         public async Task<long> UpdateCart(long productPriceId, int count)
         {
             var cart = GetCartQuery();
@@ -402,11 +440,9 @@ namespace MahtaKala.Services
 
         public decimal GetDeliveryPrice(Order order)
         {
-            return DeliveryPrice;
+            return settingsService.DeliveryPrice;
         }
 
-        #region Nested types
-        #endregion Nested types
 
     }
 

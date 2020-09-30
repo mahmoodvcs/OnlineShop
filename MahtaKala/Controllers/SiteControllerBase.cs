@@ -1,5 +1,6 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.Infrustructure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,29 @@ namespace MahtaKala.Controllers
     {
         public SiteControllerBase(DataContext dataContext, ILogger<T> logger) : base(dataContext, logger)
         {
+        }
+
+        public override ViewResult View()
+        {
+            ViewBag.User = User;
+            return base.View();
+        }
+
+        public override ViewResult View(object model)
+        {
+            ViewBag.User = User;
+            return base.View(model);
+        }
+
+        public override ViewResult View(string viewName)
+        {
+            ViewBag.User = User;
+            return base.View(viewName);
+        }
+        public override ViewResult View(string viewName, object model)
+        {
+            ViewBag.User = User;
+            return base.View(viewName, model);
         }
     }
 }

@@ -55,6 +55,7 @@
     <!--begin::Page Scripts(used by this page)-->
     <script src="~/assets/js/pages/widgets.js?v=7.0.6"></script>
     <script src="~/app/mykendo.js"></script>
+    <script src="~/app/global.js"></script>
     <!--end::Page Scripts-->
 
 </head>
@@ -231,6 +232,15 @@
                                     <span class="menu-text">گزارش خریدها</span>
                                 </a>
                             </li>
+                            @if (ViewBag.User.Type == UserType.Seller)
+                            {
+                            <li class="menu-item " aria-haspopup="true">
+                                <a href="/Staff/Orders/Items" class="menu-link ">
+                                    <i class="menu-icon flaticon-piggy-bank"></i>
+                                    <span class="menu-text">اقلام فروخته شده</span>
+                                </a>
+                            </li>
+                            }
                         </ul>
                         <!--end::Menu Nav-->
                     </div>

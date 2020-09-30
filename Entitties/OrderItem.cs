@@ -22,8 +22,21 @@ namespace MahtaKala.Entities
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
         public decimal FinalPrice { get; set; }
-        
+
         public IList<CharacteristicValue> CharacteristicValues { get; set; }
 
+        public OrderItemState State { get; set; }
+    }
+
+    public enum OrderItemState
+    {
+        [Display(Name ="اولیه")]
+        None,
+        [Display(Name ="بسته بندی شد")]
+        Packed,
+        [Display(Name ="ارسال شد")]
+        Sent,
+        [Display(Name ="تحویل شد")]
+        Delivered
     }
 }
