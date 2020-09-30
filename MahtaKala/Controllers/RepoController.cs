@@ -75,5 +75,14 @@ namespace MahtaKala.Controllers
             }
             return KendoJson(await tags.ToListAsync());
         }
+        public async Task<IActionResult> BuyLimitations(string text)
+        {
+            var data = db.BuyLimitations.AsQueryable();
+            if (!string.IsNullOrEmpty(text))
+            {
+                data = data.Where(a => a.Name.Contains(text));
+            }
+            return KendoJson(await data.ToListAsync());
+        }
     }
 }

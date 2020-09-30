@@ -57,13 +57,29 @@ namespace MahtaKala.Entities
             modelBuilder.Entity<ProductTag>()
                 .HasOne(pc => pc.Product)
                 .WithMany(p => p.Tags)
-                .HasForeignKey(bc => bc.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(bc => bc.ProductId);
             modelBuilder.Entity<ProductTag>()
                 .HasOne(pc => pc.Tag)
                 .WithMany(c => c.ProductTags)
-                .HasForeignKey(pc => pc.TagId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(pc => pc.TagId);
+
+            modelBuilder.Entity<ProductBuyLimitation>()
+                .HasKey(bc => new { bc.ProductId, bc.BuyLimitationId });
+            modelBuilder.Entity<ProductBuyLimitation>()
+                .HasOne(pc => pc.Product)
+                .WithMany(p => p.BuyLimitations)
+                .HasForeignKey(bc => bc.ProductId);
+            modelBuilder.Entity<ProductBuyLimitation>()
+                .HasOne(pc => pc.BuyLimitation);
+
+            modelBuilder.Entity<CategoryBuyLimitation>()
+                .HasKey(bc => new { bc.CategoryId, bc.BuyLimitationId });
+            modelBuilder.Entity<CategoryBuyLimitation>()
+                .HasOne(pc => pc.Category)
+                .WithMany(p => p.BuyLimitations)
+                .HasForeignKey(bc => bc.CategoryId);
+            modelBuilder.Entity<CategoryBuyLimitation>()
+                .HasOne(pc => pc.BuyLimitation);
 
             modelBuilder.Entity<OrderItem>().HasOne(a => a.ProductPrice).WithMany(a => a.OrderItems).OnDelete(DeleteBehavior.Restrict);
 
@@ -101,6 +117,9 @@ namespace MahtaKala.Entities
         public DbSet<Tag> Tags { get; set; }
         public DbSet<ProductTag> ProductTags { get; set; }
 
+        public DbSet<BuyLimitation> BuyLimitations { get; set; }
+        public DbSet<ProductBuyLimitation> ProductBuyLimitations { get; set; }
+        public DbSet<CategoryBuyLimitation> CategoryBuyLimitations { get; set; }
 
 
         #region Get Titles

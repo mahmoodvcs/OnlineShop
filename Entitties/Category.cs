@@ -34,5 +34,8 @@ namespace MahtaKala.Entities
         [StringLength(30)]
         [Display(Name ="رنگ")]
         public string Color { get; set; }
+
+        public IList<CategoryBuyLimitation> BuyLimitations { get; set; }
+
     }
 }

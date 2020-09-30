@@ -9,6 +9,7 @@
     .Name("Grid")
     .Columns(columns =>
     {
+        columns.Bound(p => p.Id);
         columns.Bound(p => p.Name);
         columns.Command(command => command.Custom("Edit").Text("ویرایش").Click("editEntity")).Width(160);
     })

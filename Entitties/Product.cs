@@ -55,6 +55,7 @@ namespace MahtaKala.Entities
         public IList<ProductTag> Tags { get; set; }
 
         public IList<ProductPaymentParty> PaymentParties { get; set; }
+        public IList<ProductBuyLimitation> BuyLimitations { get; set; }
 
 
         [NotMapped]

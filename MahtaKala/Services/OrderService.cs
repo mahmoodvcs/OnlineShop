@@ -88,6 +88,83 @@ namespace MahtaKala.Services
             return await UpdateCart(cartItem, productPriceId, count);
         }
 
+        private async Task CheckProductBuyLimitations(long addressId, long priceId, int count, long pid, string name)
+        {
+            var limits = from pr in db.ProductPrices.Where(a => a.Id == priceId)
+                         from pl in pr.Product.BuyLimitations
+                         select pl.BuyLimitation;
+            limits = limits.Union(
+                from pr in db.ProductPrices.Where(a => a.Id == priceId)
+                from cat in pr.Product.ProductCategories
+                from cl in cat.Category.BuyLimitations
+                select cl.BuyLimitation);
+
+            var items = await limits.ToListAsync();
+            long cityId = 0, provinceId = 0;
+            if (items.Any())
+            {
+                var addr = await db.Addresses.Where(a => a.Id == addressId).Select(a => new
+                {
+                    a.CityId,
+                    a.City.ProvinceId
+                }).FirstOrDefaultAsync();
+                cityId = addr.CityId;
+                priceId = addr.ProvinceId;
+            }
+            foreach (var item in items)
+            {
+                await CheckProductBuyLimitations(cityId, provinceId, priceId, item, count, pid, name);
+            }
+
+        }
+        private async Task CheckProductBuyLimitations(long cityId, long provinceId, long priceId, BuyLimitation limitation, int count, long pid, string name)
+        {
+            if (limitation.MinBuyQuota != null && count < limitation.MinBuyQuota)
+            {
+                throw new CartItemException(string.Format(Messages.Messages.Order.CannotAddProduct_MinQuota, name, limitation.MinBuyQuota), pid, name);
+            }
+
+            if (count > limitation.MaxBuyQuota)
+                throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_MaxQuota,
+                    //Util.GetTimeSpanPersianString(TimeSpan.FromDays(limitation.BuyQuotaDays.Value)), 
+                    name, limitation.MaxBuyQuota));
+
+            if (limitation.BuyQuotaDays != null)
+            {
+                var minTime = DateTime.Now.AddDays(-limitation.BuyQuotaDays.Value);
+                var userId = currentUserService.User?.Id;
+                if (userId != null)
+                {
+                    var prevProductCount = await
+                        (from order in db.Orders
+                                .Where(o => o.UserId == userId
+                                    && (o.State == OrderState.Paid || o.State == OrderState.Sent || o.State == OrderState.Delivered)
+                                    && o.CheckOutData > minTime)
+                         from orderItem in order.Items.Where(a => a.ProductPriceId == priceId)
+                         select orderItem.Quantity).SumAsync();
+                    if (prevProductCount + count > limitation.MaxBuyQuota)
+                    {
+                        throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_MaxQuota,
+                            Util.GetTimeSpanPersianString(TimeSpan.FromDays(limitation.BuyQuotaDays.Value)), limitation.MaxBuyQuota));
+                    }
+                }
+            }
+
+            if (limitation.CityId != null && limitation.CityId != cityId)
+            {
+                var cityName = await db.Cities.Where(a => a.Id == limitation.CityId).Select(a => a.Name).FirstOrDefaultAsync();
+                throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_WrongCity,
+                    name, cityName));
+            }
+
+            if (limitation.ProvinceId != null && limitation.ProvinceId != provinceId)
+            {
+                var provinceName = await db.Provinces.Where(a => a.Id == limitation.ProvinceId).Select(a => a.Name).FirstOrDefaultAsync();
+                throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_WrongProvince,
+                    name, provinceName));
+            }
+        }
+
         private async Task CheckProductMaxQuota(long priceId, int count, ProductInfo prod)
         {
             if (prod.MaxBuyQuota == null)
@@ -109,7 +186,6 @@ namespace MahtaKala.Services
                      select orderItem.Quantity).SumAsync();
                 if (prevProductCount + count > prod.MaxBuyQuota)
                 {
-                    //var prodName = await db.ProductPrices.Where(a => a.Id == productPriceId).Select(a => a.Product.Title).FirstOrDefaultAsync();
                     throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_MaxQuota,
                         Util.GetTimeSpanPersianString(TimeSpan.FromDays(prod.BuyQuotaDays.Value)), prod.MaxBuyQuota));
                 }
@@ -120,8 +196,6 @@ namespace MahtaKala.Services
         {
             ProductInfo info = await GetProductInfo(cartItem, productPriceId);
             await CheckProductMaxQuota(productPriceId, count, info);
-            //if (count < info.MinBuyQuota)
-            //    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_NotAvailable);
 
             var cart = GetCartQuery();
             if (cartItem == null)
@@ -183,7 +257,7 @@ namespace MahtaKala.Services
                     MinBuyQuota = cartItem.ProductPrice.Product.MinBuyQuota,
                     Status = cartItem.ProductPrice.Product.Status,
                     Title = cartItem.ProductPrice.Product.Title,
-                    Basket = await db.Sellers.Where(a=>a.Id == cartItem.ProductPrice.Product.SellerId).Select(a=>a.Basket).FirstOrDefaultAsync()
+                    Basket = await db.Sellers.Where(a => a.Id == cartItem.ProductPrice.Product.SellerId).Select(a => a.Basket).FirstOrDefaultAsync()
                 };
             }
 
@@ -222,15 +296,15 @@ namespace MahtaKala.Services
 
         public async Task MigrateAnonymousUserShoppingCart(long userId)
         {
-            var cartItems = await db.ShoppingCarts.Where(a => a.SessionId == currentUserService.AnonymousSessionId || a.UserId == userId ).ToListAsync();
+            var cartItems = await db.ShoppingCarts.Where(a => a.SessionId == currentUserService.AnonymousSessionId || a.UserId == userId).ToListAsync();
             foreach (var item in cartItems)
             {
                 item.SessionId = null;
                 item.UserId = userId;
             }
 
-            var duplicates = cartItems.GroupBy(a => a.ProductPriceId).Where(a=>a.Count()>1).ToList();
-            foreach(var d in duplicates)
+            var duplicates = cartItems.GroupBy(a => a.ProductPriceId).Where(a => a.Count() > 1).ToList();
+            foreach (var d in duplicates)
             {
                 d.First().Count += d.ElementAt(1).Count;
                 db.ShoppingCarts.Remove(d.ElementAt(1));
@@ -241,7 +315,7 @@ namespace MahtaKala.Services
 
         public async Task<Order> Checkout(long addressId)
         {
-            throw new InvalidOperationException("در حال حاضر امکان خرید وجود ندارد.");
+            //throw new InvalidOperationException("در حال حاضر امکان خرید وجود ندارد.");
             if (User == null)
                 throw new InvalidOperationException("User is not logged in.");
 
@@ -249,7 +323,7 @@ namespace MahtaKala.Services
             if (cartItems.Count == 0)
                 throw new BadRequestException(Messages.Messages.Order.EmptyCart);
 
-            await CheckCartValidity(cartItems);
+            await CheckCartValidity(addressId, cartItems);
 
             var order = new Order();
             order.State = OrderState.Initial;
@@ -274,7 +348,7 @@ namespace MahtaKala.Services
             return order;
         }
 
-        private async Task CheckCartValidity(List<ShoppingCart> cartItems)
+        private async Task CheckCartValidity(long addressId, List<ShoppingCart> cartItems)
         {
             foreach (var item in cartItems)
             {
@@ -290,6 +364,7 @@ namespace MahtaKala.Services
 
                 ProductInfo info = await GetProductInfo(item, item.ProductPriceId);
                 await CheckProductMaxQuota(item.ProductPriceId, item.Count, info);
+                await CheckProductBuyLimitations(addressId, item.ProductPriceId, item.Count, item.ProductPrice.ProductId, item.ProductPrice.Product.Title);
             }
         }
 

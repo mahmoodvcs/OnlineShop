@@ -733,7 +733,7 @@ namespace MahtaKala.Controllers
             }
             else
             {
-                using var scope = new TransactionScope();
+                using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
                 await db.ProductQuantities.Where(a => a.ProductId == id).DeleteAsync();
                 await db.ProductPrices.Where(a => a.ProductId == id).DeleteAsync();
                 await db.Products.Where(a => a.Id == id).DeleteAsync();
@@ -768,7 +768,7 @@ namespace MahtaKala.Controllers
             {
                 var pr = await db.Products.Include(a => a.Prices)
                     .Include(a => a.ProductCategories).ThenInclude(a => a.Category)
-                    .Include(p => p.Tags)
+                    .Include(p => p.Tags).Include(a => a.BuyLimitations)
                     .Where(a => a.Id == id && (userType != UserType.Seller || a.SellerId == UserId))
                     .FirstOrDefaultAsync();
                 if (pr == null)
@@ -814,6 +814,7 @@ namespace MahtaKala.Controllers
                         .ThenInclude(a => a.Category)
                         .Include(p => p.Prices)//.Where(c=>c.Active))
                         .Include(p => p.Tags)
+                        .Include(p => p.BuyLimitations)
                         .FirstOrDefaultAsync(p => p.Id == model.Id && (userType != UserType.Seller || p.SellerId == UserId));
                     if (product == null)
                         throw new EntityNotFoundException<Product>(model.Id);
@@ -874,6 +875,19 @@ namespace MahtaKala.Controllers
                         {
                             Product = product,
                             TagId = tid
+                        });
+                    }
+                }
+                if (model.LimitationIds != null)
+                {
+                    product.BuyLimitations?.Clear();
+                    product.BuyLimitations = new List<ProductBuyLimitation>();
+                    foreach (var id in model.LimitationIds)
+                    {
+                        product.BuyLimitations.Add(new ProductBuyLimitation()
+                        {
+                            Product = product,
+                            BuyLimitationId = id
                         });
                     }
                 }

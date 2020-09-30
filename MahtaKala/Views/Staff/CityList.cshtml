@@ -9,6 +9,7 @@
     .Name("Grid")
     .Columns(columns =>
     {
+        columns.Bound(p => p.Id);
         columns.Bound(p => p.Name);
         columns.Bound(p => p.Province.Name);
         columns.Bound(p => p.IsCenter).ClientTemplate("#=IsCenter?'بلی':'خیر'#");

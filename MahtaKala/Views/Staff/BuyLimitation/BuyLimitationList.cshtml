@@ -1,0 +1,49 @@
+﻿@using Kendo.Mvc.UI
+@{
+    ViewData["Title"] = "محدودیت خرید";
+    Layout = "~/Views/Shared/_Staff.cshtml";
+}
+
+
+@(Html.Kendo().Grid<BuyLimitation>()
+    .Name("Grid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Name);
+        columns.Bound(p => p.CityId);//.ClientTemplate("#=City ? City.Name : '' #");
+        columns.Bound(p => p.ProvinceId);
+        columns.Bound(p => p.MinBuyQuota);
+        columns.Bound(p => p.MaxBuyQuota);
+        columns.Bound(p => p.BuyQuotaDays);
+        columns.Command(command => {
+            command.Edit();
+            command.Destroy();
+        }).Width(160);
+    })
+    .ToolBar(toolbar =>
+    {
+        toolbar.Create();
+    })
+    .HtmlAttributes(new { style = "height: 550px;" })
+    .Scrollable().Filterable()
+    .Sortable()
+    .Pageable(pageable => pageable
+        .Refresh(true)
+        .PageSizes(true)
+        .PageSizes(new int[] { 5, 10, 20, 50 })
+        .ButtonCount(5)
+    )
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Model(model =>
+        {
+            model.Id(p => p.Id);
+        })
+        .Read(read => read.Action("GetAll", "BuyLimitation"))
+        .Update(up => up.Action("Update", "BuyLimitation"))
+        .Destroy(de => de.Action("Remove", "BuyLimitation"))
+        .Create(de => de.Action("Update", "BuyLimitation"))
+        .PageSize(20)
+    )
+)
+
