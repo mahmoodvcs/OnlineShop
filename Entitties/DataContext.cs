@@ -34,6 +34,10 @@ namespace MahtaKala.Entities
             //    modelBuilder.Entity(entityType.ClrType).ToTable(entityType.ClrType.Name);
             //}
 
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+
             modelBuilder.ApplyConfiguration(new ProductConfiguration());
             modelBuilder.ApplyConfiguration(new ProductPriceConfiguration());
             modelBuilder.ApplyConfiguration(new ProductQuantityConfiguration());

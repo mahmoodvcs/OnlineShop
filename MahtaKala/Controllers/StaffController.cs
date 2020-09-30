@@ -212,6 +212,7 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
+        [Authorize(UserType.Admin)]
         public async Task<JsonResult> UserDestroy(long id)
         {
             if (await db.Products.AnyAsync(p => p.SellerId == id))
@@ -1059,6 +1060,16 @@ namespace MahtaKala.Controllers
             var query = db.Orders.Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent);
+
+            if (base.User.Type != UserType.Admin)
+            {
+                if (base.User.Type == UserType.Seller)
+                {
+                    var sellerId = await db.Sellers.Where(a => a.UserId == UserId).Select(a => a.Id).FirstOrDefaultAsync();
+                    query = query.Where(a => a.Items.Any(a => a.ProductPrice.Product.SellerId == sellerId));
+                }
+            }
+
             if (stateFilter != null)
             {
                 query = query.Where(a => a.State == (OrderState)stateFilter);
@@ -1158,6 +1169,7 @@ namespace MahtaKala.Controllers
 
 
         #region Seller
+        [Authorize(UserType.Admin)]
         public async Task<ActionResult> Sellers()
         {
             ViewBag.Users = await db.Users.Where(u => u.Type == UserType.Seller).Select(u => new SelectListItem
@@ -1170,11 +1182,13 @@ namespace MahtaKala.Controllers
             ViewData["defaultUser"] = users.FirstOrDefault();
             return View();
         }
+        [Authorize(UserType.Admin)]
         public ActionResult GetAllSellers([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Sellers.Include(s => s.User), request);
         }
 
+        [Authorize(UserType.Admin)]
         public async Task<ActionResult> UpdateSeller(Seller seller)
         {
             seller.UserId = seller.User?.Id;
@@ -1196,6 +1210,7 @@ namespace MahtaKala.Controllers
             return Json(seller);
         }
 
+        [Authorize(UserType.Admin)]
         public async Task<ActionResult> RemoveSeller(Seller seller)
         {
             db.Sellers.Attach(seller);
@@ -1208,15 +1223,18 @@ namespace MahtaKala.Controllers
 
 
         #region Tags
+        [Authorize(UserType.Admin)]
         public ActionResult Tags()
         {
             return View();
         }
+        [Authorize(UserType.Admin)]
         public ActionResult GetAllTags([DataSourceRequest] DataSourceRequest request)
         {
             return ConvertDataToJson(db.Tags, request);
         }
 
+        [Authorize(UserType.Admin)]
         public async Task<ActionResult> UpdateTag(Tag tag)
         {
             if (tag.Id > 0)
@@ -1233,6 +1251,7 @@ namespace MahtaKala.Controllers
             return Json(tag);
         }
 
+        [Authorize(UserType.Admin)]
         public async Task<ActionResult> RemoveTag(Tag tag)
         {
             db.Tags.Attach(tag);
@@ -1245,6 +1264,7 @@ namespace MahtaKala.Controllers
 
 
         [HttpGet]
+        [Authorize(UserType.Admin)]
         public ActionResult ImportProductPrices()
         {
             ViewBag.Message = TempData["Message"];
@@ -1252,6 +1272,7 @@ namespace MahtaKala.Controllers
             return View();
         }
         [HttpPost]
+        [Authorize(UserType.Admin)]
         public async Task<ActionResult> ImportProductPrices(IEnumerable<IFormFile> files)
         {
             var file = files.FirstOrDefault();
