@@ -18,8 +18,6 @@ namespace MahtaKala.Services
 {
     public class OrderService
     {
-        public const int DeliveryPrice = 120000;
-
         private readonly ICurrentUserService currentUserService;
         private readonly DataContext db;
         private readonly IBankPaymentService bankService;
@@ -438,7 +436,7 @@ namespace MahtaKala.Services
                 await EmptyCart(payment.Order?.UserId);
         }
 
-        public decimal GetDeliveryPrice(Order order)
+        public decimal GetDeliveryPrice(Order order = null)
         {
             return settingsService.DeliveryPrice;
         }

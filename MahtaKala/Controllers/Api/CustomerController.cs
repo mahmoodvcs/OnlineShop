@@ -123,8 +123,8 @@ namespace MahtaKala.Controllers.Api
             return new CartModel
             {
                 Items = items,
-                DeliveryPrice = OrderService.DeliveryPrice,
-                TotlaPrice = items.Sum(a=>a.Quantity * a.Price) + OrderService.DeliveryPrice
+                DeliveryPrice = orderService.GetDeliveryPrice(),
+                TotlaPrice = items.Sum(a=>a.Quantity * a.Price) + orderService.GetDeliveryPrice()
             };
         }
 

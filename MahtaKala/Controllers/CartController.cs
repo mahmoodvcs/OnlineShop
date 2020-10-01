@@ -116,7 +116,7 @@ namespace MahtaKala.Controllers
                 return RedirectToAction("Category", "home");
             }
 
-            decimal postCost = OrderService.DeliveryPrice;
+            decimal postCost = orderService.GetDeliveryPrice();
             decimal sumFinalPrice = 0;
             foreach (var item in getCartItems)
             {
