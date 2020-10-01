@@ -124,6 +124,8 @@ namespace MahtaKala.Entities
         public DbSet<BuyLimitation> BuyLimitations { get; set; }
         public DbSet<ProductBuyLimitation> ProductBuyLimitations { get; set; }
         public DbSet<CategoryBuyLimitation> CategoryBuyLimitations { get; set; }
+        public DbSet<Delivery> Deliveries { get; set; }
+
 
 
         #region Get Titles

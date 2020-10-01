@@ -83,33 +83,36 @@
         }
 
         function itemsPacked() {
-            window.event.preventDefault();
-            Swal.fire({
-                title: "آیا اقلام انتخاب شده آماده ی ارسال هستند؟",
-                confirmButtonText:"بله",
-                showCancelButton: true,
-                cancelButtonText: "لغو"
-            }).then((result) => {
-                if (result.value) {
-                    $.post("@Url.Action("ConfirmPacked", "Orders")",
-                        {
-                            ids: getSelectedIds()
-                        },
-                        function (response) {
-                            if (response.success) {
-                                $("#grid").data("kendoGrid").dataSource.read();
-                            } else {
-                                ShowError(response.message);
-                            }
-                        })
-                        .fail(handleAjaxError);
+            confirmAjax("آیا اقلام انتخاب شده آماده ی ارسال هستند؟",
+                "@Url.Action("ConfirmPacked", "Orders")",
+                {
+                    ids: getSelectedIds()
+                },
+                function (response) {
+                    if (response.success) {
+                        $("#grid").data("kendoGrid").dataSource.read();
+                    } else {
+                        ShowError(response.message);
+                    }
                 }
-            });
+            );
             return false;
         }
 
         function itemsSent() {
-            window.event.preventDefault();
+            confirmAjax("آیا اقلام انتخاب شده ارسال شدند؟",
+                "@Url.Action("ConfirmSent", "Orders")",
+                {
+                    ids: getSelectedIds()
+                },
+                function (response) {
+                    if (response.success) {
+                        $("#grid").data("kendoGrid").dataSource.read();
+                    } else {
+                        ShowError(response.message);
+                    }
+                }
+            );
             return false;
         }
 

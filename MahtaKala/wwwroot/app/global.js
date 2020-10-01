@@ -24,3 +24,17 @@ function handleAjaxError(xhr) {
         $.unblockUI();
     }
 }
+
+function confirmAjax(msg, url, data, sucess) {
+    window.event.preventDefault();
+    Swal.fire({
+        title: msg,
+        confirmButtonText: "تایید",
+        showCancelButton: true,
+        cancelButtonText: "لغو"
+    }).then((result) => {
+        if (result.value) {
+            $.post(url, data, sucess).fail(handleAjaxError);
+        }
+    });
+}

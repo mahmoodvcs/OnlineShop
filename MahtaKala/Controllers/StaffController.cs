@@ -36,7 +36,7 @@ using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Controllers
 {
-    public class StaffController : ApiControllerBase<StaffController>
+    public class StaffController : SiteControllerBase<StaffController>
     {
         private readonly IProductImageService productImageService;
         private readonly ICategoryImageService categoryImageService;
@@ -1198,7 +1198,10 @@ namespace MahtaKala.Controllers
                 var dbSeller = await db.Sellers.FindAsync(seller.Id);
                 dbSeller.Name = seller.Name;
                 dbSeller.UserId = seller.UserId;
-                dbSeller.AccountBankName = seller.AccountBankName;
+                dbSeller.Lat = seller.Lat;
+                dbSeller.Lng = seller.Lng;
+                dbSeller.Address = seller.Address;
+                dbSeller.PhoneNumber = seller.PhoneNumber;
                 dbSeller.AccountNumber = seller.AccountNumber;
                 dbSeller.Basket = seller.Basket;
             }

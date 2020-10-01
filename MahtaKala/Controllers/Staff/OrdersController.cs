@@ -22,6 +22,16 @@ namespace MahtaKala.Controllers.Staff
     {
         private readonly OrderService orderService;
 
+        long _sellerId = 0;
+        async Task<long> GetSellerId()
+        {
+            return await db.Sellers.Where(a => a.UserId == UserId).Select(a => a.Id).FirstOrDefaultAsync();
+        }
+        async Task<Seller> GetSeller()
+        {
+            return await db.Sellers.Where(a => a.UserId == UserId).FirstOrDefaultAsync();
+        }
+
         public OrdersController(DataContext dataContext, ILogger<OrdersController> logger,
             OrderService orderService)
             : base(dataContext, logger)
@@ -45,7 +55,7 @@ namespace MahtaKala.Controllers.Staff
             {
                 if (base.User.Type == UserType.Seller)
                 {
-                    var sellerId = await db.Sellers.Where(a => a.UserId == UserId).Select(a => a.Id).FirstOrDefaultAsync();
+                    var sellerId = await GetSellerId();
                     query = query.Where(a => a.Items.Any(a => a.ProductPrice.Product.SellerId == sellerId));
                 }
             }
@@ -87,7 +97,14 @@ namespace MahtaKala.Controllers.Staff
         [AjaxAction]
         public async Task<IActionResult> ConfirmPacked(long[] ids)
         {
-            await orderService.ChangeOrderItemsState(ids, OrderItemState.Packed);
+            await orderService.SetItemsPacked(await GetSeller(), ids);
+            return Success();
+        }
+
+        [AjaxAction]
+        public async Task<IActionResult> ConfirmSent(long[] ids)
+        {
+            await orderService.ChangeOrderItemsState(ids, OrderItemState.Sent, await GetSellerId());
             return Success();
         }
     }

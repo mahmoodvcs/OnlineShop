@@ -65,7 +65,7 @@ namespace MahtaKala.Controllers
                 return View(model);
             }
 
-            var user = await db.Users.Where(u => u.Username == model.UserName).FirstAsync();
+            var user = await db.Users.Where(u => u.Username == model.UserName).FirstOrDefaultAsync();
             if (user == null || !user.VerifyPassword(model.Password))
             {
                 ModelState.AddModelError(string.Empty, "نام کاربری و یا رمز عبور اشتباه است.");

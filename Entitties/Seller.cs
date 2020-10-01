@@ -14,12 +14,21 @@ namespace MahtaKala.Entities
         [StringLength(255)]
         [Display(Name = "نام")]
         public string Name { get; set; }
-        [StringLength(30)]
-        [Display(Name = "شماره حساب")]
-        public string AccountNumber { get; set; }
         [StringLength(50)]
-        public string AccountBankName { get; set; }
+        [Display(Name = "شماره شبا")]
+        public string AccountNumber { get; set; }
+        [Display(Name = "آدرس")]
+        public string Address { get; set; }
+        //[StringLength(50)]
+        //public string AccountBankName { get; set; }
+        [Display(Name = "عرض جغرافیایی")]
+        public double? Lat { get; set; }
+        [Display(Name = "طول جغرافیایی")]
+        public double? Lng { get; set; }
 
+        [StringLength(20)]
+        [Display(Name = "شماره تلفن")]
+        public string PhoneNumber { get; set; }
 
         [Display(Name = "کاربر")]
         public User User { get; set; }

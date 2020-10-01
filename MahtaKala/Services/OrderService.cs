@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using System.Transactions;
 using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Services
@@ -22,18 +23,21 @@ namespace MahtaKala.Services
         private readonly DataContext db;
         private readonly IBankPaymentService bankService;
         private readonly SettingsService settingsService;
+        private readonly IDeliveryService deliveryService;
 
         public OrderService(
             ICurrentUserService currentUserService,
             DataContext dataContext,
             IBankPaymentService bankService,
-            SettingsService settingsService
+            SettingsService settingsService,
+            IDeliveryService deliveryService
             )
         {
             this.currentUserService = currentUserService;
             this.db = dataContext;
             this.bankService = bankService;
             this.settingsService = settingsService;
+            this.deliveryService = deliveryService;
         }
         User User => currentUserService.User;
         public async Task<Order> GetUserOrder()
@@ -103,6 +107,14 @@ namespace MahtaKala.Services
                 item.State = state;
             }
             await db.SaveChangesAsync();
+        }
+
+        public async Task SetItemsPacked(Seller seller, long[] ids)
+        {
+            using var tr = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            await ChangeOrderItemsState(ids, OrderItemState.Packed);
+            await deliveryService.InitDelivery(seller, ids);
+            tr.Complete();
         }
 
         bool IsValidTransition(OrderItemState from, OrderItemState to)

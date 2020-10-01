@@ -3,6 +3,7 @@ using EFSecondLevelCache.Core;
 using MahtaKala.Entities;
 using MahtaKala.Entities.ExceptionHandling;
 using MahtaKala.GeneralServices;
+using MahtaKala.GeneralServices.Delivery;
 using MahtaKala.GeneralServices.Payment;
 using MahtaKala.GeneralServices.SMS;
 using MahtaKala.Helpers;
@@ -126,6 +127,7 @@ namespace MahtaKala
             services.AddScoped<ImportService>();
             services.AddKendo();
             services.AddScoped<SettingsService>();
+            services.AddScoped<IDeliveryService, YarBoxDeliveryService>();
 
 
             services.AddEFSecondLevelCache();

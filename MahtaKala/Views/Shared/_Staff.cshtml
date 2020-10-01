@@ -232,7 +232,7 @@
                                     <span class="menu-text">گزارش خریدها</span>
                                 </a>
                             </li>
-                            @if (ViewBag.User.Type == UserType.Seller)
+                            @if (ViewBag.User.Type == UserType.Seller || ViewBag.User.Type == UserType.Admin)
                             {
                             <li class="menu-item " aria-haspopup="true">
                                 <a href="/Staff/Orders/Items" class="menu-link ">
@@ -310,7 +310,7 @@
                     <!--begin::Entry-->
                     <div class="d-flex flex-column-fluid">
                         <!--begin::Container-->
-                        <div class=" container ">
+                        <div class="container-fluid">
                             @RenderBody()
                         </div>
                         <!--end::Container-->

@@ -3,15 +3,17 @@ using System;
 using MahtaKala.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MahtaKala.Entities.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200930172058_Seller_Address")]
+    partial class Seller_Address
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -179,43 +181,6 @@ namespace MahtaKala.Entities.Migrations
                         .HasName("ix_cities_province_id");
 
                     b.ToTable("cities");
-                });
-
-            modelBuilder.Entity("MahtaKala.Entities.Delivery", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("OrderItemIds")
-                        .HasColumnName("order_item_ids")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Request")
-                        .HasColumnName("request")
-                        .HasColumnType("text");
-
-                    b.Property<long>("SellerId")
-                        .HasColumnName("seller_id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("TrackNo")
-                        .HasColumnName("track_no")
-                        .HasColumnType("text");
-
-                    b.Property<long>("UserId")
-                        .HasColumnName("user_id")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id")
-                        .HasName("pk_deliveries");
-
-                    b.HasIndex("SellerId")
-                        .HasName("ix_deliveries_seller_id");
-
-                    b.ToTable("deliveries");
                 });
 
             modelBuilder.Entity("MahtaKala.Entities.DynamicSetting", b =>
@@ -1052,16 +1017,6 @@ namespace MahtaKala.Entities.Migrations
                         .WithMany("Cities")
                         .HasForeignKey("ProvinceId")
                         .HasConstraintName("fk_cities_provinces_province_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MahtaKala.Entities.Delivery", b =>
-                {
-                    b.HasOne("MahtaKala.Entities.Seller", "Seller")
-                        .WithMany()
-                        .HasForeignKey("SellerId")
-                        .HasConstraintName("fk_deliveries_sellers_seller_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
