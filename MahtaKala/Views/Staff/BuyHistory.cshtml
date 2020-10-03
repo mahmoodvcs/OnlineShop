@@ -15,7 +15,7 @@
 
 </div>
 
-    @(Html.Kendo().Grid<MahtaKala.Models.BuyHistoryModel>().Name("grid").Columns(columns =>
+@(Html.Kendo().Grid<MahtaKala.Models.BuyHistoryModel>().Name("grid").Columns(columns =>
 {
     columns.Bound(p => p.FirstName).Title("نام");
     columns.Bound(p => p.LastName).Title("نام خانوادگی");
@@ -25,6 +25,7 @@
     columns.Bound(p => p.SendDate).Title("تاریخ ارسال");
     columns.Bound(p => p.ActualDeliveryDate).Title("تاریخ تحویل");
     columns.Bound(p => p.TotalPrice).Title("قیمت");
+    columns.Command(command => command.Custom("جزئیات").Click("viewDetails")).Width(90);
     columns.Command(command => command.Custom("تایید ارسال").Click("ConfirmSent")).Width(90);
     columns.Command(command => command.Custom("تایید تحویل").Click("ConfirmDelivered")).Width(90);
 
@@ -52,8 +53,8 @@
             .Read(read => read.Action("GetBuyHistory", "Staff").Data("getAdditionalData"))
                                                                                                                                                                                                                                                                                 )
     )
-    @section js{
-        <script type="text/javascript">
+@section js{
+    <script type="text/javascript">
         function ConfirmSent(e) {
             e.preventDefault();
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
@@ -131,5 +132,13 @@
             });
         }
 
-        </script>
-    }
+
+        function viewDetails(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            window.open("@Url.Action("OrderDetails","Orders")?id=" + dataItem.Id);
+
+        }
+
+    </script>
+}

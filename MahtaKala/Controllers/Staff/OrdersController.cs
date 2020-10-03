@@ -107,5 +107,15 @@ namespace MahtaKala.Controllers.Staff
             await orderService.ChangeOrderItemsState(ids, OrderItemState.Sent, await GetSellerId());
             return Success();
         }
+
+        public async Task<ActionResult> OrderDetails(long id)
+        {
+            var order = await db.Orders
+                .Include(a => a.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product)
+                .Include(a => a.User)
+                .Include(a => a.Address)
+                .FirstOrDefaultAsync(a => a.Id == id);
+            return View("~/Views/Staff/Orders/OrderDetails.cshtml", order);
+        }
     }
 }

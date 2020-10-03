@@ -1,0 +1,67 @@
+﻿@model Order
+@{
+    ViewData["Title"] = "جزئیات سفارش";
+    Layout = "~/Views/Shared/_Staff.cshtml";
+}
+
+<h1>جزئیات سفارش</h1>
+<div class="card">
+    <div class="card-body">
+        <h3>مشخصات خریدار</h3>
+        <div class="row">
+            <div class="col-md-4">
+                <label>نام:</label>
+                @Model.User.FirstName @Model.User.LastName
+            </div>
+            <div class="col-md-4">
+                <label>شماره تلفن:</label>
+                @Model.User.MobileNumber
+            </div>
+            <div class="col-md-4">
+                <label>آدرس:</label>
+                @Model.Address?.Details
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-4">
+                <label>تاریخ سفارش:</label>
+                @Util.GetPersianDate(Model.CheckOutData)
+            </div>
+            <div class="col-md-4">
+                <label>قیمت کل:</label>
+                @Model.TotalPrice.ToString("n0") ریال
+            </div>
+            <div class="col-md-4">
+            </div>
+        </div>
+        <br/>
+        <hr />
+        <h3>اقلام</h3>
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>نام کالا</th>
+                    <th>کد کالا</th>
+                    <th>تعداد</th>
+                    <th>قیمت واحد</th>
+                    <th>قیمت کل</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Items)
+                {
+                    <tr>
+                        <td>@p.ProductPrice.Product.Title</td>
+                        <td>@p.ProductPrice.Product.Code</td>
+                        <td>@p.Quantity</td>
+                        <td>@p.UnitPrice</td>
+                        <td>@p.FinalPrice</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
