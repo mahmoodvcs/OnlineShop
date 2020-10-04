@@ -414,10 +414,6 @@ namespace MahtaKala.Services
                 quantity.Quantity -= item.Count;
             }
 
-            //////////////////////////////////////
-            await Task.Delay(30000);
-            ///////////////////////////////////
-
             order.TotalPrice = CalculateTotalPrice(order);
 
             await db.SaveChangesAsync();
