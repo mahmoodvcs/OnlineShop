@@ -28,9 +28,12 @@ namespace MahtaKala.GeneralServices.Payment
         private readonly DataContext dataContext;
         private readonly ILogger<IBankPaymentService> logger;
 
-        const string merchant_id = "011022471";
+        const string merchant_id = "011048201";
         const string username = merchant_id;
         const string password = "440196094";
+        const string terminalId = "11054155";
+        const string subject = "PardakhtNovin";
+        const string certificatePassword = "PardakhtNovin@404306";
 
         const string shareUsername = "mahtaws";
         const string sharePassword = "Ab123456";
@@ -72,7 +75,7 @@ namespace MahtaKala.GeneralServices.Payment
                 PardakhtNovinWebService.TechnoIPGWSClient ipgw = new PardakhtNovinWebService.TechnoIPGWSClient();
                 //TechnoPaymentWebServiceService ipgw = new TechnoPaymentWebServiceService();
                 ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(validateservercertificate);
-                X509Certificate2 cert = new X509Certificate2(certpath, "PardakhtNovin@404306", X509KeyStorageFlags.DefaultKeySet);
+                X509Certificate2 cert = new X509Certificate2(certpath, certificatePassword, X509KeyStorageFlags.DefaultKeySet);
                 ipgw.ClientCredentials.ClientCertificate.Certificate = cert;
                 //ipgw.AllowAutoRedirect = false;
                 //  step1 data to sign
@@ -83,7 +86,7 @@ namespace MahtaKala.GeneralServices.Payment
                 requestparam.Amount = amount;                      //مبلغ
                 requestparam.AmountSpecified = true;
                 requestparam.MerchantId = merchant_id;              //کد پذیرنده
-                //requestparam.TerminalId = "01631913";// terminal_id;               // کد ترمینال
+                requestparam.TerminalId = terminalId;
                 requestparam.TransType = enTransType.enGoods;        //نوع تراکنش خرید
                 requestparam.TransTypeSpecified = true;
                 requestparam.ReserveNum = resnt;             //شماره فاکتور
