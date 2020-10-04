@@ -47,21 +47,27 @@ namespace MahtaKala.Controllers.Staff
         [Authorize(UserType.Admin, UserType.Seller)]
         public async Task<IActionResult> GetItems([DataSourceRequest] DataSourceRequest req, int? stateFilter)
         {
-            var query = db.Orders.Where(o => o.State == OrderState.Paid ||
-                                      o.State == OrderState.Delivered ||
-                                      o.State == OrderState.Sent);
+            var query = db.Orders
+                .Where(o => o.State == OrderState.Paid ||
+                        o.State == OrderState.Delivered ||
+                        o.State == OrderState.Sent)
+                .SelectMany(a => a.Items);
 
             if (base.User.Type != UserType.Admin)
             {
                 if (base.User.Type == UserType.Seller)
                 {
                     var sellerId = await GetSellerId();
-                    query = query.Where(a => a.Items.Any(a => a.ProductPrice.Product.SellerId == sellerId));
+                    query = query.Where(a => a.ProductPrice.Product.SellerId == sellerId);
                 }
             }
 
-            var items = from order in query
-                        from item in order.Items
+            if (stateFilter != null)
+            {
+                query = query.Where(a => a.State == (OrderItemState)stateFilter);
+            }
+
+            var items = from item in query
                         select new
                         {
                             item.Quantity,
@@ -74,10 +80,6 @@ namespace MahtaKala.Controllers.Staff
                             item.Order.UserId,
                             item.State
                         };
-            if (stateFilter != null)
-            {
-                items = items.Where(a => a.State == (OrderItemState)stateFilter);
-            }
 
             var data = await items.ToDataSourceResultAsync(req, a => new OrderItemModel
             {
