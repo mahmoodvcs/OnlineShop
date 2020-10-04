@@ -2,6 +2,7 @@
 using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Payment;
 using MahtaKala.GeneralServices.Payment.PardakhtNovin;
+using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
 using MahtaKala.Models.Payment;
 using MahtaKala.Services;
@@ -133,7 +134,7 @@ namespace MahtaKala.Controllers
             {
                 string message = string.Format(Messages.Messages.Order.OrderPaymentSuccessMessage,
                     payment.TrackingNumber,
-                    payment.Order.ApproximateDeliveryDate?.ToString("yyyy/MM/dd HH:mm"));
+                    Util.GetPersianDate(payment.Order.ApproximateDeliveryDate));
                 var number = db.Users.Where(a => a.Id == payment.Order.UserId).Select(a => a.MobileNumber).Single();
                 SMSService.Send(number, message);
             }

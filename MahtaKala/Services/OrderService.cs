@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Z.EntityFramework.Plus;
@@ -373,6 +374,8 @@ namespace MahtaKala.Services
 
             await CheckCartValidity(addressId, cartItems);
 
+            using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
+
             var order = new Order();
             order.State = OrderState.Initial;
             order.UserId = User.Id;
@@ -381,6 +384,10 @@ namespace MahtaKala.Services
             order.CheckOutData = now;
             order.ApproximateDeliveryDate = now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(16);
             db.Orders.Add(order);
+
+            var productIds = cartItems.Select(a => a.ProductPrice.ProductId).ToList();
+            var quantities = await db.ProductQuantities.FromSqlRaw<ProductQuantity>($"SELECT* FROM product_quantities pq WHERE pq.product_id in ({string.Join(',', productIds)}) FOR UPDATE").ToListAsync();
+
             foreach (var item in cartItems)
             {
                 OrderItem orderItem = new OrderItem();
@@ -389,10 +396,33 @@ namespace MahtaKala.Services
                 orderItem.ProductPriceId = item.ProductPriceId;
                 orderItem.Quantity = item.Count;
                 order.Items.Add(orderItem);
+
+                var pqs = quantities.Where(a => a.ProductId == item.ProductPrice.ProductId).ToList();
+                if (pqs.Count > 1)
+                {
+                    throw new CartItemException($"اطلاعات موجودی محصول {item.ProductPrice.Product.Title} اشتباه است", item.ProductPrice.ProductId, item.ProductPrice.Product.Title);
+                }
+                if (pqs.Count == 0)
+                {
+                    throw new CartItemException($"محصول {item.ProductPrice.Product.Title} موجود نیست", item.ProductPrice.ProductId, item.ProductPrice.Product.Title);
+                }
+                var quantity = pqs[0];
+                if (quantity.Quantity < item.Count)
+                {
+                    throw new CartItemException($"محصول {item.ProductPrice.Product.Title} به تعداد {quantity.Quantity} موجود است", item.ProductPrice.ProductId, item.ProductPrice.Product.Title);
+                }
+                quantity.Quantity -= item.Count;
             }
 
+            //////////////////////////////////////
+            await Task.Delay(30000);
+            ///////////////////////////////////
+
             order.TotalPrice = CalculateTotalPrice(order);
+
             await db.SaveChangesAsync();
+
+            transaction.Complete();
             return order;
         }
 
@@ -446,6 +476,32 @@ namespace MahtaKala.Services
         {
             if (payment.State == PaymentState.Succeeded)
                 await EmptyCart(payment.Order?.UserId);
+            else
+            {
+                await RollbackQuantity(payment.Order);
+            }
+        }
+
+        async Task RollbackQuantity(Order origOrder)
+        {
+            if (origOrder.State == OrderState.Paid || origOrder.State == OrderState.Delivered || origOrder.State == OrderState.Sent)
+                throw new Exception($"Invalid order state: Id: {origOrder.Id} - State: {origOrder.State}");
+
+            var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).FirstAsync(a => a.Id == origOrder.Id);
+            using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
+
+            order.State = OrderState.Canceled;
+            var productIds = order.Items.Select(a => a.ProductPrice.ProductId).ToList();
+            var quantities = await db.ProductQuantities.FromSqlRaw<ProductQuantity>($"SELECT* FROM product_quantities pq WHERE pq.product_id in ({string.Join(',', productIds)}) FOR UPDATE").ToListAsync();
+
+            foreach (var item in order.Items)
+            {
+                var quantity = quantities.FirstOrDefault(a => a.ProductId == item.ProductPrice.ProductId);
+                quantity.Quantity += item.Quantity;
+            }
+
+            await db.SaveChangesAsync();
+            transaction.Complete();
         }
 
         public decimal GetDeliveryPrice(Order order = null)

@@ -148,32 +148,51 @@ namespace MahtaKala.GeneralServices.Payment
             var state = dic["state"];
             if (state.ToLower() == "ok")
             {
-                payment.State = PaymentState.PaidNotVerified;
-                await dataContext.SaveChangesAsync();
-                TechnoIPGWSClient ipgw = new TechnoIPGWSClient();
-
-                WSContext wsContext = new WSContext();
-
-                wsContext.UserId = username;
-                wsContext.Password = password;
-
-                VerifyMerchantTransParam verifyParam = new VerifyMerchantTransParam();
-                verifyParam.WSContext = wsContext;
-                verifyParam.Token = token;
-                verifyParam.RefNum = refNum;
-
-                var result = await ipgw.VerifyMerchantTransAsync(verifyParam);
-                if (result.@return.Result == "erSucceed")
+                if (payment.State != PaymentState.SentToBank)
                 {
-                    payment.State = PaymentState.Succeeded;
-                    payment.Order.State = OrderState.Paid;
-                    //TODO: Store CustomerRefNum
+                    TechnoIPGWSClient ipgw = new TechnoIPGWSClient();
+
+                    WSContext wsContext = new WSContext();
+
+                    wsContext.UserId = username;
+                    wsContext.Password = password;
+                    ReverseMerchantTransParam param = new ReverseMerchantTransParam();
+                    param.RefNum = refNum;
+                    param.Token = token;
+                    param.WSContext = wsContext;
+                    var result = await ipgw.ReverseMerchantTransAsync(param);
+
+                }
+                else
+                {
+                    payment.State = PaymentState.PaidNotVerified;
+                    await dataContext.SaveChangesAsync();
+                    TechnoIPGWSClient ipgw = new TechnoIPGWSClient();
+
+                    WSContext wsContext = new WSContext();
+
+                    wsContext.UserId = username;
+                    wsContext.Password = password;
+
+                    VerifyMerchantTransParam verifyParam = new VerifyMerchantTransParam();
+                    verifyParam.WSContext = wsContext;
+                    verifyParam.Token = token;
+                    verifyParam.RefNum = refNum;
+
+                    var result = await ipgw.VerifyMerchantTransAsync(verifyParam);
+                    if (result.@return.Result == "erSucceed")
+                    {
+                        payment.State = PaymentState.Succeeded;
+                        payment.Order.State = OrderState.Paid;
+                        //TODO: Store CustomerRefNum
+                    }
                 }
             }
             else
             {
                 logger.LogError($"Payment not successful. pid: {payment.Id} - State: {state}");
                 payment.State = PaymentState.Failed;
+                payment.Order.State = OrderState.Canceled;
             }
 
             await dataContext.SaveChangesAsync();
