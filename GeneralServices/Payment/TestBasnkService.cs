@@ -38,5 +38,10 @@ namespace MahtaKala.GeneralServices.Payment
             await db.SaveChangesAsync();
             return payment;
         }
+
+        public Task SharePayment(Entities.Payment payment, List<PaymentShareDataItem> items)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

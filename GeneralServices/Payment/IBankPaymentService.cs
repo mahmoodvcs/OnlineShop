@@ -11,5 +11,14 @@ namespace MahtaKala.GeneralServices.Payment
         Task<string> GetToken(Entities.Payment payment, string returnUrl);
         string GetPayUrl(Entities.Payment payment);
         Task<Entities.Payment> Paid(string bankReturnBody);
+
+        Task SharePayment(Entities.Payment payment, List<PaymentShareDataItem> items);
+    }
+
+    public class PaymentShareDataItem
+    {
+        public string ShabaId { get; set; }
+        public decimal Amount { get; set; }
+        public string Name { get; set; }
     }
 }

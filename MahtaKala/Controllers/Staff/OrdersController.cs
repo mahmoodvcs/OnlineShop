@@ -71,7 +71,7 @@ namespace MahtaKala.Controllers.Staff
                         select new
                         {
                             item.Quantity,
-                            item.Order.CheckOutData,
+                            item.Order.CheckOutDate,
                             item.Id,
                             item.OrderId,
                             item.ProductPrice.Product.Title,
@@ -84,7 +84,7 @@ namespace MahtaKala.Controllers.Staff
             var data = await items.ToDataSourceResultAsync(req, a => new OrderItemModel
             {
                 Count = a.Quantity,
-                Date = Util.GetPersianDate(a.CheckOutData),
+                Date = Util.GetPersianDate(a.CheckOutDate),
                 Id = a.Id,
                 OrderId = a.OrderId,
                 Price = a.UnitPrice,

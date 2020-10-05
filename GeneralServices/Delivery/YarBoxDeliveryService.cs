@@ -32,6 +32,28 @@ namespace MahtaKala.GeneralServices.Delivery
         const string APIAddress = "https://api.yarbox.co/api/v3/";
         const string APIKey = @"eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiMDkxMjgzNTMyMzAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3NlcmlhbG51bWJlciI6IjcwYmEwMDE5MzdlNDRhNWRiNGRmN2JlNDhlM2MxOTM1IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy91c2VyZGF0YSI6IjMzMjI0OTA5LThmMDAtZWIxMS05MGIyLTBjYzQ3YTMwZTY1NyIsIm5iZiI6MTYwMTE5MDMzNiwiZXhwIjoxNjAzNzgyMzM2LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0LyIsImF1ZCI6IkFueSJ9.LKhj6f9QglVfc-LFOJq0NcbCXmMRf9QqPvKSS7K_2Fw";
 
+        public async Task InitDelivery(long orderId)
+        {
+            var items = await db.OrderItems.Where(a => a.OrderId == orderId)
+                .Select(a => new
+                {
+                    a.ProductPrice.Product.Seller,
+                    a.Id
+                })
+                .GroupBy(a=>a.Seller)
+                .Select(a=>new
+                {
+                    a.Key,
+                    Ids = a.Select(z=>z.Id).ToList()
+                })
+                .ToListAsync();
+
+            foreach (var item in items)
+            {
+                await InitDelivery(item.Key, item.Ids.ToArray());
+            }
+        }
+
         public async Task InitDelivery(Seller seller, long[] orderItemIds)
         {
             var query = from item in db.OrderItems.Where(a => orderItemIds.Contains(a.Id))
@@ -46,7 +68,8 @@ namespace MahtaKala.GeneralServices.Delivery
                             Province = address.City.Province.Name,
                             user.FirstName,
                             user.LastName,
-                            UserId = user.Id
+                            UserId = user.Id,
+
                         } into groups
                         select new
                         {
@@ -89,7 +112,7 @@ namespace MahtaKala.GeneralServices.Delivery
                     //OrderItemIds = JsonSerializer.Serialize(group.Ids),
                     SellerId = seller.Id,
                     TrackNo = response.packkey,
-                    UserId = group.Info.UserId
+                    UserId = group.Info.UserId,
                 };
                 db.Deliveries.Add(delivery);
             }
@@ -116,6 +139,16 @@ namespace MahtaKala.GeneralServices.Delivery
             var response = await client.PostAsync(APIAddress + service, content);
             var resStr = await response.Content.ReadAsStringAsync();
             return resStr;
+        }
+
+        public string GetShabaId()
+        {
+            return "IR360640012399674119600002";
+        }
+
+        public string GetName()
+        {
+            return "یارباکس";
         }
     }
 
@@ -157,5 +190,6 @@ namespace MahtaKala.GeneralServices.Delivery
     {
         public string packkey { get; set; }
         public string message { get; set; }
+        public long id { get; set; }
     }
 }

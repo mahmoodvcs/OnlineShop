@@ -226,20 +226,32 @@
                                     </ul>
                                 </div>
                             </li>
-                            <li class="menu-item " aria-haspopup="true">
-                                <a href="/Staff/BuyHistory" class="menu-link ">
-                                    <i class="menu-icon flaticon-piggy-bank"></i>
-                                    <span class="menu-text">گزارش خریدها</span>
-                                </a>
-                            </li>
+                            @if (ViewBag.User.Type == UserType.Delivery || ViewBag.User.Type == UserType.Admin)
+                            {
+                                <li class="menu-item " aria-haspopup="true">
+                                    <a href="/Staff/BuyHistory" class="menu-link ">
+                                        <i class="menu-icon flaticon-piggy-bank"></i>
+                                        <span class="menu-text">گزارش خریدها</span>
+                                    </a>
+                                </li>
+                            }
                             @if (ViewBag.User.Type == UserType.Seller || ViewBag.User.Type == UserType.Admin)
                             {
-                            <li class="menu-item " aria-haspopup="true">
-                                <a href="/Staff/Orders/Items" class="menu-link ">
-                                    <i class="menu-icon flaticon-piggy-bank"></i>
-                                    <span class="menu-text">اقلام فروخته شده</span>
-                                </a>
-                            </li>
+                                <li class="menu-item " aria-haspopup="true">
+                                    <a href="/Staff/Orders/Items" class="menu-link ">
+                                        <i class="menu-icon flaticon-piggy-bank"></i>
+                                        <span class="menu-text">اقلام فروخته شده</span>
+                                    </a>
+                                </li>
+                            }
+                            @if (ViewBag.User.Type == UserType.Admin)
+                            {
+                                <li class="menu-item " aria-haspopup="true">
+                                    <a href="/Settings" class="menu-link ">
+                                        <i class="menu-icon fa fa-gear"></i>
+                                        <span class="menu-text">تنظیمات سیستم</span>
+                                    </a>
+                                </li>
                             }
                         </ul>
                         <!--end::Menu Nav-->

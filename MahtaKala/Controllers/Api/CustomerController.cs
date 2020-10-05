@@ -184,7 +184,7 @@ namespace MahtaKala.Controllers.Api
                 {
                     Id = a.Id,
                     Price = a.TotalPrice,
-                    a.CheckOutData,
+                    a.CheckOutDate,
                     a.ApproximateDeliveryDate,
                     a.ActualDeliveryDate,
                     a.SendDate,
@@ -194,11 +194,11 @@ namespace MahtaKala.Controllers.Api
             return data.Select(a => new BuyHistoryModel
             {
                 Id = a.Id,
-                CheckOutData = Util.GetPersianDate(a.CheckOutData),
+                CheckoutDate = Util.GetPersianDate(a.CheckOutDate),
                 ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
                 SendDate = Util.GetPersianDate(a.SendDate),
                 ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
-                TotalPrice = (long)a.Price,
+                Price = (long)a.Price,
                 State = TranslateExtentions.GetTitle(a.State)
             });
         }

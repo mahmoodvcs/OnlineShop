@@ -116,6 +116,7 @@ namespace MahtaKala.Entities
         #region Share
         public DbSet<PaymentParty> PaymentParties { get; set; }
         public DbSet<ProductPaymentParty> ProductPaymentParties { get; set; }
+        public DbSet<PaymentSettlement> PaymentSettlements { get; set; }
         #endregion Share
 
         public DbSet<Tag> Tags { get; set; }

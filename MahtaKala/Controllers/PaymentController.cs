@@ -93,13 +93,13 @@ namespace MahtaKala.Controllers
         //    return Redirect(pathService.AppBaseUrl + $"/Payment/Pay?pid={pay.Id}&uid={pay.UniqueId}&source=api");
         //}
 
-        [HttpPost]
-        public async Task<string> TestShare([FromQuery]string trackNo, [FromBody]List<ScatteredSettlementDetails> shares)
-        {
-            var payment = await db.Payments.FirstOrDefaultAsync(a=> a.TrackingNumber == trackNo);
-            var res = await ((PardakhtNovinService)bankPaymentService).Share(payment, shares);
-            return res;
-        }
+        //[HttpPost]
+        //public async Task<string> TestShare([FromQuery]string trackNo, [FromBody]List<ScatteredSettlementDetails> shares)
+        //{
+        //    var payment = await db.Payments.FirstOrDefaultAsync(a=> a.TrackingNumber == trackNo);
+        //    var res = await ((PardakhtNovinService)bankPaymentService).SharePayment(payment, shares);
+        //    return res;
+        //}
 
         [HttpPost]
         public async Task<ActionResult> Paid()//didn't work [FromQuery]string source)

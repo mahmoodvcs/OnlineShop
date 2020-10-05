@@ -9,5 +9,8 @@ namespace MahtaKala.GeneralServices
     public interface IDeliveryService
     {
         Task InitDelivery(Seller seller, long[] orderItemIds);
+        Task InitDelivery(long orderId);
+        string GetShabaId();
+        string GetName();
     }
 }

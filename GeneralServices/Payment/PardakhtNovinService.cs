@@ -218,34 +218,90 @@ namespace MahtaKala.GeneralServices.Payment
             return resStr;
         }
 
-        public async Task<string> Share(Entities.Payment payment, List<ScatteredSettlementDetails> items)
-        {
-//            var inqres = await Post(inqueiryAddress, @"[
-//	{
-//		""referenceNumber"":""026021451836""
+        //public async Task<string> Share(Entities.Payment payment)
+        //{
 
-//    }
-//]");
-            //var rrn = "26021451836";
+        //    var productIds = 
+        //}
+        //public async Task<string> Share(Entities.Payment payment, List<ProductPaymentParty> items)
+        //{
+        //    //            var inqres = await Post(inqueiryAddress, @"[
+        //    //	{
+        //    //		""referenceNumber"":""026021451836""
+
+        //    //    }
+        //    //]");
+        //    //var rrn = "26021451836";
+        //    SettlementRequest request = new SettlementRequest()
+        //    {
+        //        referenceNumber = new string('0', 12 - payment.PSPReferenceNumber.Length) + payment.PSPReferenceNumber,
+        //        scatteredSettlement = items.Select(a => new ScatteredSettlementDetails
+        //        {
+        //            settlementIban = a.PaymentParty.ShabaId,
+        //            shareAmount 
+        //        }).ToList()
+        //    };
+        //    //foreach (var item in items)
+        //    //{
+        //    //    request.scatteredSettlement.Add(new ScatteredSettlementDetails
+        //    //    {
+        //    //        settlementIban = item.PaymentParty.ShabaId,
+        //    //        sharePercent = (int)item.Percent
+        //    //    });
+        //    //}
+
+        //    var reqSgtring = JsonSerializer.Serialize(request);
+        //    logger.LogInformation(reqSgtring);
+        //    var resStr = await Post(ShareApiAddress, "[" + reqSgtring + "]");
+        //    logger.LogInformation(resStr);
+        //    return resStr;
+        //}
+
+        public async Task SharePayment(Entities.Payment payment, List<PaymentShareDataItem> items)
+        {
             SettlementRequest request = new SettlementRequest()
             {
                 referenceNumber = new string('0', 12 - payment.PSPReferenceNumber.Length) + payment.PSPReferenceNumber,
-                scatteredSettlement = items
+                scatteredSettlement = items.Select(a => new ScatteredSettlementDetails
+                {
+                    settlementIban = a.ShabaId,
+                    shareAmount = (int)a.Amount
+                }).ToList()
             };
-            //foreach (var item in items)
-            //{
-            //    request.scatteredSettlement.Add(new ScatteredSettlementDetails
-            //    {
-            //        settlementIban = item.PaymentParty.ShabaId,
-            //        sharePercent = (int)item.Percent
-            //    });
-            //}
 
-            var reqSgtring = JsonSerializer.Serialize(request);
+            var date = DateTime.Now;
+            var psItems = items.Select(a => new PaymentSettlement
+            {
+                Amount =(int)a.Amount,
+                Date = date,
+                Name = a.Name,
+                OrderId = payment.OrderId,
+                PaymentId = payment.Id,
+                ShabaId = a.ShabaId,
+                Status = PaymentSettlementStatus.Sent
+            }).ToList();
+
+            await dataContext.PaymentSettlements.AddRangeAsync(psItems);
+            await dataContext.SaveChangesAsync();
+
+            var reqSgtring = "[" + JsonSerializer.Serialize(request) + "]";
             logger.LogInformation(reqSgtring);
-            var resStr = await Post(ShareApiAddress, "[" + reqSgtring + "]");
+            var resStr = await Post(ShareApiAddress,reqSgtring);
             logger.LogInformation(resStr);
-            return resStr;
+            var responses = JsonSerializer.Deserialize<SettlementRequestResponse[]>(resStr);
+
+            if(responses.Length != items.Count)
+            {
+                logger.LogError($"Payment share response count mismatch. PaymentId: {payment.Id} - Request: {reqSgtring} \r\n\r\nResponse: {resStr}");
+                throw new Exception($"Payment share response count mismatch. PaymentId: {payment.Id}");
+            }
+
+            for (int i = 0; i < responses.Length; i++)
+            {
+                psItems[i].Status = responses[i].status == StatusType.Succeed ? PaymentSettlementStatus.Succeeded : PaymentSettlementStatus.Failed;
+                psItems[i].Response = responses[i].message;
+            }
+            await dataContext.SaveChangesAsync();
         }
 
         class PaidReturnData

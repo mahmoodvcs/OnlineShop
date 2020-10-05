@@ -11,7 +11,7 @@ namespace MahtaKala.Entities
         public long Id { get; set; }
         public long UserId { get; set; }
         public User User { get; set; }
-        public DateTime? CheckOutData { get; set; }
+        public DateTime? CheckOutDate { get; set; }
         public decimal TotalPrice { get; set; }
         public OrderState State { get; set; }
         public IList<OrderItem> Items { get; set; } = new List<OrderItem>();

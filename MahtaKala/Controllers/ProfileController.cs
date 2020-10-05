@@ -65,8 +65,8 @@ namespace MahtaKala.Controllers
                .Select(a => new BuyHistoryModel
                {
                    Id = a.Id,
-                   TotalPrice = (long)a.TotalPrice,
-                   CheckOutData = Util.GetPersianDate(a.CheckOutData),
+                   Price = (long)a.TotalPrice,
+                   CheckoutDate = Util.GetPersianDate(a.CheckOutDate),
                    State = TranslateExtentions.GetTitle(a.State),
                    ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
                    SendDate = Util.GetPersianDate(a.SendDate),

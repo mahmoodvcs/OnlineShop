@@ -188,7 +188,7 @@ namespace MahtaKala.Services
                         (from order in db.Orders
                                 .Where(o => o.UserId == userId
                                     && (o.State == OrderState.Paid || o.State == OrderState.Sent || o.State == OrderState.Delivered)
-                                    && o.CheckOutData > minTime)
+                                    && o.CheckOutDate > minTime)
                          from orderItem in order.Items.Where(a => a.ProductPriceId == priceId)
                          select orderItem.Quantity).SumAsync();
                     if (prevProductCount + count > limitation.MaxBuyQuota)
@@ -230,7 +230,7 @@ namespace MahtaKala.Services
                     (from order in db.Orders
                             .Where(o => o.UserId == userId
                                 && (o.State == OrderState.Paid || o.State == OrderState.Sent || o.State == OrderState.Delivered)
-                                && o.CheckOutData > minTime)
+                                && o.CheckOutDate > minTime)
                      from orderItem in order.Items.Where(a => a.ProductPriceId == priceId)
                      select orderItem.Quantity).SumAsync();
                 if (prevProductCount + count > prod.MaxBuyQuota)
@@ -381,7 +381,7 @@ namespace MahtaKala.Services
             order.UserId = User.Id;
             order.AddressId = addressId;
             var now = DateTime.Now;
-            order.CheckOutData = now;
+            order.CheckOutDate = now;
             order.ApproximateDeliveryDate = now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(16);
             db.Orders.Add(order);
 
@@ -471,7 +471,10 @@ namespace MahtaKala.Services
         public async Task Paid(Payment payment)
         {
             if (payment.State == PaymentState.Succeeded)
+            {
                 await EmptyCart(payment.Order?.UserId);
+                await deliveryService.InitDelivery(payment.OrderId);
+            }
             else
             {
                 await RollbackQuantity(payment.Order);
@@ -505,8 +508,85 @@ namespace MahtaKala.Services
             return settingsService.DeliveryPrice;
         }
 
+        public async Task ShareOrderPayment(long orderId, bool includeDelivery)
+        {
+            Payment payment = await GetPaymentToShare(orderId);
 
+            var items = db.OrderItems.Where(a => a.OrderId == orderId)
+                .Select(a => new
+                {
+                    a.ProductPrice.ProductId,
+                    a.FinalPrice,
+                    Share = a.ProductPrice.Product.PaymentParties.Select(p => new
+                    {
+                        p.PaymentParty.ShabaId,
+                        p.PaymentParty.Name,
+                        p.Percent
+                    }).ToList()
+                }).ToList()
+                .Select(a => new
+                {
+                    Share = a.Share.Select(s => new
+                    {
+                        Amount = a.FinalPrice / 100m * (decimal)s.Percent,
+                        s.ShabaId,
+                        s.Name,
+                        a.ProductId,
+                    }).ToList()
+                })
+                .SelectMany(a => a.Share)
+                .GroupBy(a => new { a.ShabaId, a.Name })
+                .Select(a => new PaymentShareDataItem
+                {
+                    ShabaId = a.Key.ShabaId,
+                    Name = a.Key.Name,
+                    Amount = a.Sum(s => s.Amount)
+                }).ToList();
+
+            if (includeDelivery)
+            {
+                items.Add(new PaymentShareDataItem
+                {
+                    Amount = GetDeliveryPrice(),
+                    Name = deliveryService.GetName(),
+                    ShabaId = deliveryService.GetShabaId()
+                });
+            }
+
+            await bankService.SharePayment(payment, items);
+        }
+
+        private async Task<Payment> GetPaymentToShare(long orderId)
+        {
+            var payments = await db.Payments.Where(a => a.OrderId == orderId && a.State == PaymentState.Succeeded).ToListAsync();
+            if (payments.Count == 0)
+            {
+                throw new Exception("No succeeded payment found for order " + orderId);
+            }
+            if (payments.Count > 1)
+            {
+                throw new Exception($"More than one succeeded payments found for order {orderId}. Payment Ids: {string.Join(',', payments.Select(a => a.Id).ToList())}");
+            }
+
+            return payments[0];
+        }
+
+        public async Task ShareDeliveryPayment(long orderId)
+        {
+            Payment payment = await GetPaymentToShare(orderId);
+            await bankService.SharePayment(payment, new List<PaymentShareDataItem>
+            {
+                new PaymentShareDataItem
+                {
+                    Amount = GetDeliveryPrice(),
+                    Name = deliveryService.GetName(),
+                    ShabaId = deliveryService.GetShabaId()
+                }
+            });
+        }
     }
+
+
 
     internal class ProductInfo
     {
