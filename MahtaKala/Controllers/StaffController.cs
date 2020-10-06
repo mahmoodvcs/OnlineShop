@@ -1047,14 +1047,14 @@ namespace MahtaKala.Controllers
         #region Order
 
 
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller, UserType.Delivery }, Order = 1)]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public ActionResult BuyHistory()
         {
             ViewData["Title"] = "گزارش خرید ها";
             return View();
         }
 
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller, UserType.Delivery }, Order = 1)]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request, int? stateFilter)
         {
             var query = db.Orders.Where(o => o.State == OrderState.Paid ||

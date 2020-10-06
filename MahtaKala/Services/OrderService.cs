@@ -415,6 +415,7 @@ namespace MahtaKala.Services
             }
 
             order.TotalPrice = CalculateTotalPrice(order);
+            order.DeliveryPrice = GetDeliveryPrice(order);
 
             await db.SaveChangesAsync();
 

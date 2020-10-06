@@ -33,3 +33,10 @@ div.filterPanel{
     padding:5px;
     margin-bottom: 10px;
 }
+
+
+@media print {
+    .no-print, .no-print * {
+        display: none !important;
+    }
+}

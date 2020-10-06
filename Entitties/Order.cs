@@ -13,6 +13,7 @@ namespace MahtaKala.Entities
         public User User { get; set; }
         public DateTime? CheckOutDate { get; set; }
         public decimal TotalPrice { get; set; }
+        public decimal DeliveryPrice { get; set; }
         public OrderState State { get; set; }
         public IList<OrderItem> Items { get; set; } = new List<OrderItem>();
         public UserAddress Address { get; set; }

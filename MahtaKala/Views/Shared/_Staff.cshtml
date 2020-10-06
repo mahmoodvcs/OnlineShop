@@ -33,7 +33,7 @@
     <link href="~/lib/kendo/css/web/kendo.rtl.min.css" rel="stylesheet" />
     <link href="~/lib/kendo/css/web/kendo.bootstrap.mobile.min.css" rel="stylesheet" />
     <link href="~/lib/kendo/css/web/kendo.bootstrap-v4.min.css" rel="stylesheet" />
-    <link href="~/css/main.css?1.1" rel="stylesheet" />
+    <link href="~/css/main.css?1.2" rel="stylesheet" />
     <link rel="shortcut icon" href="~/favicon.ico" />
 
 
@@ -226,7 +226,7 @@
                                     </ul>
                                 </div>
                             </li>
-                            @if (ViewBag.User.Type == UserType.Delivery || ViewBag.User.Type == UserType.Admin)
+                            @if (ViewBag.User.Type == UserType.Delivery || ViewBag.User.Type == UserType.Admin || ViewBag.User.Type == UserType.Staff)
                             {
                                 <li class="menu-item " aria-haspopup="true">
                                     <a href="/Staff/BuyHistory" class="menu-link ">
@@ -235,7 +235,7 @@
                                     </a>
                                 </li>
                             }
-                            @if (ViewBag.User.Type == UserType.Seller || ViewBag.User.Type == UserType.Admin)
+                            @if (ViewBag.User.Type == UserType.Seller || ViewBag.User.Type == UserType.Admin || ViewBag.User.Type == UserType.Staff)
                             {
                                 <li class="menu-item " aria-haspopup="true">
                                     <a href="/Staff/Orders/Items" class="menu-link ">
