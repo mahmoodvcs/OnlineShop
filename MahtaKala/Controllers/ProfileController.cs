@@ -71,6 +71,7 @@ namespace MahtaKala.Controllers
                    ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
                    SendDate = Util.GetPersianDate(a.SendDate),
                    ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
+                   OrderItems = db.OrderItems.Include(a=>a.ProductPrice.Product).Where(c=>c.OrderId==a.Id).ToList()
                }).ToList();
             return View(data);
         }

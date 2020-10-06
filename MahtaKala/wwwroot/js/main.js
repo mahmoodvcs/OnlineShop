@@ -1,4 +1,10 @@
-﻿$(document).on("click", ".heart", function (e) {
+﻿
+$(document).on("click", ".divItem", function () {
+    $(this).toggleClass("fa-chevron-up").toggleClass("fa-chevron-down");
+    $(this).parent().parent().next().slideToggle("slow");
+});
+
+$(document).on("click", ".heart", function (e) {
     e.preventDefault();
 
     $.blockUI({
@@ -92,7 +98,7 @@ $(document).on("submit", "form#editProfile", function (e) {
                 toastr.success(res.msg, '', { positionClass: "toast-bottom-center" });
             }
             else {
-               
+
                 toastr.warning(res.msg, '', { positionClass: "toast-bottom-center" });
             }
 
@@ -127,7 +133,7 @@ $(document).on("click", ".compare-to", function (e) {
     /*--------------------------
     1. Newsletter Popup
     ---------------------------*/
-   
+
 
     /*----------------------------
     2. Mobile Menu Activation
