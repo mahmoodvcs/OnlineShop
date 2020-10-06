@@ -374,6 +374,7 @@ namespace MahtaKala.Services
             //throw new InvalidOperationException("در حال حاضر امکان خرید وجود ندارد.");
             if (User == null)
                 throw new InvalidOperationException("User is not logged in.");
+            User.CheckProfileCompletion();
 
             var cartItems = await GetCartItems();
             if (cartItems.Count == 0)

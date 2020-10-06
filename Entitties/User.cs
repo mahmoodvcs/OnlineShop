@@ -1,4 +1,5 @@
 ﻿using MahtaKala.Entities.Security;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -82,6 +83,15 @@ namespace MahtaKala.Entities
         public bool VerifyPassword(string password)
         {
             return PasswordHasher.Verify(this.Password, password, ((int)this.Type).ToString());
+        }
+
+        public void CheckProfileCompletion()
+        {
+            if (string.IsNullOrEmpty(FirstName))
+                throw new Exception("لطفا نام را وارد کنید");
+            if (string.IsNullOrEmpty(LastName))
+                throw new Exception("لطفا نام خانوادگی را وارد کنید");
+
         }
     }
 }
