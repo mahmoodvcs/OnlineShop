@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace MahtaKala.Entities
@@ -23,6 +24,9 @@ namespace MahtaKala.Entities
         public DateTime? SendDate { get; set; }
         public DateTime? ApproximateDeliveryDate { get; set; }
         public DateTime? ActualDeliveryDate { get; set; }
+
+        [NotMapped]
+        public string OrderCode => "MHT-" + Id.ToString();
     }
     public enum OrderState
     {
