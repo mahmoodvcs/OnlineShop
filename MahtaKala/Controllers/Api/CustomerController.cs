@@ -203,6 +203,29 @@ namespace MahtaKala.Controllers.Api
             });
         }
 
+        [HttpGet]
+        public async Task<IEnumerable<OrderItemModel>> OrderDetails(long id)
+        {
+            var order = await db.Orders
+                .Include(a => a.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product)
+                .Include(a => a.Address)
+                .FirstOrDefaultAsync(a => a.Id == id && a.UserId == UserId);
+            if(order == null)
+            {
+                throw new BadRequestException("سفارشی با این کد متعلق به کاربر جاری پیدا نشد");
+            }
+
+            return order.Items.Select(a => new OrderItemModel
+            {
+                Id = a.Id,
+                DiscountedPrice = a.FinalPrice,
+                FinalPrice = a.FinalPrice,
+                Code = a.ProductPrice.Product.Code,
+                Title = a.ProductPrice.Product.Title,
+                Quantity = a.Quantity,
+                UnitPrice = a.ProductPrice.Price
+            });
+        }
         //[HttpGet]
         //public async Task<PaymentStatusResponse> PayStatus(long orderId)
         //{

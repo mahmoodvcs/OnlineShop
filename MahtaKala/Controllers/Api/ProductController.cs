@@ -287,7 +287,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<ProductConciseModel>> Search([FromQuery] string q, [FromQuery] int? offset, [FromQuery] int? page)
         {
-            var products = (IQueryable<Product>)productService.ProductsView().Where(p => p.Title.Contains(q));
+            var products = productService.ProductsView().Where(p => p.Title.Contains(q));
 
             if (offset.HasValue)
             {
