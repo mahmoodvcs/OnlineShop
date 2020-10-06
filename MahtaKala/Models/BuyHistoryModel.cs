@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MahtaKala.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,5 +17,6 @@ namespace MahtaKala.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string State { get; set; }
+        public IList<OrderItem> OrderItems { get; set; }
     }
 }

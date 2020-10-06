@@ -19,32 +19,70 @@
                     <th>تاریخ تقریبی تحویل</th>
                     <th>تاریخ ارسال</th>
                     <th>تاریخ تحویل</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
-                <tr>
-                    <td>
-                        @item.Id
-                    </td>
-                    <td><span class="amount">@string.Format("{0:n0}", item.Price) ریال</span></td>
-                    <td>
-                        @item.CheckoutDate
-                    </td>
-                    <td>
-                        @item.State
-                    </td>
-                    <td>
-                        @item.ApproximateDeliveryDate
-                    </td>
-                    <td>
-                        @item.SendDate
-                    </td>
-                    <td>
-                        @item.ActualDeliveryDate
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            @item.Id
+                        </td>
+                        <td><span class="amount">@string.Format("{0:n0}", item.Price) ریال</span></td>
+                        <td>
+                            @item.CheckoutDate
+                        </td>
+                        <td>
+                            @item.State
+                        </td>
+                        <td>
+                            @item.ApproximateDeliveryDate
+                        </td>
+                        <td>
+                            @item.SendDate
+                        </td>
+                        <td>
+                            @item.ActualDeliveryDate
+                        </td>
+                        <td>
+                            <i class="fa fa-chevron-down divItem" aria-hidden="true" style="cursor:pointer;"></i>
+                        </td>
+                    </tr>
+                    <tr style="display: none;background-color:whitesmoke;transition:0.5s;" class="panelDiv">
+                        <td colspan="8">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>عنوان کالا</th>
+                                        <th>تعداد</th>
+                                        <th>قیمت واحد</th>
+                                        <th>قیمت کل</th>
+                                    </tr>
+                                </thead>
+                                @foreach (var itemx in item.OrderItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a target="_blank" href="@Url.Content("~/home/product/"+ itemx.ProductPrice.ProductId)">
+                                                @itemx.ProductPrice.Product.Title
+                                            </a>
+                                        </td>
+                                        <td>
+                                            @itemx.Quantity
+                                        </td>
+                                        <td>
+                                            @string.Format("{0:n0}", itemx.ProductPrice.Price) ریال
+                                        </td>
+                                        <td>
+                                            @string.Format("{0:n0}", itemx.ProductPrice.Price * itemx.Quantity) ریال
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        </td>
+                    </tr>
+
                 }
             </tbody>
         </table>

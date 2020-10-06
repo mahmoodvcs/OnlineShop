@@ -99,10 +99,10 @@ new
                                 <div class="country-select clearfix mb-30">
                                     <label>آدرس تحویل سفارش <span class="required">*</span></label>
                                     @(Html.Kendo().DropDownList()
-                                        .Name("UserData.AddressId")
-                                        .HtmlAttributes(new { style = "width:100%" })
-                                        .DataTextField("name")
-                                        .DataValueField("id")
+                .Name("UserData.AddressId")
+                .HtmlAttributes(new { style = "width:100%" })
+                .DataTextField("name")
+                .DataValueField("id").NoDataTemplate("آدرسی ثبت نشده است")
                                         .Filter(FilterType.Contains)
                                         .DataSource(source =>
                                         {
