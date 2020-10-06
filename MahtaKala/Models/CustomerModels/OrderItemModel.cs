@@ -14,6 +14,7 @@ namespace MahtaKala.Models.CustomerModels
         public decimal UnitPrice { get; set; }
         public decimal DiscountedPrice { get; set; }
         public decimal FinalPrice { get; set; }
+        public string DeliveryTrackNo { get; set; }
 
     }
 }

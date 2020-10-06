@@ -26,6 +26,9 @@ namespace MahtaKala.Entities
         public IList<CharacteristicValue> CharacteristicValues { get; set; }
 
         public OrderItemState State { get; set; }
+
+        public long? DeliveryId { get; set; }
+        public Delivery Delivery { get; set; }
     }
 
     public enum OrderItemState

@@ -40,11 +40,11 @@ namespace MahtaKala.GeneralServices.Delivery
                     a.ProductPrice.Product.Seller,
                     a.Id
                 })
-                .GroupBy(a=>a.Seller)
-                .Select(a=>new
+                .GroupBy(a => a.Seller)
+                .Select(a => new
                 {
                     a.Key,
-                    Ids = a.Select(z=>z.Id).ToList()
+                    Ids = a.Select(z => z.Id).ToList()
                 })
                 .ToListAsync();
 
@@ -56,30 +56,50 @@ namespace MahtaKala.GeneralServices.Delivery
 
         public async Task InitDelivery(Seller seller, long[] orderItemIds)
         {
-            var query = from item in db.OrderItems.Where(a => orderItemIds.Contains(a.Id))
-                        join order in db.Orders on item.OrderId equals order.Id
-                        join user in db.Users on order.UserId equals user.Id
-                        join address in db.Addresses on order.AddressId equals address.Id
-                        group item by new
-                        {
-                            Address = address.Details,
-                            user.MobileNumber,
-                            City = address.City.Name,
-                            Province = address.City.Province.Name,
-                            user.FirstName,
-                            user.LastName,
-                            UserId = user.Id,
+            var items = await db.OrderItems.Where(a => orderItemIds.Contains(a.Id))
+                .Select(a => new
+                {
+                    a.Order.AddressId,
+                    Address = a.Order.Address.Details,
+                    City = a.Order.Address.City.Name,
+                    Province = a.Order.Address.City.Province.Name,
+                    a.Order.UserId,
+                    a.Order.User.FirstName,
+                    a.Order.User.LastName,
+                    a.Order.User.MobileNumber,
+                    a.Quantity,
+                    a.Id
+                }).ToListAsync();
+            //var query = from item in db.OrderItems.Where(a => orderItemIds.Contains(a.Id))
+            //            join order in db.Orders on item.OrderId equals order.Id
+            //            join user in db.Users on order.UserId equals user.Id
+            //            join address in db.Addresses on order.AddressId equals address.Id
+            //            group item by new
+            //            {
+            //                Address = address.Details,
+            //                user.MobileNumber,
+            //                City = address.City.Name,
+            //                Province = address.City.Province.Name,
+            //                user.FirstName,
+            //                user.LastName,
+            //                UserId = user.Id,
 
-                        } into groups
-                        select new
-                        {
-                            Info = groups.Key,
-                            Count = groups.Sum(a => a.Quantity),
-                            //Ids = groups.Select(a => a.Id).ToList()
-                        };
-            var items = await query.ToListAsync();
-            foreach (var group in items)
+            //            } into groups
+            //            select new
+            //            {
+            //                Info = groups.Key,
+            //                Count = groups.Sum(a => a.Quantity),
+            //                //Ids = groups.Select(a => a.Id).ToList()
+            //            };
+            //var items = await query.ToListAsync();
+            Dictionary<long, Entities.Delivery> itemDeliveries = new Dictionary<long, Entities.Delivery>();
+            foreach (var group in items.GroupBy(a => new
             {
+                a.UserId,
+                a.AddressId
+            }))
+            {
+                var info = group.First();
                 DeliveryRequest req = new DeliveryRequest()
                 {
                     origin = new DeliveryOrigin
@@ -89,33 +109,45 @@ namespace MahtaKala.GeneralServices.Delivery
                         senderPhoneNumber = seller.PhoneNumber,
                         street = seller.Address
                     },
-                    count = group.Count,
+                    count = group.Sum(a => a.Quantity),
                     content = "",
                     destination = new DeliveryDestination
                     {
-                        city = group.Info.City,
-                        province = group.Info.Province,
-                        receiverName = group.Info.FirstName + " " + group.Info.LastName,
-                        receiverPhoneNumber = group.Info.MobileNumber,
-                        street = group.Info.Address
+                        city = info.City,
+                        province = info.Province,
+                        receiverName = info.FirstName + " " + info.LastName,
+                        receiverPhoneNumber = info.MobileNumber,
+                        street = info.Address
                     }
                 };
                 var response = await SendRequest(req);
-                if(string.IsNullOrEmpty(response.packkey))
+                if (string.IsNullOrEmpty(response.packkey))
                 {
                     throw new Exception("خطا در ثبت بار: " + response.message);
                 }
 
+                var itemIds = group.Select(a => a.Id);
                 Entities.Delivery delivery = new Entities.Delivery
                 {
                     Request = JsonConvert.SerializeObject(req),
-                    //OrderItemIds = JsonSerializer.Serialize(group.Ids),
+                    OrderItemIds = JsonConvert.SerializeObject(itemIds),
                     SellerId = seller.Id,
                     PackKey = response.packkey,
                     TrackNo = response.id,
-                    UserId = group.Info.UserId,
+                    UserId = info.UserId,
                 };
                 db.Deliveries.Add(delivery);
+                foreach (var id in itemIds)
+                {
+                    itemDeliveries.Add(id, delivery);
+                }
+            }
+
+            var ids = itemDeliveries.Keys.ToList();
+            var orderItems = db.OrderItems.Where(o => ids.Contains(o.Id)).ToList();
+            foreach (var item in orderItems)
+            {
+                item.Delivery = itemDeliveries[item.Id];
             }
             await db.SaveChangesAsync();
             return;
