@@ -1177,7 +1177,7 @@ namespace MahtaKala.Controllers
                 Text = u.FirstName + " " + u.LastName + " (" + u.Username + ")",
                 Value = u.Id.ToString()
             }).ToListAsync();
-            var users = db.Users.ToList();
+            var users = db.Users.Where(a=>a.Type == UserType.Seller).ToList();
             ViewData["users"] = users;
             ViewData["defaultUser"] = users.FirstOrDefault();
             return View();

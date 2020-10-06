@@ -13,7 +13,7 @@
     {
         columns.Bound(p => p.Name);
         columns.Bound(p => p.AccountNumber);
-        columns.Bound(p => p.UserId).ClientTemplate("#= User ? User.Username : '' #").EditorTemplateName("User");
+        columns.Bound(p => p.User).ClientTemplate("#= data.User ? data.User.Username : '' #").EditorTemplateName("UserClient");
         columns.Bound(p => p.Basket);
         columns.Bound(p => p.Address);
         columns.Bound(p => p.PhoneNumber);
