@@ -220,23 +220,30 @@ namespace MahtaKala.Services
                 return;
             if (count > prod.MaxBuyQuota)
                 throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_MaxQuota,
-                    Util.GetTimeSpanPersianString(TimeSpan.FromDays(prod.BuyQuotaDays.Value)), prod.MaxBuyQuota));
+                    //Util.GetTimeSpanPersianString(TimeSpan.FromDays(prod.BuyQuotaDays ?? 0))
+                    prod.Title
+                    , prod.MaxBuyQuota));
 
-            var minTime = DateTime.Now.AddDays(-prod.BuyQuotaDays.Value);
-            var userId = currentUserService.User?.Id;
-            if (userId != null)
+            if ((prod.BuyQuotaDays ?? 0) > 0)
             {
-                var prevProductCount = await
-                    (from order in db.Orders
-                            .Where(o => o.UserId == userId
-                                && (o.State == OrderState.Paid || o.State == OrderState.Sent || o.State == OrderState.Delivered)
-                                && o.CheckOutDate > minTime)
-                     from orderItem in order.Items.Where(a => a.ProductPriceId == priceId)
-                     select orderItem.Quantity).SumAsync();
-                if (prevProductCount + count > prod.MaxBuyQuota)
+                var minTime = DateTime.Now.AddDays(-prod.BuyQuotaDays.Value);
+                var userId = currentUserService.User?.Id;
+                if (userId != null)
                 {
-                    throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_MaxQuota,
-                        Util.GetTimeSpanPersianString(TimeSpan.FromDays(prod.BuyQuotaDays.Value)), prod.MaxBuyQuota));
+                    var prevProductCount = await
+                        (from order in db.Orders
+                                .Where(o => o.UserId == userId
+                                    && (o.State == OrderState.Paid || o.State == OrderState.Sent || o.State == OrderState.Delivered)
+                                    && o.CheckOutDate > minTime)
+                         from orderItem in order.Items.Where(a => a.ProductPriceId == priceId)
+                         select orderItem.Quantity).SumAsync();
+                    if (prevProductCount + count > prod.MaxBuyQuota)
+                    {
+                        throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_MaxQuota,
+                            //Util.GetTimeSpanPersianString(TimeSpan.FromDays(prod.BuyQuotaDays ?? 0))
+                            prod.Title
+                            , prod.MaxBuyQuota));
+                    }
                 }
             }
         }
