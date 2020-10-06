@@ -111,7 +111,8 @@ namespace MahtaKala.GeneralServices.Delivery
                     Request = JsonConvert.SerializeObject(req),
                     //OrderItemIds = JsonSerializer.Serialize(group.Ids),
                     SellerId = seller.Id,
-                    TrackNo = response.packkey,
+                    PackKey = response.packkey,
+                    TrackNo = response.id,
                     UserId = group.Info.UserId,
                 };
                 db.Deliveries.Add(delivery);
@@ -190,6 +191,6 @@ namespace MahtaKala.GeneralServices.Delivery
     {
         public string packkey { get; set; }
         public string message { get; set; }
-        public long id { get; set; }
+        public string id { get; set; }
     }
 }
