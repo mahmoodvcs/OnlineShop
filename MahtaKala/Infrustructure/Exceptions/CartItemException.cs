@@ -7,7 +7,7 @@ namespace MahtaKala.Infrustructure.Exceptions
 {
     public class CartItemException : ApiException
     {
-        public CartItemException(string message, long productId, string productName) : base(412, message)
+        public CartItemException(string message, long productId, string productName) : base(400, message)
         {
             ProductName = productName;
             ProductId = productId;
