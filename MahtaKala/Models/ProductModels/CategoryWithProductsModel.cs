@@ -12,6 +12,8 @@ namespace MahtaKala.Models.ProductModels
         public string Image { get; set; }
         public long? ParentId { get; set; }
         public bool Disabled { get; set; }
+        public CategoryModel.ColorModel Color { get; set; }
+
         public IList<CategoryWithProductsModel> Children { get; set; }
         public IList<ProductConciseModel> Products { get; set; }
     }

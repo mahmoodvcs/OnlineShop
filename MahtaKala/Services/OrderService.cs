@@ -5,6 +5,7 @@ using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders.Physical;
 using System;
@@ -214,6 +215,14 @@ namespace MahtaKala.Services
             }
         }
 
+        private async Task CheckCartItemValidity(long priceId, int count, ProductInfo prod)
+        {
+            if(prod.Quantity.HasValue && prod.Quantity < count)
+            {
+                throw new Exception($"محصول '{prod.Title}' موجود نیست");
+            }
+            await CheckProductMaxQuota(priceId, count, prod);
+        }
         private async Task CheckProductMaxQuota(long priceId, int count, ProductInfo prod)
         {
             if (prod.MaxBuyQuota == null)
@@ -251,7 +260,7 @@ namespace MahtaKala.Services
         private async Task<long> UpdateCart(ShoppingCart cartItem, long productPriceId, int count)
         {
             ProductInfo info = await GetProductInfo(cartItem, productPriceId);
-            await CheckProductMaxQuota(productPriceId, count, info);
+            await CheckCartItemValidity(productPriceId, count, info);
 
             var cart = GetCartQuery();
             if (cartItem == null)
@@ -299,7 +308,8 @@ namespace MahtaKala.Services
                         MinBuyQuota = a.Product.MinBuyQuota,
                         MaxBuyQuota = a.Product.MaxBuyQuota,
                         BuyQuotaDays = a.Product.BuyQuotaDays,
-                        Title = a.Product.Title
+                        Title = a.Product.Title,
+                        Quantity = a.Product.Quantities.FirstOrDefault().Quantity
                     })
                     .FirstOrDefaultAsync();
             }
@@ -313,7 +323,8 @@ namespace MahtaKala.Services
                     MinBuyQuota = cartItem.ProductPrice.Product.MinBuyQuota,
                     Status = cartItem.ProductPrice.Product.Status,
                     Title = cartItem.ProductPrice.Product.Title,
-                    Basket = await db.Sellers.Where(a => a.Id == cartItem.ProductPrice.Product.SellerId).Select(a => a.Basket).FirstOrDefaultAsync()
+                    Basket = await db.Sellers.Where(a => a.Id == cartItem.ProductPrice.Product.SellerId).Select(a => a.Basket).FirstOrDefaultAsync(),
+                    Quantity = await db.ProductQuantities.Where(a=>a.ProductId == cartItem.ProductPrice.ProductId).Select(a=>a.Quantity).FirstOrDefaultAsync()
                 };
             }
 
@@ -446,7 +457,7 @@ namespace MahtaKala.Services
                 }
 
                 ProductInfo info = await GetProductInfo(item, item.ProductPriceId);
-                await CheckProductMaxQuota(item.ProductPriceId, item.Count, info);
+                await CheckCartItemValidity(item.ProductPriceId, item.Count, info);
                 await CheckProductBuyLimitations(addressId, item.ProductPriceId, item.Count, item.ProductPrice.ProductId, item.ProductPrice.Product.Title);
             }
         }
@@ -606,5 +617,6 @@ namespace MahtaKala.Services
         public int? MaxBuyQuota { get; set; }
         public int? BuyQuotaDays { get; set; }
         public string Title { get; internal set; }
+        public int? Quantity { get; set; }
     }
 }

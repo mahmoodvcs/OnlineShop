@@ -391,6 +391,18 @@ namespace MahtaKala.Controllers
                     Title = c.Title,
                     Disabled = c.Disabled
                 };
+                if (!string.IsNullOrEmpty(c.Color))
+                {
+                    var col = Util.ParseColor(c.Color);
+                    cp.Color = new CategoryModel.ColorModel
+                    {
+                        A = col.A / 255f,
+                        R = col.R,
+                        G = col.G,
+                        B = col.B,
+                    };
+                }
+
                 result.Add(cp);
                 cp.Children = new List<CategoryWithProductsModel>();
                 CreateHierarchy(c.Id, cp.Children, c.Children);

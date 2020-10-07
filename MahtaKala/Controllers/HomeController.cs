@@ -231,7 +231,7 @@ namespace MahtaKala.Controllers
         [NonAction]
         private IEnumerable<Product> GetProductSource(long? groupId, string term, out int totalItemCount)
         {
-            var queryable = productService.ProductsView().Include(a => a.Prices).AsQueryable();
+            var queryable = productService.ProductsView(true);
             if (!string.IsNullOrEmpty(term))
             {
                 queryable = queryable.Where(c => c.Title.Contains(term));

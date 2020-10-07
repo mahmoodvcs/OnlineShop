@@ -35,7 +35,7 @@ namespace MahtaKala.ViewComponents
                 lstg.AddRange(await categoryService.Categories().Where(a => a.ParentId == item.Id && !a.Disabled).Select(a => a.Id).ToListAsync());
                 ProductGroupListVM vm = new ProductGroupListVM();
                 vm.GroupName = item.Title;
-                var lst = await productService.ProductsView().Include(a => a.Prices).Where(c => c.ProductCategories.Any(pc => lstg.Contains(pc.CategoryId))).Take(10).ToListAsync();
+                var lst = await productService.ProductsView(true).Where(c => c.ProductCategories.Any(pc => lstg.Contains(pc.CategoryId))).Take(10).ToListAsync();
                 if (lst == null || lst.Count == 0)
                     continue;
                 foreach (var itemx in lst)
