@@ -254,12 +254,7 @@ namespace MahtaKala.Controllers
         [NonAction]
         public async Task<List<ProductConciseModel>> GetProductsData(IEnumerable<long> categoryIds, int offset, int page)
         {
-            var query = productService.ProductsView();
-
-            if (categoryIds.Count() > 0)
-            {
-                query = query.Where(p => p.ProductCategories.Any(c => categoryIds.Contains(c.CategoryId)));
-            }
+            var query = productService.ProductsView(categoryIds: categoryIds?.ToArray());
 
             query = query.Skip(offset).Take(page);
 

@@ -18,19 +18,33 @@ namespace MahtaKala.Services
             this.db = db;
         }
 
-        public IQueryable<Product> ProductsView(bool includePrices = false)
+        public IQueryable<Product> ProductsView(bool includePrices = false, long[] categoryIds = null)
         {
             var prods = db.Products.AsQueryable();
-            if(includePrices)
+            if (includePrices)
             {
-                prods = prods.Include(a=>a.Prices);
+                prods = prods.Include(a => a.Prices);
             }
-            return from product in prods.Where(a => a.Published)
-                   join pt in db.ProductTags on product.Id equals pt.ProductId into prodTags
-                   from pt in prodTags.DefaultIfEmpty()
-                   join tag in db.Tags on pt.TagId equals tag.Id into tags
-                   from tag in tags.DefaultIfEmpty()
-                   orderby product.Status, tag.Order, product.Prices.FirstOrDefault().DiscountPrice
+            if (categoryIds != null && categoryIds.Length == 0)
+                categoryIds = null;
+
+            var query = from product in prods.Where(a => a.Published)
+                        from cat in product.ProductCategories.Where(a => categoryIds == null || categoryIds.Contains(a.CategoryId))
+                        join pt in db.ProductTags on product.Id equals pt.ProductId into prodTags
+                        from pt in prodTags.DefaultIfEmpty()
+                        join tag in db.Tags on pt.TagId equals tag.Id into tags
+                        from tag in tags.DefaultIfEmpty()
+                        orderby product.Status, tag.Order, product.Prices.FirstOrDefault().DiscountPrice
+                        select product;
+
+            if (categoryIds != null && categoryIds.Length > 0)
+            {
+                query = query.Where(p => p.ProductCategories.Any(c => categoryIds.Contains(c.CategoryId)));
+            }
+
+            return query;
+
+            return from product in query
                    select new Product
                    {
                        Id = product.Id,

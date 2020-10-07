@@ -22,7 +22,7 @@ namespace MahtaKala.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(long id, long categoryId)
         {
 
-            var lst = await productService.ProductsView(true).Where(a => a.Id != id && a.ProductCategories.Any(c => c.CategoryId == categoryId)).Take(10).ToListAsync();
+            var lst = await productService.ProductsView(true, new long[]{ categoryId }).Where(a => a.Id != id).Take(10).ToListAsync();
             foreach (var item in lst)
             {
                 imageService.FixImageUrls(item);
