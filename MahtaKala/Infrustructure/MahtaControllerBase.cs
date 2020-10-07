@@ -60,6 +60,7 @@ namespace MahtaKala.Infrustructure
             return Content(json, "application/json");
         }
 
+        [NonAction]
         public JsonResult Success(string message = null)
         {
             return Json(new { ok = true, success = true, message });

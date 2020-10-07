@@ -10,10 +10,14 @@ namespace MahtaKala.GeneralServices
     {
         Task<bool> Send(string number, string message);
         Task<int> SendOTP(string number, string message);
+        Task ReadReceivedSMSs();
+
     }
 
     public abstract class SMSServiceBase : ISMSService
     {
+        public abstract Task ReadReceivedSMSs();
+
         public abstract Task<bool> Send(string number, string message);
 
         public async Task<int> SendOTP(string number, string message)

@@ -10,6 +10,7 @@ using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
 using MahtaKala.Middlewares;
 using MahtaKala.Services;
+using MahtaKala.Services.Tasks;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -129,6 +130,7 @@ namespace MahtaKala
             services.AddScoped<SettingsService>();
             services.AddScoped<IDeliveryService, YarBoxDeliveryService>();
 
+            TaskManager.RegisterTasks(services);
 
             services.AddEFSecondLevelCache();
             // Add an in-memory cache service provider

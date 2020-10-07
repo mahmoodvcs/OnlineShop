@@ -65,6 +65,11 @@ namespace MahtaKala.GeneralServices
             this.logger = logger;
         }
 
+        public override Task ReadReceivedSMSs()
+        {
+            throw new NotImplementedException();
+        }
+
         public override async Task<bool> Send(string number, string message)
         {
             HttpClient _client = new HttpClient();
