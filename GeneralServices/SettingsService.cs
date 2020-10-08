@@ -13,11 +13,10 @@ namespace MahtaKala.GeneralServices
     public class SettingsService
     {
         private readonly DataContext db;
-        private readonly MemoryCache cache;
+        private readonly static MemoryCache cache = new MemoryCache(new MemoryCacheOptions());
         public SettingsService(DataContext db)
         {
             this.db = db;
-            cache = new MemoryCache(new MemoryCacheOptions());
         }
 
 
@@ -31,64 +30,64 @@ namespace MahtaKala.GeneralServices
             set { SetProperty(value); }
         }
 
-        [Display(Name = "شماره تماس ارسال کننده کالا")]
-        public string DeliverySenderPhoneNumber
-        {
-            get { return GetProperty(""); }
-            set { SetProperty(value); }
-        }
+        //[Display(Name = "شماره تماس ارسال کننده کالا")]
+        //public string DeliverySenderPhoneNumber
+        //{
+        //    get { return GetProperty(""); }
+        //    set { SetProperty(value); }
+        //}
 
-        [Display(Name = "آدرس مبدا ارسال کالا")]
-        public string DeliveryOriginAddress
-        {
-            get { return GetProperty(""); }
-            set { SetProperty(value); }
-        }
+        //[Display(Name = "آدرس مبدا ارسال کالا")]
+        //public string DeliveryOriginAddress
+        //{
+        //    get { return GetProperty(""); }
+        //    set { SetProperty(value); }
+        //}
 
-        [Display(Name ="موقعیت مبدا ارسال کالا - طول جغرافیایی")]
-        public double DeliveryOriginLatitude
-        {
-            get { return GetProperty(0d); }
-            set { SetProperty(value); }
-        }
+        //[Display(Name ="موقعیت مبدا ارسال کالا - طول جغرافیایی")]
+        //public double DeliveryOriginLatitude
+        //{
+        //    get { return GetProperty(0d); }
+        //    set { SetProperty(value); }
+        //}
 
-        [Display(Name ="موقعیت مبدا ارسال کالا - عرض جغرافیایی")]
-        public double DeliveryOriginLongitude
-        {
-            get { return GetProperty(0d); }
-            set { SetProperty(value); }
-        }
+        //[Display(Name ="موقعیت مبدا ارسال کالا - عرض جغرافیایی")]
+        //public double DeliveryOriginLongitude
+        //{
+        //    get { return GetProperty(0d); }
+        //    set { SetProperty(value); }
+        //}
 
         #endregion Properties
 
         #region Methods
         public void Set(string key, object value)
         {
-                var d = db.DynamicSettings.Find(key);
-                if (d == null)
+            var d = db.DynamicSettings.Find(key);
+            if (d == null)
+            {
+                d = new DynamicSetting()
                 {
-                    d = new DynamicSetting()
-                    {
-                        Key = key,
-                        //Title = title,
-                        Vallue = SerializeValue(value)
-                    };
-                    db.DynamicSettings.Add(d);
-                }
-                else
-                    d.Vallue = SerializeValue(value);
-                db.SaveChanges();
-                cache.Remove("Settings." + key);
+                    Key = key,
+                    //Title = title,
+                    Vallue = SerializeValue(value)
+                };
+                db.DynamicSettings.Add(d);
+            }
+            else
+                d.Vallue = SerializeValue(value);
+            db.SaveChanges();
+            cache.Remove("Settings." + key);
         }
         public object Get(string key, object defaultValue = null)
         {
             object o = cache.Get("Settings." + key);
             if (o == null)
             {
-                    var d = db.DynamicSettings.Find(key);
-                    if (d == null)
-                        return defaultValue;
-                    o = d.Vallue;
+                var d = db.DynamicSettings.Find(key);
+                if (d == null)
+                    return defaultValue;
+                o = d.Vallue;
                 //CacheItemPolicy p = new CacheItemPolicy();
                 //p.SlidingExpiration = new TimeSpan(100, 0, 0);
                 cache.Set("Settings." + key, o);

@@ -1,0 +1,18 @@
+﻿@model MahtaKala.Infrustructure.Security.StaffMenu
+
+
+@if (Model is MahtaKala.Infrustructure.Security.StaffMenuCategory)
+{
+    <partial name="SaffMenuCategory" model="@Model" />
+}
+else
+{
+    var item = (MahtaKala.Infrustructure.Security.StaffMenuItem)Model;
+
+    <li class="menu-item " aria-haspopup="true">
+        <a href="@Url.Content(item.Url)" class="menu-link ">
+            <i class="menu-icon flaticon-@Model.Icon"></i>
+            <span class="menu-text">@Model.Name</span>
+        </a>
+    </li>
+}

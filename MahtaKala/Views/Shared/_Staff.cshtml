@@ -14,6 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
     <!--begin::Fonts-->
+    <link href="~/css/font-awesome.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/assets/plugins/global/fonts/fonts_googleapis_Poppins.css" />        <!--end::Fonts-->
     <!--begin::Page Vendors Styles(used by this page)-->
     <link href="~/assets/plugins/custom/fullcalendar/fullcalendar.bundle.rtl.css" rel="stylesheet" />
@@ -138,121 +139,11 @@
                          data-menu-scroll="1" data-menu-dropdown-timeout="500">
                         <!--begin::Menu Nav-->
                         <ul class="menu-nav ">
-                            <li class="menu-item " aria-haspopup="true">
-                                <a href="/Staff" class="menu-link ">
-                                    <i class="menu-icon flaticon-graph"></i>
-                                    <span class="menu-text">داشبورد</span>
-                                </a>
-                            </li>
-                            <li class="menu-section ">
-                                <h4 class="menu-text">دسته بندی ها</h4>
-                                <i class="menu-icon ki ki-bold-more-hor icon-md"></i>
-                            </li>
-                            <li class="menu-item  menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">
-                                <a href="javascript:;" class="menu-link menu-toggle">
-                                    <i class="menu-icon flaticon-folder-2"></i>
-                                    <span class="menu-text">اطلاعات پارامتریک</span>
-                                    <i class="menu-arrow"></i>
-                                </a>
-                                <div class="menu-submenu ">
-                                    <i class="menu-arrow"></i>
-                                    <ul class="menu-subnav">
-                                        <li class="menu-item " aria-haspopup="true">
-                                            <a href="/Staff/UserList" class="menu-link ">
-                                                <i class="menu-icon flaticon-users"></i>
-                                                <span class="menu-text">کاربران</span>
-                                            </a>
-                                        </li>
-                                        <li class="menu-item " aria-haspopup="true">
-                                            <a href="/Staff/Sellers" class="menu-link ">
-                                                <i class="menu-icon flaticon-coins"></i>
-                                                <span class="menu-text">فروشنده ها</span>
-                                            </a>
-                                        </li>
-                                        <li class="menu-item " aria-haspopup="true">
-                                            <a href="/Staff/ProvinceList" class="menu-link ">
-                                                <i class="menu-icon flaticon-placeholder-1"></i>
-                                                <span class="menu-text">استانها</span>
-                                            </a>
-                                        </li>
-                                        <li class="menu-item " aria-haspopup="true">
-                                            <a href="/Staff/CityList" class="menu-link ">
-                                                <i class="menu-icon flaticon-placeholder"></i>
-                                                <span class="menu-text">شهرها</span>
-                                            </a>
-                                        </li>
-                                        <li class="menu-item " aria-haspopup="true">
-                                            <a href="/Staff/BrandList" class="menu-link ">
-                                                <i class="menu-icon flaticon-interface-9"></i>
-                                                <span class="menu-text">برندها</span>
-                                            </a>
-                                        </li>
-                                        <li class="menu-item " aria-haspopup="true">
-                                            <a href="/Staff/Tags" class="menu-link ">
-                                                <i class="menu-icon flaticon-coins"></i>
-                                                <span class="menu-text">تگ ها</span>
-                                            </a>
-                                        </li>
-                                        <li class="menu-item " aria-haspopup="true">
-                                            <a href="/Staff/ImportProductPrices" class="menu-link ">
-                                                <i class="menu-icon flaticon-edit-1"></i>
-                                                <span class="menu-text">به روز رسانی قیمت کالاها</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            <li class="menu-item  menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">
-                                <a href="javascript:;" class="menu-link menu-toggle">
-                                    <i class="menu-icon flaticon-list-2"></i>
-                                    <span class="menu-text">کاتالوگ</span>
-                                    <i class="menu-arrow"></i>
-                                </a>
-                                <div class="menu-submenu ">
-                                    <i class="menu-arrow"></i>
-                                    <ul class="menu-subnav">
-                                        <li class="menu-item " aria-haspopup="true">
-                                            <a href="/Staff/CategoryList" class="menu-link ">
-                                                <i class="menu-icon flaticon-open-box"></i>
-                                                <span class="menu-text">دسته بندی کالا</span>
-                                            </a>
-                                        </li>
-                                        <li class="menu-item " aria-haspopup="true">
-                                            <a href="/Staff/ProductList" class="menu-link ">
-                                                <i class="menu-icon flaticon-gift"></i>
-                                                <span class="menu-text">کالا و خدمات</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                            @if (ViewBag.User.Type == UserType.Delivery || ViewBag.User.Type == UserType.Admin || ViewBag.User.Type == UserType.Staff)
+                            @foreach(var item in MahtaKala.Infrustructure.Security.StaffMenuManager.GetItems(this.Context))
                             {
-                                <li class="menu-item " aria-haspopup="true">
-                                    <a href="/Staff/BuyHistory" class="menu-link ">
-                                        <i class="menu-icon flaticon-piggy-bank"></i>
-                                        <span class="menu-text">گزارش خریدها</span>
-                                    </a>
-                                </li>
+                                <partial name="SaffMenuItem" model="@item" />
                             }
-                            @if (ViewBag.User.Type == UserType.Seller || ViewBag.User.Type == UserType.Admin || ViewBag.User.Type == UserType.Staff)
-                            {
-                                <li class="menu-item " aria-haspopup="true">
-                                    <a href="/Staff/Orders/Items" class="menu-link ">
-                                        <i class="menu-icon flaticon-piggy-bank"></i>
-                                        <span class="menu-text">اقلام فروخته شده</span>
-                                    </a>
-                                </li>
-                            }
-                            @if (ViewBag.User.Type == UserType.Admin)
-                            {
-                                <li class="menu-item " aria-haspopup="true">
-                                    <a href="/Settings" class="menu-link ">
-                                        <i class="menu-icon fa fa-gear"></i>
-                                        <span class="menu-text">تنظیمات سیستم</span>
-                                    </a>
-                                </li>
-                            }
+
                         </ul>
                         <!--end::Menu Nav-->
                     </div>

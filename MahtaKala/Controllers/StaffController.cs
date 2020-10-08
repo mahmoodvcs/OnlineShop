@@ -60,12 +60,17 @@ namespace MahtaKala.Controllers
             this.categoryService = categoryService;
             this.smsService = smsService;
         }
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery, UserType.Seller })]
+
+        [Authorize(UserType.Staff, UserType.Admin, UserType.Delivery, UserType.Seller)]
         public async Task<IActionResult> Index()
         {
             if (base.User.Type == UserType.Delivery)
             {
                 return RedirectToAction("BuyHistory");
+            }
+            if (base.User.Type == UserType.Seller)
+            {
+                return Redirect("~/Staff/Orders/Items");
             }
             var report = new ReportModel();
             var user = base.User;
@@ -120,6 +125,10 @@ namespace MahtaKala.Controllers
             return View(report);
         }
 
+        async Task<long> GetSellerId()
+        {
+            return await db.Sellers.Where(a => a.UserId == UserId).Select(a => a.Id).FirstOrDefaultAsync();
+        }
 
         #region Users
 
@@ -467,6 +476,8 @@ namespace MahtaKala.Controllers
         }
 
         [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        [AjaxAction]
         public async Task<ActionResult> SaveCategoryImage(IEnumerable<IFormFile> images, long ID)
         {
             // The Name of the Upload component is "images"
@@ -664,7 +675,8 @@ namespace MahtaKala.Controllers
             var query = db.Products.AsQueryable();
             if (base.User.Type == UserType.Seller)
             {
-                query = db.Products.Where(p => p.SellerId == UserId).AsQueryable();
+                var sid = await GetSellerId();
+                query = db.Products.Where(p => p.SellerId == sid).AsQueryable();
             }
             //FlexTextFilter<Product>(query, p => p.Title, nameFilter);
             if (!string.IsNullOrEmpty(nameFilter))
@@ -713,7 +725,8 @@ namespace MahtaKala.Controllers
         {
             if (base.User.Type == UserType.Seller)
             {
-                if (!db.Products.Any(p => p.SellerId == UserId && p.Id == id))
+                var sid = await GetSellerId();
+                if (!db.Products.Any(p => p.SellerId == sid && p.Id == id))
                 {
                     return Json(new { Success = false, Message = "محصول یافت نشد." });
                 }
@@ -765,6 +778,7 @@ namespace MahtaKala.Controllers
             var userType = base.User.Type;
 
             EditProductModel p;
+            var sellerId = await GetSellerId();
             if (id.HasValue)
             {
                 var pr = await db.Products.Include(a => a.Prices)
@@ -774,6 +788,11 @@ namespace MahtaKala.Controllers
                     .FirstOrDefaultAsync();
                 if (pr == null)
                     throw new EntityNotFoundException<Product>(id.Value);
+                if (base.User.Type == UserType.Seller)
+                {
+                    if (pr.SellerId != sellerId)
+                        throw new AccessDeniedException();
+                }
                 //productImageService.FixImageUrls(p);
                 p = new EditProductModel(pr);
                 //var productPrices = db.ProductPrices.FirstOrDefault(a => a.ProductId == id);
@@ -819,6 +838,8 @@ namespace MahtaKala.Controllers
                         .FirstOrDefaultAsync(p => p.Id == model.Id && (userType != UserType.Seller || p.SellerId == UserId));
                     if (product == null)
                         throw new EntityNotFoundException<Product>(model.Id);
+
+                    await CheckProductAccess(product);
                 }
                 product.Properties = JsonConvert.DeserializeObject<IList<KeyValuePair<string, string>>>(Request.Form["Properties"]);
                 product.Title = model.Title;
@@ -829,7 +850,7 @@ namespace MahtaKala.Controllers
                 product.MaxBuyQuota = model.MaxBuyQuota;
                 product.MinBuyQuota = model.MinBuyQuota;
                 product.BuyQuotaDays = model.BuyQuotaDays;
-                product.SellerId = model.SellerId;
+                product.SellerId = base.User.Type == UserType.Seller ? await GetSellerId() : model.SellerId;
                 product.Code = model.Code;
 
                 var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
@@ -902,6 +923,7 @@ namespace MahtaKala.Controllers
 
 
         [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<ActionResult> SaveImages(IEnumerable<IFormFile> images, long ID)
         {
             if (images != null)
@@ -912,6 +934,7 @@ namespace MahtaKala.Controllers
                 {
                     throw new EntityNotFoundException<Product>(ID);
                 }
+                await CheckProductAccess(product);
                 if (product.ImageList == null)
                 {
                     product.ImageList = new List<string>();
@@ -941,6 +964,7 @@ namespace MahtaKala.Controllers
 
 
         [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<ActionResult> SaveThumbnail(IEnumerable<IFormFile> thumbnails, long ID)
         {
             // The Name of the Upload component is "thumbnails"
@@ -953,6 +977,7 @@ namespace MahtaKala.Controllers
                     {
                         throw new EntityNotFoundException<Product>(ID);
                     }
+                    await CheckProductAccess(product);
                     var file = thumbnails.First();
                     var fileName = $"thumbnail-{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
                     //var path = Path.Combine(ProductsImagesPath, ID.ToString());
@@ -974,6 +999,7 @@ namespace MahtaKala.Controllers
             return Content("");
         }
 
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<ActionResult> DeleteImage(long Id, string fileName)
         {
             var product = await db.Products.Where(p => p.Id == Id).FirstOrDefaultAsync();
@@ -981,6 +1007,7 @@ namespace MahtaKala.Controllers
             {
                 throw new EntityNotFoundException<Product>(Id);
             }
+            await CheckProductAccess(product);
             productImageService.DeleteImage(Id, fileName);
             product.ImageList.Remove(fileName);
             db.Entry(product).State = EntityState.Modified;
@@ -988,6 +1015,12 @@ namespace MahtaKala.Controllers
             return Json(product.ImageList);
         }
 
+        async Task CheckProductAccess(Product p)
+        {
+            var sellerId = await GetSellerId();
+            if (base.User.Type == UserType.Seller && p.SellerId != sellerId)
+                throw new AccessDeniedException();
+        }
 
         [HttpPost]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
@@ -1005,6 +1038,7 @@ namespace MahtaKala.Controllers
             }
             foreach (var product in products)
             {
+                await CheckProductAccess(product);
                 product.ProductCategories.Clear();
                 product.ProductCategories.Add(new ProductCategory
                 {
@@ -1016,6 +1050,7 @@ namespace MahtaKala.Controllers
             return Json(new { Success = true });
         }
 
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<JsonResult> Product_AssignTag(ProductChangeCategoryModel model)
         {
             var products = await db.Products.Include(p => p.Tags).Where(p => model.ProductIds.Contains(p.Id)).ToListAsync();
@@ -1030,6 +1065,7 @@ namespace MahtaKala.Controllers
             //}
             foreach (var product in products)
             {
+                await CheckProductAccess(product);
                 product.Tags.Clear();
                 product.Tags.Add(new ProductTag
                 {
@@ -1109,7 +1145,7 @@ namespace MahtaKala.Controllers
         }
 
         [AjaxAction]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller, UserType.Delivery }, Order = 1)]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public async Task<ActionResult> ConfirmSent(long Id, string DelivererId)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
@@ -1139,7 +1175,7 @@ namespace MahtaKala.Controllers
         }
 
         [AjaxAction]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller, UserType.Delivery }, Order = 1)]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public async Task<ActionResult> ConfirmDelivered(long Id, string TrackNo)
         {
             var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
@@ -1177,7 +1213,7 @@ namespace MahtaKala.Controllers
                 Text = u.FirstName + " " + u.LastName + " (" + u.Username + ")",
                 Value = u.Id.ToString()
             }).ToListAsync();
-            var users = db.Users.Where(a=>a.Type == UserType.Seller).ToList();
+            var users = db.Users.Where(a => a.Type == UserType.Seller).ToList();
             ViewData["users"] = users;
             ViewData["defaultUser"] = users.FirstOrDefault();
             return View();

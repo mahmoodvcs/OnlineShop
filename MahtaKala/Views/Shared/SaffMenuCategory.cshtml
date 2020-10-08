@@ -1,0 +1,17 @@
+﻿@model MahtaKala.Infrustructure.Security.StaffMenuCategory
+    <li class="menu-item  menu-item-submenu" aria-haspopup="true" data-menu-toggle="hover">
+        <a href="javascript:;" class="menu-link menu-toggle">
+            <i class="menu-icon flaticon-@Model.Icon"></i>
+            <span class="menu-text">@Model.Name</span>
+            <i class="menu-arrow"></i>
+        </a>
+        <div class="menu-submenu ">
+            <i class="menu-arrow"></i>
+            <ul class="menu-subnav">
+                @foreach (var item in Model.Children)
+                {
+                    <partial name="SaffMenuItem" model="@item" />
+                }
+            </ul>
+        </div>
+    </li>
