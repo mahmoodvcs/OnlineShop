@@ -401,7 +401,7 @@ namespace MahtaKala.Services
             order.AddressId = addressId;
             var now = DateTime.Now;
             order.CheckOutDate = now;
-            order.ApproximateDeliveryDate = now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(16);
+            order.ApproximateDeliveryDate = GetDeilveryDate(now);
             db.Orders.Add(order);
 
             var productIds = cartItems.Select(a => a.ProductPrice.ProductId).ToList();
@@ -441,6 +441,13 @@ namespace MahtaKala.Services
             transaction.Complete();
             return order;
         }
+
+        private static DateTime GetDeilveryDate(DateTime now)
+        {
+            return now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(19);
+        }
+
+        public TimeSpan DeliveryTimeSpan => TimeSpan.FromHours(2);
 
         private async Task CheckCartValidity(long addressId, List<ShoppingCart> cartItems)
         {
