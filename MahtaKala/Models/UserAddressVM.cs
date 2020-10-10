@@ -15,7 +15,9 @@ namespace MahtaKala.Models
         public string PostCost { get; set; }
         public string FinalCost { get; set; }
         public bool IsNewAddress { get; set; }
+        public string ApproximateDeilveryDate { get; set; }
     }
+
     public class UserDataVM
     {
         [StringLength(255)]

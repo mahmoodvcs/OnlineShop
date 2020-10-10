@@ -124,7 +124,8 @@ namespace MahtaKala.Controllers.Api
             {
                 Items = items,
                 DeliveryPrice = orderService.GetDeliveryPrice(),
-                TotlaPrice = items.Sum(a=>a.Quantity * a.Price) + orderService.GetDeliveryPrice()
+                TotlaPrice = items.Sum(a => a.Quantity * a.Price) + orderService.GetDeliveryPrice(),
+                ApproximateDeilveryDate = Util.GetPersianDate(orderService.GetApproximateDeilveryDate())
             };
         }
 

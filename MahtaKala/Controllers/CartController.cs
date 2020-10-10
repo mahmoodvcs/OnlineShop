@@ -133,6 +133,7 @@ namespace MahtaKala.Controllers
             model.Cost = Util.Sub3Number(sumFinalPrice);
             model.PostCost = Util.Sub3Number(postCost);
             model.FinalCost = Util.Sub3Number(sumFinalPrice + postCost);
+            model.ApproximateDeilveryDate = Util.GetPersianDate(orderService.GetApproximateDeilveryDate());
             return View(model);
         }
 

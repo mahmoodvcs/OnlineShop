@@ -399,9 +399,8 @@ namespace MahtaKala.Services
             order.State = OrderState.Initial;
             order.UserId = User.Id;
             order.AddressId = addressId;
-            var now = DateTime.Now;
-            order.CheckOutDate = now;
-            order.ApproximateDeliveryDate = GetDeilveryDate(now);
+            order.CheckOutDate = DateTime.Now;
+            order.ApproximateDeliveryDate = GetApproximateDeilveryDate();
             db.Orders.Add(order);
 
             var productIds = cartItems.Select(a => a.ProductPrice.ProductId).ToList();
@@ -442,8 +441,9 @@ namespace MahtaKala.Services
             return order;
         }
 
-        private static DateTime GetDeilveryDate(DateTime now)
+        public DateTime GetApproximateDeilveryDate()
         {
+            DateTime now = DateTime.Now;
             return now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(19);
         }
 

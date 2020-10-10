@@ -10,6 +10,7 @@ namespace MahtaKala.Models.CustomerModels
         public List<CartItemModel> Items { get; set; }
         public decimal DeliveryPrice { get; set; }
         public decimal TotlaPrice { get; set; }
+        public string ApproximateDeilveryDate { get; set; }
 
     }
 }
