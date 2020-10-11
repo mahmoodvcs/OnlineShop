@@ -1,0 +1,18 @@
+﻿@model Dictionary<string, List<string>>
+@{ 
+    Layout = "~/Views/Shared/_Staff.cshtml";
+    ViewBag.Title = "تغییرات نسخه";
+}
+<div class="card p-10">
+    @foreach (var date in Model.Keys.OrderBy(a => a))
+    {
+        <h3>@date</h3>
+        <ul>
+            @foreach (var item in Model[date])
+            {
+                <li>@item</li>
+            }
+        </ul>
+        <hr />
+    }
+</div>

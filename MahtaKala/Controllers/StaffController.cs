@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Transactions;
 using EFSecondLevelCache.Core;
@@ -42,6 +43,7 @@ namespace MahtaKala.Controllers
         private readonly ICategoryImageService categoryImageService;
         private readonly ImportService importService;
         private readonly CategoryService categoryService;
+        private readonly IPathService pathService;
         private readonly ISMSService smsService;
 
         public StaffController(
@@ -51,13 +53,15 @@ namespace MahtaKala.Controllers
             IProductImageService productImageService,
             ICategoryImageService categoryImageService,
             ImportService importService,
-            CategoryService categoryService
+            CategoryService categoryService,
+            IPathService pathService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
             this.categoryImageService = categoryImageService;
             this.importService = importService;
             this.categoryService = categoryService;
+            this.pathService = pathService;
             this.smsService = smsService;
         }
 
@@ -1334,8 +1338,6 @@ namespace MahtaKala.Controllers
             return View();
         }
 
-        [HttpGet]
-
         private ContentResult ConvertDataToJson<T>(IQueryable<T> data, [DataSourceRequest] DataSourceRequest request)
         {
             var list = JsonConvert.SerializeObject(data.ToDataSourceResult(request), Formatting.None,
@@ -1344,6 +1346,15 @@ namespace MahtaKala.Controllers
                         ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                     });
             return Content(list, "application/json");
+        }
+
+
+        [HttpGet]
+        public ActionResult ReleaseNotes()
+        {
+            var contents = System.IO.File.ReadAllText(Path.Combine(pathService.AppRoot, "ReleaseNotes.json"));
+            var dic = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(contents);
+            return View(dic);
         }
     }
 }
