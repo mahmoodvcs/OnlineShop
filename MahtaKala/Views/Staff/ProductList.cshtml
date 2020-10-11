@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = ViewData["Title"];
     Layout = "~/Views/Shared/_Staff.cshtml";
+    IGridBoundColumn[] gridColumns = null;
 }
 <div class="filterPanel">
     <fieldset>
@@ -33,15 +34,18 @@
     columns.Select().Width(50);
     columns.Bound(p => p.Id).Title("شناسه");
     columns.Bound(p => p.Title).Title("عنوان");
+    columns.Bound(p => p.Code).Title("کد محصول");
     columns.Bound(p => p.Categories).Title("دسته بندی").Filterable(false).Sortable(false);
     columns.Bound(p => p.Tags).Title("تگ ها").Filterable(false).Sortable(false);
     columns.Bound(p => p.Seller).Title("فروشنده");
-    columns.Bound(p => p.Code).Title("کد محصول");
+    columns.Bound(p => p.Brand).Title("برند");
     columns.Bound(p => p.Price).Title("قیمت");
     columns.Bound(p => p.Status).Title("وضعیت").Filterable(false);
     columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#").Title("منتشر شده");
     columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
     columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
+
+    gridColumns = columns.ColumnsContainer.Columns.OfType<IGridBoundColumn>().ToArray();
 
 })
     .ToolBar(toolbar =>
@@ -85,10 +89,60 @@
                 <a class="dropdown-item" href="##" onclick="assignTag()">تخصیص تگ</a>
             </div>
         </div>
+        <div class="btn-group" id="columnSelection">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                انتخاب ستون ها
+            </button>
+            <div class="dropdown-menu">
+                @foreach (var c in gridColumns)
+                {
+                    <label>
+                        <input type="checkbox" class="gridColumnCheckbox" name="gridColumns" value="@c.Member" checked="@(!c.Hidden)" />
+                        @Html.Raw(c.Title)
+                    </label>
+                    <br />
+                }
+            </div>
+        </div>
     </div>
 </script>
 @section js{
     <script type="text/javascript">
+
+        $(function () {
+            $(document).on('click', '#columnSelection .dropdown-menu', function (e) {
+                e.stopPropagation();
+            });
+            $("input.gridColumnCheckbox").click(function (ev) {
+                var columns = {};
+                $("input.gridColumnCheckbox").each(function (i, c) {
+                    columns[c.value] = c.checked;
+                });
+                var name = this.value;
+                columns[name] = this.kchecked;
+                localStorage.setItem("products-grid-columns", JSON.stringify(columns));
+
+                var grid = $("#grid").data("kendoGrid");
+                if (this.checked)
+                    grid.showColumn(name);
+                else
+                    grid.hideColumn(name);
+            });
+
+
+            var columnsValue = localStorage.getItem("products-grid-columns");
+            if (columnsValue) {
+                var columns = JSON.parse(columnsValue);
+                var grid = $("#grid").data("kendoGrid");
+                for (var c in columns) {
+                    if (columns[c] === false) {
+                        grid.hideColumn(c);
+                        $("input.gridColumnCheckbox[value='" + c + "']").prop("checked", false);
+                    }
+                }
+            }
+        })
+
 
         var selectedRows = null;
 
