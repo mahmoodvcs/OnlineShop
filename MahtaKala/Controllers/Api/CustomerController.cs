@@ -125,7 +125,7 @@ namespace MahtaKala.Controllers.Api
                 Items = items,
                 DeliveryPrice = orderService.GetDeliveryPrice(),
                 TotlaPrice = items.Sum(a => a.Quantity * a.Price) + orderService.GetDeliveryPrice(),
-                ApproximateDeilveryDate = Util.GetPersianDate(orderService.GetApproximateDeilveryDate())
+                ApproximateDeilveryDate = Util.GetPersianDateRange(orderService.GetApproximateDeilveryDate(), orderService.DeliveryTimeSpan)
             };
         }
 
@@ -219,13 +219,15 @@ namespace MahtaKala.Controllers.Api
 
             return await db.OrderItems.Where(a => a.OrderId == id && a.Order.UserId == UserId).Select(a => new OrderItemModel
             {
-                Id = a.Id,
+                OrderItemId = a.Id,
+                ProductId = a.ProductPrice.ProductId,
+                Image = a.ProductPrice.Product.Thubmnail,
                 DiscountedPrice = a.FinalPrice,
                 FinalPrice = a.FinalPrice,
                 Code = a.ProductPrice.Product.Code,
                 Title = a.ProductPrice.Product.Title,
                 Quantity = a.Quantity,
-                UnitPrice = a.ProductPrice.Price, //TODO: Price will change
+                UnitPrice = a.UnitPrice,
                 DeliveryTrackNo = a.Delivery.TrackNo
             }).ToListAsync();
         }

@@ -177,7 +177,15 @@ namespace MahtaKala.Helpers
             if (d == null)
                 return null;
             PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} {d.Value.ToString("HH:mm")}";
+            return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} {d.Value:HH:mm}";
+        }
+
+        public static string GetPersianDateRange(DateTime? d, TimeSpan range)
+        {
+            if (d == null)
+                return null;
+            PersianCalendar pc = new PersianCalendar();
+            return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} - ساعت {d.Value.TimeOfDay:HH:mm} تا {range:HH:mm}";
         }
 
         public static string GetTimeSpanPersianString(TimeSpan timeSpan)
