@@ -99,7 +99,7 @@ namespace MahtaKala.Controllers.Staff
         [AjaxAction]
         public async Task<IActionResult> ConfirmPacked(long[] ids)
         {
-            await orderService.SetItemsPacked(await GetSeller(), ids);
+            await orderService.SetItemsPacked(ids);
             return Success();
         }
 

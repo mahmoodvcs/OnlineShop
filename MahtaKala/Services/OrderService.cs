@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders.Physical;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -111,11 +112,16 @@ namespace MahtaKala.Services
             await db.SaveChangesAsync();
         }
 
-        public async Task SetItemsPacked(Seller seller, long[] ids)
+        public async Task SetItemsPacked(long[] ids)
         {
             using var tr = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             await ChangeOrderItemsState(ids, OrderItemState.Packed);
-            await deliveryService.InitDelivery(seller, ids);
+            var order = db.Orders.FirstOrDefault(x => x.Items.Any(y => ids.Contains(y.Id)));
+            if (order == null)
+            {
+                throw new Exception(string.Format("سفارش مورد نظر یافت نشد! - ItemIds: {0}", JsonConvert.SerializeObject(ids)));
+            }
+            await deliveryService.InitDelivery(order.Id);
             tr.Complete();
         }
 

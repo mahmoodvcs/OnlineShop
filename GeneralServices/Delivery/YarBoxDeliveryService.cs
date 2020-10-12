@@ -31,32 +31,10 @@ namespace MahtaKala.GeneralServices.Delivery
 
         const string APIAddress = "https://api.yarbox.co/api/v3/";
         const string APIKey = @"eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiMDkxMjgzNTMyMzAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3NlcmlhbG51bWJlciI6IjcwYmEwMDE5MzdlNDRhNWRiNGRmN2JlNDhlM2MxOTM1IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy91c2VyZGF0YSI6IjMzMjI0OTA5LThmMDAtZWIxMS05MGIyLTBjYzQ3YTMwZTY1NyIsIm5iZiI6MTYwMTE5MDMzNiwiZXhwIjoxNjAzNzgyMzM2LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0LyIsImF1ZCI6IkFueSJ9.LKhj6f9QglVfc-LFOJq0NcbCXmMRf9QqPvKSS7K_2Fw";
-
+         
         public async Task InitDelivery(long orderId)
         {
             var items = await db.OrderItems.Where(a => a.OrderId == orderId)
-                .Select(a => new
-                {
-                    a.ProductPrice.Product.Seller,
-                    a.Id
-                })
-                .GroupBy(a => a.Seller)
-                .Select(a => new
-                {
-                    a.Key,
-                    Ids = a.Select(z => z.Id).ToList()
-                })
-                .ToListAsync();
-
-            foreach (var item in items)
-            {
-                await InitDelivery(item.Key, item.Ids.ToArray());
-            }
-        }
-
-        public async Task InitDelivery(Seller seller, long[] orderItemIds)
-        {
-            var items = await db.OrderItems.Where(a => orderItemIds.Contains(a.Id))
                 .Select(a => new
                 {
                     a.Order.AddressId,
@@ -70,84 +48,48 @@ namespace MahtaKala.GeneralServices.Delivery
                     a.Quantity,
                     a.Id
                 }).ToListAsync();
-            //var query = from item in db.OrderItems.Where(a => orderItemIds.Contains(a.Id))
-            //            join order in db.Orders on item.OrderId equals order.Id
-            //            join user in db.Users on order.UserId equals user.Id
-            //            join address in db.Addresses on order.AddressId equals address.Id
-            //            group item by new
-            //            {
-            //                Address = address.Details,
-            //                user.MobileNumber,
-            //                City = address.City.Name,
-            //                Province = address.City.Province.Name,
-            //                user.FirstName,
-            //                user.LastName,
-            //                UserId = user.Id,
 
-            //            } into groups
-            //            select new
-            //            {
-            //                Info = groups.Key,
-            //                Count = groups.Sum(a => a.Quantity),
-            //                //Ids = groups.Select(a => a.Id).ToList()
-            //            };
-            //var items = await query.ToListAsync();
-            Dictionary<long, Entities.Delivery> itemDeliveries = new Dictionary<long, Entities.Delivery>();
-            foreach (var group in items.GroupBy(a => new
+            DeliveryRequest req = new DeliveryRequest()
             {
-                a.UserId,
-                a.AddressId
-            }))
+                origin = new DeliveryOrigin
+                {
+                    latitude = "0",
+                    longitude = "0",
+                    senderPhoneNumber = "0",
+                    street = "0"
+                },
+                count = items.Sum(a => a.Quantity),
+                content = "",
+                destination = new DeliveryDestination
+                {
+                    city = items.First().City,
+                    province = items.First().Province,
+                    receiverName = items.First().FirstName + " " + items.First().LastName,
+                    receiverPhoneNumber = items.First().MobileNumber,
+                    street = items.First().Address
+                }
+            };
+            var response = await SendRequest(req);
+            if (string.IsNullOrEmpty(response.packkey))
             {
-                var info = group.First();
-                DeliveryRequest req = new DeliveryRequest()
-                {
-                    origin = new DeliveryOrigin
-                    {
-                        latitude = seller.Lat?.ToString(),
-                        longitude = seller.Lng?.ToString(),
-                        senderPhoneNumber = seller.PhoneNumber,
-                        street = seller.Address
-                    },
-                    count = group.Sum(a => a.Quantity),
-                    content = "",
-                    destination = new DeliveryDestination
-                    {
-                        city = info.City,
-                        province = info.Province,
-                        receiverName = info.FirstName + " " + info.LastName,
-                        receiverPhoneNumber = info.MobileNumber,
-                        street = info.Address
-                    }
-                };
-                var response = await SendRequest(req);
-                if (string.IsNullOrEmpty(response.packkey))
-                {
-                    throw new Exception("خطا در ثبت بار: " + response.message);
-                }
-
-                var itemIds = group.Select(a => a.Id);
-                Entities.Delivery delivery = new Entities.Delivery
-                {
-                    Request = JsonConvert.SerializeObject(req),
-                    OrderItemIds = JsonConvert.SerializeObject(itemIds),
-                    SellerId = seller.Id,
-                    PackKey = response.packkey,
-                    TrackNo = response.id,
-                    UserId = info.UserId,
-                };
-                db.Deliveries.Add(delivery);
-                foreach (var id in itemIds)
-                {
-                    itemDeliveries.Add(id, delivery);
-                }
+                throw new Exception("خطا در ثبت بار: " + response.message);
             }
 
-            var ids = itemDeliveries.Keys.ToList();
-            var orderItems = db.OrderItems.Where(o => ids.Contains(o.Id)).ToList();
+            var itemIds = items.Select(a => a.Id);
+            Entities.Delivery delivery = new Entities.Delivery
+            {
+                Request = JsonConvert.SerializeObject(req),
+                OrderItemIds = JsonConvert.SerializeObject(itemIds),
+                PackKey = response.packkey,
+                TrackNo = response.id,
+                UserId = items.First().UserId,
+            };
+            db.Deliveries.Add(delivery);
+
+            var orderItems = db.OrderItems.Where(o => itemIds.Any(x => x == o.Id)).ToList();
             foreach (var item in orderItems)
             {
-                item.Delivery = itemDeliveries[item.Id];
+                item.Delivery = delivery;
             }
             await db.SaveChangesAsync();
             return;
