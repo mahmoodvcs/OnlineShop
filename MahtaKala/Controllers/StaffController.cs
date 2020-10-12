@@ -396,7 +396,11 @@ namespace MahtaKala.Controllers
 
 
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public IActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request, string nameFilter, string categoryFilter)
+        public IActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request, 
+            string nameFilter, 
+            string categoryFilter,
+            string disabledFilter,
+            string publishedFilter)
         {
             var query = db.Categories.Include(c => c.Parent).OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).AsQueryable();
             if (!string.IsNullOrEmpty(nameFilter))
@@ -416,6 +420,20 @@ namespace MahtaKala.Controllers
                     var ss = s.Trim().ToLower();
                     query = query.Where(a => a.Parent.Title.ToLower().Contains(ss));
                 }
+            }
+            if (!string.IsNullOrWhiteSpace(disabledFilter) 
+                && bool.TryParse(disabledFilter, out bool disabledFilterBoolean))
+                // In case "all" is the value of disabledFilter, the function call bool.TryParse in the IF statement above
+                // will return false, and this block would be omitted, which is the correct action for the "all" filter option!
+            {
+                query = query.Where(a => a.Disabled == disabledFilterBoolean);
+            }
+            if (!string.IsNullOrWhiteSpace(publishedFilter)
+                && bool.TryParse(publishedFilter, out bool publishedFilterBoolean))
+                // In case "all" is the value of publishedFilter, the function call bool.TryParse in the IF statement above
+                // will return false, and this block would be omitted, which is the correct action for the "all" filter option!
+            {
+                query = query.Where(a => a.Published == publishedFilterBoolean);
             }
 
             return KendoJson(query.ToDataSourceResult(request));
