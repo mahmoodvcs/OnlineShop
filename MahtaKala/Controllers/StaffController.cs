@@ -1127,7 +1127,7 @@ namespace MahtaKala.Controllers
                     a.User.LastName,
                     a.SendDate,
                     State = a.State
-                }).ToDataSourceResultAsync(request, a => new BuyHistoryModel
+                }).ToDataSourceResultAsync(request, a => new OrderModel
                 {
                     Id = a.Id,
                     CheckoutDate = Util.GetPersianDate(a.CheckOutDate),

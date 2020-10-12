@@ -21,6 +21,7 @@ using MahtaKala.GeneralServices.Payment;
 using MahtaKala.Services;
 using MahtaKala.Helpers;
 using MahtaKala.Models.Payment;
+using Kendo.Mvc.Extensions;
 
 namespace MahtaKala.Controllers.Api
 {
@@ -125,7 +126,7 @@ namespace MahtaKala.Controllers.Api
                 Items = items,
                 DeliveryPrice = orderService.GetDeliveryPrice(),
                 TotlaPrice = items.Sum(a => a.Quantity * a.Price) + orderService.GetDeliveryPrice(),
-                ApproximateDeilveryDate = Util.GetPersianDate(orderService.GetApproximateDeilveryDate())
+                ApproximateDeilveryDate = Util.GetPersianDateRange(orderService.GetApproximateDeilveryDate(), orderService.DeliveryTimeSpan)
             };
         }
 
@@ -175,60 +176,46 @@ namespace MahtaKala.Controllers.Api
         }
 
         [HttpGet]
-        public async Task<IEnumerable<BuyHistoryModel>> Orders()
+        public async Task<IEnumerable<OrderModel>> Orders([FromQuery] PagerModel pagerModel)
         {
-            var data = await db.Orders.Where(o => o.State == OrderState.Paid ||
+            var query = db.Orders.Where(o => o.State == OrderState.Paid ||
                                       o.State == OrderState.Delivered ||
                                       o.State == OrderState.Sent)
                 .Where(a => a.UserId == UserId)
-                .Select(a => new
-                {
-                    Id = a.Id,
-                    Price = a.TotalPrice,
-                    a.CheckOutDate,
-                    a.ApproximateDeliveryDate,
-                    a.ActualDeliveryDate,
-                    a.SendDate,
-                    State = a.State
-                }).ToListAsync();
+                .OrderByDescending(a => a.CheckOutDate)
+                .Page(pagerModel);
 
-            return data.Select(a => new BuyHistoryModel
-            {
-                Id = a.Id,
-                CheckoutDate = Util.GetPersianDate(a.CheckOutDate),
-                ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
-                SendDate = Util.GetPersianDate(a.SendDate),
-                ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
-                Price = (long)a.Price,
-                State = TranslateExtentions.GetTitle(a.State)
-            });
+            return await OrderModel.Get(query, productImageService);
         }
 
-        [HttpGet]
-        public async Task<IEnumerable<OrderItemModel>> OrderDetails(long id)
-        {
-            //var order = await db.Orders
-            //    .Include(a => a.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product)
-            //    .Include(a=>a.Items .Include(a => a.Address)
-            //    .FirstOrDefaultAsync(a => a.Id == id && a.UserId == UserId);
-            //if(order == null)
-            //{
-            //    throw new BadRequestException("سفارشی با این کد متعلق به کاربر جاری پیدا نشد");
-            //}
+        //[HttpGet]
+        //public async Task<IEnumerable<OrderItemModel>> OrderDetails(long id)
+        //{
+        //    //var order = await db.Orders
+        //    //    .Include(a => a.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product)
+        //    //    .Include(a=>a.Items .Include(a => a.Address)
+        //    //    .FirstOrDefaultAsync(a => a.Id == id && a.UserId == UserId);
+        //    //if(order == null)
+        //    //{
+        //    //    throw new BadRequestException("سفارشی با این کد متعلق به کاربر جاری پیدا نشد");
+        //    //}
 
 
-            return await db.OrderItems.Where(a => a.OrderId == id && a.Order.UserId == UserId).Select(a => new OrderItemModel
-            {
-                Id = a.Id,
-                DiscountedPrice = a.FinalPrice,
-                FinalPrice = a.FinalPrice,
-                Code = a.ProductPrice.Product.Code,
-                Title = a.ProductPrice.Product.Title,
-                Quantity = a.Quantity,
-                UnitPrice = a.ProductPrice.Price, //TODO: Price will change
-                DeliveryTrackNo = a.Delivery.TrackNo
-            }).ToListAsync();
-        }
+        //    return await db.OrderItems.Where(a => a.OrderId == id && a.Order.UserId == UserId).Select(a => new OrderItemModel
+        //    {
+        //        OrderItemId = a.Id,
+        //        ProductId = a.ProductPrice.ProductId,
+        //        Image = a.ProductPrice.Product.Thubmnail,
+        //        DiscountedPrice = a.FinalPrice,
+        //        FinalPrice = a.FinalPrice,
+        //        Code = a.ProductPrice.Product.Code,
+        //        Title = a.ProductPrice.Product.Title,
+        //        Quantity = a.Quantity,
+        //        UnitPrice = a.UnitPrice,
+        //        DeliveryTrackNo = a.Delivery.TrackNo
+        //    }).ToListAsync();
+        //}
+
         //[HttpGet]
         //public async Task<PaymentStatusResponse> PayStatus(long orderId)
         //{

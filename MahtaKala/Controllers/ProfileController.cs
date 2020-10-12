@@ -7,6 +7,7 @@ using MahtaKala.Entities;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
+using MahtaKala.Services;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,10 +20,15 @@ namespace MahtaKala.Controllers
     {
         public ProfileController(
           DataContext dataContext,
-          ILogger<ProfileController> logger) : base(dataContext, logger)
+          ILogger<ProfileController> logger,
+          IProductImageService productImageService
+          ) : base(dataContext, logger)
         {
+            this.productImageService = productImageService;
         }
         private User user;
+        private readonly IProductImageService productImageService;
+
         public new User User
         {
             get
@@ -57,22 +63,12 @@ namespace MahtaKala.Controllers
             return View(lst);
         }
 
-        public IActionResult BuyHistory()
+        public async Task<IActionResult> BuyHistory()
         {
-            var data = db.Orders.Where(o => (o.State == OrderState.Paid ||
+            var query = db.Orders.Where(o => (o.State == OrderState.Paid ||
                                                 o.State == OrderState.Delivered ||
-                                                o.State == OrderState.Sent) && o.UserId == UserId).ToList()
-               .Select(a => new BuyHistoryModel
-               {
-                   Id = a.Id,
-                   Price = (long)a.TotalPrice,
-                   CheckoutDate = Util.GetPersianDate(a.CheckOutDate),
-                   State = TranslateExtentions.GetTitle(a.State),
-                   ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
-                   SendDate = Util.GetPersianDate(a.SendDate),
-                   ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
-                   OrderItems = db.OrderItems.Include(a=>a.ProductPrice.Product).Where(c=>c.OrderId==a.Id).ToList()
-               }).ToList();
+                                                o.State == OrderState.Sent) && o.UserId == UserId);
+            var data = await OrderModel.Get(query, productImageService);
             return View(data);
         }
 
