@@ -16,9 +16,37 @@
                 <label>دسته بندی پدر:</label>
                 <input type="text" name="categoryFilter" class="form-control additionalData" />
             </div>
+            <div class="col-lg-3">
+                <label>غیرفعال:</label>
+                <select id="disabledFilter" name="disabledFilter" class="form-control additionalData">
+                    <option value="false">فعال</option>
+                    <option value="true">غیرفعال</option>
+                    <option value="all" selected>همه</option>
+                </select>
+                @*<input type="hidden" name="disabledFilter" id="disabledFilter" class="form-control additionalData" />*@
+            </div>
+            <div class="col-lg-3">
+                <label>منتشر شده:</label>
+                <select id="publishedFilter" name="publishedFilter" class="form-control additionalData">
+                    <option value="true">منتشر شده</option>
+                    <option value="false">منتشر نشده</option>
+                    <option value="all" selected>همه</option>
+                </select>
+                @*<input type="hidden" name="publishedFilter" id="publishedFilter" class="form-control additionalData" />*@
+            </div>
         </div>
     </fieldset>
 </div>
+
+@*<script type="text/javascript">
+    function disabledFilterChanged(disabledFilterSelect) {
+        document.getElementById("disabledFilter").value = disabledFilterSelect.value;
+    }
+
+    function publishedFilterChanged(publishedFilterSelect) {
+        document.getElementById("publishedFilter").value = publishedFilterSelect.value;
+    }
+</script>*@
 
 
 @(Html.Kendo().Grid<MahtaKala.Entities.Category>()
@@ -27,15 +55,15 @@
     {
         columns.Bound(p => p.Title);
         columns.Bound(p=>p.Parent).ClientTemplate("#=Parent!=null?Parent.Title:''#");
-        columns.Bound(p => p.Order);
-        columns.Bound(p => p.Disabled).ClientTemplate("#=Disabled?'بلی':'خیر'#");
-        columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#");
-        columns.Bound(p => p.Id)
+        columns.Bound(p => p.Order).Width(80);
+        columns.Bound(p => p.Disabled).Width(80).ClientTemplate("#=Disabled?'بلی':'خیر'#");
+        columns.Bound(p => p.Published).Width(80).ClientTemplate("#=Published?'بلی':'خیر'#");
+        columns.Bound(p => p.Id).Width(80)
             .ClientTemplate("<a href='##' onclick='moveUp(#=Id#)'><span class='k-icon k-i-sort-asc-sm'></span></a>" +
                             "<a href='##' onclick='moveDown(#=Id#)'><span class='k-icon k-i-sort-desc-sm'></span></a>")
             .Title("ترتیب");
-        columns.Command(command => command.Custom("Edit").Text("ویرایش").Click("editEntity")).Width(160);
-        columns.Command(command => command.Custom("حذف").Click("RemoveEntity")).Width(90);
+        columns.Command(command => command.Custom("Edit").Text("ویرایش").Click("editEntity")).Width(87);
+        columns.Command(command => command.Custom("حذف").Click("RemoveEntity")).Width(74);
     })
     .ToolBar(toolbar =>
     {
@@ -45,7 +73,7 @@
     .Scrollable()
     .Groupable()
     .Sortable()
-    .Filterable()
+    //.Filterable()
     .Pageable(pageable => pageable
         .Refresh(true)
         .PageSizes(true)

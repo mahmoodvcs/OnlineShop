@@ -129,6 +129,7 @@ namespace MahtaKala
             services.AddKendo();
             services.AddScoped<SettingsService>();
             services.AddScoped<IDeliveryService, YarBoxDeliveryService>();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
             TaskManager.RegisterTasks(services);
 
