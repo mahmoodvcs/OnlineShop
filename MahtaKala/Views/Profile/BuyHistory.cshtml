@@ -1,4 +1,4 @@
-﻿@model List<BuyHistoryModel>
+﻿@model List<OrderModel>
 @{
     ViewData["Title"] = "سفارش های من";
     Layout = "~/Views/Shared/_Profile.cshtml";
@@ -54,28 +54,33 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>عنوان کالا</th>
+                                        <th colspan="2">کالا</th>
                                         <th>تعداد</th>
                                         <th>قیمت واحد</th>
-                                        <th>قیمت کل</th>
+                                        <th>قیمت کل (با تخفیف)</th>
                                     </tr>
                                 </thead>
                                 @foreach (var itemx in item.OrderItems)
                                 {
                                     <tr>
                                         <td>
-                                            <a target="_blank" href="@Url.Content("~/home/product/"+ itemx.ProductPrice.ProductId)">
-                                                @itemx.ProductPrice.Product.Title
+                                            <a target="_blank" href="@Url.Content("~/home/product/"+ itemx.ProductId)">
+                                                <img src="@itemx.Image" class="imgh100" />
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a target="_blank" href="@Url.Content("~/home/product/"+ itemx.ProductId)">
+                                                @itemx.Title
                                             </a>
                                         </td>
                                         <td>
                                             @itemx.Quantity
                                         </td>
                                         <td>
-                                            @string.Format("{0:n0}", itemx.ProductPrice.Price) ریال
+                                            @string.Format("{0:n0}", itemx.UnitPrice) ریال
                                         </td>
                                         <td>
-                                            @string.Format("{0:n0}", itemx.ProductPrice.Price * itemx.Quantity) ریال
+                                            @string.Format("{0:n0}", itemx.DiscountedPrice) ریال
                                         </td>
                                     </tr>
                                 }

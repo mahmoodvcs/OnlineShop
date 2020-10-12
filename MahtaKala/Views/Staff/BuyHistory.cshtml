@@ -15,7 +15,7 @@
 
 </div>
 
-@(Html.Kendo().Grid<MahtaKala.Models.BuyHistoryModel>().Name("grid").Columns(columns =>
+@(Html.Kendo().Grid<MahtaKala.Models.OrderModel>().Name("grid").Columns(columns =>
 {
     columns.Bound(p => p.FirstName).Title("نام");
     columns.Bound(p => p.LastName).Title("نام خانوادگی");
