@@ -7,7 +7,8 @@ namespace MahtaKala.Models.CustomerModels
 {
     public class OrderItemModel
     {
-        public long Id { get; set; }
+        public long OrderItemId { get; set; }
+        public long ProductId { get; set; }
         public string Title { get; set; }
         public string Code { get; set; }
         public int Quantity { get; set; }
@@ -15,6 +16,7 @@ namespace MahtaKala.Models.CustomerModels
         public decimal DiscountedPrice { get; set; }
         public decimal FinalPrice { get; set; }
         public string DeliveryTrackNo { get; set; }
+        public string Image { get; set; }
 
     }
 }

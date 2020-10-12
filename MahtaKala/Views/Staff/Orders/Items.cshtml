@@ -2,6 +2,9 @@
     Layout = "~/Views/Shared/_Staff.cshtml";
     ViewBag.Title = "اقلام فروخته شده";
 }
+<div class="alert alert-danger">
+    <h4>سفارشات صبح باید تا ساعت 16 همان روز و سفارشات بعد از ظهر تا ساعت 9 صبح روز بعد به دست توزیع کننده برسد.</h4>
+</div>
 <div class="filterPanel">
     <fieldset>
         <legend>فیلتر ها:</legend>
@@ -12,7 +15,6 @@
             </div>
         </div>
     </fieldset>
-
 </div>
 
 @(Html.Kendo().Grid<MahtaKala.Models.StaffModels.OrderItemModel>().Name("grid").Columns(columns =>
