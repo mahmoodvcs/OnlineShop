@@ -225,7 +225,7 @@ namespace MahtaKala.Services
         {
             if(prod.Quantity.HasValue && prod.Quantity < count)
             {
-                throw new Exception($"محصول '{prod.Title}' موجود نیست");
+                throw new ApiException(400, $"محصول '{prod.Title}' موجود نیست");
             }
             await CheckProductMaxQuota(priceId, count, prod);
         }
@@ -436,6 +436,8 @@ namespace MahtaKala.Services
                     throw new CartItemException($"محصول {item.ProductPrice.Product.Title} به تعداد {quantity.Quantity} موجود است", item.ProductPrice.ProductId, item.ProductPrice.Product.Title);
                 }
                 quantity.Quantity -= item.Count;
+                if (quantity.Quantity <= 0)
+                    item.ProductPrice.Product.Status = ProductStatus.NotAvailable;
             }
 
             order.TotalPrice = CalculateTotalPrice(order);
@@ -519,7 +521,7 @@ namespace MahtaKala.Services
             if (origOrder.State == OrderState.Paid || origOrder.State == OrderState.Delivered || origOrder.State == OrderState.Sent)
                 throw new Exception($"Invalid order state: Id: {origOrder.Id} - State: {origOrder.State}");
 
-            var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).FirstAsync(a => a.Id == origOrder.Id);
+            var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product).FirstAsync(a => a.Id == origOrder.Id);
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
 
             order.State = OrderState.Canceled;
@@ -530,6 +532,10 @@ namespace MahtaKala.Services
             {
                 var quantity = quantities.FirstOrDefault(a => a.ProductId == item.ProductPrice.ProductId);
                 quantity.Quantity += item.Quantity;
+                if (item.ProductPrice.Product.Status == ProductStatus.NotAvailable && quantity.Quantity > 0)
+                {
+                    item.ProductPrice.Product.Status = ProductStatus.Available;
+                }
             }
 
             await db.SaveChangesAsync();
