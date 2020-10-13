@@ -41,6 +41,25 @@ namespace MahtaKala.Services
             this.settingsService = settingsService;
             this.deliveryService = deliveryService;
         }
+
+        #region Constants
+
+        public readonly OrderState[] SuccessfulOrderStates =
+        {
+            OrderState.Paid,
+            OrderState.Sent,
+            OrderState.Delivered
+        };
+        public readonly OrderState[] QuantitySubtractedOrderStates =
+        {
+            OrderState.Initial,
+            OrderState.CheckedOut,
+            OrderState.Paid,
+            OrderState.Sent,
+            OrderState.Delivered
+        };
+
+        #endregion Constants
         User User => currentUserService.User;
         public async Task<Order> GetUserOrder()
         {
@@ -188,7 +207,7 @@ namespace MahtaKala.Services
                     var prevProductCount = await
                         (from order in db.Orders
                                 .Where(o => o.UserId == userId
-                                    && (o.State == OrderState.Paid || o.State == OrderState.Sent || o.State == OrderState.Delivered)
+                                    && SuccessfulOrderStates.Contains(o.State)
                                     && o.CheckOutDate > minTime)
                          from orderItem in order.Items.Where(a => a.ProductPriceId == priceId)
                          select orderItem.Quantity).SumAsync();
@@ -217,7 +236,7 @@ namespace MahtaKala.Services
 
         private async Task CheckCartItemValidity(long priceId, int count, ProductInfo prod)
         {
-            if(prod.Quantity.HasValue && prod.Quantity < count)
+            if (prod.Quantity.HasValue && prod.Quantity < count)
             {
                 throw new Exception($"محصول '{prod.Title}' موجود نیست");
             }
@@ -242,7 +261,7 @@ namespace MahtaKala.Services
                     var prevProductCount = await
                         (from order in db.Orders
                                 .Where(o => o.UserId == userId
-                                    && (o.State == OrderState.Paid || o.State == OrderState.Sent || o.State == OrderState.Delivered)
+                                    && SuccessfulOrderStates.Contains(o.State)
                                     && o.CheckOutDate > minTime)
                          from orderItem in order.Items.Where(a => a.ProductPriceId == priceId)
                          select orderItem.Quantity).SumAsync();
@@ -324,7 +343,7 @@ namespace MahtaKala.Services
                     Status = cartItem.ProductPrice.Product.Status,
                     Title = cartItem.ProductPrice.Product.Title,
                     Basket = await db.Sellers.Where(a => a.Id == cartItem.ProductPrice.Product.SellerId).Select(a => a.Basket).FirstOrDefaultAsync(),
-                    Quantity = await db.ProductQuantities.Where(a=>a.ProductId == cartItem.ProductPrice.ProductId).Select(a=>a.Quantity).FirstOrDefaultAsync()
+                    Quantity = await db.ProductQuantities.Where(a => a.ProductId == cartItem.ProductPrice.ProductId).Select(a => a.Quantity).FirstOrDefaultAsync()
                 };
             }
 
@@ -508,9 +527,20 @@ namespace MahtaKala.Services
             }
         }
 
+        public async Task RollbackUnsuccessfulPayments()
+        {
+            var initalStates = QuantitySubtractedOrderStates.Except(SuccessfulOrderStates).ToArray();
+            var list = await db.Orders.Where(a => a.CheckOutDate < DateTime.Now.AddMinutes(-20)
+                && initalStates.Contains(a.State)).ToListAsync();
+            foreach (var item in list)
+            {
+
+            }
+        }
+
         async Task RollbackQuantity(Order origOrder)
         {
-            if (origOrder.State == OrderState.Paid || origOrder.State == OrderState.Delivered || origOrder.State == OrderState.Sent)
+            if (SuccessfulOrderStates.Contains(origOrder.State))
                 throw new Exception($"Invalid order state: Id: {origOrder.Id} - State: {origOrder.State}");
 
             var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).FirstAsync(a => a.Id == origOrder.Id);
