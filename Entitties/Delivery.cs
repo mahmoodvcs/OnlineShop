@@ -14,8 +14,6 @@ namespace MahtaKala.Entities
 
         public string Request { get; set; }
         public long UserId { get; set; }
-        public long SellerId { get; set; }
-        public Seller Seller { get; set; }
         public string PackKey { get; set; }
         public string OrderItemIds { get; set; }
         [StringLength(100)]
