@@ -228,7 +228,7 @@ namespace MahtaKala.Controllers
 
         public JsonResult GetUserAddress()
         {
-            var lst = db.Addresses.Where(a => a.UserId == UserId).OrderByDescending(a => a.Id).Select(a => new { a.Id, Name = (a.City.Province.Name + "-" + a.City.Name + "-" + a.Details) });
+            var lst = db.Addresses.Where(a => a.UserId == UserId && !a.Disabled).OrderByDescending(a => a.Id).Select(a => new { a.Id, Name = (a.City.Province.Name + "-" + a.City.Name + "-" + a.Details) });
             return Json(lst);
         }
     }

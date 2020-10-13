@@ -1185,7 +1185,7 @@ namespace MahtaKala.Controllers
                 order.SendDate = DateTime.Now;
                 order.State = OrderState.Sent;
                 order.DelivererNo = DelivererId;
-                order.TrackNo = new Random().Next(100000, 999999).ToString();
+                order.TrackNo = new Random((int)(DateTime.Now.Ticks % int.MaxValue)).Next(100000, 999999).ToString();
                 await db.SaveChangesAsync();
                 await smsService.Send(user.MobileNumber, string.Format(Messages.Messages.Order.DeliveredOTPMessage, order.TrackNo));
             }
