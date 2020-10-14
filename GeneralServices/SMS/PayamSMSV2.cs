@@ -1,4 +1,5 @@
 ﻿using MahtaKala.Entities;
+using MahtaKala.GeneralServices.MessageParser;
 using MahtaKala.SharedServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -15,10 +16,13 @@ namespace MahtaKala.GeneralServices.SMS
 {
     public class PayamSMSV2 : SMSServiceBase, ISMSService
     {
-        public PayamSMSV2(ILogger<PayamSMSV2> logger, DataContext db)
+        private readonly IDeliveryCodeReceiver deliveryCodeReceiver;
+
+        public PayamSMSV2(ILogger<PayamSMSV2> logger, DataContext db, IDeliveryCodeReceiver deliveryCodeReceiver)
         {
             this.logger = logger;
             this.db = db;
+            this.deliveryCodeReceiver = deliveryCodeReceiver;
         }
 
         const string OrganizationName = "kaspian556";
@@ -61,6 +65,7 @@ namespace MahtaKala.GeneralServices.SMS
                     Sender = item.From
                 };
                 db.ReceivedSMSs.Add(sms);
+                deliveryCodeReceiver.CheckReceivedCode(sms);
             }
             await db.SaveChangesAsync();
             await ReadReceivedSMSs();

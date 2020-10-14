@@ -69,7 +69,20 @@ namespace MahtaKala.GeneralServices.Delivery
                     street = items.First().Address
                 }
             };
-            var response = await SendRequest(req);
+            DeliveryResponse response;
+            try
+            {
+                response = await SendRequest(req);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("خطا در ثبت بار.", ex);
+            }
+            if (response == null)
+            {
+                throw new Exception("خطا در ثبت بار.", 
+                    new Exception("DeliveryResponse object from YarBox service came back null!"));
+            }
             if (string.IsNullOrEmpty(response.packkey))
             {
                 throw new Exception("خطا در ثبت بار: " + response.message);
