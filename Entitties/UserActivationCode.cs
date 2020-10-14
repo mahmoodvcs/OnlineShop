@@ -16,5 +16,6 @@ namespace MahtaKala.Entities
         public int Code { get; set; }
         public DateTime IssueTime { get; set; }
         public DateTime ExpireTime { get; set; }
-    }
+		public string AdditionalData { get; set; }
+	}
 }

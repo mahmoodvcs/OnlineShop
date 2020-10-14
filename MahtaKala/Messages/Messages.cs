@@ -8,5 +8,6 @@ namespace MahtaKala.Messages
     public static partial class Messages
     {
         public const string AccessDeined = "شما اجازه ی دسترسی به این قسمت را ندارید";
+        public const string ConfirmPhoneNumberMessage = "کد تأیید شماره موبایل در فروشگاه مهتاکالا: {0}";
     }
 }

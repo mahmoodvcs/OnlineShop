@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeneralServices", "GeneralS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedServices", "SharedServices\SharedServices.csproj", "{2E0FD5E9-992B-450E-AFA7-6DAA4EC97544}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExportDataToPG", "ExportDataToPG\ExportDataToPG.csproj", "{B0F10FE6-8F22-42D9-96C9-49CB708F03E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExportDataToPG", "ExportDataToPG\ExportDataToPG.csproj", "{B0F10FE6-8F22-42D9-96C9-49CB708F03E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
