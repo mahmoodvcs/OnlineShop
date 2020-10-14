@@ -16,6 +16,8 @@ namespace MahtaKala.GeneralServices.SMS
 {
     public class PayamSMSV2 : SMSServiceBase, ISMSService
     {
+        public const string OrderDeliveryCodeReceived = "کد تأیید تحویل سفارش دریافت شد: {0}.";
+        public const string InvalidDeliveryCodeReceived = "کد ارسال شده معتبر نیست: {0}.";
         private readonly IDeliveryCodeReceiver deliveryCodeReceiver;
 
         public PayamSMSV2(ILogger<PayamSMSV2> logger, DataContext db, IDeliveryCodeReceiver deliveryCodeReceiver)
@@ -65,7 +67,15 @@ namespace MahtaKala.GeneralServices.SMS
                     Sender = item.From
                 };
                 db.ReceivedSMSs.Add(sms);
-                deliveryCodeReceiver.CheckReceivedCode(sms);
+                (bool deliveryResult, string deliveryMessage) = deliveryCodeReceiver.CheckReceivedCode(sms);
+                if (deliveryResult)
+                {
+                    await Send(sms.Sender, string.Format(OrderDeliveryCodeReceived, sms.Message));
+				}
+				else
+				{
+                    await Send(sms.Sender, string.Format(InvalidDeliveryCodeReceived, sms.Message) + "   " + deliveryMessage);
+				}
             }
             await db.SaveChangesAsync();
             await ReadReceivedSMSs();

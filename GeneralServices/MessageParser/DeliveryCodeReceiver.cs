@@ -18,7 +18,7 @@ namespace MahtaKala.GeneralServices.MessageParser
 		{
 			var order = db.Orders.FirstOrDefault(x => x.TrackNo.ToLower().Equals(receivedSMS.Message.ToLower()));
 			if (order == null)
-				return (false, "Message body doesn't match any of our tracking numbers.");
+				return (false, "خطا! سفارشی با این کد در سیستم ثبت نشده است.");
 			if (order.State == OrderState.Paid || order.State == OrderState.Sent)
 			{
 				order.State = OrderState.Delivered;
@@ -27,10 +27,14 @@ namespace MahtaKala.GeneralServices.MessageParser
 			}
 			if (order.State == OrderState.Delivered)
 			{
-				return (false, "This order has been already delivered before! This is probably not the first time this message has been received!");
+				return (false, "خطا! این کد قبلاً دریافت شده است.");
+			}
+			if (order.State == OrderState.Initial || order.State == OrderState.CheckedOut)
+			{
+				return (false, "خطا! هزینه ی سفارش پرداخت نشده است.");
 			}
 
-			return (false, $"Order was found, but, its state is not what is's supposed to be! Order.State: {Enum.GetName(typeof(OrderState), order.State)}");
+			return (false, "خطا! این سفارش قبلاً لغو شده است.");
 		}
 	}
 }
