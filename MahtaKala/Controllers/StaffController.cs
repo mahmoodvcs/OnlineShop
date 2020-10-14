@@ -1166,35 +1166,35 @@ namespace MahtaKala.Controllers
             return Content(list, "application/json");
         }
 
-        [AjaxAction]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
-        public async Task<ActionResult> ConfirmSent(long Id, string DelivererId)
-        {
-            var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
-            if (order == null)
-            {
-                throw new EntityNotFoundException<Order>(Id);
-            }
-            var user = await db.Users.Where(u => u.Id == order.UserId).FirstOrDefaultAsync();
-            if (user == null)
-            {
-                throw new EntityNotFoundException<User>(order.UserId);
-            }
-            if (order.State == OrderState.Paid)
-            {
-                order.SendDate = DateTime.Now;
-                order.State = OrderState.Sent;
-                order.DelivererNo = DelivererId;
-                order.TrackNo = new Random((int)(DateTime.Now.Ticks % int.MaxValue)).Next(100000, 999999).ToString();
-                await db.SaveChangesAsync();
-                await smsService.Send(user.MobileNumber, string.Format(Messages.Messages.Order.DeliveredOTPMessage, order.TrackNo));
-            }
-            else
-            {
-                return Json(new { success = false, message = Messages.Messages.Order.ErrorConvertStateToSent });
-            }
-            return Json(new { success = true });
-        }
+        //[AjaxAction]
+        //[Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
+        //public async Task<ActionResult> ConfirmSent(long Id, string DelivererId)
+        //{
+        //    var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
+        //    if (order == null)
+        //    {
+        //        throw new EntityNotFoundException<Order>(Id);
+        //    }
+        //    var user = await db.Users.Where(u => u.Id == order.UserId).FirstOrDefaultAsync();
+        //    if (user == null)
+        //    {
+        //        throw new EntityNotFoundException<User>(order.UserId);
+        //    }
+        //    if (order.State == OrderState.Paid)
+        //    {
+        //        order.SendDate = DateTime.Now;
+        //        order.State = OrderState.Sent;
+        //        order.DelivererNo = DelivererId;
+        //        order.TrackNo = new Random((int)(DateTime.Now.Ticks % int.MaxValue)).Next(100000, 999999).ToString();
+        //        await db.SaveChangesAsync();
+        //        await smsService.Send(user.MobileNumber, string.Format(Messages.Messages.Order.DeliveredOTPMessage, order.TrackNo));
+        //    }
+        //    else
+        //    {
+        //        return Json(new { success = false, message = Messages.Messages.Order.ErrorConvertStateToSent });
+        //    }
+        //    return Json(new { success = true });
+        //}
 
         [AjaxAction]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]

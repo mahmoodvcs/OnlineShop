@@ -4,6 +4,7 @@ using MahtaKala.Entities;
 using MahtaKala.Entities.ExceptionHandling;
 using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Delivery;
+using MahtaKala.GeneralServices.MessageParser;
 using MahtaKala.GeneralServices.Payment;
 using MahtaKala.GeneralServices.SMS;
 using MahtaKala.Helpers;
@@ -130,6 +131,7 @@ namespace MahtaKala
             services.AddScoped<SettingsService>();
             services.AddScoped<IDeliveryService, YarBoxDeliveryService>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            services.AddScoped<IDeliveryCodeReceiver, DeliveryCodeReceiver>();
 
             TaskManager.RegisterTasks(services);
 
