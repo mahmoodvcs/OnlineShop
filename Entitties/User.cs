@@ -87,11 +87,13 @@ namespace MahtaKala.Entities
 
         public void CheckProfileCompletion()
         {
+            var msg = "لطفا به صفحه ی پروفایل کاربری رفته و {0} خود را وارد کنید";
             if (string.IsNullOrEmpty(FirstName))
-                throw new Exception("لطفا نام را وارد کنید");
+                throw new Exception(string.Format(msg, "نام"));
             if (string.IsNullOrEmpty(LastName))
-                throw new Exception("لطفا نام خانوادگی را وارد کنید");
-
+                throw new Exception(string.Format(msg, "نام خانوادگی"));
+            if (string.IsNullOrEmpty(NationalCode))
+                throw new Exception(string.Format(msg, "کد ملی"));
         }
     }
 }
