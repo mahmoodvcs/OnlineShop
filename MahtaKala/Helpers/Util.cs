@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Net.Mail;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -245,6 +246,38 @@ namespace MahtaKala.Helpers
                 }
             }
             throw new FormatException("Not rgb, rgba or hexa color string");
+        }
+
+        public static string ChangeNumberBaseFrom10(long sourceNumber, char[] destinationCharSet)
+        {
+            StringBuilder resultBuilder = new StringBuilder();
+            int destinationBase = destinationCharSet.Length;
+            do
+            {
+                resultBuilder.Insert(0, destinationCharSet[sourceNumber % destinationBase]);
+                sourceNumber /= destinationBase;
+            } 
+            while (sourceNumber > 0);
+
+            return resultBuilder.ToString();
+        }
+
+        public static long ChangeNumberBaseTo10(string sourceValue, char[] sourceBaseCharSet)
+        {
+            int sourceBase = sourceBaseCharSet.Length;
+            int coef = 1;
+            Dictionary<char, int> sourceBaseCharsIndexes = new Dictionary<char, int>();
+            for (int i = 0; i < sourceBaseCharSet.Length; i++)
+            {
+                sourceBaseCharsIndexes[sourceBaseCharSet[i]] = i;
+            }
+            long result = 0;
+            for (int i = sourceValue.Length - 1; i >= 0; i--)
+            {
+                result += sourceBaseCharsIndexes[sourceValue[i]] * coef;
+                coef *= sourceBase;
+            }
+            return result;
         }
     }
 }

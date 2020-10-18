@@ -291,7 +291,7 @@ namespace MahtaKala.Services
             if (cartItem == null)
             {
                 if (info.Status != ProductStatus.Available)
-                    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_NotAvailable);
+                    throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_NotAvailable, info.Title));
 
                 var priceIds = cart.Select(a => a.ProductPriceId);
                 if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.Seller.Basket != info.Basket).Any())
@@ -483,7 +483,7 @@ namespace MahtaKala.Services
                 var p = item.ProductPrice.Product;
                 if (p.Status != ProductStatus.Available)
                 {
-                    throw new CartItemException(Messages.Messages.Order.CannotAddProduct_NotAvailable, p.Id, p.Title);
+                    throw new CartItemException(string.Format(Messages.Messages.Order.CannotAddProduct_NotAvailable, p.Title), p.Id, p.Title);
                 }
                 if (p.MinBuyQuota != null && item.Count < p.MinBuyQuota)
                 {

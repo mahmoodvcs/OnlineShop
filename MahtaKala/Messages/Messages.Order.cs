@@ -19,7 +19,7 @@ namespace MahtaKala.Messages
             public const string OrderPaymentSuccessMessage = "مهتاکالا: پرداخت انجام شد. کد رهگیری: {0}. تاریخ تخمینی ارسال کالا: {1}";
          
             public const string CannotAddProduct_DefferentSeller = "امکان افزودن این کالا وجود ندارد.";//فروشنده ی این کالا، با کالاهای قبلی متفاوت است
-            public const string CannotAddProduct_NotAvailable = "امکان افزودن این کالا وجود ندارد. موجود نیست.";
+            public const string CannotAddProduct_NotAvailable = "کالای {0} موجود نیست.";
             public const string CannotAddProduct_MinQuota = "حداقل تعداد خرید محصول {0}، {1} عدد میباشد.";
             public const string CannotAddProduct_MaxQuota = "حداکثر تعداد خرید محصول {0}، {1} عدد میباشد.";
             public const string CannotAddProduct_WrongCity = "محصول {0} فقط در شهر {1} موجود میباشد.";

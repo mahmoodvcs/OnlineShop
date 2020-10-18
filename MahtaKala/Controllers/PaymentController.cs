@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
 
@@ -137,12 +138,52 @@ namespace MahtaKala.Controllers
         {
             if (payment.State == PaymentState.Succeeded && payment.Order.State == OrderState.Paid)
             {
+                var order = db.Orders.FirstOrDefault(x => x.Id == payment.OrderId);
+                if (order == null)
+                {
+                    throw new Exception($"function: PaymentController.SendPaymentSMS(Payment payment) - Order with id {payment.OrderId} was not found!");
+                }
+                var deliveryTrackingNumber = GenerateTrackingNumber(payment);
+                order.TrackNo = deliveryTrackingNumber;
+                db.SaveChanges();
                 string message = string.Format(Messages.Messages.Order.OrderPaymentSuccessMessage,
-                    payment.TrackingNumber,
+                    deliveryTrackingNumber /*same as order.TrackNo*/,
                     Util.GetPersianDate(payment.Order.ApproximateDeliveryDate));
                 var number = db.Users.Where(a => a.Id == payment.Order.UserId).Select(a => a.MobileNumber).Single();
                 SMSService.Send(number, message);
             }
+        }
+
+        private string GenerateTrackingNumber(Payment payment)
+        {
+            if (payment.OrderId <= 0)
+                throw new Exception($"Payment.OrderId has the value {payment.OrderId}, which is not valid!");
+            var charSet = new char[] { '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 
+                                       'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 
+                                       'N', 'P', 'R', 'S', 'T', 'W', 'Y', 'Z' };
+            var inNewBase = Util.ChangeNumberBaseFrom10(payment.OrderId, charSet);
+            StringBuilder resultBuilder = new StringBuilder(inNewBase);
+            if (resultBuilder.Length < 7)
+            {
+                resultBuilder.Append('X');
+                var rand = new Random((int)(DateTime.Now.Ticks % int.MaxValue));
+                while (resultBuilder.Length < 7)
+                {
+                    resultBuilder.Append(charSet[rand.Next(0, charSet.Length)]);
+                }
+            }
+            // Shuffling the tracking number will make just it a bit difficult to decipher the algorithm on the first glance!
+            // p.s. We're not gonna do anything about the second glance! Sowwy!
+            string rawResult = resultBuilder.ToString();
+            resultBuilder.Clear();
+            resultBuilder.Append(rawResult[1]);
+            resultBuilder.Append(rawResult[5]);
+            resultBuilder.Append(rawResult[0]);
+            resultBuilder.Append(rawResult[2]);
+            resultBuilder.Append(rawResult[6]);
+            resultBuilder.Append(rawResult[4]);
+            resultBuilder.Append(rawResult[3]);
+            return resultBuilder.ToString();
         }
 
         //public async Task<string> ShareTest(long id)

@@ -26,7 +26,7 @@
     columns.Bound(p => p.ActualDeliveryDate).Title("تاریخ تحویل");
     columns.Bound(p => p.Price).Title("قیمت");
     columns.Command(command => command.Custom("جزئیات").Click("viewDetails")).Width(90);
-    columns.Command(command => command.Custom("تایید ارسال").Click("ConfirmSent")).Width(90);
+    //columns.Command(command => command.Custom("تایید ارسال").Click("ConfirmSent")).Width(90);
     columns.Command(command => command.Custom("تایید تحویل").Click("ConfirmDelivered")).Width(90);
 
 })
@@ -55,7 +55,7 @@
     )
 @section js{
     <script type="text/javascript">
-        function ConfirmSent(e) {
+        @*function ConfirmSent(e) {
             e.preventDefault();
             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
             Swal.fire({
@@ -87,7 +87,7 @@
                         });
                 }
             });
-        }
+        }*@
 
         function ConfirmDelivered(e) {
             e.preventDefault();
