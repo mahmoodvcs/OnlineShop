@@ -416,7 +416,7 @@ namespace MahtaKala.Services
             }
             catch(Exception ex)
             {
-                throw new ApiException(400, ex.Message)
+                throw new ApiException(400, ex.Message);
             }
 
             var cartItems = await GetCartItems();
