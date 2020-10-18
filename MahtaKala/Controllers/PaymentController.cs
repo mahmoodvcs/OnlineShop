@@ -57,7 +57,7 @@ namespace MahtaKala.Controllers
 
             payment.State = PaymentState.SentToBank;
             await db.SaveChangesAsync();
-            if (Request.Host.Host == "localhost" && bankPaymentService is TestBasnkService)
+            if (bankPaymentService is TestBasnkService)
             {
                 return View("TestPay", payment);
             }
@@ -100,6 +100,11 @@ namespace MahtaKala.Controllers
         //    var res = await ((PardakhtNovinService)bankPaymentService).SharePayment(payment, shares);
         //    return res;
         //}
+
+        public async Task<string> report()
+        {
+            return await ((PardakhtNovinService)bankPaymentService).GetReport();
+        }
 
         [HttpPost]
         public async Task<ActionResult> Paid()//didn't work [FromQuery]string source)

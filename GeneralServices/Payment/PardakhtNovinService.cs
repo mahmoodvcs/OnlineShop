@@ -67,21 +67,28 @@ namespace MahtaKala.GeneralServices.Payment
             return true;
         }
 
+        public async Task<string> GetReport()
+        {
+            TechnoIPGWSClient cl = GetClient();
+            var list = await cl.getTransactionReportAsync(new TransReportParam
+            {
+                terminal = terminalId,
+                WSContext = GetWSContext(),
+                length = 100,
+                offset = 0,
+                secureMerchantId = merchant_id
+            });
+
+            return JsonSerializer.Serialize(list);
+        }
+
         public async Task<string> ipg(int amount, string resnt, string returnUrl)
         {
-            string certpath = Path.Combine(pathService.AppRoot, "PardakhtNovin.cer");
             try
             {
-                PardakhtNovinWebService.TechnoIPGWSClient ipgw = new PardakhtNovinWebService.TechnoIPGWSClient();
-                //TechnoPaymentWebServiceService ipgw = new TechnoPaymentWebServiceService();
-                ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(validateservercertificate);
-                X509Certificate2 cert = new X509Certificate2(certpath, certificatePassword, X509KeyStorageFlags.DefaultKeySet);
-                ipgw.ClientCredentials.ClientCertificate.Certificate = cert;
+                TechnoIPGWSClient ipgw = GetClient();
                 //ipgw.AllowAutoRedirect = false;
                 //  step1 data to sign
-                WSContext w = new WSContext();
-                w.UserId = username;
-                w.Password = password;
                 RequestParam requestparam = new RequestParam();
                 requestparam.Amount = amount;                      //مبلغ
                 requestparam.AmountSpecified = true;
@@ -91,12 +98,12 @@ namespace MahtaKala.GeneralServices.Payment
                 requestparam.TransTypeSpecified = true;
                 requestparam.ReserveNum = resnt;             //شماره فاکتور
                 requestparam.RedirectUrl = returnUrl; //"http://192.168.0.53:1007/conf.aspx";// "http://178.252.189.82:1006/conf.aspx";// "http://93.115.150.21:8066/ipgconf.aspx";// 
-                requestparam.WSContext = w;
+                requestparam.WSContext = GetWSContext();
                 //GenerateTransactionDataToSignResult generateTransactionDataToSignResult = new GenerateTransactionDataToSignResult();
                 var generateTransactionDataToSignResult = await ipgw.GenerateTransactionDataToSignAsync(requestparam);
                 if (generateTransactionDataToSignResult.@return.Result.ToLower() != "ersucceed")
                 {
-                    throw new Exception("Error signing data: " +generateTransactionDataToSignResult.@return.Result);
+                    throw new Exception("Error signing data: " + generateTransactionDataToSignResult.@return.Result);
                 }
                 string datatosign = generateTransactionDataToSignResult.@return.DataToSign;
                 string uniqid = generateTransactionDataToSignResult.@return.UniqueId;
@@ -107,9 +114,9 @@ namespace MahtaKala.GeneralServices.Payment
                 GenerateSignedDataTokenParam tokenParams = new GenerateSignedDataTokenParam();
                 tokenParams.Signature = datatosign;
                 tokenParams.UniqueId = uniqid;
-                tokenParams.WSContext = w;
+                tokenParams.WSContext = GetWSContext();
                 var tokenResult = await ipgw.GenerateSignedDataTokenAsync(tokenParams);
-                if(tokenResult.@return.Result.ToLower() != "ersucceed")
+                if (tokenResult.@return.Result.ToLower() != "ersucceed")
                 {
                     throw new Exception("Error recieving token: " + tokenResult.@return.Result);
                 }
@@ -117,6 +124,25 @@ namespace MahtaKala.GeneralServices.Payment
 
             }
             catch (Exception ex) { return ex.Message; }
+        }
+
+        private static WSContext GetWSContext()
+        {
+            WSContext w = new WSContext();
+            w.UserId = username;
+            w.Password = password;
+            return w;
+        }
+
+        private TechnoIPGWSClient GetClient()
+        {
+            string certpath = Path.Combine(pathService.AppRoot, "PardakhtNovin.cer");
+            PardakhtNovinWebService.TechnoIPGWSClient ipgw = new PardakhtNovinWebService.TechnoIPGWSClient();
+            //TechnoPaymentWebServiceService ipgw = new TechnoPaymentWebServiceService();
+            ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(validateservercertificate);
+            X509Certificate2 cert = new X509Certificate2(certpath, certificatePassword, X509KeyStorageFlags.DefaultKeySet);
+            ipgw.ClientCredentials.ClientCertificate.Certificate = cert;
+            return ipgw;
         }
 
         public async Task<Entities.Payment> Paid(string bankReturnBody)
