@@ -396,8 +396,8 @@ namespace MahtaKala.Controllers
 
 
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
-        public IActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request, 
-            string nameFilter, 
+        public IActionResult GetAllCategories([DataSourceRequest] DataSourceRequest request,
+            string nameFilter,
             string categoryFilter,
             string disabledFilter,
             string publishedFilter)
@@ -421,17 +421,17 @@ namespace MahtaKala.Controllers
                     query = query.Where(a => a.Parent.Title.ToLower().Contains(ss));
                 }
             }
-            if (!string.IsNullOrWhiteSpace(disabledFilter) 
+            if (!string.IsNullOrWhiteSpace(disabledFilter)
                 && bool.TryParse(disabledFilter, out bool disabledFilterBoolean))
-                // In case "all" is the value of disabledFilter, the function call bool.TryParse in the IF statement above
-                // will return false, and this block would be omitted, which is the correct action for the "all" filter option!
+            // In case "all" is the value of disabledFilter, the function call bool.TryParse in the IF statement above
+            // will return false, and this block would be omitted, which is the correct action for the "all" filter option!
             {
                 query = query.Where(a => a.Disabled == disabledFilterBoolean);
             }
             if (!string.IsNullOrWhiteSpace(publishedFilter)
                 && bool.TryParse(publishedFilter, out bool publishedFilterBoolean))
-                // In case "all" is the value of publishedFilter, the function call bool.TryParse in the IF statement above
-                // will return false, and this block would be omitted, which is the correct action for the "all" filter option!
+            // In case "all" is the value of publishedFilter, the function call bool.TryParse in the IF statement above
+            // will return false, and this block would be omitted, which is the correct action for the "all" filter option!
             {
                 query = query.Where(a => a.Published == publishedFilterBoolean);
             }
@@ -806,6 +806,7 @@ namespace MahtaKala.Controllers
                 var pr = await db.Products.Include(a => a.Prices)
                     .Include(a => a.ProductCategories).ThenInclude(a => a.Category)
                     .Include(p => p.Tags).Include(a => a.BuyLimitations)
+                    .Include(a => a.Quantities)
                     .Where(a => a.Id == id && (userType != UserType.Seller || a.SellerId == UserId))
                     .FirstOrDefaultAsync();
                 if (pr == null)
@@ -857,6 +858,7 @@ namespace MahtaKala.Controllers
                         .Include(p => p.Prices)//.Where(c=>c.Active))
                         .Include(p => p.Tags)
                         .Include(p => p.BuyLimitations)
+                        .Include(p => p.Quantities)
                         .FirstOrDefaultAsync(p => p.Id == model.Id && (userType != UserType.Seller || p.SellerId == UserId));
                     if (product == null)
                         throw new EntityNotFoundException<Product>(model.Id);
@@ -897,6 +899,18 @@ namespace MahtaKala.Controllers
                     {
                         Price = model.Price,
                         DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice
+                    });
+                }
+                if (product.Quantities.Any())
+                {
+                    var q = product.Quantities.First();
+                    q.Quantity = model.Quantity;
+                }
+                else
+                {
+                    product.Quantities.Add(new ProductQuantity
+                    {
+                        Quantity = model.Quantity
                     });
                 }
                 foreach (var cat in product.ProductCategories)

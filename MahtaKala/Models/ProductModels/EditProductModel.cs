@@ -45,10 +45,13 @@ namespace MahtaKala.Models.ProductModels
             BuyLimitations = p.BuyLimitations;
             if (BuyLimitations != null)
                 LimitationIds = BuyLimitations.Select(a => a.BuyLimitationId).ToList();
+            if (Quantities != null)
+                Quantity = Quantities.FirstOrDefault()?.Quantity ?? 0;
         }
 
         public new decimal Price { get; set; }
         public decimal DiscountPrice { get; set; }
+        public int Quantity { get; set; }
 
         public List<long> TagIds { get; set; }
         public List<long> LimitationIds { get; set; }
