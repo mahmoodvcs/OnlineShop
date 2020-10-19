@@ -178,6 +178,10 @@ namespace MahtaKala.Controllers.Api
         [HttpGet]
         public async Task<IEnumerable<OrderModel>> Orders([FromQuery] PagerModel pagerModel)
         {
+            if (pagerModel == null || (pagerModel.Offset == 0 && pagerModel.Page == 0))
+			{
+                pagerModel = new PagerModel() { Offset = 0, Page = int.MaxValue };
+			}
             var query = db.Orders.Where(o => o.State == OrderState.Paid ||
                                       o.State == OrderState.Delivered ||
                                       o.State == OrderState.Sent)
@@ -185,7 +189,7 @@ namespace MahtaKala.Controllers.Api
                 .OrderByDescending(a => a.CheckOutDate)
                 .Page(pagerModel);
 
-            return await OrderModel.Get(query, productImageService);
+			return await OrderModel.Get(query, productImageService);
         }
 
         //[HttpGet]
