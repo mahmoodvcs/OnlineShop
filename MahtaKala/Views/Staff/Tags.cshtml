@@ -6,42 +6,48 @@
 
 
 @(Html.Kendo().Grid<MahtaKala.Entities.Tag>()
-    .Name("Grid")
-    .Columns(columns =>
-    {
-        columns.Bound(p => p.Name);
-        columns.Bound(p => p.Order);
-        columns.Command(command => {
-            command.Edit().Text("ویرایش");
-            command.Destroy().Text("حذف");
-        }).Width(200);
-    })
-    .ToolBar(toolbar =>
-    {
-        toolbar.Create().Text("جدید");
-    })
-    .HtmlAttributes(new { style = "height: 550px;" })
-    .Scrollable()
-    .Sortable()
-    .Filterable()
-    .Editable(GridEditMode.InLine)
-    .Pageable(pageable => pageable
-        .Refresh(true)
-        .PageSizes(true)
-        .PageSizes(new int[] { 5, 10, 20, 50 })
-        .ButtonCount(5)
-    ).DataSource(dataSource => dataSource
-        .Ajax()
-        .Model(model =>
-        {
-            model.Id(p => p.Id);
-        })
-        .Read(read => read.Action("GetAllTags", "Staff"))
-        .Update(up => up.Action("UpdateTag", "Staff"))
-        .Destroy(de => de.Action("RemoveTag", "Staff"))
-        .Create(de => de.Action("UpdateTag", "Staff"))
-        .PageSize(20)
-    )
+	.Name("Grid")
+	.Columns(columns =>
+	{
+		columns.Bound(p => p.Name);
+		columns.Bound(p => p.Order);
+		columns.Command(command => {
+			command.Edit().Text("ویرایش");
+			command.Destroy().Text("حذف");
+		}).Width(200);
+	})
+	.ToolBar(toolbar =>
+	{
+		toolbar.Create().Text("جدید");
+	})
+	.HtmlAttributes(new { style = "height: 550px;" })
+	.Scrollable()
+	.Sortable()
+	.Filterable()
+	.Editable(GridEditMode.InLine)
+	.Pageable(pageable => pageable
+		.Refresh(true)
+		.PageSizes(true)
+		.PageSizes(new int[] { 5, 10, 20, 50 })
+		.ButtonCount(5)
+	).DataSource(dataSource => dataSource
+		.Ajax()
+		.Model(model =>
+		{
+			model.Id(p => p.Id);
+		})
+		.Read(read => read.Action("GetAllTags", "Staff"))
+		.Update(up => up.Action("UpdateTag", "Staff"))
+		.Destroy(de => de.Action("RemoveTag", "Staff"))
+		.Create(de => de.Action("CreateTag", "Staff"))
+		.PageSize(20)
+		.Events(events =>
+		{
+			events.Error("error_handler");
+			events.RequestEnd("force_update");
+		})
+	)
+	
 )
 
 <script type="text/javascript">
@@ -58,5 +64,12 @@
             });
             alert(message);
         }
-    }
+	}
+
+	function force_update(e) {
+		if (e.type === "create") {
+			var dataSource = this;
+			dataSource.read();
+		}
+	}
 </script>

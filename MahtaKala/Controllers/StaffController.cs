@@ -1309,8 +1309,25 @@ namespace MahtaKala.Controllers
             return ConvertDataToJson(db.Tags, request);
         }
 
+        [HttpPost]
         [Authorize(UserType.Admin)]
-        public async Task<ActionResult> UpdateTag(Tag tag)
+        public async Task<ActionResult> CreateTag(Tag tag)
+        {
+            if (tag.Id > 0)
+            {
+                throw new BadRequestException("Tag already exists!");
+            }
+            else
+            {
+                db.Tags.Add(tag);
+            }
+            await db.SaveChangesAsync();
+            return Json(tag);
+        }
+
+        [HttpPost]
+        [Authorize(UserType.Admin)]
+        public async Task<IActionResult> UpdateTag(Tag tag)
         {
             if (tag.Id > 0)
             {
@@ -1320,7 +1337,7 @@ namespace MahtaKala.Controllers
             }
             else
             {
-                db.Tags.Add(tag);
+                throw new BadRequestException("You're trying to update a non-existing tag!");
             }
             await db.SaveChangesAsync();
             return Json(tag);
