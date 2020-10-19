@@ -150,6 +150,7 @@ namespace MahtaKala.Controllers
                 Code = code,
                 IssueTime = DateTime.Now,
                 ExpireTime = DateTime.Now.AddMinutes(2),
+                AdditionalData = number
             };
             db.UserActivationCodes.Add(userCode);
             await db.SaveChangesAsync();

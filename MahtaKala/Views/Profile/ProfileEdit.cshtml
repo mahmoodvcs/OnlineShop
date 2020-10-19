@@ -7,7 +7,7 @@
     @ViewData["Title"]
 </h5>
 <hr class="pt-15 " />
-@using (Html.BeginForm("ProfileEdit", "Profile", FormMethod.Post, new {id = "editProfile", encType = "multipart/form-data" }))
+@using (Html.BeginForm("ProfileEdit", "Profile", FormMethod.Post, new { id = "editProfile", encType = "multipart/form-data" }))
 {
 <div class="row">
     <div class="col-md-6">
@@ -36,8 +36,8 @@
     </div>
     <div class="col-md-6">
         <div class="checkout-form-list mb-30">
-            <label>شماره موبایل</label>
-            @Html.TextBoxFor(a => a.Mobile, new { @autocomplete = "off" })
+            <label>شماره موبایل: @Model.Mobile</label>
+            <a class="btn btn-success" href="@Url.Content("~/Profile/EditPhoneNumber")">اصلاح شماره موبایل</a>
         </div>
     </div>
     <div class="col-md-12 col-sm-12">

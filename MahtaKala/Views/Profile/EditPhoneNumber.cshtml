@@ -1,0 +1,25 @@
+﻿@model MahtaKala.Models.UserModels.SignupRequest
+@{
+	ViewData["Title"] = "ویرایش شماره موبایل";
+	Layout = "~/Views/Shared/_Profile.cshtml";
+}
+<link rel="stylesheet" href="~/css/login.css">
+<script src="~/js/easytimer.min.js"></script>
+<script src="~/js/EditPhoneNumber.js"></script>
+<h5 class="pb-15">
+	@ViewData["Title"]
+</h5>
+@*<h3 class="mb-10 ptb-30 custom-title"></h3>*@
+<p class="mb-10"><strong class="product-size">شماره موبایل خود را وارد کنید</strong></p>
+@using (Html.BeginForm("EditPhoneNumber", "Profile", FormMethod.Post, new { @id = "EditPhoneNumber" }))
+{
+	<div class="form-group">
+		@Html.TextBoxFor(a => a.Mobile, new { @type = "number", @placeholder = "شماره موبایل ...", @class = "formInputLogin" })
+	</div>
+	@if (!string.IsNullOrEmpty(Model?.Error))
+	{
+		<div class="alert alert-danger" id="#alertMsg">@Model.Error</div>
+	}
+	<input type="submit" value="ارسال کد تأیید" class="customer-btn" id="btnSendConfirmationCode" />
+}
+
