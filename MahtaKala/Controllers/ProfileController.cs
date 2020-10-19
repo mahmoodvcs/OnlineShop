@@ -243,6 +243,16 @@ namespace MahtaKala.Controllers
 		[HttpPost]
 		public async Task<IActionResult> AddressEdit(UserAddress address)
 		{
+			if (string.IsNullOrWhiteSpace(address.Title))
+				return Json(new { success = false, msg = "لطفا عنوان را وارد نمایید" });
+			if (string.IsNullOrWhiteSpace(address.PostalCode))
+				return Json(new { success = false, msg = "لطفا کد پستی را وارد نمایید" });
+			if (address.PostalCode.Length != 10)
+				return Json(new { success = false, msg = "کد پستی را به صورت 10 رقم وارد نمایید" });
+			if (address.CityId == 0)
+				return Json(new { success = false, msg = "لطفا شهر را انتخاب نمایید" });
+			if (string.IsNullOrWhiteSpace(address.Details))
+				return Json(new { success = false, msg = "لطفا آدرس را وارد نمایید" });
 			if (address.Id == 0)
 			{
 				db.Addresses.Add(address);
@@ -253,6 +263,7 @@ namespace MahtaKala.Controllers
 			}
 			address.UserId = UserId;
 			await db.SaveChangesAsync();
+			ModelState.Clear();
 			return RedirectToAction("ProfileEdit");
 		}
 

@@ -11,7 +11,7 @@
     <script src="~/lib/kendo/js/kendo.aspnetmvc.min.js"></script>
     <script src="~/lib/kendo/js/kendo.timezones.min.js"></script>
     <script src="~/js/kendo.fa-IR.js"></script>
-@using (Html.BeginForm("AddressEdit", "Profile", FormMethod.Post, new { encType = "multipart/form-data" }))
+@using (Html.BeginForm("AddressEdit", "Profile", FormMethod.Post, new { id = "AddressEdit", encType = "multipart/form-data" }))
 {
     @Html.HiddenFor(a=>a.Id)
     <div class="container k-rtl">
