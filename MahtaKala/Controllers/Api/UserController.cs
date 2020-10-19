@@ -188,7 +188,8 @@ namespace MahtaKala.Controllers
                 foreach (var m in ModelState.Values)
                 {
                     if (m.Errors.Count > 0)
-                        throw new BadRequestException(m.Errors[0].ErrorMessage);
+                        //throw new BadRequestException(m.Errors[0].ErrorMessage);
+                        return StatusCode(400, m.Errors[0].ErrorMessage);
                 }
             }
             Util.CheckNationalCode(profileModel.National_Code);
