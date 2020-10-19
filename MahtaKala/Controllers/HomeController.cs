@@ -45,11 +45,20 @@ namespace MahtaKala.Controllers
                 if (string.IsNullOrEmpty(User.FirstName) ||
                     string.IsNullOrEmpty(User.LastName) ||
                     string.IsNullOrEmpty(User.MobileNumber) ||
-                    string.IsNullOrEmpty(User.EmailAddress) ||
+                    //string.IsNullOrEmpty(User.EmailAddress) ||
                     string.IsNullOrEmpty(User.NationalCode))
                 {
                     ViewBag.EditRequired = true;
                 }
+				else
+				{
+                    int usersActiveAddresses = db.Addresses.Count(x => 
+                        x.UserId == User.Id 
+                        && !x.Disabled 
+                        && !string.IsNullOrWhiteSpace(x.Details));
+                    if (usersActiveAddresses == 0)
+                        ViewBag.EditRequired = true;
+				}
             }
             return View();
         }
