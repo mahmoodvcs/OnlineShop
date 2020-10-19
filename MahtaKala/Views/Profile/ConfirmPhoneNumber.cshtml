@@ -1,9 +1,5 @@
 ﻿@model MahtaKala.Models.UserModels.VerifyRequest
-@{
-	ViewData["Title"] = "تأیید شماره موبایل";
-	Layout = "~/Views/Shared/_Profile.cshtml";
-}
-<script src="~/js/EditPhoneNumber.js"></script>
+
 <h3 class="mb-10 ptb-30 custom-title">کد تایید را وارد نمایید</h3>
 <p class="mb-10"><strong class="product-size">کد تایید ارسال شده را در قسمت زیر وارد نمایید</strong></p>
 @using (Html.BeginForm("ConfirmPhoneNumber", "Profile", FormMethod.Post,

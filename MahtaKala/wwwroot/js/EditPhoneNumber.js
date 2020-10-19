@@ -67,7 +67,7 @@ $(document).on("submit", "form#ConfirmPhoneNumber", function (e) {
         success: function (res) {
             $.unblockUI();
             if (res.success) {
-                window.location.href = "/home/index";
+                window.location.href = "/profile/profileEdit";
             }
             else {
                 toastr.warning(res.msg, '', { positionClass: "toast-bottom-center" });
