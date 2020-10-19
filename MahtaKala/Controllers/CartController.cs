@@ -147,20 +147,25 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = "سبد خرید خالی می باشد" });
             }
 
-            if (string.IsNullOrEmpty(vm.UserData.FirstName))
+            if (string.IsNullOrWhiteSpace(vm.UserData.FirstName))
                 return Json(new { success = false, msg = "لطفا نام را وارد کنید" });
             if (Util.IsAnyNumberInString(vm.UserData.FirstName))
                 return Json(new { success = false, msg = "لطفا برای نام از حروف استفاده نمایید" });
-            if (string.IsNullOrEmpty(vm.UserData.LastName))
+            if (string.IsNullOrWhiteSpace(vm.UserData.LastName))
                 return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
             if (Util.IsAnyNumberInString(vm.UserData.LastName))
                 return Json(new { success = false, msg = "لطفا برای نام خانوادگی از حروف استفاده نمایید" });
-            if (!string.IsNullOrEmpty(vm.UserData.EmailAddress))
+            if (!string.IsNullOrWhiteSpace(vm.UserData.EmailAddress))
             {
                 if (!Util.IsValidEmailaddress(vm.UserData.EmailAddress))
                     return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
             }
-            if (!string.IsNullOrEmpty(vm.UserData.NationalCode))
+            if (string.IsNullOrWhiteSpace(vm.UserData.NationalCode))
+            {
+                return Json(new { success = false, msg = "لطفا کد ملی خود را وارد کنید" });
+            }
+            //if (!string.IsNullOrEmpty(vm.UserData.NationalCode))
+            else
             {
                 string msg;
                 if (!Util.IsCheckNationalCode(vm.UserData.NationalCode, out msg))
@@ -196,15 +201,15 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public IActionResult UserAddress(UserAddress model)
         {
-            if (string.IsNullOrEmpty(model.Title))
+            if (string.IsNullOrWhiteSpace(model.Title))
                 return Json(new { success = false, msg = "لطفا عنوان را وارد نمایید" });
-            if (string.IsNullOrEmpty(model.PostalCode))
+            if (string.IsNullOrWhiteSpace(model.PostalCode))
                 return Json(new { success = false, msg = "لطفا کد پستی را وارد نمایید" });
             if (model.PostalCode.Length != 10)
                 return Json(new { success = false, msg = "کد پستی را به صورت 10 رقم وارد نمایید" });
             if (model.CityId==0)
                 return Json(new { success = false, msg = "لطفا شهر را انتخاب نمایید" });
-            if (string.IsNullOrEmpty(model.Details))
+            if (string.IsNullOrWhiteSpace(model.Details))
                 return Json(new { success = false, msg = "لطفا آدرس را وارد نمایید" });
             db.Addresses.Add(model);
             db.SaveChanges();
