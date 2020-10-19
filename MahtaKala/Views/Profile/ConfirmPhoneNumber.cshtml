@@ -1,0 +1,64 @@
+﻿@model MahtaKala.Models.UserModels.VerifyRequest
+@{
+	ViewData["Title"] = "تأیید شماره موبایل";
+	Layout = "~/Views/Shared/_Profile.cshtml";
+}
+<script src="~/js/EditPhoneNumber.js"></script>
+<h3 class="mb-10 ptb-30 custom-title">کد تایید را وارد نمایید</h3>
+<p class="mb-10"><strong class="product-size">کد تایید ارسال شده را در قسمت زیر وارد نمایید</strong></p>
+@using (Html.BeginForm("ConfirmPhoneNumber", "Profile", FormMethod.Post,
+new
+{
+   @id = "ConfirmPhoneNumber"
+}))
+{
+	@Html.HiddenFor(a => a.Id)
+	<div class="form-group">
+		@Html.TextBoxFor(a => a.Code, new { @autocomplete = "off", @value = "", @type = "number", maxlength = "5", @placeholder = "کد تایید ...", @class = "formInputLogin" })
+	</div>
+	<div class="mb-10">
+		<span id="timer"></span>
+		@*<span><a href="#" onclick="reEnterNumber()">تصحیح شماره</a></span><br />*@
+	</div>
+	<input type="submit" value="تایید" class="customer-btn">
+	<br />
+}
+<script type="text/javascript">
+    $("#Code").val("");
+    var timer = new easytimer.Timer();
+    timer.start({ countdown: true, startValues: { seconds: 60 } });
+    $('#timer').html(timer.getTimeValues().toString(['minutes', 'seconds']));
+    timer.addEventListener('secondsUpdated', function (e) {
+        $('#timer').html(timer.getTimeValues().toString(['minutes', 'seconds']));
+    });
+    timer.addEventListener('targetAchieved', function (e) {
+        $('#timer').html("<a id='reCode' data-id='"+@Model.Id+"' href='#'>ارسال مجدد کد تایید</a>");
+    });
+
+
+    $(document).on("click", "#reCode", function (e) {
+        e.preventDefault();
+        $.blockUI({
+            message: '<img src="/img/loading.gif"/>',
+            css: {
+                border: 'none',
+                backgroundColor: 'transparent'
+            }
+        });
+        var id = $(this).data("id");
+        $("#uxDivContent").load("/Profile/EditPhoneNumber?number" + id);
+        $.unblockUI();
+        //$.post('/Account/ResendCode', { id: id },
+        //    function (data) {
+        //        $.unblockUI();
+        //        if (data.success) {
+        //            $("#Code").val("");
+        //            timer.reset();
+        //        }
+
+        //    }).fail(function () {
+        //        $.unblockUI();
+        //        console.log("error");
+        //    });
+    });
+</script>

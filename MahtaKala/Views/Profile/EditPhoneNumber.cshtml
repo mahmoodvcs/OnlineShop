@@ -3,6 +3,7 @@
 	ViewData["Title"] = "ویرایش شماره موبایل";
 	Layout = "~/Views/Shared/_Profile.cshtml";
 }
+<script src="~/js/EditPhoneNumber.js"></script>
 <h5 class="pb-15">
 	@ViewData["Title"]
 </h5>
@@ -17,6 +18,6 @@
 	{
 		<div class="alert alert-danger" id="#alertMsg">@Model.Error</div>
 	}
-	<input type="button" value="ارسال کد تأیید" class="customer-btn" id="btnSendConfirmationCode" onclick="" />
+	<input type="submit" value="ارسال کد تأیید" class="customer-btn" id="btnSendConfirmationCode" />
 }
 
