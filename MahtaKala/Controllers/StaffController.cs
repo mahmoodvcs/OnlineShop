@@ -1313,15 +1313,24 @@ namespace MahtaKala.Controllers
         [Authorize(UserType.Admin)]
         public async Task<ActionResult> CreateTag(Tag tag)
         {
+            tag.Name = Util.TrimString(tag.Name);
             if (tag.Id > 0)
             {
                 throw new BadRequestException("Tag already exists!");
             }
             else
             {
-                db.Tags.Add(tag);
+                //if (db.Tags.Any(x => Util.TrimString(x.Name).Equals(tag.Name)))
+                if (db.Tags.Any(x => x.Name.Trim().Trim(Util.ZeroWidthNonBreakingSpace).Equals(tag.Name)))
+                {
+                    throw new BadRequestException($"درج ناموفق: نام وارد شده تکراری است! تگ با نام \"{tag.Name}\" قبلاً در دیتابیس تعریف شده است.");
+                }
+				else
+				{
+                    db.Tags.Add(tag);
+                    await db.SaveChangesAsync();
+                }
             }
-            await db.SaveChangesAsync();
             return Json(tag);
         }
 
@@ -1332,14 +1341,20 @@ namespace MahtaKala.Controllers
             if (tag.Id > 0)
             {
                 var dbTag = await db.Tags.FindAsync(tag.Id);
+                tag.Name = Util.TrimString(tag.Name);
+                if (db.Tags.Any(x => !x.Id.Equals(tag.Id) && //Util.TrimString(x.Name).Equals(tag.Name)))
+                    x.Name.Trim().Trim(Util.ZeroWidthNonBreakingSpace).Equals(tag.Name)))
+                { 
+                    throw new BadRequestException($"ویرایش ناموفق: نام وارد شده تکراری است! تگ با نام \"{tag.Name}\" قبلاً در دیتابیس تعریف شده است.");
+                }
                 dbTag.Name = tag.Name;
                 dbTag.Order = tag.Order;
+                await db.SaveChangesAsync();
             }
             else
             {
                 throw new BadRequestException("You're trying to update a non-existing tag!");
             }
-            await db.SaveChangesAsync();
             return Json(tag);
         }
 

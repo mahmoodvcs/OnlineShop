@@ -8,11 +8,11 @@
         <legend>فیلتر ها:</legend>
         <div class="row">
             <div class="col-lg-3">
-                <label>عنوان:</label>
+                <label>نام:</label>
                 <input type="text" name="nameFilter" class="form-control additionalData" />
             </div>
             <div class="col-lg-3">
-                <label>دسته بندی پدر:</label>
+                <label>دسته بندی:</label>
                 <input type="text" name="categoryFilter" class="form-control additionalData" />
             </div>
             <div class="col-lg-3">
@@ -33,7 +33,7 @@
 {
     columns.Select().Width(50);
     columns.Bound(p => p.Id).Title("شناسه");
-    columns.Bound(p => p.Title).Title("عنوان");
+    columns.Bound(p => p.Title).Title("نام");
     columns.Bound(p => p.Code).Title("کد محصول");
     columns.Bound(p => p.Categories).Title("دسته بندی").Filterable(false).Sortable(false);
     columns.Bound(p => p.Tags).Title("تگ ها").Filterable(false).Sortable(false);

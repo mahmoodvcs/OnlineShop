@@ -13,7 +13,15 @@ namespace MahtaKala.Helpers
 {
     public static class Util
     {
-        public static string NormalizePhoneNumber(string phoneNumber)
+		public const char ZeroWidthNonBreakingSpace = '​';
+
+        public static string TrimString(string input)
+        {
+            return input.Trim().Trim(ZeroWidthNonBreakingSpace);
+        }
+
+
+		public static string NormalizePhoneNumber(string phoneNumber)
         {
             phoneNumber = phoneNumber.Trim();
             if (phoneNumber.StartsWith("+"))

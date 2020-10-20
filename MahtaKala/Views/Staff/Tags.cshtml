@@ -52,17 +52,32 @@
 
 <script type="text/javascript">
 
-    function error_handler(e) {
-        if (e.errors) {
-            var message = "Errors:\n";
-            $.each(e.errors, function (key, value) {
-                if ('errors' in value) {
-                    $.each(value.errors, function () {
-                        message += this + "\n";
-                    });
-                }
-            });
-            alert(message);
+	function error_handler(e) {
+		if (e.status === "error" ||
+			(e.xhr != undefined && e.xhr.responseJSON != undefined && e.xhr.responseJSON.success != undefined &&
+				e.xhr.responseJSON.success === false)) {
+            //var message = "Errors:\n";
+            //$.each(e.errors, function (key, value) {
+            //    if ('errors' in value) {
+            //        $.each(value.errors, function () {
+            //            message += this + "\n";
+            //        });
+            //    }
+            //});
+			if (e.xhr.responseJSON == undefined) {
+				if (e.errorThrown != undefined) {
+					alert(e.errorThrown);
+				}
+				else {
+					alert("خطا در انجام عملیات! لطفاً دوباره تلاش کنید.");
+				}
+			}
+			else if (e.xhr.responseJSON.code == 400) {
+				alert(e.xhr.responseJSON.message);
+			}
+			else {
+				alert("خطا! Error Code: " + e.xhr.responseJSON.code + " - Error Message: " + e.xhr.responseJSON.message);
+			}
         }
 	}
 
