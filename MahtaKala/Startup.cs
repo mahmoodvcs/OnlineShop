@@ -4,7 +4,6 @@ using MahtaKala.Entities;
 using MahtaKala.Entities.ExceptionHandling;
 using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Delivery;
-using MahtaKala.GeneralServices.MessageParser;
 using MahtaKala.GeneralServices.Payment;
 using MahtaKala.GeneralServices.SMS;
 using MahtaKala.Helpers;
@@ -17,7 +16,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -131,7 +129,6 @@ namespace MahtaKala
             services.AddScoped<SettingsService>();
             services.AddScoped<IDeliveryService, YarBoxDeliveryService>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
-            services.AddScoped<IDeliveryCodeReceiver, DeliveryCodeReceiver>();
 
             TaskManager.RegisterTasks(services);
 
@@ -193,6 +190,9 @@ namespace MahtaKala
             //        spa.UseAngularCliServer(npmScript: "start");
             //    }
             //});
+
+            MyAppContext.SetHttpContextAccessor(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
+            MyServiceProvider.SetSetviceProvider(app.ApplicationServices.GetRequiredService<IServiceProvider>());
 
             UpdateDatabase(app);
 
