@@ -192,7 +192,17 @@ namespace MahtaKala.Controllers
                         return StatusCode(400, m.Errors[0].ErrorMessage);
                 }
             }
-            Util.CheckNationalCode(profileModel.National_Code);
+            try
+            {
+                Util.CheckNationalCode(profileModel.National_Code);
+            }
+            catch (Exception e)
+            {
+                if (e is ApiException)
+                {
+                    return StatusCode(400, e.Message);
+                }
+            }
 
             var user = (User)HttpContext.Items["User"];
             user.FirstName = profileModel.Name;

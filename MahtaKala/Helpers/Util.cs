@@ -1,4 +1,5 @@
 ﻿using MahtaKala.Entities;
+using MahtaKala.Infrustructure.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -40,22 +41,22 @@ namespace MahtaKala.Helpers
             //در صورتی که کد ملی وارد شده تهی باشد
 
             if (String.IsNullOrEmpty(nationalCode))
-                throw new Exception("لطفا کد ملی را صحیح وارد نمایید");
+                throw new ApiException(400, "لطفا کد ملی را صحیح وارد نمایید");
 
 
             //در صورتی که کد ملی وارد شده طولش کمتر از 10 رقم باشد
             if (nationalCode.Length != 10)
-                throw new Exception("طول کد ملی باید ده کاراکتر باشد");
+                throw new ApiException(400, "طول کد ملی باید ده کاراکتر باشد");
 
             //در صورتی که کد ملی ده رقم عددی نباشد
             var regex = new Regex(@"\d{10}");
             if (!regex.IsMatch(nationalCode))
-                throw new Exception("کد ملی تشکیل شده از ده رقم عددی می‌باشد؛ لطفا کد ملی را صحیح وارد نمایید");
+                throw new ApiException(400, "کد ملی تشکیل شده از ده رقم عددی می‌باشد؛ لطفا کد ملی را صحیح وارد نمایید");
 
             //در صورتی که رقم‌های کد ملی وارد شده یکسان باشد
             var allDigitEqual = new[] { "0000000000", "1111111111", "2222222222", "3333333333", "4444444444", "5555555555", "6666666666", "7777777777", "8888888888", "9999999999" };
             if (allDigitEqual.Contains(nationalCode))
-                throw new Exception("کد ملی صحیح نیست");
+                throw new ApiException(400, "کد ملی صحیح نیست");
 
 
             //عملیات شرح داده شده در بالا
@@ -77,7 +78,7 @@ namespace MahtaKala.Helpers
             if (((c < 2) && (a == c)) || ((c >= 2) && ((11 - c) == a)))
                 return;
 
-            throw new Exception("کد ملی صحیح نیست");
+            throw new ApiException(400, "کد ملی صحیح نیست");
         }
 
 
