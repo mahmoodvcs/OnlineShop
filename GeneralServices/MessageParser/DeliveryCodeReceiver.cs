@@ -23,6 +23,7 @@ namespace MahtaKala.GeneralServices.MessageParser
 			{
 				order.State = OrderState.Delivered;
 				db.SaveChanges();
+				// TODO: فراخوانی عملیات تسهیم
 				return (true, "");
 			}
 			if (order.State == OrderState.Delivered)
@@ -33,6 +34,10 @@ namespace MahtaKala.GeneralServices.MessageParser
 			{
 				return (false, "خطا! هزینه ی سفارش پرداخت نشده است.");
 			}
+			//if (order.State == OrderState.Canceled)
+			// If the code reaches here, it means the only remaining state is "Canceled",
+			// unless, the OrderState enum gets modified, in which case we should check for 
+			// the newly-added states and do the appropriate action here.
 
 			return (false, "خطا! این سفارش قبلاً لغو شده است.");
 		}

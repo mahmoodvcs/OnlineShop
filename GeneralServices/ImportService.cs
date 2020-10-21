@@ -67,6 +67,13 @@ namespace MahtaKala.GeneralServices
                     {
                         discountedPrice = decimal.Parse(row[4].ToString());
                     }
+                    decimal priceCoef = 1;
+                    bool useInputPriceCoef = false;
+                    if (row[5] != null && decimal.TryParse(row[5].ToString(), out priceCoef) && priceCoef > 0)
+                    {
+                        useInputPriceCoef = true;
+                    }                        
+
 
                     if(product.Prices.Count == 0)
                     {
@@ -75,7 +82,8 @@ namespace MahtaKala.GeneralServices
                     
                     product.Prices[0].Price = price;
                     product.Prices[0].DiscountPrice = discountedPrice;
-                    productIds.Add(product.Id);
+					product.Prices[0].PriceCoefficient = useInputPriceCoef ? priceCoef : 1;
+					productIds.Add(product.Id);
                 }
                 catch (Exception ex) when (!(ex is ImportException))
                 {

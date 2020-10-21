@@ -88,6 +88,10 @@ namespace MahtaKala.Entities
             modelBuilder.Entity<OrderItem>().HasOne(a => a.ProductPrice).WithMany(a => a.OrderItems).OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ProductPaymentParty>().HasKey("ProductId", "PaymentPartyId");
+
+            // For products without a coefficient in their price, we set the value of the coefficient to 1, and treat all product prices
+            // as if they have a coefficient (i.e. for every product, the value of Price is equal to RawPrice * PriceCoefficient)
+            modelBuilder.Entity<ProductPrice>().Property(p => p.PriceCoefficient).HasDefaultValue(1);
         }
 
         protected virtual bool UseCaching => true;

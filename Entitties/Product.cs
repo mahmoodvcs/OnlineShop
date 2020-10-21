@@ -15,6 +15,7 @@ namespace MahtaKala.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
+        [Required]
         [StringLength(255)]
         public string Title { get; set; }
 

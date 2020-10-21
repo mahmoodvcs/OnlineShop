@@ -16,7 +16,8 @@ namespace MahtaKala.Entities.Models
         public string Brand { get; set; }
         public decimal? Price { get; set; }
         public decimal? DiscountPrice { get; set; }
-        public ProductStatus Status { get; set; }
+		public decimal? PriceCoefficient { get; set; }
+		public ProductStatus Status { get; set; }
         public bool Published { get; internal set; }
         public string Seller { get; set; }
         public string Code { get; set; }

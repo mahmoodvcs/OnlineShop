@@ -892,13 +892,15 @@ namespace MahtaKala.Controllers
                     var price = product.Prices.First();
                     price.Price = model.Price;
                     price.DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice;
+					price.PriceCoefficient = model.PriceCoefficient.HasValue ? model.PriceCoefficient.Value : 1;
                 }
                 else
                 {
                     product.Prices.Add(new ProductPrice
                     {
                         Price = model.Price,
-                        DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice
+                        DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice,
+                        PriceCoefficient = model.PriceCoefficient.HasValue ? model.PriceCoefficient.Value : 1
                     });
                 }
                 if (product.Quantities.Any())

@@ -120,15 +120,16 @@
                     </label>
                     <div class="k-content">
                         @(Html.Kendo().DropDownList()
-                            .Name("BrandId")
-                            .Value(Model.BrandId.ToString())
-                            .DataTextField("name")
-                            .DataValueField("id")
-                            .DataSource(source =>
-                            {
-                                source.Read(read => { read.Action("GetBrands", "Repo"); });
-                            })
-                            .HtmlAttributes(new { style = "width: 100%" })
+							.Name("BrandId")
+							.Value(Model.BrandId.ToString())
+							.DataTextField("name")
+							.DataValueField("id")
+							.DataSource(source =>
+							{
+								source.Read(read => { read.Action("GetBrands", "Repo"); });
+							})
+							.HtmlAttributes(new { style = "width: 100%" })
+							.OptionLabel("...انتخاب برند....")
                         )
                         @Html.ValidationMessageFor(model => model.BrandId, "", new { @class = "text-danger" })
                     </div>
@@ -157,15 +158,50 @@
                     @Html.ValidationMessageFor(a => a.DiscountPrice, "", new { @class = "text-danger" })
                 </div>
                 <div class="col-lg-3">
-                    <label>
-                        فروشنده:
-                    </label>
-                    @(Html.Kendo().DropDownListFor(a=>a.SellerId)
-                        .DataSource(ds=>ds.Read("Sellers","Repo"))
-                        .DataTextField("Name").DataValueField("Id")
-                        .HtmlAttributes(new { @class = "form-control" }))
-                    @Html.ValidationMessageFor(a => a.Code, "", new { @class = "text-danger" })
+                    <lable>
+                        ضریب قیمت:
+                    </lable>
+                    @Html.TextBoxFor(a => a.PriceCoefficient)
                 </div>
+				<div class="col-lg-3">
+					<label>
+						فروشنده:
+					</label>
+					@*@(Html.Kendo().DropDownList()//DropDownListFor(a=>a.SellerId)
+		.Name("SellerId")
+		.Value(Model.SellerId.ToString())
+		.DataTextField("Name").DataValueField("Id")
+		//.DataSource(ds=>ds.Read("Sellers","Repo"))
+		.DataSource(source =>
+		{
+			source.Read(read => { read.Action("Sellers", "Repo"); });
+		})
+		.HtmlAttributes(new { @class = "form-control" })
+		.OptionLabel("...انتخاب فروشنده..."))*@
+					<div class="k-content">
+                        @(Html.Kendo().DropDownListFor(m => m.SellerIdNotNull)
+                        .DataTextField("Name")
+                        .DataValueField("Id")
+                        .DataSource(source => source.Read("Sellers", "Repo"))
+                        .HtmlAttributes(new { @class = "form-control" })
+                        .OptionLabel("...انتخاب فروشنده...")
+                        )
+                        @Html.ValidationMessageFor(model => model.SellerIdNotNull, "", new { @class = "text-danger" })
+						@*@(Html.Kendo().DropDownList()
+							.Name("SellerId")
+							.Value(Model.SellerId.ToString())
+							.DataTextField("Name")
+							.DataValueField("Id")
+							.DataSource(source => source.Read("Sellers", "Repo"))
+							//{
+							//	source.Read(read => { read.Action("Sellers", "Repo"); });
+							//})
+							.HtmlAttributes(new { style = "width: 100%" })
+						//.OptionLabel("...انتخاب فروشنده....")
+                        )*@
+						@*@Html.ValidationMessageFor(model => model.SellerId, "", new { @class = "text-danger" })*@
+					</div>
+				</div>
             </div>
             <div class="form-group row">
                 <div class="col-lg-3">
