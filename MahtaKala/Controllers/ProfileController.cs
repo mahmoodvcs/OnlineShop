@@ -264,7 +264,8 @@ namespace MahtaKala.Controllers
 			address.UserId = UserId;
 			await db.SaveChangesAsync();
 			ModelState.Clear();
-			return RedirectToAction("ProfileEdit");
+			return Json(new { success = true, msg = "ویرایش اطلاعات با موفقیت انجام شد." });
+			//return RedirectToAction("ProfileEdit");
 		}
 
 		public IActionResult RemoveAddress(long id)

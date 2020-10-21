@@ -138,7 +138,7 @@ $(document).on("submit", "form#AddressEdit", function (e) {
             $.unblockUI();
             if (res.success) {
                 toastr.success(res.msg, '', { positionClass: "toast-bottom-center" });
-                window.location.href = 
+                window.location.href = '/Profile/ProfileEdit';
             }
             else {
 
