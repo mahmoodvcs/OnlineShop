@@ -39,7 +39,7 @@ namespace MahtaKala.Entities
         public string Code { get; set; }
 
         public IList<ProductPrice> Prices { get; set; } = new List<ProductPrice>();
-        public IList<ProductQuantity> Quantities { get; set; }
+        public IList<ProductQuantity> Quantities { get; set; } = new List<ProductQuantity>();
 
         [Display(Name = "وضعیت")]
         public ProductStatus Status { get; set; }
