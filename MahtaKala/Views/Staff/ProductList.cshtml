@@ -33,6 +33,7 @@
 {
     columns.Select().Width(50);
     columns.Bound(p => p.Id).Title("شناسه");
+    columns.Bound(p => p.Id).Title(" ").ClientTemplate("<div style='width:50px; height:50px;'><img style='width: 100%;' src='#=Thubmnail#'></div>").Filterable(false).Sortable(false);
     columns.Bound(p => p.Title).Title("نام");
     columns.Bound(p => p.Code).Title("کد محصول");
     columns.Bound(p => p.Categories).Title("دسته بندی").Filterable(false).Sortable(false);
