@@ -31,5 +31,7 @@ namespace MahtaKala.Entities.Models
         public string Code { get; set; }
         [Display(Name = "منتشر شده")]
         public bool Published { get; set; }
+        [Display(Name = "موجودی")]
+        public int Quantity { get; set; }
     }
 }

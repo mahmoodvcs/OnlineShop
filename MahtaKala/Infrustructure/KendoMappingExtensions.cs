@@ -25,6 +25,7 @@ namespace MahtaKala.Infrustructure
                 DiscountPrice = a.DiscountPrice,
                 Status = TranslateExtentions.GetTitle(a.Status),
                 Published = a.Published,
+                Quantity = a.Quantity,
                 Code = a.Code,
                 Seller = a.Seller
             });

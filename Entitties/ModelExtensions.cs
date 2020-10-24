@@ -20,6 +20,7 @@ namespace MahtaKala.Entities
                 Thubmnail = a.Thubmnail,
                 Price = a.Prices.FirstOrDefault().Price,
                 DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
+                Quantity = a.Quantities.FirstOrDefault().Quantity,
                 Status = a.Status,
                 Published = a.Published,
                 Seller = a.Seller.Name,

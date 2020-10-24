@@ -41,6 +41,7 @@
     columns.Bound(p => p.Brand).Title("برند");
     columns.Bound(p => p.Price).Format("{0:n0}").Title("قیمت");
     columns.Bound(p => p.DiscountPrice).Format("{0:n0}").Title("قیمت با تخفیف");
+    columns.Bound(p => p.Quantity).Title("موجودی").Format("{0:n0}").Filterable(false);
     columns.Bound(p => p.Status).Title("وضعیت").Filterable(false);
     columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#").Title("منتشر شده");
     columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
@@ -116,11 +117,43 @@
             <i class="fa fa-export"></i>
             خروجی اکسل (همه صفحات)
         </button>
+        <button type="button" class="btn btn-warning" onclick="showIpmortDialog()">
+            <i class="fa fa-import"></i>
+            دریافت اطلاعات از فایل اکسل
+        </button>
     </div>
 </script>
+
+
+<div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <form action="@Url.Content("~/Staff/Products/Import")" method="post" enctype="multipart/form-data">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="file" name="excelFile" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">دریافت اطلاعات</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
 @section js{
     <script type="text/javascript">
 
+        function showIpmortDialog() {
+            $("#importModal").modal("show");
+        }
         function exportToExcel(allPages){
             var g = $('#grid').data('kendoGrid');
             g.options.excel.allPages = allPages;

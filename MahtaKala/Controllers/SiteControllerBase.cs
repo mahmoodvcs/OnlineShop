@@ -1,7 +1,9 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.Infrustructure;
+using MahtaKala.Messages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,5 +44,19 @@ namespace MahtaKala.Controllers
             ViewBag.User = User;
             return base.View(viewName, model);
         }
+
+
+        public void ShowMessage(string msg, MessageType type = MessageType.Info, bool closable = true)
+        {
+            UIMessage m = new UIMessage()
+            {
+                Message = msg,
+                Type = type,
+                Closable = closable
+            };
+            //ViewBag.Message = m;
+            TempData["Unicorn.Message"] = JsonConvert.SerializeObject(m);
+        }
+
     }
 }

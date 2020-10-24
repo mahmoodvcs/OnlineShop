@@ -20,5 +20,6 @@ namespace MahtaKala.Entities.Models
         public bool Published { get; internal set; }
         public string Seller { get; set; }
         public string Code { get; set; }
+        public int Quantity { get; set; }
     }
 }
