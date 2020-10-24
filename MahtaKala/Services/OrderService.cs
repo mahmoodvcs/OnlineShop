@@ -421,7 +421,7 @@ namespace MahtaKala.Services
 
             var cartItems = await GetCartItems();
             if (cartItems.Count == 0)
-                throw new BadRequestException(Messages.Messages.Order.EmptyCart);
+                throw new ApiException(400, Messages.Messages.Order.EmptyCart);
 
             await CheckCartValidity(addressId, cartItems);
 
