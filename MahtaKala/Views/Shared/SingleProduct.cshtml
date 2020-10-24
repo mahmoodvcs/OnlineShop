@@ -1,9 +1,11 @@
 ﻿@model Product
 @{
-     var productPrice = Model.Prices.First();
-     decimal discount;
-     var isDiscount = Util.IsDiscount(productPrice, out discount);
- }
+	var productPrice = Model.Prices.First();
+	decimal discount;
+	var isDiscount = Util.IsDiscount(productPrice, out discount);
+	var productIsAvailable = productPrice.DiscountPrice > 0 && Model.Status == ProductStatus.Available &&
+					(Model.Quantities != null && Model.Quantities.Count > 0 && Model.Quantities[0].Quantity > 0);
+}
 
     <div class="single-product">
         <!-- Product Image Start -->
@@ -18,7 +20,7 @@
         <div class="pro-content">
             <div class="pro-info">
                 <h4><a href="@Url.Content("~/home/product/"+Model.Id)">@Model.Title</a></h4>
-                @if (productPrice.DiscountPrice > 0 && Model.Status == ProductStatus.Available)
+                @if (productIsAvailable)
                 {
                     <p style="direction:rtl">
                         <span class="price">
@@ -44,7 +46,7 @@
             </div>
             <div class="pro-actions">
                 <div class="actions-primary">
-                    @if (productPrice.DiscountPrice > 0 && Model.Status == ProductStatus.Available)
+                    @if (productIsAvailable)
                     {
                         <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id">+ اضافه کردن به سبد</a>
                     }
