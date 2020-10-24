@@ -154,7 +154,7 @@ $(document).on("submit", "form#cartRequest", function (e) {
                 window.location.href = res.msg;
             }
             else {
-                toastr.warning(res.msg, '', { positionClass: "toast-bottom-center" });
+                swal.fire(res.msg, "", "error");
             }
         },
         error: function (xhr) {

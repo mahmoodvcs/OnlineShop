@@ -164,7 +164,6 @@ namespace MahtaKala.Controllers
             {
                 return Json(new { success = false, msg = "لطفا کد ملی خود را وارد کنید" });
             }
-            //if (!string.IsNullOrEmpty(vm.UserData.NationalCode))
             else
             {
                 string msg;
@@ -178,6 +177,7 @@ namespace MahtaKala.Controllers
             user.EmailAddress = vm.UserData.EmailAddress;
             user.LastName = vm.UserData.LastName;
             user.NationalCode = vm.UserData.NationalCode;
+            await db.SaveChangesAsync();
 
             if (!vm.UserData.AddressId.HasValue)
             {
