@@ -1,4 +1,5 @@
 ﻿using MahtaKala.Entities;
+using MahtaKala.GeneralServices.Delivery;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace MahtaKala.Services
 
         public IQueryable<Product> ProductsView(bool includePrices = false, long[] categoryIds = null)
         {
-            var prods = db.Products.AsQueryable();
+            var prods = db.Products.Include(p => p.Quantities).AsQueryable();
             if (includePrices)
             {
                 prods = prods.Include(a => a.Prices);
@@ -28,15 +29,22 @@ namespace MahtaKala.Services
             if (categoryIds != null && categoryIds.Length == 0)
                 categoryIds = null;
 
-            var query = from product in prods.Where(a => a.Published)
+            var query = 
+                from product in (
+                            from product in prods.Where(a => a.Published)
                         from cat in product.ProductCategories.Where(a => categoryIds == null || categoryIds.Contains(a.CategoryId))
+                        select product).Distinct()
                         join pt in db.ProductTags on product.Id equals pt.ProductId into prodTags
                         from pt in prodTags.DefaultIfEmpty()
                         join tag in db.Tags on pt.TagId equals tag.Id into tags
                         from tag in tags.DefaultIfEmpty()
                         orderby product.Status, tag.Order, product.Prices.FirstOrDefault().DiscountPrice
                         select product;
-
+			//query = query.Distinct();
+			{
+                //query = query.OrderBy(x => x.Id);
+                var duplicates = query.Where(x => query.Count(y => y.Id == x.Id) > 1).ToList();
+			}
             if (categoryIds != null && categoryIds.Length > 0)
             {
                 query = query.Where(p => p.ProductCategories.Any(c => categoryIds.Contains(c.CategoryId)));

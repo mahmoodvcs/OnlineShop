@@ -244,13 +244,12 @@ namespace MahtaKala.Controllers
             if (!string.IsNullOrEmpty(term))
             {
                 queryable = queryable.Where(c => c.Title.Contains(term));
-
             }
             if (groupId.HasValue)
             {
                 queryable = queryable.Where(c => c.ProductCategories.Any(pc => pc.CategoryId == groupId));
             }
-            totalItemCount = queryable.Count();
+            totalItemCount = queryable.Distinct().Count();
             return queryable;
         }
 
