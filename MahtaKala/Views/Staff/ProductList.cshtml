@@ -72,6 +72,7 @@
 
         })
         .Read(read => read.Action("Product_Read", "Staff").Data("getAdditionalData"))
+        .Sort(s=>s.Add(a=>a.Id))
     ).Selectable()
      .Excel(excel => excel.FileName("Products.xlsx"))
          .Events(e => e.ExcelExport("onExcelExport"))

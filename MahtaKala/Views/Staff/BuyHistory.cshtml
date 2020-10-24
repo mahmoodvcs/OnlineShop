@@ -51,6 +51,7 @@
 
             })
             .Read(read => read.Action("GetBuyHistory", "Staff").Data("getAdditionalData"))
+            .Sort(sc=>sc.Add(a=>a.CheckoutDate).Descending())
                                                                                                                                                                                                                                                                                 )
     )
 @section js{
