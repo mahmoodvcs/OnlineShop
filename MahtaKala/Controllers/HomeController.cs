@@ -82,7 +82,7 @@ namespace MahtaKala.Controllers
             if (product == null)
                 throw new EntityNotFoundException<Product>(id);
             product.Thubmnail = productImageService.GetImageUrl(product.Id, product.Thubmnail);
-            product.Images = productImageService.GetImageUrls(product.Id, product.Images).ToList();
+            product.Images = productImageService.GetImageUrls(product.Id, product.Images)?.ToList();
             return View(product);
         }
 
