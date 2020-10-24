@@ -151,6 +151,7 @@ namespace MahtaKala.GeneralServices
             }
 
             p.Quantities[0].Quantity = q;
+            //TODO: if (p.Quantities[0].Quantity == 0) p.Status = unavailable;
         }
 
         void SetPrice(Product p, object val, int rowNum)
