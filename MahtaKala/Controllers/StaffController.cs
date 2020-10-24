@@ -905,7 +905,8 @@ namespace MahtaKala.Controllers
                 {
                     var q = product.Quantities.First();
                     q.Quantity = model.Quantity;
-                    //TODO: if (q.Quantity == 0) product.Status = unavailable;
+                    if (model.Quantity == 0)
+                        product.Status = ProductStatus.NotAvailable;
                 }
                 else
                 {
@@ -913,7 +914,8 @@ namespace MahtaKala.Controllers
                     {
                         Quantity = model.Quantity
                     });
-                    //TODO: if (model.Quantity == 0) product.Status = unavailable;
+                    if (model.Quantity == 0)
+                        product.Status = ProductStatus.NotAvailable;
                 }
                 foreach (var cat in product.ProductCategories)
                 {
