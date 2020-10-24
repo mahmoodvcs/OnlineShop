@@ -73,6 +73,8 @@
         })
         .Read(read => read.Action("Product_Read", "Staff").Data("getAdditionalData"))
     ).Selectable()
+     .Excel(excel => excel.FileName("Products.xlsx"))
+         .Events(e => e.ExcelExport("onExcelExport"))
 
 )
 <script id="GridToolbarTemplate" type="text/x-kendo-template">
@@ -105,10 +107,27 @@
                 }
             </div>
         </div>
+        <button type="button" class="btn btn-primary" onclick="exportToExcel(false);" @*data-toggle="modal" data-target="#exportModal"*@>
+            <i class="fa fa-export"></i>
+            خروجی اکسل (صفحه جاری)
+        </button>
+        <button type="button" class="btn btn-primary" onclick="exportToExcel(true);">
+            <i class="fa fa-export"></i>
+            خروجی اکسل (همه صفحات)
+        </button>
     </div>
 </script>
 @section js{
     <script type="text/javascript">
+
+        function exportToExcel(allPages){
+            var g = $('#grid').data('kendoGrid');
+            g.options.excel.allPages = allPages;
+            g.saveAsExcel();
+        }
+        function onExcelExport(e) {
+            e.workbook.rtl = true;
+        }
 
         $(function () {
             $(document).on('click', '#columnSelection .dropdown-menu', function (e) {
