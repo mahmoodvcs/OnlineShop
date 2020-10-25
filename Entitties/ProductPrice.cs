@@ -18,8 +18,35 @@ namespace MahtaKala.Entities
         [JsonIgnore]
         public long ProductId { get; set; }
         public IList<CharacteristicValue> CharacteristicValues { get; set; }
-        public decimal Price { get; set; }
-        public decimal DiscountPrice { get; set; }
+		public decimal PriceCoefficient { get; set; }
+        [Column("price")]
+		public decimal RawPrice { get; set; }
+        [NotMapped]
+		public decimal Price 
+        { 
+            get 
+            {
+                return RawPrice * PriceCoefficient;
+            } 
+            set 
+            {
+                RawPrice = value;
+            } 
+        }
+        [Column("discount_price")]
+		public decimal RawDiscountedPrice { get; set; }
+        [NotMapped]
+		public decimal DiscountPrice 
+        {
+            get
+            {
+                return RawDiscountedPrice * PriceCoefficient;
+            }
+            set
+			{
+                RawDiscountedPrice = value;
+			}
+        }
 
         public IList<OrderItem> OrderItems { get; set; }
 

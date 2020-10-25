@@ -21,6 +21,7 @@ namespace MahtaKala.Entities
                 Price = a.Prices.FirstOrDefault().Price,
                 DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
                 Quantity = a.Quantities.FirstOrDefault().Quantity,
+                PriceCoefficient = a.Prices.FirstOrDefault().PriceCoefficient,
                 Status = a.Status,
                 Published = a.Published,
                 Seller = a.Seller.Name,

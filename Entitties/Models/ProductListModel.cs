@@ -23,6 +23,8 @@ namespace MahtaKala.Entities.Models
         public decimal? Price { get; set; }
         [Display(Name = "قیمت با تخفیف")]
         public decimal? DiscountPrice { get; set; }
+        [Display(Name = "ضریب قیمت")]
+        public decimal? PriceCoefficient { get; set; }
         [Display(Name = "وضعیت")]
         public string Status { get; set; }
         [Display(Name = "فروشنده")]
