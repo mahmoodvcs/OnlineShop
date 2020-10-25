@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace MahtaKala.Models.ProductModels
         {
             Characteristics = new List<Characteristic>();
             ProductCategories = new List<ProductCategory>();
+            PriceCoefficient = 1;
         }
 
         public EditProductModel(Product p)
@@ -32,8 +34,9 @@ namespace MahtaKala.Models.ProductModels
             Code = p.Code;
             Prices = p.Prices;
             Quantities = p.Quantities;
-            Price = p.Prices?.FirstOrDefault()?.Price ?? 0;
-            DiscountPrice = p.Prices?.FirstOrDefault()?.DiscountPrice ?? 0;
+            RawPrice = p.Prices?.FirstOrDefault()?.RawPrice ?? 0;
+            RawDiscountPrice = p.Prices?.FirstOrDefault()?.RawDiscountedPrice ?? 0;
+            PriceCoefficient = p.Prices?.FirstOrDefault()?.PriceCoefficient ?? 1;
             Status = p.Status;
             Published = p.Published;
             MinBuyQuota = p.MinBuyQuota;
@@ -48,12 +51,48 @@ namespace MahtaKala.Models.ProductModels
             if (Quantities != null)
                 Quantity = Quantities.FirstOrDefault()?.Quantity ?? 0;
         }
+        public decimal RawPrice { get; set; }
+		public decimal FinalPrice 
+        {
+            get
+            {
+                if (PriceCoefficient.HasValue)
+                    return PriceCoefficient.Value * RawPrice;
+                return RawPrice;
+            }
+        }
+		public decimal RawDiscountPrice { get; set; }
+		public decimal FinalDiscountedPrice 
+        {
+            get
+            { 
+                if (PriceCoefficient.HasValue)
+				{
+                    if (RawDiscountPrice != 0)
+                        return PriceCoefficient.Value * RawDiscountPrice;
+                    return PriceCoefficient.Value * RawPrice;
+                }
+                if (RawDiscountPrice != 0)
+                    return RawDiscountPrice;
+                return RawPrice;
+            }
+        }
+		public decimal? PriceCoefficient { get; set; }
+		public int Quantity { get; set; }
+		public new long BrandId { get; set; }
+        [Required(ErrorMessage = "فیلد {0} اجباری است.")]
+		public long SellerIdNotNull 
+        { 
+            get 
+            { 
+                if (SellerId.HasValue) 
+                    return SellerId.Value;
+                return 0;
+            } 
+            set { SellerId = value; } 
+        }
 
-        public new decimal Price { get; set; }
-        public decimal DiscountPrice { get; set; }
-        public int Quantity { get; set; }
-
-        public List<long> TagIds { get; set; }
+		public List<long> TagIds { get; set; }
         public List<long> LimitationIds { get; set; }
     }
 }

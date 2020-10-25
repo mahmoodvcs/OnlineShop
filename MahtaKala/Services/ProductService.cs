@@ -34,7 +34,7 @@ namespace MahtaKala.Services
                         from pt in prodTags.DefaultIfEmpty()
                         join tag in db.Tags on pt.TagId equals tag.Id into tags
                         from tag in tags.DefaultIfEmpty()
-                        orderby product.Status, tag.Order, product.Prices.FirstOrDefault().DiscountPrice
+                        orderby product.Status, tag.Order, product.Prices.FirstOrDefault().RawDiscountedPrice
                         select product;
 
             if (categoryIds != null && categoryIds.Length > 0)

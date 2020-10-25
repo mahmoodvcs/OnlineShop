@@ -25,6 +25,7 @@ namespace MahtaKala.Infrustructure
                 Brand = a.Brand,
                 Price = a.Price,
                 DiscountPrice = a.DiscountPrice,
+                PriceCoefficient = a.PriceCoefficient,
                 Status = TranslateExtentions.GetTitle(a.Status),
                 Published = a.Published,
                 Quantity = a.Quantity,

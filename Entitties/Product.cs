@@ -15,6 +15,7 @@ namespace MahtaKala.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
+        [Required]
         [StringLength(255)]
         public string Title { get; set; }
 
@@ -23,6 +24,7 @@ namespace MahtaKala.Entities
         public IList<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 
         [Display(Name ="برند")]
+        [Required(ErrorMessage = "فیلد برند باید مقدار داشته باشد.")]
         public long BrandId { get; set; }
         [Display(Name ="برند")]
         public Brand Brand { get; set; }
