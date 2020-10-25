@@ -20,5 +20,8 @@ namespace MahtaKala.GeneralServices.Payment
         public string ShabaId { get; set; }
         public decimal Amount { get; set; }
         public string Name { get; set; }
+        public long ItemId { get; set; }
+        public PayFor PayFor { get; set; }  
     }
+
 }

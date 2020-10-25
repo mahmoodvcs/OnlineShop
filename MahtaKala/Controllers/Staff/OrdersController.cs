@@ -39,6 +39,7 @@ namespace MahtaKala.Controllers.Staff
             this.orderService = orderService;
         }
 
+        [Authorize(UserType.Admin, UserType.Seller)]
         public ActionResult Items()
         {
             return View("~/Views/Staff/Orders/Items.cshtml");
@@ -68,6 +69,7 @@ namespace MahtaKala.Controllers.Staff
             }
 
             var items = from item in query
+                        orderby item.Order.CheckOutDate
                         select new
                         {
                             item.Quantity,

@@ -73,7 +73,7 @@ namespace MahtaKala.Services
 
         public IEnumerable<string> GetImageUrls(long productId, IEnumerable<string> names)
         {
-            return names.Select(a => GetImageUrl(productId, a));
+            return names?.Select(a => GetImageUrl(productId, a));
         }
 
     }
