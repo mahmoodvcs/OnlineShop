@@ -890,16 +890,16 @@ namespace MahtaKala.Controllers
                 if (product.Prices.Any())
                 {
                     var price = product.Prices.First();
-                    price.Price = model.Price;
-                    price.DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice;
+                    price.RawPrice = model.RawPrice;
+                    price.RawDiscountedPrice = model.RawDiscountPrice == 0 ? model.RawPrice : model.RawDiscountPrice;
 					price.PriceCoefficient = model.PriceCoefficient.HasValue ? model.PriceCoefficient.Value : 1;
                 }
                 else
                 {
                     product.Prices.Add(new ProductPrice
                     {
-                        Price = model.Price,
-                        DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice,
+                        RawPrice = model.RawPrice,
+                        RawDiscountedPrice = model.RawDiscountPrice == 0 ? model.RawPrice : model.RawDiscountPrice,
                         PriceCoefficient = model.PriceCoefficient.HasValue ? model.PriceCoefficient.Value : 1
                     });
                 }

@@ -145,24 +145,29 @@
                 </div>
                 <div class="col-lg-3">
                     <label>
-                        قیمت:
+                        قیمت (واحد):
                     </label>
-                    @Html.TextBoxFor(a => a.Price, new { @class = "form-control", @type = "number" })
-                    @Html.ValidationMessageFor(a => a.Price, "", new { @class = "text-danger" })
+                    @Html.TextBoxFor(a => a.RawPrice, new { @class = "form-control", @type = "number", onchange="PriceCoefficientChanged()" })
+                    @Html.ValidationMessageFor(a => a.RawPrice, "", new { @class = "text-danger" })
                 </div>
                 <div class="col-lg-3">
                     <label>
-                        قیمت نهایی:
+                        قیمت بعد از تخفیف (واحد):
                     </label>
-                    @Html.TextBoxFor(a => a.DiscountPrice, new { @class = "form-control", @type = "number" })
-                    @Html.ValidationMessageFor(a => a.DiscountPrice, "", new { @class = "text-danger" })
+                    @Html.TextBoxFor(a => a.RawDiscountPrice, new { @class = "form-control", @type = "number", onchange = "PriceCoefficientChanged()" })
+                    @Html.ValidationMessageFor(a => a.RawDiscountPrice, "", new { @class = "text-danger" })
                 </div>
-                <div class="col-lg-3">
-                    <lable>
-                        ضریب قیمت:
-                    </lable>
-                    @Html.TextBoxFor(a => a.PriceCoefficient)
-                </div>
+				<div class="col-lg-3">
+					<lable>
+						ضریب قیمت:
+					</lable>
+					@Html.TextBoxFor(a => a.PriceCoefficient, new { @class = "form-control", @type = "number", onchange="PriceCoefficientChanged()" })
+					<label>
+						قیمت نهایی:
+					</label>
+					@*@Html.DisplayTextFor(a => a.FinalDiscountedPrice)*@
+                    @Html.TextBoxFor(a => a.FinalDiscountedPrice, new { @type="number", @disabled = "disabled" })
+				</div>
 				<div class="col-lg-3">
 					<label>
 						فروشنده:
@@ -516,6 +521,29 @@
                 //)
             }
         });
+    }
+
+    function PriceCoefficientChanged() {
+        var newPriceCoefficient = $('#PriceCoefficient').val();
+        if (newPriceCoefficient == undefined || newPriceCoefficient == '') {
+            $('#PriceCoefficient').val(1);
+            newPriceCoefficient = 1;
+        }
+        if (newPriceCoefficient <= 0) {
+            alert('مقدار ضریب قیمت باید بزرگتر یا مساوی 1 باشد.');
+            $('#PriceCoefficient').val(1);
+            newPriceCoefficient = 1;
+        }
+        var rawDiscountedPrice = $('#RawDiscountPrice').val();
+        if (rawDiscountedPrice === undefined || rawDiscountedPrice <= 0)
+            rawDiscountedPrice = $('#RawPrice').val();
+        if (rawDiscountedPrice === undefined || rawDiscountedPrice <= 0) {
+            //alert('لطفاً قیمت کالا را تعیین نمایید.');
+            $('#FinalDiscountedPrice').val(0);
+            return;
+        }
+        $('#FinalDiscountedPrice').val(rawDiscountedPrice * newPriceCoefficient);
+		$('#FinalDiscountedPrice').css('border-color', 'red');
     }
 </script>
 

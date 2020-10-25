@@ -35,8 +35,8 @@ namespace MahtaKala.Models.ProductModels
             Code = p.Code;
             Prices = p.Prices;
             Quantities = p.Quantities;
-            Price = p.Prices?.FirstOrDefault()?.RawPrice ?? 0;
-            DiscountPrice = p.Prices?.FirstOrDefault()?.RawDiscountedPrice ?? 0;
+            RawPrice = p.Prices?.FirstOrDefault()?.RawPrice ?? 0;
+            RawDiscountPrice = p.Prices?.FirstOrDefault()?.RawDiscountedPrice ?? 0;
             PriceCoefficient = p.Prices?.FirstOrDefault()?.PriceCoefficient ?? 1;
             Status = p.Status;
             Published = p.Published;
@@ -52,9 +52,32 @@ namespace MahtaKala.Models.ProductModels
             if (Quantities != null)
                 Quantity = Quantities.FirstOrDefault()?.Quantity ?? 0;
         }
-
-        public new decimal Price { get; set; }
-        public decimal DiscountPrice { get; set; }
+        public decimal RawPrice { get; set; }
+		public decimal FinalPrice 
+        {
+            get
+            {
+                if (PriceCoefficient.HasValue)
+                    return PriceCoefficient.Value * RawPrice;
+                return RawPrice;
+            }
+        }
+		public decimal RawDiscountPrice { get; set; }
+		public decimal FinalDiscountedPrice 
+        {
+            get
+            { 
+                if (PriceCoefficient.HasValue)
+				{
+                    if (RawDiscountPrice != 0)
+                        return PriceCoefficient.Value * RawDiscountPrice;
+                    return PriceCoefficient.Value * RawPrice;
+                }
+                if (RawDiscountPrice != 0)
+                    return RawDiscountPrice;
+                return RawPrice;
+            }
+        }
 		public decimal? PriceCoefficient { get; set; }
 		public int Quantity { get; set; }
 		public new long BrandId { get; set; }
