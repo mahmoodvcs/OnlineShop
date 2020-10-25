@@ -69,7 +69,7 @@ namespace MahtaKala.Controllers.Staff
             }
 
             var items = from item in query
-                        orderby item.Order.CheckOutDate
+                        orderby item.Order.CheckOutDate descending, item.Id
                         select new
                         {
                             item.Quantity,

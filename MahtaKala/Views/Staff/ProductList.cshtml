@@ -40,6 +40,7 @@
     columns.Bound(p => p.Tags).Title("تگ ها").Filterable(false).Sortable(false);
     columns.Bound(p => p.Seller).Title("فروشنده");
     columns.Bound(p => p.Brand).Title("برند");
+    columns.Bound(p => p.Supplier).Title("تامین کننده");
     columns.Bound(p => p.Price).Format("{0:n0}").Title("قیمت");
     columns.Bound(p => p.DiscountPrice).Format("{0:n0}").Title("قیمت با تخفیف");
     columns.Bound(p => p.Quantity).Title("موجودی").Format("{0:n0}").Filterable(false);

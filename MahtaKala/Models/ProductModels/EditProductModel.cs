@@ -30,6 +30,8 @@ namespace MahtaKala.Models.ProductModels
             ImageList = p.ImageList;
             Thubmnail = p.Thubmnail;
             SellerId = p.SellerId;
+            Supplier = p.Supplier;
+            SupplierId = p.SupplierId;
             Seller = p.Seller;
             Code = p.Code;
             Prices = p.Prices;

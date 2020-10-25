@@ -26,8 +26,11 @@ namespace MahtaKala.Entities
         [Display(Name ="برند")]
         [Required(ErrorMessage = "فیلد برند باید مقدار داشته باشد.")]
         public long BrandId { get; set; }
-        [Display(Name ="برند")]
+        [Display(Name = "برند")]
         public Brand Brand { get; set; }
+        public long? SupplierId { get; set; }
+        [Display(Name = "تامین کننده")]
+        public Supplier Supplier { get; set; }
         public IList<Characteristic> Characteristics { get; set; }
         public IList<KeyValuePair<string, string>> Properties { get; set; } = new List<KeyValuePair<string, string>>();
         public IList<string> ImageList { get; set; }
@@ -58,6 +61,8 @@ namespace MahtaKala.Entities
 
         public IList<ProductPaymentParty> PaymentParties { get; set; }
         public IList<ProductBuyLimitation> BuyLimitations { get; set; }
+
+        //public bool Deleted { get; set; }
 
 
         [NotMapped]

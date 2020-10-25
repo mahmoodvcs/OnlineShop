@@ -44,6 +44,7 @@ namespace MahtaKala.Controllers
         private readonly ImportService importService;
         private readonly CategoryService categoryService;
         private readonly IPathService pathService;
+        private readonly ProductService productService;
         private readonly ISMSService smsService;
 
         public StaffController(
@@ -54,7 +55,8 @@ namespace MahtaKala.Controllers
             ICategoryImageService categoryImageService,
             ImportService importService,
             CategoryService categoryService,
-            IPathService pathService
+            IPathService pathService,
+            ProductService productService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
@@ -62,6 +64,7 @@ namespace MahtaKala.Controllers
             this.importService = importService;
             this.categoryService = categoryService;
             this.pathService = pathService;
+            this.productService = productService;
             this.smsService = smsService;
         }
 
@@ -676,6 +679,83 @@ namespace MahtaKala.Controllers
 
         #endregion
 
+        #region Supplier
+
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public IActionResult SupplierList()
+        {
+            return View();
+        }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public ActionResult GetAllSuppliers([DataSourceRequest] DataSourceRequest request)
+        {
+            return ConvertDataToJson(db.Suppliers, request);
+        }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public ActionResult Supplier(long id)
+        {
+            Supplier su = null;
+            if (id == 0)
+            {
+                su = new Entities.Supplier();
+            }
+            else
+            {
+                su = db.Suppliers.Where(u => u.Id == id).FirstOrDefault();
+                if (su == null)
+                {
+                    throw new EntityNotFoundException<Brand>(id);
+                }
+            }
+            return View(su);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public IActionResult Supplier(Supplier model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (string.IsNullOrEmpty(model.Name))
+                {
+                    ModelState.AddModelError(nameof(model.Name), "نام را وارد کنید.");
+                    return View(model);
+                }
+                if (model.Id == 0)
+                {
+                    db.Suppliers.Add(model);
+                }
+                else
+                {
+                    if (!db.Suppliers.Any(u => u.Id == model.Id))
+                    {
+                        throw new EntityNotFoundException<Supplier>(model.Id);
+                    }
+                    db.Entry(model).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+                return RedirectToAction("SupplierList");
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public JsonResult Supplier_Destroy(long id)
+        {
+            if (db.Products.Any(c => c.SupplierId == id))
+            {
+                return Json(new { Success = false, Message = "این تامین کننده در کالا استفاده شده است." });
+            }
+            else
+            {
+                db.Suppliers.Where(c => c.Id == id).Delete();
+                return Json(new { Success = true });
+            }
+        }
+
+        #endregion
+
 
         #region Product
 
@@ -743,6 +823,7 @@ namespace MahtaKala.Controllers
 
         [HttpPost]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
+        [AjaxAction]
         public async Task<JsonResult> Product_Destroy(long id)
         {
             if (base.User.Type == UserType.Seller)
@@ -760,6 +841,7 @@ namespace MahtaKala.Controllers
                     return Json(new { Success = false, Message = "محصول یافت نشد." });
                 }
             }
+
             if (db.OrderItems.Any(a => a.ProductPrice.ProductId == id))
             {
                 var prod = await db.Products.FindAsync(id);
@@ -868,6 +950,7 @@ namespace MahtaKala.Controllers
                 product.Properties = JsonConvert.DeserializeObject<IList<KeyValuePair<string, string>>>(Request.Form["Properties"]);
                 product.Title = model.Title;
                 product.BrandId = model.BrandId;
+                product.SupplierId = model.SupplierId;
                 product.Description = model.Description;
                 product.Status = model.Status;
                 product.Published = model.Published;
@@ -892,7 +975,7 @@ namespace MahtaKala.Controllers
                     var price = product.Prices.First();
                     price.RawPrice = model.RawPrice;
                     price.RawDiscountedPrice = model.RawDiscountPrice == 0 ? model.RawPrice : model.RawDiscountPrice;
-					price.PriceCoefficient = model.PriceCoefficient.HasValue ? model.PriceCoefficient.Value : 1;
+                    price.PriceCoefficient = model.PriceCoefficient.HasValue ? model.PriceCoefficient.Value : 1;
                 }
                 else
                 {
@@ -1331,8 +1414,8 @@ namespace MahtaKala.Controllers
                 {
                     throw new BadRequestException($"درج ناموفق: نام وارد شده تکراری است! تگ با نام \"{tag.Name}\" قبلاً در دیتابیس تعریف شده است.");
                 }
-				else
-				{
+                else
+                {
                     db.Tags.Add(tag);
                     await db.SaveChangesAsync();
                 }
@@ -1350,7 +1433,7 @@ namespace MahtaKala.Controllers
                 tag.Name = Util.TrimString(tag.Name);
                 if (db.Tags.Any(x => !x.Id.Equals(tag.Id) && //Util.TrimString(x.Name).Equals(tag.Name)))
                     x.Name.Trim().Trim(Util.ZeroWidthNonBreakingSpace).Equals(tag.Name)))
-                { 
+                {
                     throw new BadRequestException($"ویرایش ناموفق: نام وارد شده تکراری است! تگ با نام \"{tag.Name}\" قبلاً در دیتابیس تعریف شده است.");
                 }
                 dbTag.Name = tag.Name;

@@ -20,6 +20,7 @@ namespace MahtaKala.Infrustructure.Security
                     new StaffMenuItem("استانها", "~/Staff/ProvinceList", "placeholder-1"),
                     new StaffMenuItem("شهرها", "~/Staff/CityList", "placeholder"),
                     new StaffMenuItem("برندها", "~/Staff/BrandList", "interface-9"),
+                    new StaffMenuItem("تامین کننده ها", "~/Staff/SupplierList", "interface-9"),
                     new StaffMenuItem("تگ ها", "~/Staff/Tags", "coins"),
                     new StaffMenuItem("به روز رسانی قیمت کالاها", "~/Staff/ImportProductPrices", "edit-1"),
                 }),

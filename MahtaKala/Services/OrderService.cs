@@ -151,7 +151,7 @@ namespace MahtaKala.Services
                 case OrderItemState.Packed:
                     return from == OrderItemState.None;
                 case OrderItemState.Sent:
-                    return from == OrderItemState.Packed;
+                    return from == OrderItemState.Packed || from == OrderItemState.None;
             }
             return false;
         }

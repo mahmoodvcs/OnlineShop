@@ -6,7 +6,8 @@ using System.Text;
 
 namespace MahtaKala.Entities
 {
-    public class Brand
+    [Display(Name = "تامین کننده")]
+    public class Supplier
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

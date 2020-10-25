@@ -66,6 +66,15 @@ namespace MahtaKala.Controllers
             }).ToList());
         }
 
+        public IActionResult Suppliers()
+        {
+            return KendoJson(db.Suppliers.Select(u => new
+            {
+                u.Id,
+                u.Name
+            }).ToList());
+        }
+
         public async Task<IActionResult> Tags(string text)
         {
             var tags = db.Tags.AsQueryable();

@@ -23,6 +23,7 @@ namespace MahtaKala.Infrustructure
                 Categories = string.Join(",", a.Categories),
                 Tags = string.Join(",", a.Tags),
                 Brand = a.Brand,
+                Supplier = a.Supplier,
                 Price = a.Price,
                 DiscountPrice = a.DiscountPrice,
                 PriceCoefficient = a.PriceCoefficient,
