@@ -57,6 +57,11 @@ namespace MahtaKala.GeneralServices
             setters.Add(new Tuple<string, Action<Product, object, int>>("قیمت با تخفیف", SetDiscountPrice));
             setters.Add(new Tuple<string, Action<Product, object, int>>("وضعیت", SetStatus));
             setters.Add(new Tuple<string, Action<Product, object, int>>("موجودی", SetQuantity));
+            setters.Add(new Tuple<string, Action<Product, object, int>>("منتشر شده", SetPublished));
+            setters.Add(new Tuple<string, Action<Product, object, int>>("محدودیت خرید", SetBuyLimitation));
+            setters.Add(new Tuple<string, Action<Product, object, int>>("حداقل تعداد خرید", SetMinQuota));
+            setters.Add(new Tuple<string, Action<Product, object, int>>("حداکثر تعداد خرید", SetMaxQota));
+            setters.Add(new Tuple<string, Action<Product, object, int>>("بازه ی زمانی اعمال محدودیت خرید", SetQuotaDays));
 
             HashSet<long> productIds = new HashSet<long>();
 
@@ -102,6 +107,30 @@ namespace MahtaKala.GeneralServices
             return rowNum;
         }
 
+        private void SetMinQuota(Product p, object val, int rowNum)
+        {
+            if (!int.TryParse(val.ToString(), out var n))
+                Throw(rowNum, $"حداقل تعداد خرید اشتباه است: {val}");
+
+            p.MinBuyQuota = n;
+        }
+
+        private void SetMaxQota(Product p, object val, int rowNum)
+        {
+            if (!int.TryParse(val.ToString(), out var n))
+                Throw(rowNum, $"حداکثر تعداد خرید اشتباه است: {val}");
+
+            p.MaxBuyQuota = n;
+        }
+
+        private void SetQuotaDays(Product p, object val, int rowNum)
+        {
+            if (!int.TryParse(val.ToString(), out var n))
+                Throw(rowNum, $"بازه ی زمانی اعمال محدودیت خرید اشتباه است: {val}");
+
+            p.BuyQuotaDays = n;
+        }
+
         async Task SetShare(Product p, string col, object val, int rowNum)
         {
             var paymentParties = await db.PaymentParties.Cacheable().ToListAsync();
@@ -120,6 +149,21 @@ namespace MahtaKala.GeneralServices
             ppp.Percent = percent;
         }
 
+        void SetBuyLimitation(Product p, object val, int rowNum)
+        {
+            var names = val.ToString().Split(',');
+            var bls = db.BuyLimitations.Where(a => names.Contains(a.Name)).ToList();
+            if (bls.Count == 0)
+                Throw(rowNum, $"محدودیت خرید پیدا نشد: {val}");
+            p.BuyLimitations.Clear();
+            foreach (var bl in bls)
+            {
+                p.BuyLimitations.Add(new ProductBuyLimitation
+                {
+                    BuyLimitation = bl
+                });
+            }
+        }
         void SetStatus(Product p, object val, int rowNum)
         {
             var names = TranslateExtentions.GetTitles<ProductStatus>().ToDictionary(a => a.Value, a => a.Key);
@@ -184,7 +228,7 @@ namespace MahtaKala.GeneralServices
 
         private async Task<Product> GetProduct(ImportRow row, List<string> columnNames, List<Tuple<string, Func<IQueryable<Product>, string, Task<Product>>>> finders)
         {
-            var q = db.Products.Include(a => a.Prices).Include(a => a.PaymentParties).Include(a => a.Quantities);
+            var q = db.Products.Include(a => a.Prices).Include(a => a.PaymentParties).Include(a => a.Quantities).Include(a => a.BuyLimitations);
             foreach (var item in finders)
             {
                 if (columnNames.Contains(item.Item1) && row[item.Item1] != null)
@@ -227,7 +271,7 @@ namespace MahtaKala.GeneralServices
                     if (row[5] != null && decimal.TryParse(row[5].ToString(), out priceCoef) && priceCoef > 0)
                     {
                         useInputPriceCoef = true;
-                    }                        
+                    }
 
 
                     if (product.Prices.Count == 0)
@@ -237,8 +281,8 @@ namespace MahtaKala.GeneralServices
 
                     product.Prices[0].Price = price;
                     product.Prices[0].DiscountPrice = discountedPrice;
-					product.Prices[0].PriceCoefficient = useInputPriceCoef ? priceCoef : 1;
-					productIds.Add(product.Id);
+                    product.Prices[0].PriceCoefficient = useInputPriceCoef ? priceCoef : 1;
+                    productIds.Add(product.Id);
                 }
                 catch (Exception ex) when (!(ex is ImportException))
                 {
@@ -352,5 +396,14 @@ namespace MahtaKala.GeneralServices
             }
         }
         #endregion Nested types
+    }
+
+
+    public class ImportProductsInfo
+    {
+        public int NumPrices { get; set; }
+        public int NumDiscountPrices { get; set; }
+        public int NumQuantities { get; set; }
+        public int NumShares { get; set; }
     }
 }
