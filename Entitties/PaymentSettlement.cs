@@ -23,7 +23,8 @@ namespace MahtaKala.Entities
         public Payment Payment { get; set; }
         public PaymentSettlementStatus Status { get; set; }
         public string Response { get; set; }
-
+        public PayFor PayFor { get; set; }
+        public long? ItemId { get; set; }
     }
 
     public enum PaymentSettlementStatus
@@ -32,4 +33,10 @@ namespace MahtaKala.Entities
         Succeeded,
         Failed
     }
+    public enum PayFor
+    {
+        OrderItem,
+        Delivery
+    }
+
 }

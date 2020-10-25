@@ -114,7 +114,7 @@ namespace MahtaKala.Services
         {
 
             var query = db.OrderItems.Where(a => ids.Contains(a.Id));
-            if (sellerId != null)
+            if (sellerId != null && sellerId > 0)
             {
                 query = query.Where(a => a.ProductPrice.Product.SellerId == sellerId.Value);
             }
@@ -414,7 +414,7 @@ namespace MahtaKala.Services
             {
                 User.CheckProfileCompletion();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new ApiException(400, ex.Message);
             }
@@ -584,13 +584,46 @@ namespace MahtaKala.Services
             return settingsService.DeliveryPrice;
         }
 
+        public async Task SetOrderDelivered(long orderId)
+        {
+            var order = await db.Orders.Include(a => a.Items).FirstOrDefaultAsync(a => a.Id == orderId);
+            if (order.State == OrderState.Delivered)
+            {
+                throw new BadRequestException("خطا! این کد قبلاً دریافت شده است.");
+            }
+            if (order.State == OrderState.Initial || order.State == OrderState.CheckedOut)
+            {
+                throw new BadRequestException("خطا! هزینه ی سفارش پرداخت نشده است.");
+            }
+            else if (order.State == OrderState.Canceled)
+                throw new BadRequestException("خطا! این سفارش قبلاً لغو شده است.");
+
+
+            var items = order.Items.Where(a => a.State == OrderItemState.Sent);
+            if (items.Count() == 0)
+            {
+                throw new BadRequestException("این سفارش قلم ارسال شده ندارد.");
+            }
+
+            foreach (var item in items)
+            {
+                item.State = OrderItemState.Delivered;
+            }
+            if (order.Items.All(a => a.State == OrderItemState.Delivered))
+                order.State = OrderState.Delivered;
+            await db.SaveChangesAsync();
+
+            await ShareOrderPayment(orderId, true);
+        }
+
         public async Task ShareOrderPayment(long orderId, bool includeDelivery)
         {
             Payment payment = await GetPaymentToShare(orderId);
 
-            var items = db.OrderItems.Where(a => a.OrderId == orderId)
+            var items = db.OrderItems.Where(a => a.OrderId == orderId && a.State == OrderItemState.Delivered)
                 .Select(a => new
                 {
+                    a.Id,
                     a.ProductPrice.ProductId,
                     a.FinalPrice,
                     Share = a.ProductPrice.Product.PaymentParties.Select(p => new
@@ -608,15 +641,18 @@ namespace MahtaKala.Services
                         s.ShabaId,
                         s.Name,
                         a.ProductId,
+                        a.Id
                     }).ToList()
                 })
                 .SelectMany(a => a.Share)
-                .GroupBy(a => new { a.ShabaId, a.Name })
+                .GroupBy(a => new { a.ShabaId, a.Name, a.Id })
                 .Select(a => new PaymentShareDataItem
                 {
                     ShabaId = a.Key.ShabaId,
                     Name = a.Key.Name,
-                    Amount = a.Sum(s => s.Amount)
+                    Amount = a.Sum(s => s.Amount),
+                    ItemId = a.Key.Id,
+                    PayFor = PayFor.OrderItem
                 }).ToList();
 
             if (includeDelivery)
@@ -625,7 +661,8 @@ namespace MahtaKala.Services
                 {
                     Amount = GetDeliveryPrice(),
                     Name = deliveryService.GetName(),
-                    ShabaId = deliveryService.GetShabaId()
+                    ShabaId = deliveryService.GetShabaId(),
+                    PayFor = PayFor.Delivery
                 });
             }
 

@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.SMS;
+using MahtaKala.Infrustructure.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,33 +24,26 @@ namespace MahtaKala.Services
         {
             var db = MyServiceProvider.ResolveService<DataContext>();
             var smsService = MyServiceProvider.ResolveService<ISMSService>();
+            var orderService = MyServiceProvider.ResolveService<OrderService>();
             var order = db.Orders.FirstOrDefault(x => x.TrackNo.ToLower().Equals(body.ToLower()));
+
             string error;
             if (order == null)
-                error = "خطا! سفارشی با این کد در سیستم ثبت نشده است.";
-            if (order.State == OrderState.Paid || order.State == OrderState.Sent)
             {
-                order.State = OrderState.Delivered;
-                db.SaveChanges();
-                Task.Run(async () =>
-                {
-                    await MyServiceProvider.ResolveService<OrderService>().ShareOrderPayment(order.Id, true);
-                });
-                smsService.Send(sender, OrderDeliveryCodeReceived);
+                error = "خطا! سفارشی با این کد در سیستم ثبت نشده است.";
+                smsService.Send(sender, string.Format(InvalidDeliveryCodeReceived, error));
                 return;
             }
-            if (order.State == OrderState.Delivered)
-            {
-                error = "خطا! این کد قبلاً دریافت شده است.";
-            }
-            if (order.State == OrderState.Initial || order.State == OrderState.CheckedOut)
-            {
-                error = "خطا! هزینه ی سفارش پرداخت نشده است.";
-            }
-            else
-                error = "خطا! این سفارش قبلاً لغو شده است.";
 
-            smsService.Send(sender, string.Format(InvalidDeliveryCodeReceived, error));
+            try
+            {
+                orderService.SetOrderDelivered(order.Id).Wait();
+            }
+            catch(BadRequestException ex)
+            {
+                smsService.Send(sender, string.Format(InvalidDeliveryCodeReceived, ex.Message));
+                throw;
+            }
         }
     }
 }
