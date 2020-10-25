@@ -23,10 +23,10 @@ namespace MahtaKala.Entities
 
         public IList<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
 
-        [Display(Name ="برند")]
+        [Display(Name = "برند")]
         [Required(ErrorMessage = "فیلد برند باید مقدار داشته باشد.")]
         public long BrandId { get; set; }
-        [Display(Name ="برند")]
+        [Display(Name = "برند")]
         public Brand Brand { get; set; }
         public IList<Characteristic> Characteristics { get; set; }
         public IList<KeyValuePair<string, string>> Properties { get; set; } = new List<KeyValuePair<string, string>>();
@@ -36,7 +36,7 @@ namespace MahtaKala.Entities
         public long? SellerId { get; set; }
         public Seller Seller { get; set; }
 
-        [Display(Name ="کد محصول")]
+        [Display(Name = "کد محصول")]
         [StringLength(200)]
         public string Code { get; set; }
 
@@ -45,8 +45,8 @@ namespace MahtaKala.Entities
 
         [Display(Name = "وضعیت")]
         public ProductStatus Status { get; set; }
-        [Display(Name ="منتشر شده")]
-        public bool Published  { get; set; }
+        [Display(Name = "منتشر شده")]
+        public bool Published { get; set; }
         [Display(Name = "حداقل تعداد خرید")]
         public int? MinBuyQuota { get; set; }
         [Display(Name = "حداکثر تعداد خرید")]
@@ -66,11 +66,11 @@ namespace MahtaKala.Entities
 
     public enum ProductStatus
     {
-        [Display(Name ="موجود")]
+        [Display(Name = "موجود")]
         Available = 0,
-        [Display(Name ="به زودی")]
+        [Display(Name = "به زودی")]
         CommingSoon = 1,
-        [Display(Name ="ناموجود")]
+        [Display(Name = "ناموجود")]
         NotAvailable = 2,
         [Display(Name = "امکان خرید ندارد")]
         CantBuy

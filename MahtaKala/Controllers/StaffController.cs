@@ -796,13 +796,13 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<IActionResult> Product(long? id)
         {
-            ViewData["Title"] = "درج کالا و خدمات";
             var userType = base.User.Type;
 
             EditProductModel p;
             var sellerId = await GetSellerId();
             if (id.HasValue)
             {
+                ViewData["Title"] = "ویرایش کالا و خدمات";
                 var pr = await db.Products.Include(a => a.Prices)
                     .Include(a => a.ProductCategories).ThenInclude(a => a.Category)
                     .Include(p => p.Tags).Include(a => a.BuyLimitations)
@@ -828,6 +828,7 @@ namespace MahtaKala.Controllers
             }
             else
             {
+                ViewData["Title"] = "درج کالا و خدمات";
                 p = new EditProductModel();
             }
             ViewBag.ImagePathFormat = productImageService.GetImagePathFormatString(p.Id);
@@ -840,17 +841,18 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<IActionResult> Product(EditProductModel model)
         {
-            ViewData["Title"] = "درج کالا و خدمات";
             if (ModelState.IsValid)
             {
                 Product product;
                 if (model.Id == 0)
                 {
+                    ViewData["Title"] = "درج کالا و خدمات";
                     product = new Product();
                     db.Products.Add(product);
                 }
                 else
                 {
+                    ViewData["Title"] = "ویرایش کالا و خدمات";
                     var userType = base.User.Type;
                     product = await db.Products
                         .Include(a => a.ProductCategories)

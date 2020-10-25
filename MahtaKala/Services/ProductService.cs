@@ -20,7 +20,7 @@ namespace MahtaKala.Services
 
         public IQueryable<Product> ProductsView(bool includePrices = false, long[] categoryIds = null)
         {
-            var prods = db.Products.AsQueryable();
+            var prods = db.Products.Include(x => x.Quantities).AsQueryable();
             if (includePrices)
             {
                 prods = prods.Include(a => a.Prices);

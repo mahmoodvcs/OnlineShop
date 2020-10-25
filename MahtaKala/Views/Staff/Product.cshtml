@@ -147,26 +147,26 @@
                     <label>
                         قیمت (واحد):
                     </label>
-                    @Html.TextBoxFor(a => a.RawPrice, new { @class = "form-control", @type = "number", onchange="PriceCoefficientChanged()" })
+                    @Html.TextBoxFor(a => a.RawPrice, new { @class = "form-control", @type = "number", onchange="UpdatePriceValues()" })
                     @Html.ValidationMessageFor(a => a.RawPrice, "", new { @class = "text-danger" })
                 </div>
                 <div class="col-lg-3">
                     <label>
                         قیمت بعد از تخفیف (واحد):
                     </label>
-                    @Html.TextBoxFor(a => a.RawDiscountPrice, new { @class = "form-control", @type = "number", onchange = "PriceCoefficientChanged()" })
+                    @Html.TextBoxFor(a => a.RawDiscountPrice, new { @class = "form-control", @type = "number", onchange = "UpdatePriceValues()" })
                     @Html.ValidationMessageFor(a => a.RawDiscountPrice, "", new { @class = "text-danger" })
                 </div>
 				<div class="col-lg-3">
 					<lable>
 						ضریب قیمت:
 					</lable>
-					@Html.TextBoxFor(a => a.PriceCoefficient, new { @class = "form-control", @type = "number", onchange="PriceCoefficientChanged()" })
+					@Html.TextBoxFor(a => a.PriceCoefficient, new { @class = "form-control", @type = "number", onchange = "UpdatePriceValues()" })
 					<label>
 						قیمت نهایی:
 					</label>
 					@*@Html.DisplayTextFor(a => a.FinalDiscountedPrice)*@
-                    @Html.TextBoxFor(a => a.FinalDiscountedPrice, new { @type="number", @disabled = "disabled" })
+					@Html.TextBoxFor(a => a.FinalDiscountedPrice, new { @class = "form-control", @type = "number", @disabled = "disabled" })
 				</div>
 				<div class="col-lg-3">
 					<label>
@@ -523,9 +523,13 @@
         });
     }
 
-    function PriceCoefficientChanged() {
+    function UpdatePriceValues() {
+        var modelId = $('#Id').val();
+        var isEdit = true;
+        if (isNaN(modelId) || modelId === 0)
+            isEdit = false;
         var newPriceCoefficient = $('#PriceCoefficient').val();
-        if (newPriceCoefficient == undefined || newPriceCoefficient == '') {
+        if (isNaN(newPriceCoefficient) || newPriceCoefficient == undefined || newPriceCoefficient == '') {
             $('#PriceCoefficient').val(1);
             newPriceCoefficient = 1;
         }
@@ -535,9 +539,13 @@
             newPriceCoefficient = 1;
         }
         var rawDiscountedPrice = $('#RawDiscountPrice').val();
-        if (rawDiscountedPrice === undefined || rawDiscountedPrice <= 0)
-            rawDiscountedPrice = $('#RawPrice').val();
-        if (rawDiscountedPrice === undefined || rawDiscountedPrice <= 0) {
+		if (isNaN(rawDiscountedPrice) || rawDiscountedPrice == undefined || rawDiscountedPrice <= 0) {
+			rawDiscountedPrice = $('#RawPrice').val();
+			if (!isEdit && !isNaN(rawDiscountedPrice)) {
+				$('#RawDiscountPrice').val(rawDiscountedPrice);
+			}
+		}
+        if (isNaN(rawDiscountedPrice) || rawDiscountedPrice == undefined || rawDiscountedPrice <= 0) {
             //alert('لطفاً قیمت کالا را تعیین نمایید.');
             $('#FinalDiscountedPrice').val(0);
             return;
