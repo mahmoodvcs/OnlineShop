@@ -64,7 +64,7 @@ namespace MahtaKala.Controllers
 
 		public IActionResult Wishlist()
 		{
-			var lst = db.Wishlists.Include(a => a.Product.Prices).Where(a => a.UserId == UserId).ToList();
+			var lst = db.Wishlists.Include(a => a.Product.Prices).Where(a => a.UserId == UserId).OrderByDescending(x => x.Id).ToList();
 			return View(lst);
 		}
 
@@ -72,7 +72,8 @@ namespace MahtaKala.Controllers
 		{
 			var query = db.Orders.Where(o => (o.State == OrderState.Paid ||
 												o.State == OrderState.Delivered ||
-												o.State == OrderState.Sent) && o.UserId == UserId);
+												o.State == OrderState.Sent) && o.UserId == UserId)
+								.OrderByDescending(x => x.CheckOutDate);
 			var data = await OrderModel.Get(query, productImageService);
 			return View(data);
 		}

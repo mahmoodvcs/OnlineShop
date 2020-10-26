@@ -239,7 +239,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<AddressModel>> Address()
         {
-            var list = db.Addresses.Where(a => a.UserId == UserId && !a.Disabled);
+            var list = db.Addresses.Where(a => a.UserId == UserId && !a.Disabled).OrderBy(x => x.Id);
             return await list.Select(a => new AddressModel
             {
                 Id = a.Id,

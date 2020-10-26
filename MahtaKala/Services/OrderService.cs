@@ -364,6 +364,7 @@ namespace MahtaKala.Services
         public IQueryable<ShoppingCart> GetCartQuery(long? userId = null)
         {
             var query = db.ShoppingCarts.Include(a => a.ProductPrice.Product).AsQueryable();
+            query = query.OrderByDescending(x => x.DateCreated).ThenByDescending(x => x.Id);
             if (User == null && userId == null)
                 query = query.Where(c => c.SessionId == currentUserService.AnonymousSessionId && c.UserId == null);
             else

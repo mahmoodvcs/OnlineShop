@@ -25,7 +25,7 @@ namespace MahtaKala.Controllers.Api
         [HttpGet]
         public async Task<List<Province>> Index()
         {
-            return await db.Provinces.ToListAsync();
+            return await db.Provinces.OrderBy(x => x.Name).ToListAsync();
         }
 
         [HttpPost]

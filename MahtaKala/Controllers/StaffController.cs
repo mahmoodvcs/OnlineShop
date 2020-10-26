@@ -257,7 +257,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult GetAllProvinces([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Provinces, request);
+            return ConvertDataToJson(db.Provinces.OrderBy(x => x.Name), request);
         }
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult Province(long id)
@@ -320,7 +320,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult GetAllCities([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Cities.Include(c => c.Province), request);
+            return ConvertDataToJson(db.Cities.OrderBy(x => x.Province.Name).ThenBy(x => x.Name).Include(c => c.Province), request);
         }
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult City(long id)
@@ -338,7 +338,7 @@ namespace MahtaKala.Controllers
                     throw new EntityNotFoundException<City>(id);
                 }
             }
-            ViewBag.Provinces = db.Provinces.ToList();
+            ViewBag.Provinces = db.Provinces.OrderBy(x => x.Name).ToList();
             return View(city);
         }
         [HttpPost]
@@ -346,7 +346,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult City(City model)
         {
-            ViewBag.Provinces = db.Provinces.ToList();
+            ViewBag.Provinces = db.Provinces.OrderBy(x => x.Name).ToList();
             if (ModelState.IsValid)
             {
                 if (model.Id == 0)
@@ -393,7 +393,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult Categories_List()
         {
-            var query = db.Categories.OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).AsQueryable();
+            var query = db.Categories.OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).ThenBy(x => x.Id).AsQueryable();
             return KendoJson(query);
         }
 
@@ -405,7 +405,8 @@ namespace MahtaKala.Controllers
             string disabledFilter,
             string publishedFilter)
         {
-            var query = db.Categories.Include(c => c.Parent).OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).AsQueryable();
+            var query = db.Categories.Include(c => c.Parent).OrderByDescending(c => c.ParentId)
+                .ThenBy(a => a.Order).ThenBy(x => x.Id).AsQueryable();
             if (!string.IsNullOrEmpty(nameFilter))
             {
                 var parts = nameFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
@@ -774,11 +775,11 @@ namespace MahtaKala.Controllers
             string categoryFilter,
             string tagFilter)
         {
-            var query = db.Products.AsQueryable();
+            var query = db.Products.OrderBy(x => x.Id).AsQueryable();
             if (base.User.Type == UserType.Seller)
             {
                 var sid = await GetSellerId();
-                query = db.Products.Where(p => p.SellerId == sid).AsQueryable();
+                query = query.Where(p => p.SellerId == sid).AsQueryable();
             }
             //FlexTextFilter<Product>(query, p => p.Title, nameFilter);
             if (!string.IsNullOrEmpty(nameFilter))
@@ -864,7 +865,8 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<ActionResult> GetCategories(long? id)
         {
-            var data = await db.Categories.Cacheable().Where(a => a.ParentId == id)
+            var data = await db.Categories.OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).ThenBy(x => x.Id)
+                .Cacheable().Where(a => a.ParentId == id)
                 .Select(a => new
                 {
                     a.Id,
@@ -1220,7 +1222,8 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request, int? stateFilter)
         {
-            var query = db.Orders.Where(o => o.State == OrderState.Paid ||
+            var query = db.Orders.OrderByDescending(x => x.CheckOutDate)
+                                    .Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent);
 
@@ -1335,7 +1338,8 @@ namespace MahtaKala.Controllers
         [Authorize(UserType.Admin)]
         public async Task<ActionResult> Sellers()
         {
-            ViewBag.Users = await db.Users.Where(u => u.Type == UserType.Seller).Select(u => new SelectListItem
+            ViewBag.Users = await db.Users.Where(u => u.Type == UserType.Seller).OrderBy(x => x.Id)
+                .Select(u => new SelectListItem
             {
                 Text = u.FirstName + " " + u.LastName + " (" + u.Username + ")",
                 Value = u.Id.ToString()
@@ -1348,7 +1352,7 @@ namespace MahtaKala.Controllers
         [Authorize(UserType.Admin)]
         public ActionResult GetAllSellers([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Sellers.Include(s => s.User), request);
+            return ConvertDataToJson(db.Sellers.OrderBy(x => x.Name).Include(s => s.User), request);
         }
 
         [Authorize(UserType.Admin)]
@@ -1397,7 +1401,7 @@ namespace MahtaKala.Controllers
         [Authorize(UserType.Admin)]
         public ActionResult GetAllTags([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Tags, request);
+            return ConvertDataToJson(db.Tags.OrderBy(x => x.Name), request);
         }
 
         [HttpPost]

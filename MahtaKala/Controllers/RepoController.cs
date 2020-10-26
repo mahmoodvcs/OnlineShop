@@ -21,24 +21,26 @@ namespace MahtaKala.Controllers
 
         public JsonResult GetCategories()
         {
-            var p = db.Categories.Select(a => new { a.Id, a.Title }).ToList();
+            var p = db.Categories.OrderBy(x => x.ParentId).ThenBy(x => x.Order).ThenBy(x => x.Id)
+                .Select(a => new { a.Id, a.Title }).ToList();
             return Json(p);
         }
 
         public JsonResult GetBrands()
         {
-            var p = db.Brands.Select(a => new { a.Id, a.Name }).ToList();
+            var p = db.Brands.OrderBy(x => x.Name).Select(a => new { a.Id, a.Name }).ToList();
             return Json(p);
         }
 
         public JsonResult GetProvince()
         {
-            return Json(db.Provinces.Select(a => new { a.Id, a.Name }).ToList());
+            return Json(db.Provinces.OrderBy(x => x.Name).Select(a => new { a.Id, a.Name }).ToList());
         }
 
         public JsonResult GetCity(int? provinceId, string name)
         {
-            var xp = db.Cities.Select(a => new { a.Id, a.Name, a.ProvinceId }).AsQueryable();
+            var xp = db.Cities.OrderBy(x => x.Province.Name).ThenBy(x => x.Name)
+                .Select(a => new { a.Id, a.Name, a.ProvinceId }).AsQueryable();
             if (provinceId != null)
                 xp = xp.Where(p => p.ProvinceId == provinceId);
             int id;
@@ -51,7 +53,7 @@ namespace MahtaKala.Controllers
 
         public IActionResult Users([DataSourceRequest] DataSourceRequest req)
         {
-            return KendoJson(db.Users.Where(u => u.Type == UserType.Seller).Select(u => new
+            return KendoJson(db.Users.Where(u => u.Type == UserType.Seller).OrderBy(x => x.Id).Select(u => new
             {
                 Name = u.Username,
                 Id = u.Id
@@ -59,7 +61,7 @@ namespace MahtaKala.Controllers
         }
         public IActionResult Sellers()
         {
-            return KendoJson(db.Sellers.Select(u => new
+            return KendoJson(db.Sellers.OrderBy(x => x.Name).Select(u => new
             {
                 u.Id,
                 u.Name
@@ -68,7 +70,7 @@ namespace MahtaKala.Controllers
 
         public IActionResult Suppliers()
         {
-            return KendoJson(db.Suppliers.Select(u => new
+            return KendoJson(db.Suppliers.OrderBy(x => x.Name).Select(u => new
             {
                 u.Id,
                 u.Name
@@ -77,7 +79,7 @@ namespace MahtaKala.Controllers
 
         public async Task<IActionResult> Tags(string text)
         {
-            var tags = db.Tags.AsQueryable();
+            var tags = db.Tags.OrderBy(x => x.Name).AsQueryable();
             if (!string.IsNullOrEmpty(text))
             {
                 tags = tags.Where(a => a.Name.Contains(text));
@@ -86,7 +88,7 @@ namespace MahtaKala.Controllers
         }
         public async Task<IActionResult> BuyLimitations(string text)
         {
-            var data = db.BuyLimitations.AsQueryable();
+            var data = db.BuyLimitations.OrderBy(x => x.Name).ThenBy(x => x.Id).AsQueryable();
             if (!string.IsNullOrEmpty(text))
             {
                 data = data.Where(a => a.Name.Contains(text));

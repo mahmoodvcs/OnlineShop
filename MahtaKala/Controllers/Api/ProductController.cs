@@ -94,7 +94,8 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<CategoryModel>> Category([FromQuery] long? parent)
         {
-            var data = await categoryService.Categories().Where(c => c.ParentId == parent).ToListAsync();
+            var data = await categoryService.Categories().Where(c => c.ParentId == parent)
+                .OrderByDescending(a => a.Disabled ? 0 : 1).ThenBy(a => a.Order).ThenBy(x => x.Id).ToListAsync();
             foreach (var item in data)
             {
                 item.Image = categoryImageService.GetImageUrl(item.Id, item.Image);
