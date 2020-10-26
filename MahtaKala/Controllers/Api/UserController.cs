@@ -302,7 +302,7 @@ namespace MahtaKala.Controllers
             if (address == null)
                 throw new EntityNotFoundException<UserAddress>(id);
             if (address.UserId != UserId)
-                throw new BadRequestException("آدرس متعلق به کاربر جاری نیست");
+                throw new ApiException(400, "آدرس متعلق به کاربر جاری نیست");
 
             if (db.Orders.Any(o => o.AddressId == id))
                 address.Disabled = true;

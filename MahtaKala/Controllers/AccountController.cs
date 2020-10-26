@@ -68,7 +68,7 @@ namespace MahtaKala.Controllers
             var user = await db.Users.Where(u => u.Username == model.UserName).FirstOrDefaultAsync();
             if (user == null || !user.VerifyPassword(model.Password))
             {
-                ModelState.AddModelError(string.Empty, "نام کاربری و یا رمز عبور اشتباه است.");
+                ModelState.AddModelError(string.Empty, Messages.Messages.UserErrors.Login_InvalidUserNameOrPassword);
                 return View(model);
             }
             await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
@@ -133,7 +133,7 @@ namespace MahtaKala.Controllers
             var number = Util.NormalizePhoneNumber(vm.Mobile);
             if (!System.Text.RegularExpressions.Regex.IsMatch(number, @"^(\+98|0)?9\d{9}$"))
             {
-                return Json(new { success = false, msg = "لطفا موبایل را به صورت صحیح وارد نمایید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.PhoneNumber_Incorrect });
             }
             var user = await db.Users.FirstOrDefaultAsync(a => a.MobileNumber == number);
             if (user == null)
@@ -157,7 +157,7 @@ namespace MahtaKala.Controllers
 
             SetSignupAttemp();
 
-            return Json(new { success = true, msg = "ارسال با موفقیت انجام شد", id = userCode.Id });
+            return Json(new { success = true, msg = Messages.Messages.UserMessages.Request_Submit_Successful, id = userCode.Id });
         }
 
         public IActionResult Confirm(int id)
@@ -174,15 +174,15 @@ namespace MahtaKala.Controllers
             var user = await db.Users.FirstOrDefaultAsync(a => a.Id == userCodes.UserId);
             if (user == null)
             {
-                return Json(new { success = false, msg = "درخواست نا معتبر می باشد" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.ConfirmPhoneNumber_UserNotFound });
             }
             if (userCodes.Code != vm.Code)
             {
-                return Json(new { success = false, msg = "کد ارسالی نامعتبر می باشد" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.ConfirmPhoneNumber_InvalidCodeEntered });
             }
             if (userCodes.ExpireTime < DateTime.Now)
             {
-                return Json(new { success = false, msg = "زمان ثبت درخواست به اتمام رسیده است" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.ConfirmPhoneNumber_CodeHasBeenExpired });
             }
 
             var authResp = await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
