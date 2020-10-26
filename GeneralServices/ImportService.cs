@@ -352,6 +352,17 @@ namespace MahtaKala.GeneralServices
                 rowIndex++;
                 if (sheet.Cells.Rows.Count <= rowIndex)
                     return false;
+                bool rowIsEmpty = true;
+                for (int i = 0; i < sheet.Cells.Columns.Count; i++)
+                {
+                    if (sheet.Cells.Rows[rowIndex][i].Value != null && !string.IsNullOrWhiteSpace(sheet.Cells.Rows[rowIndex][i].Value.ToString()))
+                    {
+                        rowIsEmpty = false;
+                        break;
+                    }
+                }
+                if (rowIsEmpty)
+                    return false;
                 current = new ImportRow((Row)sheet.Cells.Rows[rowIndex], ColumnNames);
                 return true;
             }
