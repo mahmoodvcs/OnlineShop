@@ -189,20 +189,16 @@ namespace MahtaKala.Controllers
                 {
                     if (m.Errors.Count > 0)
                         //throw new BadRequestException(m.Errors[0].ErrorMessage);
-                        return StatusCode(400, m.Errors[0].ErrorMessage);
+                        //return UserError(m.Errors[0].ErrorMessage);
+                        throw new ApiException(400, m.Errors[0].ErrorMessage);
                 }
             }
-            try
-            {
-                Util.CheckNationalCode(profileModel.National_Code);
-            }
-            catch (Exception e)
-            {
-                if (e is ApiException)
-                {
-                    return StatusCode(400, e.Message);
-                }
-            }
+            // This function will throw an ApiException if the validation of the NationalCode fails. If the function 
+            // runs without throwing an exception, it means the validation was successful. So, just running this 
+            // method will return the appropriate status code and message to the app, and there would be no need 
+            // to catch and examine the exception thrown; the throwing of the (correct) exception will do the job
+            // of showing the error message to the end-user.
+            Util.CheckNationalCode(profileModel.National_Code);
 
             var user = (User)HttpContext.Items["User"];
             user.FirstName = profileModel.Name;
