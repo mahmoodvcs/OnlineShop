@@ -1016,9 +1016,9 @@ namespace MahtaKala.Controllers
                         return View(product);
                     }
                 }
+                product.Tags?.Clear();
                 if (model.TagIds != null)
                 {
-                    product.Tags?.Clear();
                     product.Tags = new List<ProductTag>();
                     foreach (var tid in model.TagIds)
                     {
@@ -1029,9 +1029,9 @@ namespace MahtaKala.Controllers
                         });
                     }
                 }
+                product.BuyLimitations?.Clear();
                 if (model.LimitationIds != null)
                 {
-                    product.BuyLimitations?.Clear();
                     product.BuyLimitations = new List<ProductBuyLimitation>();
                     foreach (var id in model.LimitationIds)
                     {
