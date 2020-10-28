@@ -26,7 +26,7 @@ namespace MahtaKala.Controllers
     [ApiController()]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiVersion("1")]
-    [ActionFilter.Authorize(UserType.Admin, UserType.Staff, UserType.Seller)]
+    [ActionFilter.Authorize()]
     public class AllProductsController : ApiControllerBase<AllProductsController>
     {
         private readonly string connectionString;
