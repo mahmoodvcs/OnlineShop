@@ -31,7 +31,7 @@ namespace MahtaKala.Infrustructure.Security
                 }),
             new StaffMenuItem("گزارش خریدها", "~/Staff/BuyHistory", "bank",UserType.Delivery, UserType.Staff),
             new StaffMenuItem("اقلام فروخته شده", "~/Staff/Orders/Items", "bank",UserType.Seller, UserType.Staff),
-            new StaffMenuItem("تنظیمات سیستم", "~/Settings", "gear"),
+            new StaffMenuItem("تنظیمات سیستم", "~/Staff/Settings", "gear"),
             new StaffMenuItem("تغییرات نسخه", "~/Staff/ReleaseNotes", "gear"),
         };
 

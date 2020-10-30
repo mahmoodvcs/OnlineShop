@@ -14,6 +14,7 @@ using MahtaKala.SharedServices;
 namespace MahtaKala.Controllers
 {
     [Authorize(UserType.Admin)]
+    [Route("~/staff/settings")]
     public class SettingsController : SiteControllerBase<SettingsController>
     {
         private readonly SettingsService settings;
