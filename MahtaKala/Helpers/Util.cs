@@ -1,10 +1,12 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.Infrustructure.Exceptions;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Mail;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -288,5 +290,15 @@ namespace MahtaKala.Helpers
             }
             return result;
         }
+
+        public static string GetIpAddress(HttpContext context)
+        {
+            if (context.Request.Headers.ContainsKey("X-Forwarded-For"))
+                return context.Request.Headers["X-Forwarded-For"];
+            else
+                return context.Connection.RemoteIpAddress.MapToIPv4().ToString();
+        }
+
+
     }
 }

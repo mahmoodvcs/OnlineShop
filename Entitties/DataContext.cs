@@ -99,6 +99,7 @@ namespace MahtaKala.Entities
         public DbSet<DynamicSetting> DynamicSettings { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<UserSession> UserSessions { get; set; }
         public DbSet<UserActivationCode> UserActivationCodes { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<City> Cities { get; set; }

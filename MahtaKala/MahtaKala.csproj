@@ -92,7 +92,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Views\Settings\Settings.cshtml" />
+    <None Include="Views\Staff\Settings\Settings.cshtml" />
     <None Include="wwwroot\fonts\fontawesome-webfont.svg" />
     <None Include="wwwroot\fonts\fontawesome-webfont.woff2" />
     <None Include="wwwroot\fonts\ionicons.svg" />

@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Services
 {
@@ -28,24 +29,28 @@ namespace MahtaKala.Services
         Task Update(User user);
         void CreateAdminUserIfNotExist();
         void Logout();
+        Task<bool> IsValidToken(User user, string token, string ipAddress);
     }
 
     public class UserService : IUserService
     {
-        private DataContext context;
+        private DataContext db;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly ISMSService smsService;
+        private readonly SettingsService settingsService;
         private readonly string jwtSecret;
 
         public UserService(
             DataContext context,
             IConfiguration configuration,
             IHttpContextAccessor httpContextAccessor,
-            ISMSService smsService)
+            ISMSService smsService,
+            SettingsService settingsService)
         {
-            this.context = context;
+            this.db = context;
             this.httpContextAccessor = httpContextAccessor;
             this.smsService = smsService;
+            this.settingsService = settingsService;
             jwtSecret = configuration.GetSection("AppSettings")["JwtSecret"];
         }
 
@@ -63,8 +68,8 @@ namespace MahtaKala.Services
 
                 // save refresh token
                 user.RefreshTokens.Add(refreshToken);
-                context.Update(user);
-                await context.SaveChangesAsync();
+                db.Update(user);
+                await db.SaveChangesAsync();
             }
             else
             {
@@ -77,12 +82,56 @@ namespace MahtaKala.Services
             return new AuthenticateResponse(user, jwtToken, refreshToken?.Token);
         }
 
+        private async Task AddUserSession(User user, string jwtToken, string ipAddress)
+        {
+            UserSession session = new UserSession()
+            {
+                IPAddress = ipAddress,
+                LastActivityDate = DateTime.Now,
+                LoginDate = DateTime.Now,
+                Token = jwtToken,
+                UserId = user.Id
+            };
+            db.UserSessions.Add(session);
+            await db.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsValidToken(User user, string token, string ipAddress)
+        {
+            var query = db.UserSessions.Where(a => a.UserId == user.Id && a.Token == token);
+            if (settingsService.UserSessionBasedOnIP)
+            {
+                query = query.Where(a => a.IPAddress == ipAddress);
+            }
+            var session = await query.FirstOrDefaultAsync();
+            if (session == null)
+                return false;
+
+            if(session.LastActivityDate < DateTime.Now.AddMinutes(-UserSesionMinutes))
+            {
+                db.Remove(session);
+                await db.SaveChangesAsync();
+                return false;
+            }
+            session.LastActivityDate = DateTime.Now;
+            await db.SaveChangesAsync();
+            return true;
+        }
+
+        private async Task HandleMaxActiveSessions(User user)
+        {
+            if (user.Type == UserType.Customer)
+                return;
+            var max = settingsService.MaxNumberOfActiveUserSessions - 1;
+            await db.UserSessions.Where(a => a.UserId == user.Id).OrderByDescending(a=>a.LastActivityDate).Skip(max).DeleteAsync();
+        }
+
+        private const int UserSesionMinutes = 20;
+
         DateTime GetTokenExpirationTime(User user, UserClient client)
         {
             TimeSpan span;
-            if (user.Type != UserType.Customer)
-                span = TimeSpan.FromDays(1);
-            else if (client == UserClient.WebSite)
+            if (client == UserClient.WebSite)
                 span = TimeSpan.FromDays(365);
             else
                 span =TimeSpan.FromMinutes(15);
@@ -93,6 +142,9 @@ namespace MahtaKala.Services
         {
             DateTime expireTime = GetTokenExpirationTime(user, UserClient.WebSite);
             var jwtToken = GenerateJwtToken(user, UserClient.WebSite);
+
+            await HandleMaxActiveSessions(user);
+            await AddUserSession(user, jwtToken, ipAddress);
 
             //context.RefreshTokens.Add(new Entities.RefreshToken
             //{
@@ -115,13 +167,13 @@ namespace MahtaKala.Services
 
         public async Task<AuthenticateResponse> RefreshToken(string token, string ipAddress)
         {
-            var refreshToken = await context.RefreshTokens.SingleOrDefaultAsync(x => x.Token == token);
+            var refreshToken = await db.RefreshTokens.SingleOrDefaultAsync(x => x.Token == token);
 
             // return null if token is no longer active
             if (refreshToken == null || !refreshToken.IsActive)
                 return null;
 
-            var user = context.Users.Find(refreshToken.UserId);
+            var user = db.Users.Find(refreshToken.UserId);
 
             // replace old refresh token with a new one and save
             refreshToken.Revoked = DateTime.UtcNow;
@@ -129,7 +181,7 @@ namespace MahtaKala.Services
             var newRefreshToken = GenerateRefreshToken(ipAddress);
             refreshToken.ReplacedByToken = newRefreshToken.Token;
             user.RefreshTokens.Add(newRefreshToken);
-            await context.SaveChangesAsync();
+            await db.SaveChangesAsync();
 
             // generate new jwt
             var jwtToken = GenerateJwtToken(user, UserClient.Api);
@@ -139,7 +191,7 @@ namespace MahtaKala.Services
 
         public bool RevokeToken(string token, string ipAddress)
         {
-            var user = context.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == token));
+            var user = db.Users.SingleOrDefault(u => u.RefreshTokens.Any(t => t.Token == token));
 
             // return false if no user found with token
             if (user == null) return false;
@@ -152,15 +204,15 @@ namespace MahtaKala.Services
             // revoke token and save
             refreshToken.Revoked = DateTime.UtcNow;
             refreshToken.RevokedByIp = ipAddress;
-            context.Update(user);
-            context.SaveChanges();
+            db.Update(user);
+            db.SaveChanges();
 
             return true;
         }
 
         public User GetById(long id)
         {
-            return context.Users.Find(id);
+            return db.Users.Find(id);
         }
 
         // helper methods
@@ -202,8 +254,8 @@ namespace MahtaKala.Services
 
         public async Task Update(User user)
         {
-            context.Users.Attach(user);
-            await context.SaveChangesAsync();
+            db.Users.Attach(user);
+            await db.SaveChangesAsync();
         }
 
         public const string AuthCookieName = "MahtaAuth";
@@ -217,12 +269,12 @@ namespace MahtaKala.Services
 
         public void CreateAdminUserIfNotExist()
         {
-            var user = context.Users.FirstOrDefault(a => a.Username.ToLower() == "admin");
+            var user = db.Users.FirstOrDefault(a => a.Username.ToLower() == "admin");
             if (user == null)
             {
                 user = User.Create("admin", "123456", null, UserType.Admin);
-                context.Users.Add(user);
-                context.SaveChanges();
+                db.Users.Add(user);
+                db.SaveChanges();
             }
             else
             {

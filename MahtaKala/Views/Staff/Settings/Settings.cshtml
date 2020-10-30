@@ -1,0 +1,83 @@
+﻿@model List<SettingModel>
+@{
+    Layout = "~/Views/Shared/_Staff.cshtml";
+    ViewBag.Title = "تنظیمات سیستم";
+}
+<div class="main-shop-page pt-30 pb-100 ptb-sm-60">
+    <div class="container">
+
+        <h2>
+            تنظیمات سیستم
+        </h2>
+        <div class="card">
+            <div class="card-body">
+
+                <form class="form-horizontal" method="post">
+
+                    @foreach (var cat in Model.GroupBy(a => a.Category))
+                    {
+                        <div class="card">
+                            <div class="card-header primary p-5">
+                                <h3>@(string.IsNullOrEmpty(cat.Key) ? "عمومی" : cat.Key)</h3>
+                            </div>
+                            <div class="card-body">
+                                @foreach (var s in cat)
+                                {
+
+                                    <div class="form-group">
+                                        <label class="col-md-4 control-label" for="@s.Name">@s.Title</label>
+                                        <div class="col-md-4 controls">
+                                            @switch (s.Type)
+                                            {
+                                                case System.ComponentModel.DataAnnotations.DataType.Text:
+                                                    <input id="@s.Name" name="@s.Name" type="text"
+                                                           placeholder="@s.Title" class="form-control input-md"
+                                                           value="@s.Value" />
+                                                    break;
+                                                case System.ComponentModel.DataAnnotations.DataType.MultilineText:
+                                                    <textarea id="@s.Name" name="@s.Name"
+                                                              placeholder="@s.Title" class="form-control">
+                                                        @s.Value
+                                                    </textarea>
+                                                    break;
+                                                case System.ComponentModel.DataAnnotations.DataType.Custom:
+                                                    switch (s.TypeCode)
+                                                    {
+                                                        case TypeCode.Boolean:
+                                                            <label>
+                                                                <input type="radio" value="True" checked="@((bool)s.Value)" name="@s.Name" />
+                                                                بلی
+                                                            </label>
+                                                            <label>
+                                                                <input type="radio" value="False" name="@s.Name" checked="@(!(bool)s.Value)" />
+                                                                خیر
+                                                            </label>
+                                                            break;
+                                                    }
+                                                    break;
+                                            }
+
+
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <br />
+
+                    <br />
+                    <div class="form-group">
+                        <div class="col-xs-6 col-md-2">
+                            <button type="submit" class="btn btn-success btn-block">ذخیره</button>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+

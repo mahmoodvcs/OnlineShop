@@ -71,7 +71,7 @@ namespace MahtaKala.Controllers
                 ModelState.AddModelError(string.Empty, Messages.Messages.UserErrors.Login_InvalidUserNameOrPassword);
                 return View(model);
             }
-            await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
+            await userService.Authenticate(user, Util.GetIpAddress(HttpContext), UserClient.WebSite);
 
             await orderService.MigrateAnonymousUserShoppingCart(user.Id);
             
@@ -185,7 +185,7 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = Messages.Messages.UserErrors.ConfirmPhoneNumber_CodeHasBeenExpired });
             }
 
-            var authResp = await userService.Authenticate(user, GetIpAddress(), UserClient.WebSite);
+            var authResp = await userService.Authenticate(user, Util.GetIpAddress(HttpContext), UserClient.WebSite);
 
             await orderService.MigrateAnonymousUserShoppingCart(user.Id);
 
@@ -213,14 +213,6 @@ namespace MahtaKala.Controllers
         {
             userService.Logout();
             return RedirectToAction("index", "home");
-        }
-
-        private string GetIpAddress()
-        {
-            if (Request.Headers.ContainsKey("X-Forwarded-For"))
-                return Request.Headers["X-Forwarded-For"];
-            else
-                return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
         }
 
 
