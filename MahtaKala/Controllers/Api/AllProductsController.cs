@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -21,6 +22,7 @@ namespace MahtaKala.Controllers
 		public decimal Discount_Price { get; set; }
 		public string Title { get; set; }
 		public string Thumbnail { get; set; }
+		public int Status { get; set; }
 		public decimal Discount { get; set; }
 	}
     [ApiController()]
@@ -39,7 +41,8 @@ namespace MahtaKala.Controllers
 		[HttpGet]
 		public IActionResult TopProducts(long input)
 		{
-            string query = "SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY category_id) AS r, pc.*, pp.discount_price, p.title, p.thubmnail, (100 - (discount_price/price)*100)::INT AS discount FROM product_category pc JOIN product_prices pp ON pp.product_id = pc.product_id JOIN products p ON p.id = pp.product_id WHERE price <> 0 AND p.status = 0 AND published = 't' ORDER BY discount DESC) x WHERE x.r <= @inputParam;";
+            //string query = "SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY category_id) AS r, pc.*, pp.discount_price, p.title, p.thubmnail, (100 - (discount_price/price)*100)::INT AS discount FROM product_category pc JOIN product_prices pp ON pp.product_id = pc.product_id JOIN products p ON p.id = pp.product_id WHERE price <> 0 AND p.status = 0 AND published = 't' ORDER BY discount DESC) x WHERE x.r <= @inputParam;";
+            var query = "SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY parent_id) AS r, pc.*, pp.discount_price, p.title, p.thubmnail, p.status, (100 - (discount_price/price)*100)::INT AS discount FROM categories c JOIN product_category  pc ON c.id = pc.category_id JOIN product_prices pp ON pp.product_id = pc.product_id JOIN products p ON p.id = pp.product_id WHERE price <> 0 AND p.published = 't' AND c.published = 't' ORDER BY p.status ASC, discount DESC) x WHERE x.r <= @inputParam;";
             //var connectionString = "Host=localhost;Database=mahtakala;Username=postgres;Password=1";
             using (var connection = new Npgsql.NpgsqlConnection(connectionString))
             {
