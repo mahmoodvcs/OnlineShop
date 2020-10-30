@@ -274,6 +274,11 @@ namespace MahtaKala.Controllers
                     throw new AccessDeniedException();
             }
 
+            if (string.IsNullOrWhiteSpace(addressModel.Postal_Code))
+                throw new ApiException(400, Messages.Messages.UserErrors.AddressInput_POBox_Empty);
+            if(addressModel.Postal_Code.Trim().Length != 10)
+                throw new ApiException(400, Messages.Messages.UserErrors.AddressInput_POBox_NotDigits);
+
             address.PostalCode = addressModel.Postal_Code;
             address.CityId = addressModel.City;
             address.Details = addressModel.Details;
