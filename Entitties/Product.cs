@@ -62,6 +62,11 @@ namespace MahtaKala.Entities
         public IList<ProductPaymentParty> PaymentParties { get; set; }
         public IList<ProductBuyLimitation> BuyLimitations { get; set; }
 
+        [Display(Name ="وزن")]
+        public decimal Weight { get; set; }
+        [Display(Name ="حجم")]
+        public decimal Volume { get; set; }
+
         //public bool Deleted { get; set; }
 
 

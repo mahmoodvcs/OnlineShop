@@ -52,6 +52,38 @@ namespace MahtaKala.Models.ProductModels
                 LimitationIds = BuyLimitations.Select(a => a.BuyLimitationId).ToList();
             if (Quantities != null)
                 Quantity = Quantities.FirstOrDefault()?.Quantity ?? 0;
+            Weight = p.Weight;
+            Volume = p.Volume;
+            if (Weight % 1000000 == 0)
+            {
+                Weight /= 1000000;
+                WeightUnit = WeightUnit.Tons;
+            }
+            else if(Weight % 1000 == 0)
+            {
+                Weight /= 1000;
+                WeightUnit = WeightUnit.Kilograms;
+            }
+            else
+            {
+                WeightUnit = WeightUnit.Grams;
+            }
+
+            if (Volume % 1000000 == 0)
+            {
+                Volume /= 1000000;
+                VolumeUnit = VolumeUnit.CubicMeters;
+            }
+            else if (Volume % 1000 == 0)
+            {
+                Volume /= 1000;
+                VolumeUnit = VolumeUnit.Liters;
+            }
+            else
+            {
+                VolumeUnit = VolumeUnit.MilliLiters;
+            }
+
         }
         public decimal RawPrice { get; set; }
 		public decimal FinalPrice 
@@ -96,5 +128,21 @@ namespace MahtaKala.Models.ProductModels
 
 		public List<long> TagIds { get; set; }
         public List<long> LimitationIds { get; set; }
+        public WeightUnit WeightUnit { get; set; }
+        public VolumeUnit VolumeUnit { get; set; }
+    }
+
+    public enum WeightUnit
+    {
+        Grams,
+        Kilograms,
+        Tons
+    }
+
+    public enum VolumeUnit
+    {
+        MilliLiters,
+        Liters,
+        CubicMeters
     }
 }

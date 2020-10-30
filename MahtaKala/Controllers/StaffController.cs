@@ -963,6 +963,8 @@ namespace MahtaKala.Controllers
                 product.BuyQuotaDays = model.BuyQuotaDays;
                 product.SellerId = base.User.Type == UserType.Seller ? await GetSellerId() : model.SellerId;
                 product.Code = model.Code;
+                product.Weight = model.Weight * (decimal)Math.Pow(10, (int)model.WeightUnit * 3);
+                product.Volume = model.Volume * (decimal)Math.Pow(10, (int)model.VolumeUnit * 3);
 
                 var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
                 product.ProductCategories.Clear();
