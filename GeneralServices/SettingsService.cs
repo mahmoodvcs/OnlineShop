@@ -23,10 +23,26 @@ namespace MahtaKala.GeneralServices
         #region Properties
 
         [Display(Name = "هزینه ی ارسال کالا (ریال)")]
-        //[Category("")]
+        [Category("سفارش")]
         public decimal DeliveryPrice
         {
             get { return GetProperty(120000m); }
+            set { SetProperty(value); }
+        }
+
+        [Display(Name = "جلسه ی کاربر حساس به آدرس IP")]
+        [Category("امنیت")]
+        public bool UserSessionBasedOnIP
+        {
+            get { return GetProperty(true); }
+            set { SetProperty(value); }
+        }
+
+        [Display(Name = "حداکثر تعداد جلسات فعال کاربر")]
+        [Category("امنیت")]
+        public int MaxNumberOfActiveUserSessions
+        {
+            get { return GetProperty(1); }
             set { SetProperty(value); }
         }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bogus.DataSets;
 using MahtaKala.Entities;
+using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Payment;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
@@ -144,27 +145,26 @@ namespace MahtaKala.Controllers
             var cartItems = await GetCartItems();
             if (cartItems.Count() == 0)
             {
-                return Json(new { success = false, msg = "سبد خرید خالی می باشد" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.Checkout_CartEmpty });
             }
 
             if (string.IsNullOrWhiteSpace(vm.UserData.FirstName))
-                return Json(new { success = false, msg = "لطفا نام را وارد کنید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.UserFirstNameEmpty });
             if (Util.IsAnyNumberInString(vm.UserData.FirstName))
-                return Json(new { success = false, msg = "لطفا برای نام از حروف استفاده نمایید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.UserFirstNameContainsDigits  });
             if (string.IsNullOrWhiteSpace(vm.UserData.LastName))
-                return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.UserLastNameEmpty });
             if (Util.IsAnyNumberInString(vm.UserData.LastName))
-                return Json(new { success = false, msg = "لطفا برای نام خانوادگی از حروف استفاده نمایید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.UserLastNameContainsDigits });
             if (!string.IsNullOrWhiteSpace(vm.UserData.EmailAddress))
             {
                 if (!Util.IsValidEmailaddress(vm.UserData.EmailAddress))
-                    return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
+                    return Json(new { success = false, msg = Messages.Messages.UserErrors.UserEmailNotCorrect });
             }
             if (string.IsNullOrWhiteSpace(vm.UserData.NationalCode))
             {
-                return Json(new { success = false, msg = "لطفا کد ملی خود را وارد کنید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.NationalCode_Empty });
             }
-            //if (!string.IsNullOrEmpty(vm.UserData.NationalCode))
             else
             {
                 string msg;
@@ -178,10 +178,11 @@ namespace MahtaKala.Controllers
             user.EmailAddress = vm.UserData.EmailAddress;
             user.LastName = vm.UserData.LastName;
             user.NationalCode = vm.UserData.NationalCode;
+            await db.SaveChangesAsync();
 
             if (!vm.UserData.AddressId.HasValue)
             {
-                return Json(new { success = false, msg = "لطفا آدرس را انتخاب نمایید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressNotSelected });
             }
 
             var order = await orderService.Checkout(vm.UserData.AddressId.Value);
@@ -202,18 +203,18 @@ namespace MahtaKala.Controllers
         public IActionResult UserAddress(UserAddress model)
         {
             if (string.IsNullOrWhiteSpace(model.Title))
-                return Json(new { success = false, msg = "لطفا عنوان را وارد نمایید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_Title_Empty });
             if (string.IsNullOrWhiteSpace(model.PostalCode))
-                return Json(new { success = false, msg = "لطفا کد پستی را وارد نمایید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_Empty });
             if (model.PostalCode.Length != 10)
-                return Json(new { success = false, msg = "کد پستی را به صورت 10 رقم وارد نمایید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_NotDigits });
             if (model.CityId==0)
-                return Json(new { success = false, msg = "لطفا شهر را انتخاب نمایید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_City_Empty });
             if (string.IsNullOrWhiteSpace(model.Details))
-                return Json(new { success = false, msg = "لطفا آدرس را وارد نمایید" });
+                return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_AddressText_Empty });
             db.Addresses.Add(model);
             db.SaveChanges();
-            return Json(new { success = true, msg = "ثبت آدرس جدید با موفقیت انجام شد" });
+            return Json(new { success = true, msg = Messages.Messages.UserMessages.AddressInput_Successful });
         }
 
 

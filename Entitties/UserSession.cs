@@ -6,14 +6,17 @@ using System.Text;
 
 namespace MahtaKala.Entities
 {
-    public class Brand
+    public class UserSession
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
-        [Display(Name = "نام")]
-        [StringLength(255)]
-        public string Name { get; set; }
-        public IList<Product> Products { get; set; }
+
+        public long UserId { get; set; }
+        public User User { get; set; }
+        public DateTime LoginDate { get; set; }
+        public DateTime LastActivityDate { get; set; }
+        public string IPAddress { get; set; }
+        public string Token { get; set; }
     }
 }

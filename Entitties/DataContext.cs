@@ -88,6 +88,10 @@ namespace MahtaKala.Entities
             modelBuilder.Entity<OrderItem>().HasOne(a => a.ProductPrice).WithMany(a => a.OrderItems).OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ProductPaymentParty>().HasKey("ProductId", "PaymentPartyId");
+
+            // For products without a coefficient in their price, we set the value of the coefficient to 1, and treat all product prices
+            // as if they have a coefficient (i.e. for every product, the value of Price is equal to RawPrice * PriceCoefficient)
+            modelBuilder.Entity<ProductPrice>().Property(p => p.PriceCoefficient).HasDefaultValue(1);
         }
 
         protected virtual bool UseCaching => true;
@@ -95,6 +99,7 @@ namespace MahtaKala.Entities
         public DbSet<DynamicSetting> DynamicSettings { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<UserSession> UserSessions { get; set; }
         public DbSet<UserActivationCode> UserActivationCodes { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<City> Cities { get; set; }
@@ -103,6 +108,7 @@ namespace MahtaKala.Entities
         public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Brand> Brands { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<ProductQuantity> ProductQuantities { get; set; }
         public DbSet<ProductPrice> ProductPrices { get; set; }
 

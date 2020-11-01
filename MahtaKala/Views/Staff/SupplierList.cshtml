@@ -1,16 +1,16 @@
 ﻿@using Kendo.Mvc.UI
 @{
-    ViewData["Title"] = "برندها";
+    ViewData["Title"] = "تامین کننده";
     Layout = "~/Views/Shared/_Staff.cshtml";
 }
 
 
-@(Html.Kendo().Grid<MahtaKala.Entities.Brand>()
+@(Html.Kendo().Grid<MahtaKala.Entities.Supplier>()
     .Name("Grid")
     .Columns(columns =>
     {
         columns.Bound(p => p.Name);
-        columns.Command(command => command.Custom("Edit").Text("ویرایش").Click("editEntity")).Width(160);
+        columns.Command(command => command.Custom("ویرایش").Click("editEntity")).Width(160);
         columns.Command(command => command.Custom("حذف").Click("RemoveEntity")).Width(90);
     })
     .ToolBar(toolbar =>
@@ -31,14 +31,14 @@
         {
             model.Id(p => p.Id);
         })
-        .Read(read => read.Action("GetAllBrands", "Staff"))
+        .Read(read => read.Action("GetAllSuppliers", "Staff"))
         .PageSize(20)
     )
 )
 
 <script id="GridToolbarTemplate" type="text/x-kendo-template">
     <div class="refreshBtnContainer">
-        <a href="@Url.Content("~/Staff/Brand")" class="k-pager-refresh k-link k-button">
+        <a href="@Url.Content("~/Staff/Supplier")" class="k-pager-refresh k-link k-button">
             <span class="k-icon k-i-add"></span>
             جدید
         </a>
@@ -47,7 +47,7 @@
 
 <script>
     function editEntity(e) {
-        window.location.href = '/Staff/Brand/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
+        window.location.href = '/Staff/Supplier/' + this.dataItem($(e.currentTarget).closest("tr")).Id;
         return false;
     }
 
@@ -66,7 +66,7 @@
             closeOnCancel: true
         }).then(function (result) {
             if (result.value) {
-                post('@Url.Content("~/Staff/Brand_Destroy/")' + id,null, function (data) {
+                    post( '@Url.Content("~/Staff/Supplier_Destroy/")' + id,null, function (data) {
 
                             if (data.success) {
                                 var grid = $("#Grid").data("kendoGrid");

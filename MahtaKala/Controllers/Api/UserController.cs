@@ -189,20 +189,16 @@ namespace MahtaKala.Controllers
                 {
                     if (m.Errors.Count > 0)
                         //throw new BadRequestException(m.Errors[0].ErrorMessage);
-                        return StatusCode(400, m.Errors[0].ErrorMessage);
+                        //return UserError(m.Errors[0].ErrorMessage);
+                        throw new ApiException(400, m.Errors[0].ErrorMessage);
                 }
             }
-            try
-            {
-                Util.CheckNationalCode(profileModel.National_Code);
-            }
-            catch (Exception e)
-            {
-                if (e is ApiException)
-                {
-                    return StatusCode(400, e.Message);
-                }
-            }
+            // This function will throw an ApiException if the validation of the NationalCode fails. If the function 
+            // runs without throwing an exception, it means the validation was successful. So, just running this 
+            // method will return the appropriate status code and message to the app, and there would be no need 
+            // to catch and examine the exception thrown; the throwing of the (correct) exception will do the job
+            // of showing the error message to the end-user.
+            Util.CheckNationalCode(profileModel.National_Code);
 
             var user = (User)HttpContext.Items["User"];
             user.FirstName = profileModel.Name;
@@ -239,7 +235,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<AddressModel>> Address()
         {
-            var list = db.Addresses.Where(a => a.UserId == UserId && !a.Disabled);
+            var list = db.Addresses.Where(a => a.UserId == UserId && !a.Disabled).OrderBy(x => x.Id);
             return await list.Select(a => new AddressModel
             {
                 Id = a.Id,
@@ -278,6 +274,11 @@ namespace MahtaKala.Controllers
                     throw new AccessDeniedException();
             }
 
+            if (string.IsNullOrWhiteSpace(addressModel.Postal_Code))
+                throw new ApiException(400, Messages.Messages.UserErrors.AddressInput_POBox_Empty);
+            if(addressModel.Postal_Code.Trim().Length != 10)
+                throw new ApiException(400, Messages.Messages.UserErrors.AddressInput_POBox_NotDigits);
+
             address.PostalCode = addressModel.Postal_Code;
             address.CityId = addressModel.City;
             address.Details = addressModel.Details;
@@ -302,7 +303,7 @@ namespace MahtaKala.Controllers
             if (address == null)
                 throw new EntityNotFoundException<UserAddress>(id);
             if (address.UserId != UserId)
-                throw new BadRequestException("آدرس متعلق به کاربر جاری نیست");
+                throw new ApiException(400, "آدرس متعلق به کاربر جاری نیست");
 
             if (db.Orders.Any(o => o.AddressId == id))
                 address.Disabled = true;

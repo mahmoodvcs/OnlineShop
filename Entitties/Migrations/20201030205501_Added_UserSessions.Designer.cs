@@ -3,15 +3,17 @@ using System;
 using MahtaKala.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MahtaKala.Entities.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20201030205501_Added_UserSessions")]
+    partial class Added_UserSessions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -569,14 +571,6 @@ namespace MahtaKala.Entities.Migrations
                         .HasColumnName("title")
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
-
-                    b.Property<decimal>("Volume")
-                        .HasColumnName("volume")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("Weight")
-                        .HasColumnName("weight")
-                        .HasColumnType("numeric");
 
                     b.HasKey("Id")
                         .HasName("pk_products");

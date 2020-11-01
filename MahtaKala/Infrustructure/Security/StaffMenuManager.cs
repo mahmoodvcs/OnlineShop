@@ -20,6 +20,7 @@ namespace MahtaKala.Infrustructure.Security
                     new StaffMenuItem("استانها", "~/Staff/ProvinceList", "placeholder-1"),
                     new StaffMenuItem("شهرها", "~/Staff/CityList", "placeholder"),
                     new StaffMenuItem("برندها", "~/Staff/BrandList", "interface-9"),
+                    new StaffMenuItem("تامین کننده ها", "~/Staff/SupplierList", "interface-9"),
                     new StaffMenuItem("تگ ها", "~/Staff/Tags", "coins"),
                     new StaffMenuItem("به روز رسانی قیمت کالاها", "~/Staff/ImportProductPrices", "edit-1"),
                 }),
@@ -30,7 +31,7 @@ namespace MahtaKala.Infrustructure.Security
                 }),
             new StaffMenuItem("گزارش خریدها", "~/Staff/BuyHistory", "bank",UserType.Delivery, UserType.Staff),
             new StaffMenuItem("اقلام فروخته شده", "~/Staff/Orders/Items", "bank",UserType.Seller, UserType.Staff),
-            new StaffMenuItem("تنظیمات سیستم", "~/Settings", "gear"),
+            new StaffMenuItem("تنظیمات سیستم", "~/Staff/Settings", "gear"),
             new StaffMenuItem("تغییرات نسخه", "~/Staff/ReleaseNotes", "gear"),
         };
 

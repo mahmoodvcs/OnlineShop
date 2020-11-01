@@ -10,10 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 using MahtaKala.Models;
 using MahtaKala.GeneralServices;
 using MahtaKala.SharedServices;
+using System.ComponentModel;
 
 namespace MahtaKala.Controllers
 {
     [Authorize(UserType.Admin)]
+    [Route("~/staff/settings")]
     public class SettingsController : SiteControllerBase<SettingsController>
     {
         private readonly SettingsService settings;
@@ -33,10 +35,7 @@ namespace MahtaKala.Controllers
             {
                 foreach (var p in props)
                 {
-                    if (p.PropertyType == typeof(bool))
-                        p.SetValue(settings, Request.Form[p.Name] == "true");
-                    else
-                        p.SetValue(settings, settings.GetValue(Request.Form[p.Name], p.PropertyType));
+                    p.SetValue(settings, settings.GetValue(Request.Form[p.Name], p.PropertyType));
                 }
                 ViewBag.Message = "تغییرات ذخیره شد";
             }
@@ -48,20 +47,37 @@ namespace MahtaKala.Controllers
                 {
                     Name = p.Name,
                     Title = TranslateExtentions.GetTitle(p),
-                    Value = v == null ? "" : v.ToString(),
-                    Type = ((DataTypeAttribute)attrs.FirstOrDefault(a => a.GetType() == typeof(DataTypeAttribute)))?.DataType ?? DataType.Text
+                    Value = v,
+                    Type = ((DataTypeAttribute)attrs.FirstOrDefault(a => a.GetType() == typeof(DataTypeAttribute)))?.DataType ?? GetDataType(p.PropertyType),
+                    TypeCode = Type.GetTypeCode(p.PropertyType),
+                    Category = ((CategoryAttribute)attrs.FirstOrDefault(a => a.GetType() == typeof(CategoryAttribute)))?.Category
                 });
             }
 
-
-            return View("Settings", l);
+            return View("~/Views/Staff/Settings/Settings.cshtml", l);
         }
-        //[HttpPost]
-        //public ActionResult Index()
-        //{
-        //    EDMMI.Entities.DynamicSettings.BlockVelocityMinAlarmValueForEmail = BlockVelocityMinAlarmValue;
-        //    return View("Settings");
-        //}
 
+        private DataType GetDataType(Type propertyType)
+        {
+            switch (Type.GetTypeCode(propertyType))
+            {
+                case TypeCode.Boolean:
+                    return DataType.Custom;
+                case TypeCode.String:
+                    return DataType.Text;
+                case TypeCode.Byte:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Single:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                    return DataType.Text;
+            }
+            return DataType.Text;
+        }
     }
 }

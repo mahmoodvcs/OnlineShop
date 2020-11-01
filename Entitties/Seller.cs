@@ -39,5 +39,7 @@ namespace MahtaKala.Entities
         [StringLength(100)]
         public string Basket { get; set; }
 
+        public IList<Product> Products { get; set; }
+
     }
 }

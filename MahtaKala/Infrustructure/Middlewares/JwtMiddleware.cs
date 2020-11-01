@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Authentication;
+using MahtaKala.Helpers;
+using Microsoft.VisualBasic;
 
 namespace MahtaKala.Middlewares
 {
@@ -30,18 +32,18 @@ namespace MahtaKala.Middlewares
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
             if (token != null)
-                attachUserToContext(context, userService, token);
+                await attachUserToContext(context, userService, token);
             else
             {
                 token = context.Request.Cookies["MahtaAuth"];
                 if (token != null)
-                    attachUserToContext(context, userService, token);
+                    await attachUserToContext(context, userService, token);
             }
 
             await _next(context);
         }
 
-        private void attachUserToContext(HttpContext context, IUserService userService, string token)
+        private async Task attachUserToContext(HttpContext context, IUserService userService, string token)
         {
             try
             {
@@ -58,6 +60,11 @@ namespace MahtaKala.Middlewares
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 var userId = long.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
                 var user = userService.GetById(userId);
+                if(user.Type != Entities.UserType.Customer)
+                {
+                    if (!await userService.IsValidToken(user, token, Util.GetIpAddress(context)))
+                        return;
+                }
 
                 context.Items["User"] = user;
 

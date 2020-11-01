@@ -19,10 +19,14 @@ namespace MahtaKala.Entities.Models
         public string Tags { get; set; }
         [Display(Name = "برند")]
         public string Brand { get; set; }
+        [Display(Name = "تامین کننده")]
+        public string Supplier { get; set; }
         [Display(Name = "قیمت")]
         public decimal? Price { get; set; }
         [Display(Name = "قیمت با تخفیف")]
         public decimal? DiscountPrice { get; set; }
+        [Display(Name = "ضریب قیمت")]
+        public decimal? PriceCoefficient { get; set; }
         [Display(Name = "وضعیت")]
         public string Status { get; set; }
         [Display(Name = "فروشنده")]

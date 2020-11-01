@@ -35,6 +35,7 @@ namespace MahtaKala.Controllers.Staff
             try
             {
                 var num = await importService.ImportProductsInfo(file.OpenReadStream());
+                ShowMessage($"تعداد {num} کالا بروز رسانی شد", Messages.MessageType.Success);
 
                 return Redirect("~/Staff/ProductList");
             }

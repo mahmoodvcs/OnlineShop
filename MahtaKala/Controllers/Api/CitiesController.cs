@@ -25,7 +25,7 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<List<City>> Index(long province_id)
         {
-            return await db.Cities.Where(a => a.ProvinceId == province_id).ToListAsync();
+            return await db.Cities.Where(a => a.ProvinceId == province_id).OrderBy(x => x.Name).ToListAsync();
         }
 
         [HttpPost]

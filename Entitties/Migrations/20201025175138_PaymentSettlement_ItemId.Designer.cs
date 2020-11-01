@@ -3,15 +3,17 @@ using System;
 using MahtaKala.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MahtaKala.Entities.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20201025175138_PaymentSettlement_ItemId")]
+    partial class PaymentSettlement_ItemId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -556,10 +558,6 @@ namespace MahtaKala.Entities.Migrations
                         .HasColumnName("status")
                         .HasColumnType("integer");
 
-                    b.Property<long?>("SupplierId")
-                        .HasColumnName("supplier_id")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Thubmnail")
                         .HasColumnName("thubmnail")
                         .HasColumnType("text");
@@ -570,14 +568,6 @@ namespace MahtaKala.Entities.Migrations
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
-                    b.Property<decimal>("Volume")
-                        .HasColumnName("volume")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("Weight")
-                        .HasColumnName("weight")
-                        .HasColumnType("numeric");
-
                     b.HasKey("Id")
                         .HasName("pk_products");
 
@@ -586,9 +576,6 @@ namespace MahtaKala.Entities.Migrations
 
                     b.HasIndex("SellerId")
                         .HasName("ix_products_seller_id");
-
-                    b.HasIndex("SupplierId")
-                        .HasName("ix_products_supplier_id");
 
                     b.ToTable("products");
                 });
@@ -936,25 +923,6 @@ namespace MahtaKala.Entities.Migrations
                     b.ToTable("shopping_carts");
                 });
 
-            modelBuilder.Entity("MahtaKala.Entities.Supplier", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Name")
-                        .HasColumnName("name")
-                        .HasColumnType("character varying(255)")
-                        .HasMaxLength(255);
-
-                    b.HasKey("Id")
-                        .HasName("pk_suppliers");
-
-                    b.ToTable("suppliers");
-                });
-
             modelBuilder.Entity("MahtaKala.Entities.Tag", b =>
                 {
                     b.Property<long>("Id")
@@ -1129,43 +1097,6 @@ namespace MahtaKala.Entities.Migrations
                     b.ToTable("addresses");
                 });
 
-            modelBuilder.Entity("MahtaKala.Entities.UserSession", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("IPAddress")
-                        .HasColumnName("ip_address")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("LastActivityDate")
-                        .HasColumnName("last_activity_date")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("LoginDate")
-                        .HasColumnName("login_date")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Token")
-                        .HasColumnName("token")
-                        .HasColumnType("text");
-
-                    b.Property<long>("UserId")
-                        .HasColumnName("user_id")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id")
-                        .HasName("pk_user_sessions");
-
-                    b.HasIndex("UserId")
-                        .HasName("ix_user_sessions_user_id");
-
-                    b.ToTable("user_sessions");
-                });
-
             modelBuilder.Entity("MahtaKala.Entities.Wishlist", b =>
                 {
                     b.Property<long>("Id")
@@ -1309,23 +1240,16 @@ namespace MahtaKala.Entities.Migrations
             modelBuilder.Entity("MahtaKala.Entities.Product", b =>
                 {
                     b.HasOne("MahtaKala.Entities.Brand", "Brand")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("BrandId")
                         .HasConstraintName("fk_products_brands_brand_id")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MahtaKala.Entities.Seller", "Seller")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("SellerId")
-                        .HasConstraintName("fk_products_sellers_seller_id")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("MahtaKala.Entities.Supplier", "Supplier")
-                        .WithMany("Products")
-                        .HasForeignKey("SupplierId")
-                        .HasConstraintName("fk_products_suppliers_supplier_id")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasConstraintName("fk_products_sellers_seller_id");
                 });
 
             modelBuilder.Entity("MahtaKala.Entities.ProductBuyLimitation", b =>
@@ -1472,16 +1396,6 @@ namespace MahtaKala.Entities.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .HasConstraintName("fk_addresses_users_user_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MahtaKala.Entities.UserSession", b =>
-                {
-                    b.HasOne("MahtaKala.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("fk_user_sessions_users_user_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -7,21 +7,25 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Transactions;
+using Z.EntityFramework.Plus;
 
 namespace MahtaKala.Services
 {
     public class ProductService
     {
         private readonly DataContext db;
+        private readonly IProductImageService productImageService;
 
-        public ProductService(DataContext db)
+        public ProductService(DataContext db, IProductImageService productImageService)
         {
             this.db = db;
+            this.productImageService = productImageService;
         }
 
         public IQueryable<Product> ProductsView(bool includePrices = false, long[] categoryIds = null)
         {
-            var prods = db.Products.Include(p => p.Quantities).AsQueryable();
+            var prods = db.Products.Include(x => x.Quantities).AsQueryable();
             if (includePrices)
             {
                 prods = prods.Include(a => a.Prices);
@@ -38,7 +42,7 @@ namespace MahtaKala.Services
                         from pt in prodTags.DefaultIfEmpty()
                         join tag in db.Tags on pt.TagId equals tag.Id into tags
                         from tag in tags.DefaultIfEmpty()
-                        orderby product.Status, tag.Order, product.Prices.FirstOrDefault().DiscountPrice
+                        orderby product.Status, tag.Order, product.Prices.FirstOrDefault().RawDiscountedPrice
                         select product;
 			//query = query.Distinct();
 			{

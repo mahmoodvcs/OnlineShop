@@ -3,15 +3,17 @@ using System;
 using MahtaKala.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace MahtaKala.Entities.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20201025203047_Added_Supplier_Table")]
+    partial class Added_Supplier_Table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -570,14 +572,6 @@ namespace MahtaKala.Entities.Migrations
                         .HasColumnType("character varying(255)")
                         .HasMaxLength(255);
 
-                    b.Property<decimal>("Volume")
-                        .HasColumnName("volume")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("Weight")
-                        .HasColumnName("weight")
-                        .HasColumnType("numeric");
-
                     b.HasKey("Id")
                         .HasName("pk_products");
 
@@ -1129,43 +1123,6 @@ namespace MahtaKala.Entities.Migrations
                     b.ToTable("addresses");
                 });
 
-            modelBuilder.Entity("MahtaKala.Entities.UserSession", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("IPAddress")
-                        .HasColumnName("ip_address")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("LastActivityDate")
-                        .HasColumnName("last_activity_date")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("LoginDate")
-                        .HasColumnName("login_date")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Token")
-                        .HasColumnName("token")
-                        .HasColumnType("text");
-
-                    b.Property<long>("UserId")
-                        .HasColumnName("user_id")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id")
-                        .HasName("pk_user_sessions");
-
-                    b.HasIndex("UserId")
-                        .HasName("ix_user_sessions_user_id");
-
-                    b.ToTable("user_sessions");
-                });
-
             modelBuilder.Entity("MahtaKala.Entities.Wishlist", b =>
                 {
                     b.Property<long>("Id")
@@ -1472,16 +1429,6 @@ namespace MahtaKala.Entities.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .HasConstraintName("fk_addresses_users_user_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("MahtaKala.Entities.UserSession", b =>
-                {
-                    b.HasOne("MahtaKala.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .HasConstraintName("fk_user_sessions_users_user_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

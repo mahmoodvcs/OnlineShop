@@ -120,15 +120,16 @@
                     </label>
                     <div class="k-content">
                         @(Html.Kendo().DropDownList()
-                            .Name("BrandId")
-                            .Value(Model.BrandId.ToString())
-                            .DataTextField("name")
-                            .DataValueField("id")
-                            .DataSource(source =>
-                            {
-                                source.Read(read => { read.Action("GetBrands", "Repo"); });
-                            })
-                            .HtmlAttributes(new { style = "width: 100%" })
+							.Name("BrandId")
+							.Value(Model.BrandId.ToString())
+							.DataTextField("name")
+							.DataValueField("id")
+							.DataSource(source =>
+							{
+								source.Read(read => { read.Action("GetBrands", "Repo"); });
+							})
+							.HtmlAttributes(new { style = "width: 100%" })
+							.OptionLabel("...انتخاب برند....")
                         )
                         @Html.ValidationMessageFor(model => model.BrandId, "", new { @class = "text-danger" })
                     </div>
@@ -144,27 +145,60 @@
                 </div>
                 <div class="col-lg-3">
                     <label>
-                        قیمت:
+                        فروشنده:
                     </label>
-                    @Html.TextBoxFor(a => a.Price, new { @class = "form-control", @type = "number" })
-                    @Html.ValidationMessageFor(a => a.Price, "", new { @class = "text-danger" })
+                    <div class="k-content">
+                        @(Html.Kendo().DropDownListFor(m => m.SellerIdNotNull)
+                        .DataTextField("Name")
+                        .DataValueField("Id")
+                        .DataSource(source => source.Read("Sellers", "Repo"))
+                        .HtmlAttributes(new { @class = "form-control" })
+                        .OptionLabel("...انتخاب فروشنده...")
+                        )
+                        @Html.ValidationMessageFor(model => model.SellerIdNotNull, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <label>
+                        تامین کننده:
+                    </label>
+                    <div class="k-content">
+                        @(Html.Kendo().DropDownListFor(m => m.SupplierId)
+                        .DataTextField("Name")
+                        .DataValueField("Id")
+                        .DataSource(source => source.Read("Suppliers", "Repo"))
+                        .HtmlAttributes(new { @class = "form-control" })
+                        .OptionLabel("...انتخاب تامین کننده...")
+                        )
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-3">
+                    <label>
+                        قیمت (واحد):
+                    </label>
+                    @Html.TextBoxFor(a => a.RawPrice, new { @class = "form-control", type = "number", onchange = "UpdatePriceValues()" })
+                    @Html.ValidationMessageFor(a => a.RawPrice, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-lg-3">
+                    <label>
+                        قیمت بعد از تخفیف (واحد):
+                    </label>
+                    @Html.TextBoxFor(a => a.RawDiscountPrice, new { @class = "form-control", type = "number", onchange = "UpdatePriceValues()" })
+                    @Html.ValidationMessageFor(a => a.RawDiscountPrice, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-lg-3">
+                    <lable>
+                        ضریب قیمت:
+                    </lable>
+                    @Html.TextBoxFor(a => a.PriceCoefficient, new { @class = "form-control", type = "number", onchange = "UpdatePriceValues()" })
                 </div>
                 <div class="col-lg-3">
                     <label>
                         قیمت نهایی:
                     </label>
-                    @Html.TextBoxFor(a => a.DiscountPrice, new { @class = "form-control", @type = "number" })
-                    @Html.ValidationMessageFor(a => a.DiscountPrice, "", new { @class = "text-danger" })
-                </div>
-                <div class="col-lg-3">
-                    <label>
-                        فروشنده:
-                    </label>
-                    @(Html.Kendo().DropDownListFor(a=>a.SellerId)
-                        .DataSource(ds=>ds.Read("Sellers","Repo"))
-                        .DataTextField("Name").DataValueField("Id")
-                        .HtmlAttributes(new { @class = "form-control" }))
-                    @Html.ValidationMessageFor(a => a.Code, "", new { @class = "text-danger" })
+                    @Html.TextBoxFor(a => a.FinalDiscountedPrice, new { type = "number", disabled = "disabled", @class = "form-control" })
                 </div>
             </div>
             <div class="form-group row">
@@ -192,7 +226,31 @@
                 </div>
             </div>
             <div class="form-group row">
-                <div class="col-lg-6">
+                <div class="col-lg-3">
+                    <label>وزن:</label>
+                    <div class="row mr-3 ml-3">
+                        @(Html.EditorFor( a=> a.Weight, new { htmlAttributes = new { @class = "form-control col-md-6" } }))
+                        <select class="form-control col-md-6" name="WeightUnit">
+                            <option value="Grams" selected="@(Model.WeightUnit == MahtaKala.Models.ProductModels.WeightUnit.Grams)">گرم</option>
+                            <option value="Kilograms" selected="@(Model.WeightUnit == MahtaKala.Models.ProductModels.WeightUnit.Kilograms)">کیلو گرم</option>
+                            <option value="Tons" selected="@(Model.WeightUnit == MahtaKala.Models.ProductModels.WeightUnit.Tons)">تن</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <label>حجم:</label>
+                    <div class="row mr-3 ml-3">
+                        @(Html.EditorFor( a=> a.Volume, new { htmlAttributes = new { @class = "form-control col-md-6" } }))
+                        <select class="form-control col-md-6" name="VolumeUnit" value="@Model.VolumeUnit">
+                            <option value="MilliLiters" selected="@(Model.VolumeUnit == MahtaKala.Models.ProductModels.VolumeUnit.MilliLiters)">میلی لیتر</option>
+                            <option value="Liters" selected="@(Model.VolumeUnit == MahtaKala.Models.ProductModels.VolumeUnit.Liters)">لیتر</option>
+                            <option value="CubicMeters" selected="@(Model.VolumeUnit == MahtaKala.Models.ProductModels.VolumeUnit.CubicMeters)">متر مکعب</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-lg-3">
                     <label>محدودیت های خرید</label>
                     @(Html.Kendo().MultiSelect().Name("LimitationIds")
                         .DataSource(ds=>ds.Read("BuyLimitations", "Repo"))
@@ -309,11 +367,11 @@
                 </div>
             </div>
             @*<div class="form-group row">
-                <div class="col-lg-12">
-                        <div id="characteristicsGrid"></div>
-                    <input type="hidden" name="characteristicsJson" id="characteristicsJson"/>
-                    </div>
-                </div>*@
+        <div class="col-lg-12">
+                <div id="characteristicsGrid"></div>
+            <input type="hidden" name="characteristicsJson" id="characteristicsJson"/>
+            </div>
+        </div>*@
         </div>
     }
 </div>
@@ -480,6 +538,37 @@
                 //)
             }
         });
+    }
+
+    function UpdatePriceValues() {
+        var modelId = $('#Id').val();
+        var isEdit = true;
+        if (isNaN(modelId) || modelId === 0)
+            isEdit = false;
+        var newPriceCoefficient = $('#PriceCoefficient').val();
+        if (isNaN(newPriceCoefficient) || newPriceCoefficient == undefined || newPriceCoefficient == '') {
+            $('#PriceCoefficient').val(1);
+            newPriceCoefficient = 1;
+        }
+        if (newPriceCoefficient <= 0) {
+            alert('مقدار ضریب قیمت باید بزرگتر یا مساوی 1 باشد.');
+            $('#PriceCoefficient').val(1);
+            newPriceCoefficient = 1;
+        }
+        var rawDiscountedPrice = $('#RawDiscountPrice').val();
+		if (isNaN(rawDiscountedPrice) || rawDiscountedPrice == undefined || rawDiscountedPrice <= 0) {
+			rawDiscountedPrice = $('#RawPrice').val();
+			if (!isEdit && !isNaN(rawDiscountedPrice)) {
+				$('#RawDiscountPrice').val(rawDiscountedPrice);
+			}
+		}
+        if (isNaN(rawDiscountedPrice) || rawDiscountedPrice == undefined || rawDiscountedPrice <= 0) {
+            //alert('لطفاً قیمت کالا را تعیین نمایید.');
+            $('#FinalDiscountedPrice').val(0);
+            return;
+        }
+        $('#FinalDiscountedPrice').val(rawDiscountedPrice * newPriceCoefficient);
+		$('#FinalDiscountedPrice').css('border-color', 'red');
     }
 </script>
 

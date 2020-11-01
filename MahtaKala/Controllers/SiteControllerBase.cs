@@ -46,6 +46,7 @@ namespace MahtaKala.Controllers
         }
 
 
+        [NonAction]
         public void ShowMessage(string msg, MessageType type = MessageType.Info, bool closable = true)
         {
             UIMessage m = new UIMessage()

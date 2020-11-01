@@ -288,23 +288,25 @@ namespace MahtaKala.GeneralServices.Payment
             SettlementRequest request = new SettlementRequest()
             {
                 referenceNumber = new string('0', 12 - payment.PSPReferenceNumber.Length) + payment.PSPReferenceNumber,
-                scatteredSettlement = items.Select(a => new ScatteredSettlementDetails
+                scatteredSettlement = items.GroupBy(a => a.ShabaId).Select(a => new ScatteredSettlementDetails
                 {
-                    settlementIban = a.ShabaId,
-                    shareAmount = (int)a.Amount
+                    settlementIban = a.Key,
+                    shareAmount = (int)a.Sum(c => c.Amount)
                 }).ToList()
             };
 
             var date = DateTime.Now;
             var psItems = items.Select(a => new PaymentSettlement
             {
-                Amount =(int)a.Amount,
+                Amount = (int)a.Amount,
                 Date = date,
                 Name = a.Name,
                 OrderId = payment.OrderId,
                 PaymentId = payment.Id,
                 ShabaId = a.ShabaId,
-                Status = PaymentSettlementStatus.Sent
+                Status = PaymentSettlementStatus.Sent,
+                PayFor = a.PayFor,
+                ItemId = a.ItemId
             }).ToList();
 
             await dataContext.PaymentSettlements.AddRangeAsync(psItems);
@@ -312,11 +314,11 @@ namespace MahtaKala.GeneralServices.Payment
 
             var reqSgtring = "[" + JsonSerializer.Serialize(request) + "]";
             logger.LogInformation(reqSgtring);
-            var resStr = await Post(ShareApiAddress,reqSgtring);
+            var resStr = await Post(ShareApiAddress, reqSgtring);
             logger.LogInformation(resStr);
             var responses = JsonSerializer.Deserialize<SettlementRequestResponse[]>(resStr);
 
-            if(responses.Length != items.Count)
+            if (responses.Length != request.scatteredSettlement.Count)
             {
                 logger.LogError($"Payment share response count mismatch. PaymentId: {payment.Id} - Request: {reqSgtring} \r\n\r\nResponse: {resStr}");
                 throw new Exception($"Payment share response count mismatch. PaymentId: {payment.Id}");
@@ -324,8 +326,11 @@ namespace MahtaKala.GeneralServices.Payment
 
             for (int i = 0; i < responses.Length; i++)
             {
-                psItems[i].Status = responses[i].status == StatusType.Succeed ? PaymentSettlementStatus.Succeeded : PaymentSettlementStatus.Failed;
-                psItems[i].Response = responses[i].message;
+                foreach (var item in psItems.Where(a => a.ShabaId == request.scatteredSettlement[i].settlementIban))
+                {
+                    psItems[i].Status = responses[i].status == StatusType.Succeed ? PaymentSettlementStatus.Succeeded : PaymentSettlementStatus.Failed;
+                    psItems[i].Response = responses[i].message;
+                }
             }
             await dataContext.SaveChangesAsync();
         }

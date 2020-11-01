@@ -64,7 +64,7 @@ namespace MahtaKala.Controllers
 
 		public IActionResult Wishlist()
 		{
-			var lst = db.Wishlists.Include(a => a.Product.Prices).Where(a => a.UserId == UserId).ToList();
+			var lst = db.Wishlists.Include(a => a.Product.Prices).Where(a => a.UserId == UserId).OrderByDescending(x => x.Id).ToList();
 			return View(lst);
 		}
 
@@ -72,7 +72,8 @@ namespace MahtaKala.Controllers
 		{
 			var query = db.Orders.Where(o => (o.State == OrderState.Paid ||
 												o.State == OrderState.Delivered ||
-												o.State == OrderState.Sent) && o.UserId == UserId);
+												o.State == OrderState.Sent) && o.UserId == UserId)
+								.OrderByDescending(x => x.CheckOutDate);
 			var data = await OrderModel.Get(query, productImageService);
 			return View(data);
 		}
@@ -97,17 +98,17 @@ namespace MahtaKala.Controllers
 		public async Task<IActionResult> ProfileEdit(UserDataVM vm)
 		{
 			if (string.IsNullOrEmpty(vm.FirstName))
-				return Json(new { success = false, msg = "لطفا نام را وارد کنید" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.UserFirstNameEmpty });
 			if (Util.IsAnyNumberInString(vm.FirstName))
-				return Json(new { success = false, msg = "لطفا برای نام از حروف استفاده نمایید" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.UserFirstNameContainsDigits });
 			if (string.IsNullOrEmpty(vm.LastName))
-				return Json(new { success = false, msg = "لطفا نام خانوادگی را وارد کنید" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.UserLastNameEmpty });
 			if (Util.IsAnyNumberInString(vm.LastName))
-				return Json(new { success = false, msg = "لطفا برای نام خانوادگی از حروف استفاده نمایید" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.UserLastNameContainsDigits });
 			if (!string.IsNullOrEmpty(vm.EmailAddress))
 			{
 				if (!Util.IsValidEmailaddress(vm.EmailAddress))
-					return Json(new { success = false, msg = "لطفا ایمیل را به صورت صحیح وارد کنید" });
+					return Json(new { success = false, msg = Messages.Messages.UserErrors.UserEmailNotCorrect });
 			}
 
 			if (!string.IsNullOrEmpty(vm.NationalCode))
@@ -143,7 +144,7 @@ namespace MahtaKala.Controllers
 			//else
 			//{
 			await db.SaveChangesAsync();
-			return Json(new { success = true, msg = "ویرایش اطلااعات با موفقیت انجام شد", name = user.FullName() });
+			return Json(new { success = true, msg = Messages.Messages.UserMessages.Edit_Successful, name = user.FullName() });
 			//}
 		}
 
@@ -167,12 +168,12 @@ namespace MahtaKala.Controllers
 			var number = Util.NormalizePhoneNumber(requestModel.Mobile);
 			if (!System.Text.RegularExpressions.Regex.IsMatch(number, @"^(\+98|0)?9\d{9}$"))
 			{
-				return Json(new { success = false, msg = "لطفا موبایل را به صورت صحیح وارد نمایید" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.PhoneNumber_Incorrect });
 			}
 			var user = await db.Users.FirstOrDefaultAsync(x => x.Id == User.Id);
 			if (number.Equals(user.MobileNumber))
 			{
-				return Json(new { success = false, msg = "شماره موبایل تکراری!" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.PhoneNumber_Duplicate });
 			}
 			
 			var code = await smsService.SendOTP(number, Messages.Messages.Signup.LoginOTPMessage);
@@ -187,7 +188,7 @@ namespace MahtaKala.Controllers
 			db.UserActivationCodes.Add(userCode);
 			await db.SaveChangesAsync();
 
-			return Json(new { success = true, msg = "ارسال با موفقیت انجام شد", id = userCode.Id });
+			return Json(new { success = true, msg = Messages.Messages.UserMessages.Request_Submit_Successful, id = userCode.Id });
 		}
 
 		public IActionResult ConfirmPhoneNumber(int id)
@@ -204,15 +205,15 @@ namespace MahtaKala.Controllers
 			var user = await db.Users.FirstOrDefaultAsync(a => a.Id == userCode.UserId);
 			if (user == null)
 			{
-				return Json(new { success = false, msg = "درخواست نا معتبر می باشد" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.ConfirmPhoneNumber_UserNotFound });
 			}
 			if (userCode.Code != verifyRequest.Code)
 			{
-				return Json(new { success = false, msg = "کد ارسالی نامعتبر می باشد" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.ConfirmPhoneNumber_InvalidCodeEntered });
 			}
 			if (userCode.ExpireTime < DateTime.Now)
 			{
-				return Json(new { success = false, msg = "زمان ثبت درخواست به اتمام رسیده است" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.ConfirmPhoneNumber_CodeHasBeenExpired });
 			}
 
 			user.MobileNumber = userCode.AdditionalData;
@@ -244,15 +245,15 @@ namespace MahtaKala.Controllers
 		public async Task<IActionResult> AddressEdit(UserAddress address)
 		{
 			if (string.IsNullOrWhiteSpace(address.Title))
-				return Json(new { success = false, msg = "لطفا عنوان را وارد نمایید" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_Title_Empty });
 			if (string.IsNullOrWhiteSpace(address.PostalCode))
-				return Json(new { success = false, msg = "لطفا کد پستی را وارد نمایید" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_Empty });
 			if (address.PostalCode.Length != 10)
-				return Json(new { success = false, msg = "کد پستی را به صورت 10 رقم وارد نمایید" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_NotDigits });
 			if (address.CityId == 0)
-				return Json(new { success = false, msg = "لطفا شهر را انتخاب نمایید" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_City_Empty });
 			if (string.IsNullOrWhiteSpace(address.Details))
-				return Json(new { success = false, msg = "لطفا آدرس را وارد نمایید" });
+				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_AddressText_Empty });
 			if (address.Id == 0)
 			{
 				db.Addresses.Add(address);
@@ -264,7 +265,7 @@ namespace MahtaKala.Controllers
 			address.UserId = UserId;
 			await db.SaveChangesAsync();
 			ModelState.Clear();
-			return Json(new { success = true, msg = "ویرایش اطلاعات با موفقیت انجام شد." });
+			return Json(new { success = true, msg = Messages.Messages.UserMessages.Edit_Successful });
 			//return RedirectToAction("ProfileEdit");
 		}
 

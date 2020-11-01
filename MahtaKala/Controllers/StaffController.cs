@@ -44,6 +44,7 @@ namespace MahtaKala.Controllers
         private readonly ImportService importService;
         private readonly CategoryService categoryService;
         private readonly IPathService pathService;
+        private readonly ProductService productService;
         private readonly ISMSService smsService;
 
         public StaffController(
@@ -54,7 +55,8 @@ namespace MahtaKala.Controllers
             ICategoryImageService categoryImageService,
             ImportService importService,
             CategoryService categoryService,
-            IPathService pathService
+            IPathService pathService,
+            ProductService productService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
@@ -62,6 +64,7 @@ namespace MahtaKala.Controllers
             this.importService = importService;
             this.categoryService = categoryService;
             this.pathService = pathService;
+            this.productService = productService;
             this.smsService = smsService;
         }
 
@@ -254,7 +257,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult GetAllProvinces([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Provinces, request);
+            return ConvertDataToJson(db.Provinces.OrderBy(x => x.Name), request);
         }
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult Province(long id)
@@ -317,7 +320,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult GetAllCities([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Cities.Include(c => c.Province), request);
+            return ConvertDataToJson(db.Cities.OrderBy(x => x.Province.Name).ThenBy(x => x.Name).Include(c => c.Province), request);
         }
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public ActionResult City(long id)
@@ -335,7 +338,7 @@ namespace MahtaKala.Controllers
                     throw new EntityNotFoundException<City>(id);
                 }
             }
-            ViewBag.Provinces = db.Provinces.ToList();
+            ViewBag.Provinces = db.Provinces.OrderBy(x => x.Name).ToList();
             return View(city);
         }
         [HttpPost]
@@ -343,7 +346,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult City(City model)
         {
-            ViewBag.Provinces = db.Provinces.ToList();
+            ViewBag.Provinces = db.Provinces.OrderBy(x => x.Name).ToList();
             if (ModelState.IsValid)
             {
                 if (model.Id == 0)
@@ -390,7 +393,7 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
         public IActionResult Categories_List()
         {
-            var query = db.Categories.OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).AsQueryable();
+            var query = db.Categories.OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).ThenBy(x => x.Id).AsQueryable();
             return KendoJson(query);
         }
 
@@ -402,7 +405,8 @@ namespace MahtaKala.Controllers
             string disabledFilter,
             string publishedFilter)
         {
-            var query = db.Categories.Include(c => c.Parent).OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).AsQueryable();
+            var query = db.Categories.Include(c => c.Parent).OrderByDescending(c => c.ParentId)
+                .ThenBy(a => a.Order).ThenBy(x => x.Id).AsQueryable();
             if (!string.IsNullOrEmpty(nameFilter))
             {
                 var parts = nameFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
@@ -676,6 +680,83 @@ namespace MahtaKala.Controllers
 
         #endregion
 
+        #region Supplier
+
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public IActionResult SupplierList()
+        {
+            return View();
+        }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public ActionResult GetAllSuppliers([DataSourceRequest] DataSourceRequest request)
+        {
+            return ConvertDataToJson(db.Suppliers, request);
+        }
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public ActionResult Supplier(long id)
+        {
+            Supplier su = null;
+            if (id == 0)
+            {
+                su = new Entities.Supplier();
+            }
+            else
+            {
+                su = db.Suppliers.Where(u => u.Id == id).FirstOrDefault();
+                if (su == null)
+                {
+                    throw new EntityNotFoundException<Brand>(id);
+                }
+            }
+            return View(su);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public IActionResult Supplier(Supplier model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (string.IsNullOrEmpty(model.Name))
+                {
+                    ModelState.AddModelError(nameof(model.Name), "نام را وارد کنید.");
+                    return View(model);
+                }
+                if (model.Id == 0)
+                {
+                    db.Suppliers.Add(model);
+                }
+                else
+                {
+                    if (!db.Suppliers.Any(u => u.Id == model.Id))
+                    {
+                        throw new EntityNotFoundException<Supplier>(model.Id);
+                    }
+                    db.Entry(model).State = EntityState.Modified;
+                }
+                db.SaveChanges();
+                return RedirectToAction("SupplierList");
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Staff, UserType.Admin })]
+        public JsonResult Supplier_Destroy(long id)
+        {
+            if (db.Products.Any(c => c.SupplierId == id))
+            {
+                return Json(new { Success = false, Message = "این تامین کننده در کالا استفاده شده است." });
+            }
+            else
+            {
+                db.Suppliers.Where(c => c.Id == id).Delete();
+                return Json(new { Success = true });
+            }
+        }
+
+        #endregion
+
 
         #region Product
 
@@ -694,11 +775,11 @@ namespace MahtaKala.Controllers
             string categoryFilter,
             string tagFilter)
         {
-            var query = db.Products.AsQueryable();
+            var query = db.Products.OrderBy(x => x.Id).AsQueryable();
             if (base.User.Type == UserType.Seller)
             {
                 var sid = await GetSellerId();
-                query = db.Products.Where(p => p.SellerId == sid).AsQueryable();
+                query = query.Where(p => p.SellerId == sid).AsQueryable();
             }
             //FlexTextFilter<Product>(query, p => p.Title, nameFilter);
             if (!string.IsNullOrEmpty(nameFilter))
@@ -743,6 +824,7 @@ namespace MahtaKala.Controllers
 
         [HttpPost]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
+        [AjaxAction]
         public async Task<JsonResult> Product_Destroy(long id)
         {
             if (base.User.Type == UserType.Seller)
@@ -760,6 +842,7 @@ namespace MahtaKala.Controllers
                     return Json(new { Success = false, Message = "محصول یافت نشد." });
                 }
             }
+
             if (db.OrderItems.Any(a => a.ProductPrice.ProductId == id))
             {
                 var prod = await db.Products.FindAsync(id);
@@ -782,7 +865,8 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<ActionResult> GetCategories(long? id)
         {
-            var data = await db.Categories.Cacheable().Where(a => a.ParentId == id)
+            var data = await db.Categories.OrderByDescending(c => c.ParentId).ThenBy(a => a.Order).ThenBy(x => x.Id)
+                .Cacheable().Where(a => a.ParentId == id)
                 .Select(a => new
                 {
                     a.Id,
@@ -796,13 +880,13 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<IActionResult> Product(long? id)
         {
-            ViewData["Title"] = "درج کالا و خدمات";
             var userType = base.User.Type;
 
             EditProductModel p;
             var sellerId = await GetSellerId();
             if (id.HasValue)
             {
+                ViewData["Title"] = "ویرایش کالا و خدمات";
                 var pr = await db.Products.Include(a => a.Prices)
                     .Include(a => a.ProductCategories).ThenInclude(a => a.Category)
                     .Include(p => p.Tags).Include(a => a.BuyLimitations)
@@ -828,6 +912,7 @@ namespace MahtaKala.Controllers
             }
             else
             {
+                ViewData["Title"] = "درج کالا و خدمات";
                 p = new EditProductModel();
             }
             ViewBag.ImagePathFormat = productImageService.GetImagePathFormatString(p.Id);
@@ -840,17 +925,18 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<IActionResult> Product(EditProductModel model)
         {
-            ViewData["Title"] = "درج کالا و خدمات";
             if (ModelState.IsValid)
             {
                 Product product;
                 if (model.Id == 0)
                 {
+                    ViewData["Title"] = "درج کالا و خدمات";
                     product = new Product();
                     db.Products.Add(product);
                 }
                 else
                 {
+                    ViewData["Title"] = "ویرایش کالا و خدمات";
                     var userType = base.User.Type;
                     product = await db.Products
                         .Include(a => a.ProductCategories)
@@ -868,6 +954,7 @@ namespace MahtaKala.Controllers
                 product.Properties = JsonConvert.DeserializeObject<IList<KeyValuePair<string, string>>>(Request.Form["Properties"]);
                 product.Title = model.Title;
                 product.BrandId = model.BrandId;
+                product.SupplierId = model.SupplierId;
                 product.Description = model.Description;
                 product.Status = model.Status;
                 product.Published = model.Published;
@@ -876,6 +963,8 @@ namespace MahtaKala.Controllers
                 product.BuyQuotaDays = model.BuyQuotaDays;
                 product.SellerId = base.User.Type == UserType.Seller ? await GetSellerId() : model.SellerId;
                 product.Code = model.Code;
+                product.Weight = model.Weight * (decimal)Math.Pow(10, (int)model.WeightUnit * 3);
+                product.Volume = model.Volume * (decimal)Math.Pow(10, (int)model.VolumeUnit * 3);
 
                 var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
                 product.ProductCategories.Clear();
@@ -890,21 +979,25 @@ namespace MahtaKala.Controllers
                 if (product.Prices.Any())
                 {
                     var price = product.Prices.First();
-                    price.Price = model.Price;
-                    price.DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice;
+                    price.RawPrice = model.RawPrice;
+                    price.RawDiscountedPrice = model.RawDiscountPrice == 0 ? model.RawPrice : model.RawDiscountPrice;
+                    price.PriceCoefficient = model.PriceCoefficient.HasValue ? model.PriceCoefficient.Value : 1;
                 }
                 else
                 {
                     product.Prices.Add(new ProductPrice
                     {
-                        Price = model.Price,
-                        DiscountPrice = model.DiscountPrice == 0 ? model.Price : model.DiscountPrice
+                        RawPrice = model.RawPrice,
+                        RawDiscountedPrice = model.RawDiscountPrice == 0 ? model.RawPrice : model.RawDiscountPrice,
+                        PriceCoefficient = model.PriceCoefficient.HasValue ? model.PriceCoefficient.Value : 1
                     });
                 }
                 if (product.Quantities.Any())
                 {
                     var q = product.Quantities.First();
                     q.Quantity = model.Quantity;
+                    if (model.Quantity == 0)
+                        product.Status = ProductStatus.NotAvailable;
                 }
                 else
                 {
@@ -912,6 +1005,8 @@ namespace MahtaKala.Controllers
                     {
                         Quantity = model.Quantity
                     });
+                    if (model.Quantity == 0)
+                        product.Status = ProductStatus.NotAvailable;
                 }
                 foreach (var cat in product.ProductCategories)
                 {
@@ -923,9 +1018,9 @@ namespace MahtaKala.Controllers
                         return View(product);
                     }
                 }
+                product.Tags?.Clear();
                 if (model.TagIds != null)
                 {
-                    product.Tags?.Clear();
                     product.Tags = new List<ProductTag>();
                     foreach (var tid in model.TagIds)
                     {
@@ -936,9 +1031,9 @@ namespace MahtaKala.Controllers
                         });
                     }
                 }
+                product.BuyLimitations?.Clear();
                 if (model.LimitationIds != null)
                 {
-                    product.BuyLimitations?.Clear();
                     product.BuyLimitations = new List<ProductBuyLimitation>();
                     foreach (var id in model.LimitationIds)
                     {
@@ -1129,7 +1224,8 @@ namespace MahtaKala.Controllers
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
         public async Task<IActionResult> GetBuyHistory([DataSourceRequest] DataSourceRequest request, int? stateFilter)
         {
-            var query = db.Orders.Where(o => o.State == OrderState.Paid ||
+            var query = db.Orders.OrderByDescending(x => x.CheckOutDate)
+                                    .Where(o => o.State == OrderState.Paid ||
                                                   o.State == OrderState.Delivered ||
                                                   o.State == OrderState.Sent);
 
@@ -1244,7 +1340,8 @@ namespace MahtaKala.Controllers
         [Authorize(UserType.Admin)]
         public async Task<ActionResult> Sellers()
         {
-            ViewBag.Users = await db.Users.Where(u => u.Type == UserType.Seller).Select(u => new SelectListItem
+            ViewBag.Users = await db.Users.Where(u => u.Type == UserType.Seller).OrderBy(x => x.Id)
+                .Select(u => new SelectListItem
             {
                 Text = u.FirstName + " " + u.LastName + " (" + u.Username + ")",
                 Value = u.Id.ToString()
@@ -1257,7 +1354,7 @@ namespace MahtaKala.Controllers
         [Authorize(UserType.Admin)]
         public ActionResult GetAllSellers([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Sellers.Include(s => s.User), request);
+            return ConvertDataToJson(db.Sellers.OrderBy(x => x.Name).Include(s => s.User), request);
         }
 
         [Authorize(UserType.Admin)]
@@ -1306,7 +1403,7 @@ namespace MahtaKala.Controllers
         [Authorize(UserType.Admin)]
         public ActionResult GetAllTags([DataSourceRequest] DataSourceRequest request)
         {
-            return ConvertDataToJson(db.Tags, request);
+            return ConvertDataToJson(db.Tags.OrderBy(x => x.Name), request);
         }
 
         [HttpPost]
@@ -1325,8 +1422,8 @@ namespace MahtaKala.Controllers
                 {
                     throw new BadRequestException($"درج ناموفق: نام وارد شده تکراری است! تگ با نام \"{tag.Name}\" قبلاً در دیتابیس تعریف شده است.");
                 }
-				else
-				{
+                else
+                {
                     db.Tags.Add(tag);
                     await db.SaveChangesAsync();
                 }
@@ -1344,7 +1441,7 @@ namespace MahtaKala.Controllers
                 tag.Name = Util.TrimString(tag.Name);
                 if (db.Tags.Any(x => !x.Id.Equals(tag.Id) && //Util.TrimString(x.Name).Equals(tag.Name)))
                     x.Name.Trim().Trim(Util.ZeroWidthNonBreakingSpace).Equals(tag.Name)))
-                { 
+                {
                     throw new BadRequestException($"ویرایش ناموفق: نام وارد شده تکراری است! تگ با نام \"{tag.Name}\" قبلاً در دیتابیس تعریف شده است.");
                 }
                 dbTag.Name = tag.Name;

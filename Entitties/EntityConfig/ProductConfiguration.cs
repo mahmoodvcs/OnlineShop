@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,10 @@ namespace MahtaKala.Entities.EntityConfig
             builder.Property(e => e.Properties).HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
                 v => JsonSerializer.Deserialize<IList<KeyValuePair<string, string>>>(v, (JsonSerializerOptions)null));
+
+            builder.HasOne(a => a.Seller).WithMany(a => a.Products).OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(a => a.Brand).WithMany(a => a.Products).OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(a => a.Supplier).WithMany(a => a.Products).OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
