@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using MahtaKala.Entities;
+using MahtaKala.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,10 +34,15 @@ namespace MahtaKala.Controllers
     public class AllProductsController : ApiControllerBase<AllProductsController>
     {
         private readonly string connectionString;
-        public AllProductsController(DataContext context, ILogger<AllProductsController> logger, IConfiguration configuration) : base(context, logger)
+        private readonly IProductImageService _productImageService;
+        public AllProductsController(DataContext context
+            , ILogger<AllProductsController> logger
+            , IConfiguration configuration
+            , IProductImageService productImageService) : base(context, logger)
         {
             //Npgsql
             connectionString = configuration.GetSection("ConnectionStrings")["DataContextPG"];
+            this._productImageService = productImageService;
         }
 
 		[HttpGet]
@@ -48,6 +54,10 @@ namespace MahtaKala.Controllers
             using (var connection = new Npgsql.NpgsqlConnection(connectionString))
             {
                 var resultSet = connection.Query<QueryDto>(query, new { inputParam = input });
+                foreach (var item in resultSet)
+                {
+                    item.Thubmnail = _productImageService.GetImageUrl(item.Product_Id, item.Thubmnail);
+                }
                 return Json(resultSet);
             }
         }
