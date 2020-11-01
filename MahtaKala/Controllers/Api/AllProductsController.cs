@@ -19,6 +19,7 @@ namespace MahtaKala.Controllers
     {
 		public long R { get; set; }
 		public long Product_Id { get; set; }
+		public long id { get; set; }
 		public long Category_Id { get; set; }
 		public decimal Discount_Price { get; set; }
 		public decimal Price { get; set; }
@@ -57,6 +58,7 @@ namespace MahtaKala.Controllers
                 foreach (var item in resultSet)
                 {
                     item.Thubmnail = _productImageService.GetImageUrl(item.Product_Id, item.Thubmnail);
+                    item.id = item.Product_Id;
                 }
                 return Json(resultSet);
             }
