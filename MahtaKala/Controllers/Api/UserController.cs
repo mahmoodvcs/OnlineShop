@@ -9,6 +9,7 @@ using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
 using MahtaKala.Infrustructure.Exceptions;
+using MahtaKala.Infrustructure.Extensions;
 using MahtaKala.Models;
 using MahtaKala.Models.UserModels;
 using MahtaKala.Services;
@@ -276,7 +277,13 @@ namespace MahtaKala.Controllers
 
             if (string.IsNullOrWhiteSpace(addressModel.Postal_Code))
                 throw new ApiException(400, Messages.Messages.UserErrors.AddressInput_POBox_Empty);
-            if(addressModel.Postal_Code.Trim().Length != 10)
+            // The following line (which trims the leading and trailing space characters from the Postal_Code field)
+            //   should come AFTER the "string.IsNullOrWhiteSpace" check, because, in case the Postal_Code field IS null,
+            //   the following line would throw an exception, which isn't good at all!
+            addressModel.Postal_Code = addressModel.Postal_Code.Trim();
+            if (addressModel.Postal_Code.Length != 10)
+                throw new ApiException(400, Messages.Messages.UserErrors.AddressInput_POBox_NotDigits);
+            if (!addressModel.Postal_Code.ContainsOnlyDigits())
                 throw new ApiException(400, Messages.Messages.UserErrors.AddressInput_POBox_NotDigits);
 
             address.PostalCode = addressModel.Postal_Code;

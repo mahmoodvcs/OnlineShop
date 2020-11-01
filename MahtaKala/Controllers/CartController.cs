@@ -9,6 +9,7 @@ using MahtaKala.GeneralServices.Payment;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
 using MahtaKala.Infrustructure.ActionFilter;
+using MahtaKala.Infrustructure.Extensions;
 using MahtaKala.Models;
 using MahtaKala.Models.CustomerModels;
 using MahtaKala.Services;
@@ -206,7 +207,8 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_Title_Empty });
             if (string.IsNullOrWhiteSpace(model.PostalCode))
                 return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_Empty });
-            if (model.PostalCode.Length != 10)
+            model.PostalCode = model.PostalCode.Trim();
+            if (model.PostalCode.Length != 10 || !model.PostalCode.ContainsOnlyDigits())
                 return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_NotDigits });
             if (model.CityId==0)
                 return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_City_Empty });
