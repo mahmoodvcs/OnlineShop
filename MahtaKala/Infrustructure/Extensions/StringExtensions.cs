@@ -22,5 +22,15 @@ namespace MahtaKala.Infrustructure.Extensions
                 }
             return newStr;
         }
+
+        public static bool ContainsOnlyDigits(this string text)
+        {
+            foreach (char ch in text)
+            {
+                if (((int)ch) > ((int)'9') || ((int)ch) < ((int)'0'))
+                    return false;
+            }
+            return true;
+        }
     }
 }

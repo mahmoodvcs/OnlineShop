@@ -82,7 +82,7 @@ namespace MahtaKala.GeneralServices
 
                 var product = await GetProduct(row, row.columnNames, finders);
                 if (product == null)
-                    Throw(rowNum, ServiceMessages.Import.ProductCannotBeFound);
+                    Throw(rowNum, string.Format(ServiceMessages.Import.ProductCannotBeFound, rowNum));
 
                 if (productIds.Contains(product.Id))
                     Throw(rowNum, string.Format(ServiceMessages.Import.DuplicateProduct, product.Title));
@@ -352,8 +352,10 @@ namespace MahtaKala.GeneralServices
                 rowIndex++;
                 if (sheet.Cells.Rows.Count <= rowIndex)
                     return false;
-                bool rowIsEmpty = true;
-                for (int i = 0; i < sheet.Cells.Columns.Count; i++)
+                bool rowIsEmpty = sheet.Cells.Rows[rowIndex].IsBlank;
+                if (rowIsEmpty)
+                    return false;
+                for (int i = 0; i <= sheet.Cells.Rows[rowIndex].LastDataCell.Column; i++)
                 {
                     if (sheet.Cells.Rows[rowIndex][i].Value != null && !string.IsNullOrWhiteSpace(sheet.Cells.Rows[rowIndex][i].Value.ToString()))
                     {

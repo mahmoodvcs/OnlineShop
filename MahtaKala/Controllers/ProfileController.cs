@@ -7,6 +7,7 @@ using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
+using MahtaKala.Infrustructure.Extensions;
 using MahtaKala.Models;
 using MahtaKala.Models.UserModels;
 using MahtaKala.Services;
@@ -248,7 +249,8 @@ namespace MahtaKala.Controllers
 				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_Title_Empty });
 			if (string.IsNullOrWhiteSpace(address.PostalCode))
 				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_Empty });
-			if (address.PostalCode.Length != 10)
+			address.PostalCode = address.PostalCode.Trim();
+			if (address.PostalCode.Length != 10 || !(address.PostalCode.ContainsOnlyDigits()))
 				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_NotDigits });
 			if (address.CityId == 0)
 				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_City_Empty });

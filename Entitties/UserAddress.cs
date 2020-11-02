@@ -26,7 +26,7 @@ namespace MahtaKala.Entities
         [Display(Name = "کد شهر")]
         public City City { get; set; }
         [StringLength(10)]
-        [RegularExpression("[^0-9]", ErrorMessage = "کد پستی را به صورت 10 رقم وارد نمایید")]
+        //[RegularExpression("[^0-9]", ErrorMessage = "کد پستی را به صورت 10 رقم وارد نمایید")]
         public string PostalCode { get; set; }
         public string Details { get; set; }
         public double Lat { get; set; }
