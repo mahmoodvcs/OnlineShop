@@ -23,6 +23,8 @@ namespace MahtaKala.Controllers
 		public long Category_Id { get; set; }
 		public decimal Discount_Price { get; set; }
 		public decimal Price { get; set; }
+		public int Quantity { get; set; }
+		public int status { get; set; }
 		public string Title { get; set; }
 		public string Thubmnail { get; set; }
 		public int Status { get; set; }
@@ -49,8 +51,7 @@ namespace MahtaKala.Controllers
 		[HttpGet]
 		public IActionResult TopProducts(long input)
 		{
-            //string query = "SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY category_id) AS r, pc.*, pp.discount_price, p.title, p.thubmnail, (100 - (discount_price/price)*100)::INT AS discount FROM product_category pc JOIN product_prices pp ON pp.product_id = pc.product_id JOIN products p ON p.id = pp.product_id WHERE price <> 0 AND p.status = 0 AND published = 't' ORDER BY discount DESC) x WHERE x.r <= @inputParam;";
-            var query = "SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY parent_id) AS r, pc.*, pp.discount_price, pp.price, p.title, p.thubmnail, p.status, (100 - (discount_price/price)*100)::INT AS discount FROM categories c JOIN product_category  pc ON c.id = pc.category_id JOIN product_prices pp ON pp.product_id = pc.product_id JOIN products p ON p.id = pp.product_id WHERE price <> 0 AND p.published = 't' AND c.published = 't' ORDER BY p.status ASC, discount DESC) x WHERE x.r <= @inputParam;";
+            var query = "SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY parent_id) AS r, pc.*, p.status, pq.quantity, pp.discount_price, pp.price, pq.quantity, p.title, p.thubmnail, p.status, (100 - (discount_price/price)*100)::INT AS discount FROM categories c JOIN product_category  pc ON c.id = pc.category_id JOIN product_prices pp ON pp.product_id = pc.product_id JOIN products p ON p.id = pp.product_id JOIN product_quantities pq on pq.product_id = p.id   WHERE price <> 0 AND p.published = 't' AND p.status <> 1 AND c.published = 't' ORDER BY p.status ASC, discount DESC) x WHERE x.r <= @inputParam;";
             //var connectionString = "Host=localhost;Database=mahtakala;Username=postgres;Password=1";
             using (var connection = new Npgsql.NpgsqlConnection(connectionString))
             {

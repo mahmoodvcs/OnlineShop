@@ -269,7 +269,8 @@ namespace MahtaKala.Controllers
                     Title = prc.Title,
                     Thubmnail = prc.Thubmnail,
                     Price = prc.Prices.FirstOrDefault().Price,
-                    DiscountPrice = prc.Prices.FirstOrDefault().DiscountPrice
+                    DiscountPrice = prc.Prices.FirstOrDefault().DiscountPrice,
+                    Quantity = prc.Quantities.FirstOrDefault().Quantity
                 }).ToListAsync();
 
             foreach (var p in data)

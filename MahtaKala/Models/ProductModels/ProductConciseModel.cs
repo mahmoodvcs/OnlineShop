@@ -19,5 +19,6 @@ namespace MahtaKala.Models.ProductModels
         public decimal? DiscountPrice { get; set; }
         public ProductStatus Status { get; set; }
         public bool Published { get; internal set; }
-    }
+		public int? Quantity { get; set; }
+	}
 }

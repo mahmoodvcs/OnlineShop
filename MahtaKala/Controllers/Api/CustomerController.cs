@@ -112,6 +112,7 @@ namespace MahtaKala.Controllers.Api
                     Product_Id = a.ProductPrice.ProductId,
                     CharacteristicValues = null,
                     Quantity = a.Count,
+                    ProductInventoryQuantity = a.ProductPrice.Product.Quantities.FirstOrDefault().Quantity,
                     Price = a.ProductPrice.DiscountPrice,
                     Thumbnail = a.ProductPrice.Product.Thubmnail,
                     Title = a.ProductPrice.Product.Title
