@@ -45,11 +45,13 @@ namespace MahtaKala.Services
                         orderby product.Status, tag.Order, product.Prices.FirstOrDefault().RawDiscountedPrice
                         select product;
 			//query = query.Distinct();
-			{
-                //query = query.OrderBy(x => x.Id);
-                var duplicates = query.Where(x => query.Count(y => y.Id == x.Id) > 1).ToList();
-			}
-            if (categoryIds != null && categoryIds.Length > 0)
+			var duplicates = query.Where(x => query.Count(y => y.Id == x.Id) > 1).ToList();
+            if (duplicates.Count() > 0)
+            { 
+                // TODO: This query is supposed to bring out DISTINCT products! If the "duplicates" list is NOT empty,
+                // it means that the bug is still there! This will not stand! Victory shall be ours! Doom has come to this world!
+            }
+			if (categoryIds != null && categoryIds.Length > 0)
             {
                 query = query.Where(p => p.ProductCategories.Any(c => categoryIds.Contains(c.CategoryId)));
             }
