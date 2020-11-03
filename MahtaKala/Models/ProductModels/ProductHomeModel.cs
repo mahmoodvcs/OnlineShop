@@ -18,5 +18,6 @@ namespace MahtaKala.Models.ProductModels
         public string Description { get; set; }
         public ProductStatus Status { get; set; }
         public List<ProductPrice> Prices { get; internal set; }
+        public bool IsFavorite { get; set; }
     }
 }

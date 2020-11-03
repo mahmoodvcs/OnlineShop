@@ -44,7 +44,7 @@
                 <div class="col-lg-7">
                     <div class="thubnail-desc fix">
                         <h3 class="product-header">@Model.Title</h3>
-                        <div class="rating-summary fix mtb-10">
+                        @*<div class="rating-summary fix mtb-10">
                             <div class="rating">
                                 <i class="fa fa-star"></i>
                                 <i class="fa fa-star"></i>
@@ -56,7 +56,7 @@
                                 <a href="#">(0 نظر)</a>
                                 <a href="#">به بررسی خود اضافه کنید</a>
                             </div>
-                        </div>
+                        </div>*@
                         <div class="pro-price mtb-30">
                             <p class="d-flex align-items-center">
                                 @if (productPrice.DiscountPrice > 0 && Model.Status == ProductStatus.Available)
@@ -111,18 +111,28 @@
                                     }
                                     else
                                     {
-                                        <a href="javascript:void(0)" class="disableItem">@(Model.Status == ProductStatus.CommingSoon ? "به زودی" : "ناموجود")</a>
+                                        <a href="javascript:void(0)" class="disableItem">@(MahtaKala.SharedServices.TranslateExtentions.GetTitle(Model.Status))</a>
 
                                     }
 
                                 </div>
                                 <div class="actions-secondary">
                                     <a href="#"  class="compare-to" data-id="@Model.Id" title="" data-original-title="مقایسه"><i class="lnr lnr-sync"></i> <span>مقایسه</span></a>
-                                    <a href="#" class="heart" data-id="@Model.Id" title="" data-original-title="علاقه مندی ها"><i class="lnr lnr-heart"></i> <span>علاقه مندی ها</span></a>
+                                    <a href="#" class="heart" data-id="@Model.Id" title="" data-original-title="علاقه مندی ها">
+                                        @if (Model.IsFavorite)
+                                        {
+                                            <i  style="color:red" class="fas fa-heart"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="far fa-heart"></i>
+                                        }
+                                        <span>علاقه مندی ها</span>
+                                    </a>
                                 </div>
                             </div>
                         </div>
-                        <div class="socila-sharing mt-25">
+                        @*<div class="socila-sharing mt-25">
                             <ul class="d-flex">
                                 <li>اشتراک گذاری :</li>
                                 <li><a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
@@ -130,7 +140,7 @@
                                 <li><a href="#"><i class="fa fa-google-plus-official" aria-hidden="true"></i></a></li>
                                 <li><a href="#"><i class="fa fa-pinterest-p" aria-hidden="true"></i></a></li>
                             </ul>
-                        </div>
+                        </div>*@
                     </div>
                 </div>
             </div>
@@ -143,7 +153,7 @@
             <div class="col-sm-12">
                 <ul class="main-thumb-desc nav tabs-area" role="tablist">
                     <li><a class="active" data-toggle="tab" href="#dtail">توضیحات</a></li>
-                    <li><a data-toggle="tab" href="#review">نظرات کاربران 0</a></li>
+                    @*<li><a data-toggle="tab" href="#review">نظرات کاربران 0</a></li>*@
                 </ul>
                 <!-- Product Thumbnail Tab Content Start -->
                 <div class="tab-content thumb-content border-default">
@@ -153,7 +163,7 @@
 
                         </p>
                     </div>
-                    <div id="review" class="tab-pane fade">
+                    @*<div id="review" class="tab-pane fade">
                         <!-- Reviews Start -->
                         <div class="review border-default universal-padding">
                             <div class="group-title">
@@ -255,6 +265,7 @@
                         </div>
                         <!-- Reviews End -->
                     </div>
+                        *@
                 </div>
                 <!-- Product Thumbnail Tab Content End -->
             </div>

@@ -1,7 +1,11 @@
 ﻿@model Product 
 @{   var productPrice = Model.Prices.First();
-     decimal discount;
-     var isDiscount = Util.IsDiscount(productPrice, out discount);
+    decimal discount;
+    var isDiscount = Util.IsDiscount(productPrice, out discount);
+    if(productPrice.DiscountPrice == 0 && Model.Status == ProductStatus.Available)
+    {
+        Model.Status = ProductStatus.NotAvailable;
+    }
  }
 <div class="single-product">
     <!-- Product Image Start -->
@@ -17,7 +21,7 @@
         <div class="pro-info">
             <h4><a href="@Url.Content("~/home/product/" + Model.Id)">@Model.Title</a></h4>
 
-            @if (productPrice.DiscountPrice > 0 && Model.Status == ProductStatus.Available)
+            @if (Model.Status == ProductStatus.Available)
             {
                 <p style="direction:rtl">
                     <span class="price">
@@ -37,19 +41,19 @@
             else
             {
                 <p style="direction:rtl">
-                    @(Model.Status == ProductStatus.CommingSoon ? "به زودی" : "ناموجود")
+                    @(MahtaKala.SharedServices.TranslateExtentions.GetTitle(Model.Status))
                 </p>
             }
         </div>
         <div class="pro-actions">
             <div class="actions-primary">
-                @if (productPrice.DiscountPrice > 0 && Model.Status == ProductStatus.Available)
+                @if (Model.Status == ProductStatus.Available)
                 {
                     <a href="#" title="اضافه کردن به سبد" class="addtocart" data-id="@productPrice.Id"> اضافه کردن به سبد +</a>
                 }
                 else
                 {
-                    <a href="javascript:void(0)" class="disableItem">@(Model.Status == ProductStatus.CommingSoon ? "به زودی" : "ناموجود")</a>
+                    <a href="javascript:void(0)" class="disableItem">@(MahtaKala.SharedServices.TranslateExtentions.GetTitle(Model.Status))</a>
 
                 }
             </div>

@@ -50,15 +50,15 @@ namespace MahtaKala.Controllers
                 {
                     ViewBag.EditRequired = true;
                 }
-				else
-				{
-                    int usersActiveAddresses = db.Addresses.Count(x => 
-                        x.UserId == User.Id 
-                        && !x.Disabled 
+                else
+                {
+                    int usersActiveAddresses = db.Addresses.Count(x =>
+                        x.UserId == User.Id
+                        && !x.Disabled
                         && !string.IsNullOrWhiteSpace(x.Details));
                     if (usersActiveAddresses == 0)
                         ViewBag.EditRequired = true;
-				}
+                }
             }
             return View();
         }
@@ -77,7 +77,8 @@ namespace MahtaKala.Controllers
                     Title = p.Title,
                     Status = p.Status,
                     Prices = p.Prices.ToList(),
-                    Images = p.ImageList
+                    Images = p.ImageList,
+                    IsFavorite = db.Wishlists.Any(a => a.ProductId == p.Id && a.UserId == UserId)
                 }).FirstOrDefault();
             if (product == null)
                 throw new EntityNotFoundException<Product>(id);
