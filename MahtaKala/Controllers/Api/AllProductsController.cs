@@ -24,7 +24,6 @@ namespace MahtaKala.Controllers
 		public decimal Discount_Price { get; set; }
 		public decimal Price { get; set; }
 		public int Quantity { get; set; }
-		public int status { get; set; }
 		public string Title { get; set; }
 		public string Thubmnail { get; set; }
 		public int Status { get; set; }
