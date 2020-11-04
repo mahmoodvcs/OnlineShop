@@ -249,7 +249,7 @@ namespace MahtaKala.Controllers
 				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_Title_Empty });
 			if (string.IsNullOrWhiteSpace(address.PostalCode))
 				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_Empty });
-			address.PostalCode = address.PostalCode.Trim();
+			address.PostalCode = address.PostalCode.Trim().ToEnglishNumber();
 			if (address.PostalCode.Length != 10 || !(address.PostalCode.ContainsOnlyDigits()))
 				return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_NotDigits });
 			if (address.CityId == 0)

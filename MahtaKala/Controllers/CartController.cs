@@ -207,7 +207,7 @@ namespace MahtaKala.Controllers
                 return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_Title_Empty });
             if (string.IsNullOrWhiteSpace(model.PostalCode))
                 return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_Empty });
-            model.PostalCode = model.PostalCode.Trim();
+            model.PostalCode = model.PostalCode.Trim().ToEnglishNumber();
             if (model.PostalCode.Length != 10 || !model.PostalCode.ContainsOnlyDigits())
                 return Json(new { success = false, msg = Messages.Messages.UserErrors.AddressInput_POBox_NotDigits });
             if (model.CityId==0)
