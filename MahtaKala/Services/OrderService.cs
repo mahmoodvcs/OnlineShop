@@ -242,7 +242,8 @@ namespace MahtaKala.Services
 
         private async Task CheckCartItemValidity(long priceId, int count, ProductInfo prod)
         {
-            if (prod.Quantity.HasValue && prod.Quantity < count)
+            if ((prod.Quantity.HasValue && prod.Quantity < count) ||
+                prod.Status != ProductStatus.Available)
             {
                 throw new ApiException(400, $"محصول '{prod.Title}' موجود نیست");
             }

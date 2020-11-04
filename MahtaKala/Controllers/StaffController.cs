@@ -927,6 +927,12 @@ namespace MahtaKala.Controllers
         {
             if (ModelState.IsValid)
             {
+                if(model.Quantity == 0 && model.Status == ProductStatus.Available)
+                {
+                    ShowMessage("در صورت تعیین موجودی 0، وضعیت نمیتواند موجود باشد.", Messages.MessageType.Error);
+                    return View(model);
+                }
+
                 Product product;
                 if (model.Id == 0)
                 {
