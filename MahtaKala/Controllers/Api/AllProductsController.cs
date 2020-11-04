@@ -50,7 +50,7 @@ namespace MahtaKala.Controllers
 		[HttpGet]
 		public IActionResult TopProducts(long input)
 		{
-            var query = "SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY parent_id) AS r, pc.*, p.status, pq.quantity, pp.discount_price, pp.price, pq.quantity, p.title, p.thubmnail, p.status, (100 - (discount_price/price)*100)::INT AS discount FROM categories c JOIN product_category  pc ON c.id = pc.category_id JOIN product_prices pp ON pp.product_id = pc.product_id JOIN products p ON p.id = pp.product_id JOIN product_quantities pq on pq.product_id = p.id   WHERE price <> 0 AND p.published = 't' AND p.status <> 1 AND c.published = 't' ORDER BY p.status ASC, discount DESC) x WHERE x.r <= @inputParam;";
+            var query = "SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY parent_id) AS r, pc.*, p.status, pq.quantity, pp.discount_price, pp.price, pq.quantity, p.title, p.thubmnail, p.status, (100 - (discount_price/price)*100)::INT AS discount FROM categories c JOIN product_category  pc ON c.id = pc.category_id JOIN product_prices pp ON pp.product_id = pc.product_id JOIN products p ON p.id = pp.product_id JOIN product_quantities pq on pq.product_id = p.id   WHERE price <> 0 AND p.published = 't' AND p.status <> 2 AND c.published = 't' ORDER BY p.status ASC, discount DESC) x WHERE x.r <= @inputParam;";
             //var connectionString = "Host=localhost;Database=mahtakala;Username=postgres;Password=1";
             using (var connection = new Npgsql.NpgsqlConnection(connectionString))
             {
