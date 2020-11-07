@@ -1008,6 +1008,26 @@ namespace MahtaKala.Controllers
                 }
 
                 Product product;
+
+                // The following foreach loop is checking for selected categories to be "child" categories, and
+                // NOT parents, because, it's the policy that only child (or leaf, in graph terminology) categories 
+                // can have products directly connected to them. 
+                // Also, the code block has been moved here, at the top of the action method, because it's a 
+                // validation, and, in case of failure, the whole method should be stoped (and reversed, if neccessary).
+                var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
+                var categories = db.Categories.Where(x => categoryIds.Contains(x.Id)).ToList();
+                foreach (var cat in categoryIds)
+                {
+                    var thisCategoryIsAProudParent = db.Categories.Any(c => c.ParentId == cat);
+                    if (thisCategoryIsAProudParent)
+                    {
+                        //ShowMessage(string.Format("امکان ثبت در دسته بندی {0} وجود ندارد.",
+                        //    categories.First(x => x.Id == cat).Title));
+                        ViewBag.ErrorMessage = string.Format("محصول را نمیتوان در دسته بندی \'{0}\' قرار داد", categories.First(x => x.Id == cat).Title);
+                        return View(model);
+                    }
+                }
+
                 if (model.Id == 0)
                 {
                     ViewData["Title"] = "درج کالا و خدمات";
@@ -1046,11 +1066,10 @@ namespace MahtaKala.Controllers
                 product.Weight = model.Weight * (decimal)Math.Pow(10, (int)model.WeightUnit * 3);
                 product.Volume = model.Volume * (decimal)Math.Pow(10, (int)model.VolumeUnit * 3);
 
-                var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
+                //var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
                 product.ProductCategories.Clear();
                 foreach (var cat in categoryIds)
                 {
-                    var parentCategory = await db.Categories.Where(c => c.ParentId == cat).FirstOrDefaultAsync();
                     product.ProductCategories.Add(new ProductCategory
                     {
                         CategoryId = cat
@@ -1088,16 +1107,16 @@ namespace MahtaKala.Controllers
                     if (model.Quantity == 0)
                         product.Status = ProductStatus.NotAvailable;
                 }
-                foreach (var cat in product.ProductCategories)
-                {
-                    var parentCategory = await db.Categories.Include(c => c.Parent)
-                        .Where(c => c.ParentId == cat.CategoryId).FirstOrDefaultAsync();
-                    if (parentCategory != null)
-                    {
-                        ViewBag.ErrorMessage = string.Format("محصول را نمیتوان در دسته بندی {0} قرار داد", parentCategory.Parent.Title);
-                        return View(product);
-                    }
-                }
+                //foreach (var cat in product.ProductCategories)
+                //{
+                //    var parentCategory = await db.Categories.Include(c => c.Parent)
+                //        .Where(c => c.ParentId == cat.CategoryId).FirstOrDefaultAsync();
+                //    if (parentCategory != null)
+                //    {
+                //        ViewBag.ErrorMessage = string.Format("محصول را نمیتوان در دسته بندی {0} قرار داد", parentCategory.Parent.Title);
+                //        return View(model);
+                //    }
+                //}
                 product.Tags?.Clear();
                 if (model.TagIds != null)
                 {
@@ -1246,6 +1265,13 @@ namespace MahtaKala.Controllers
             if (category == null)
             {
                 return Json(new { Success = false, Message = "دسته بندی مورد نظر یافت نشد." });
+            }
+            var childCategories = await db.Categories.Where(x => x.ParentId.HasValue 
+                    && x.ParentId.Value == category.Id).ToListAsync();
+            if (childCategories != null && childCategories.Count > 0)
+            {
+                return Json(new { Success = false, Message = 
+                    string.Format("اضافه کردن محصول در دسته بندی {0} مجاز نمیباشد.", category.Title) });
             }
             foreach (var product in products)
             {

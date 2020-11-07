@@ -9,6 +9,7 @@ using MahtaKala.ActionFilter;
 using MahtaKala.Controllers.Api;
 using MahtaKala.Entities;
 using MahtaKala.Entities.Extentions;
+using MahtaKala.GeneralServices.Delivery;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models;
@@ -153,29 +154,37 @@ namespace MahtaKala.Controllers
 
         [HttpPost]
         [Authorize(UserType.Admin)]
-        public async Task Product([FromBody] ProductUpdateModel productMode)
+        public async Task Product([FromBody] ProductUpdateModel productModel)
         {
             Product product;
-            if (productMode.Id > 0)
+            if (productModel.Id > 0)
             {
-                product = db.Products.Find(productMode.Id);
+                product = db.Products.Find(productModel.Id);
                 if (product == null)
-                    throw new EntityNotFoundException<Product>(productMode.Id);
+                    throw new EntityNotFoundException<Product>(productModel.Id);
             }
             else
             {
                 product = new Product();
             }
-            product.BrandId = productMode.Brand_Id;
-            product.ProductCategories = productMode.Categories.Select(c => new ProductCategory
+
+            if (db.Categories.Any(x => x.ParentId.HasValue && productModel.Categories.Contains(x.ParentId.Value)))
+            {
+                var childCategoryOfAParentInTheList = db.Categories.Where(x => x.ParentId.HasValue && productModel.Categories.Contains(x.ParentId.Value)).Include(x => x.Parent).First();
+                throw new ApiException(400, 
+                    string.Format("The category {0} is a parent category! Only non-parent (or leaf) categories are allowed to have a connected product!", 
+                    childCategoryOfAParentInTheList.Parent.Title));
+            }
+            product.ProductCategories = productModel.Categories.Select(c => new ProductCategory
             {
                 CategoryId = c
             }).ToList();
-            product.Characteristics = productMode.Characteristics;
-            product.Description = productMode.Description;
-            product.Properties = productMode.Properties.ToList();
-            product.Thubmnail = productMode.Thubmnail;
-            product.Title = productMode.Title;
+            product.BrandId = productModel.Brand_Id;
+            product.Characteristics = productModel.Characteristics;
+            product.Description = productModel.Description;
+            product.Properties = productModel.Properties.ToList();
+            product.Thubmnail = productModel.Thubmnail;
+            product.Title = productModel.Title;
             await db.SaveChangesAsync();
         }
 

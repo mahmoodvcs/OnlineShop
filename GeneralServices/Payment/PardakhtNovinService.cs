@@ -28,10 +28,10 @@ namespace MahtaKala.GeneralServices.Payment
         private readonly DataContext dataContext;
         private readonly ILogger<IBankPaymentService> logger;
 
-        const string merchant_id = "011087633";
+        const string merchant_id = "011048201";
         const string username = merchant_id;
         const string password = "440196094";
-        const string terminalId = "11093486";
+        const string terminalId = "11054155";
         const string subject = "PardakhtNovin";
         const string certificatePassword = "PardakhtNovin@404306";
 
