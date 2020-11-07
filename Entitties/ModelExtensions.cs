@@ -10,7 +10,7 @@ namespace MahtaKala.Entities
     {
         public static IQueryable<ProductModel> Project(this IQueryable<Product> query)
         {
-            return query.Select(a => new ProductModel
+            var result = query.Select(a => new ProductModel
             {
                 Id = a.Id,
                 Brand = a.Brand.Name,
@@ -28,6 +28,7 @@ namespace MahtaKala.Entities
                 Seller = a.Seller.Name,
                 Code = a.Code
             });
+            return result;
         }
 
     }

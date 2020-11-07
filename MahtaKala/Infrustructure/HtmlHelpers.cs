@@ -13,7 +13,8 @@ namespace MahtaKala.Infrustructure
     public static class HtmlHelpers
     {
         public static IHtmlContent EnumCombo<EnumType>(this IHtmlHelper html, string name,
-            EnumType? value = null, bool showEmptyValue = false, bool isGridAdditionalData = false)
+            EnumType? value = null, bool showDefaultValue = false, bool isGridAdditionalData = false,
+            string defaultValueText = "", string defaultValueValue = "")
             where EnumType : struct, IConvertible
         {
             var list = TranslateExtentions.GetTitles<EnumType>().Select(a => new SelectListItem
@@ -23,9 +24,9 @@ namespace MahtaKala.Infrustructure
                 Text = a.Value,
                 Selected = Object.Equals(value, a.Key)
             }).ToList();
-            if (showEmptyValue)
+            if (showDefaultValue)
             {
-                list.Insert(0, new SelectListItem("", ""));
+                list.Insert(0, new SelectListItem(defaultValueText, defaultValueValue));
             }
             return html.DropDownList(name, list, new { @class = "form-control " + (isGridAdditionalData? "additionalData" : ""),  });
         }

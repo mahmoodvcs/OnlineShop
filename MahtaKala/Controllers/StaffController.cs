@@ -18,6 +18,7 @@ using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
 using MahtaKala.Infrustructure.ActionFilter;
 using MahtaKala.Infrustructure.Exceptions;
+using MahtaKala.Infrustructure.Extensions;
 using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
 using MahtaKala.Models.StaffModels;
@@ -773,7 +774,17 @@ namespace MahtaKala.Controllers
             int? stateFilter,
             string nameFilter,
             string categoryFilter,
-            string tagFilter)
+            string tagFilter,
+            string idFilter,
+            string productCodeFilter,
+            string sellerNameFilter,
+            string brandNameFilter,
+            string supplierNameFilter,
+            int? maxPriceFilter,
+            int? minPriceFilter,
+            int? maxDiscountedPriceFilter,
+            int? minDiscountedPriceFilter,
+            string isPublishedFilter)
         {
             var query = db.Products.OrderBy(x => x.Id).AsQueryable();
             if (base.User.Type == UserType.Seller)
@@ -782,7 +793,13 @@ namespace MahtaKala.Controllers
                 query = query.Where(p => p.SellerId == sid).AsQueryable();
             }
             //FlexTextFilter<Product>(query, p => p.Title, nameFilter);
-            if (!string.IsNullOrEmpty(nameFilter))
+            if (!string.IsNullOrWhiteSpace(idFilter))
+            {
+                idFilter = idFilter.Trim();
+                //if (idFilter.ContainsOnlyDigits())
+                query = query.Where(x => x.Id.ToString().Contains(idFilter));
+            }
+            if (!string.IsNullOrWhiteSpace(nameFilter))
             {
                 var parts = nameFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
                 foreach (var s in parts)
@@ -791,8 +808,15 @@ namespace MahtaKala.Controllers
                     query = query.Where(a => a.Title.ToLower().Contains(ss));
                 }
             }
-            if (categoryFilter != null)
+            if (!string.IsNullOrWhiteSpace(productCodeFilter))
             {
+                productCodeFilter = productCodeFilter.Trim();
+                query = query.Where(x => x.Code.Contains(productCodeFilter));
+            }
+            // if (categoryFilter != null)
+            if (!string.IsNullOrWhiteSpace(categoryFilter))
+            {
+                categoryFilter = categoryFilter.Trim();
                 var parts = categoryFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
                 foreach (var s in parts)
                 {
@@ -800,7 +824,8 @@ namespace MahtaKala.Controllers
                     query = query.Where(a => a.ProductCategories.Any(c => c.Category.Title.ToLower().Contains(ss)));
                 }
             }
-            if (tagFilter != null)
+            //if (tagFilter != null)
+            if (!string.IsNullOrWhiteSpace(tagFilter))
             {
                 var parts = tagFilter.Split(" ", StringSplitOptions.RemoveEmptyEntries);
                 foreach (var s in parts)
@@ -812,6 +837,55 @@ namespace MahtaKala.Controllers
             if (stateFilter != null)
             {
                 query = query.Where(a => a.Status == (ProductStatus)stateFilter);
+            }
+            if (base.User.Type == UserType.Admin || base.User.Type == UserType.Staff)
+            {
+                if (!string.IsNullOrWhiteSpace(sellerNameFilter))
+                {
+                    sellerNameFilter = sellerNameFilter.Trim().ToLower();
+                    var sellers = db.Sellers.Where(x => x.Name.ToLower().Contains(sellerNameFilter));
+                    query = query.Where(x => sellers.Any(y => y.Id == x.SellerId));
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(brandNameFilter))
+            {
+                brandNameFilter = brandNameFilter.Trim().ToLower();
+                var brands = db.Brands.Where(x => x.Name.ToLower().Contains(brandNameFilter));
+                query = query.Where(x => brands.Any(y => y.Id == x.BrandId));
+            }
+            if (!string.IsNullOrWhiteSpace(supplierNameFilter))
+            {
+                supplierNameFilter = supplierNameFilter.Trim().ToLower();
+                var suppliers = db.Suppliers.Where(x => x.Name.ToLower().Contains(supplierNameFilter));
+                query = query.Where(x => suppliers.Any(y => y.Id == x.SupplierId));
+            }
+            if (minPriceFilter.HasValue)
+            {
+                query = query.Where(x => x.Prices.First().RawPrice * x.Prices.First().PriceCoefficient
+                                            >= minPriceFilter.Value);
+            }
+            if (maxPriceFilter.HasValue)
+			{
+                query = query.Where(x => x.Prices.First().RawPrice * x.Prices.First().PriceCoefficient 
+                                            <= maxPriceFilter.Value);
+			}
+            if (minDiscountedPriceFilter.HasValue)
+            {
+                query = query.Where(x => x.Prices.First().RawDiscountedPrice * x.Prices.First().PriceCoefficient 
+                                            >= minDiscountedPriceFilter.Value);
+            }
+            if (maxDiscountedPriceFilter.HasValue)
+            {
+                query = query.Where(x => x.Prices.First().RawDiscountedPrice * x.Prices.First().PriceCoefficient
+                                            <= maxDiscountedPriceFilter.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(isPublishedFilter))
+            {
+                bool isPublishedFilterValue;
+                if (bool.TryParse(isPublishedFilter, out isPublishedFilterValue))
+                {
+                    query = query.Where(x => x.Published == isPublishedFilterValue);
+                }                    
             }
             var data = await query.Project().ToListResultAsync(request);
             return KendoJson(data);

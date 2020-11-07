@@ -1,181 +1,313 @@
 ﻿@{
-    ViewData["Title"] = ViewData["Title"];
-    Layout = "~/Views/Shared/_Staff.cshtml";
-    IGridBoundColumn[] gridColumns = null;
+	ViewData["Title"] = ViewData["Title"];
+	Layout = "~/Views/Shared/_Staff.cshtml";
+	IGridBoundColumn[] gridColumns = null;
 }
 <div class="filterPanel">
-    <fieldset>
-        <legend>فیلتر ها:</legend>
-        <div class="row">
-            <div class="col-lg-3">
-                <label>نام:</label>
-                <input type="text" name="nameFilter" class="form-control additionalData" />
-            </div>
-            <div class="col-lg-3">
-                <label>دسته بندی:</label>
-                <input type="text" name="categoryFilter" class="form-control additionalData" />
-            </div>
-            <div class="col-lg-3">
-                <label>تگ:</label>
-                <input type="text" name="tagFilter" class="form-control additionalData" />
-            </div>
-            <div class="col-lg-3">
-                <label>وضعیت</label>
-                @(Html.EnumCombo<ProductStatus>("stateFilter", showEmptyValue: true, isGridAdditionalData: true))
-            </div>
-        </div>
-    </fieldset>
+	<fieldset>
+		@*<legend>فیلتر ها:</legend>*@
+		@(Html.Kendo().PanelBar()
+			.Name("FilterPanelBar")
+			.ExpandMode(PanelBarExpandMode.Multiple)
+			.Items(filterPanel =>
+			{
+				filterPanel.Add().Text("فیلتر ها")/*.HtmlAttributes(new { style = "color: #f5730f" })*/
+					.Expanded(true)
+					.Content(@<div class="row" style=" margin:5px;">
+						<div class="col-lg-3">
+							<label>نام:</label>
+							<input type = "text" name="nameFilter" id="nameFilter" class="form-control additionalData" />
+						</div>
+						<div class="col-lg-3">
+					        <label>دسته بندی:</label>
+						    <input type="text" name="categoryFilter" id="categoryFilter" class="form-control additionalData" />
+		    			</div>
+
+						<div class="col-lg-3">
+							<label>تگ:</label>
+							<input type="text" name="tagFilter" id="tagFilter" class="form-control additionalData" />
+						</div>
+						<div class="col-lg-2">
+							<label>شناسه:</label>
+							<input type="text" name="idFilter" id="idFilter" class="form-control additionalData" />
+						</div>
+						<div class="col-lg-2">
+    					    <label>کد محصول:</label>
+	    				    <input type = "text" name="productCodeFilter" id="productCodeFilter" class="form-control additionalData" />
+		    		    </div>
+						<div class="col-lg-2">
+							<label>وضعیت:</label>
+						@(Html.EnumCombo<ProductStatus>("stateFilter", showDefaultValue: true,
+							isGridAdditionalData: true, defaultValueText: "همه", defaultValueValue: "all"))
+		    			</div>
+						<div class="col-lg-2">
+							<label>فروشنده:</label>
+							<input type="text" name="sellerNameFilter" id="sellerNameFilter" class="form-control additionalData" />
+			    	    </div>
+						<div class="col-lg-2">
+							<label>برند:</label>
+							<input type="text" name="brandNameFilter" id="brandNameFilter" class="form-control additionalData" />
+						</div>
+						<div class="col-lg-2">
+							<label>تأمین کننده:</label>
+							<input type="text" name="supplierNameFilter" id="supplierNameFilter" class="form-control additionalData" />
+						</div>
+						<div class="col-lg-2">
+							<label>منتشر شده:</label>
+							<select id="isPublishedFilter" name="isPublishedFilter" class="form-control additionalData">
+								<option value="all" selected>همه</option>
+								<option value="true">منتشر شده</option>
+								<option value="false">منتشر نشده</option>
+							</select>
+						</div>
+
+						<div class="col-lg-2">
+							<label>بیشینه قیمت:</label>
+							<input type="number" name="maxPriceFilter" id="maxPriceFilter" class="form-control additionalData" />
+						</div>
+
+						<div class="col-lg-2">
+							<label>کمینه قیمت:</label>
+							<input type = "number" name="minPriceFilter" id="minPriceFilter" class="form-control additionalData" />
+						</div>
+						<div class="col-lg-2">
+							<label>بیشینه قیمت با تخفیف:</label>
+							<input type = "number" name="maxDiscountedPriceFilter" id="maxDiscountedPriceFilter" class="form-control additionalData" />
+						</div>
+						<div class="col-lg-2">
+							<label>کمینه قیمت با تخفیف:</label>
+							<input type = "number" name="minDiscountedPriceFilter" id="minDiscountedPriceFilter" class="form-control additionalData" />
+						</div>
+					</div>);
+			}))
+		<div class="row">
+			@*شناسه
+				//نام
+				کد محصول
+				//دسته بندی
+				// تگ
+				فروشنده
+				برند
+				تأمین کننده
+				قیمت
+				قیمت با تخفیف
+				//وضعیت
+				منتشر شده*@
+			@*<div class="col-lg-3">
+					<label>شناسه:</label>
+					<input type="text" name="idFilter" id="idFilter" class="form-control additionalData" />
+				</div>*@
+			@*<div class="col-lg-3">
+					<label>نام:</label>
+					<input type="text" name="nameFilter" id="nameFilter" class="form-control additionalData" />
+				</div>*@
+			@*<div class="col-lg-3">
+					<label>کد محصول:</label>
+					<input type="text" name="productCodeFilter" id="productCodeFilter" class="form-control additionalData" />
+				</div>*@
+			@*<div class="col-lg-3">
+					<label>دسته بندی:</label>
+					<input type="text" name="categoryFilter" id="categoryFilter" class="form-control additionalData" />
+				</div>*@
+
+			@*<div class="col-lg-3">
+					<label>بیشینه قیمت:</label>
+					<input type="number" name="maxPriceFilter" id="maxPriceFilter" class="form-control additionalData" />
+				</div>*@
+			@*<div class="col-lg-3">
+					<label>کمینه قیمت:</label>
+					<input type="number" name="minPriceFilter" id="minPriceFilter" class="form-control additionalData" />
+				</div>
+				<div class="col-lg-3">
+					<label>بیشینه قیمت با تخفیف:</label>
+					<input type="number" name="maxDiscountedPriceFilter" id="maxDiscountedPriceFilter" class="form-control additionalData" />
+				</div>
+				<div class="col-lg-3">
+					<label>کمینه قیمت با تخفیف:</label>
+					<input type="number" name="minDiscountedPriceFilter" id="minDiscountedPriceFilter" class="form-control additionalData" />
+				</div>*@
+
+			@*<div class="col-lg-3">
+					<label>تگ:</label>
+					<input type="text" name="tagFilter" id="tagFilter" class="form-control additionalData" />
+				</div>
+				<div class="col-lg-3">
+					<label>وضعیت:</label>
+					@(Html.EnumCombo<ProductStatus>("stateFilter", showDefaultValue: true, isGridAdditionalData: true))
+				</div>*@
+			@*<div class="col-lg-3">
+					<label>فروشنده:</label>
+					<input type="text" name="sellerNameFilter" id="sellerNameFilter" class="form-control additionalData" />
+				</div>*@
+			@*<div class="col-lg-3">
+					<label>برند:</label>
+					<input type="text" name="brandNameFilter" id="brandNameFilter" class="form-control additionalData" />
+				</div>
+				<div class="col-lg-3">
+					<label>تأمین کننده:</label>
+					<input type="text" name="supplierNameFilter" id="supplierNameFilter" class="form-control additionalData" />
+				</div>
+				<div class="col-lg-3">
+					<label>منتشر شده:</label>
+					<select id="isPublishedFilter" name="isPublishedFilter" class="form-control additionalData">
+						<option value="all" selected>همه</option>
+						<option value="true">منتشر شده</option>
+						<option value="false">منتشر نشده</option>
+					</select>
+				</div>*@
+		</div>
+	</fieldset>
 
 </div>
 
 
 @(Html.Kendo().Grid<MahtaKala.Entities.Models.ProductListModel>().Name("grid").Columns(columns =>
 {
-    columns.Select().Width(50);
-    columns.Bound(p => p.Id).Title("شناسه");
-    columns.Bound(p => p.Id).Title(" ").ClientTemplate("<div style='width:50px; height:50px;'><img style='width: 100%;' src='#=Thubmnail#'></div>").Filterable(false).Sortable(false);
-    columns.Bound(p => p.Title).Title("نام");
-    columns.Bound(p => p.Code).Title("کد محصول");
-    columns.Bound(p => p.Categories).Title("دسته بندی").Filterable(false).Sortable(false);
-    columns.Bound(p => p.Tags).Title("تگ ها").Filterable(false).Sortable(false);
-    columns.Bound(p => p.Seller).Title("فروشنده");
-    columns.Bound(p => p.Brand).Title("برند");
-    columns.Bound(p => p.Supplier).Title("تامین کننده");
-    columns.Bound(p => p.Price).Format("{0:n0}").Title("قیمت");
-    columns.Bound(p => p.DiscountPrice).Format("{0:n0}").Title("قیمت با تخفیف");
-    columns.Bound(p => p.Quantity).Title("موجودی").Format("{0:n0}").Filterable(false);
-    columns.Bound(p => p.Status).Title("وضعیت").Filterable(false);
-    columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#").Title("منتشر شده");
-    columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
-    columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
+	columns.Select().Width(50);
+	columns.Bound(p => p.Id).Title("شناسه");//.Filterable(false);
+	columns.Bound(p => p.Id).Title(" ").ClientTemplate("<div style='width:50px; height:50px;'><img style='width: 100%;' src='#=Thubmnail#'></div>").Sortable(false);//.Filterable(false);
+	columns.Bound(p => p.Title).Title("نام");//.Filterable(false);
+	columns.Bound(p => p.Code).Title("کد محصول");//.Filterable(false);
+	columns.Bound(p => p.Categories).Title("دسته بندی");//.Filterable(false).Sortable(false);
+	columns.Bound(p => p.Tags).Title("تگ ها");//.Filterable(false).Sortable(false);
+	columns.Bound(p => p.Seller).Title("فروشنده");//.Filterable(false);
+	columns.Bound(p => p.Brand).Title("برند");//.Filterable(false);
+	columns.Bound(p => p.Supplier).Title("تامین کننده");//.Filterable(false);
+	columns.Bound(p => p.Price).Format("{0:n0}").Title("قیمت");//.Filterable(false);
+	columns.Bound(p => p.DiscountPrice).Format("{0:n0}").Title("قیمت با تخفیف");//.Filterable(false);
+	columns.Bound(p => p.Quantity).Title("موجودی").Format("{0:n0}");//.Filterable(false);
+	columns.Bound(p => p.Status).Title("وضعیت");//.Filterable(false);
+	columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#").Title("منتشر شده");
+	columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
+	columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
 
-    gridColumns = columns.ColumnsContainer.Columns.OfType<IGridBoundColumn>().ToArray();
+	gridColumns = columns.ColumnsContainer.Columns.OfType<IGridBoundColumn>().ToArray();
 
 })
-    .ToolBar(toolbar =>
-    {
-        toolbar.ClientTemplateId("GridToolbarTemplate");
-    })
-    .Pageable(pageable => pageable
-        .Refresh(true)
-        .PageSizes(true)
-        .PageSizes(new int[] { 5, 10, 20, 50 })
-        .ButtonCount(5))
-    .Filterable()
-    .Sortable()
-    .Selectable(c=>c.Mode(GridSelectionMode.Multiple))
-    .Events(ev => ev.Change("onChange"))
-    .PersistSelection()
-    .DataSource(dataSource => dataSource
-        .Ajax()
-        .PageSize(50)
-        .Model(model =>
-        {
-            model.Id(p => p.Id);
+	.ToolBar(toolbar =>
+	{
+		toolbar.ClientTemplateId("GridToolbarTemplate");
+	})
+	.Pageable(pageable => pageable
+		.Refresh(true)
+		.PageSizes(true)
+		.PageSizes(new int[] { 5, 10, 20, 50 })
+		.ButtonCount(5))
+	//.Filterable()
+	.Sortable()
+	.Selectable(c=>c.Mode(GridSelectionMode.Multiple))
+	.Events(ev => ev.Change("onChange"))
+	.PersistSelection()
+	.DataSource(dataSource => dataSource
+		.Ajax()
+		.PageSize(50)
+		.Model(model =>
+		{
+			model.Id(p => p.Id);
 
-        })
-        .Read(read => read.Action("Product_Read", "Staff").Data("getAdditionalData"))
-        .Sort(s=>s.Add(a=>a.Id))
-    ).Selectable()
-     .Excel(excel => excel.FileName("Products.xlsx"))
-         .Events(e => e.ExcelExport("onExcelExport"))
+		})
+		.Read(read => read.Action("Product_Read", "Staff").Data("getAdditionalData"))
+		.Sort(s=>s.Add(a=>a.Id))
+	).Selectable()
+	 .Excel(excel => excel.FileName("Products.xlsx"))
+		 .Events(e => e.ExcelExport("onExcelExport"))
 
 )
 <script id="GridToolbarTemplate" type="text/x-kendo-template">
-    <div class="refreshBtnContainer">
-        <a href="##" onclick="window.open('@Url.Content("~/Staff/Product")'); return false;" class="k-pager-refresh k-link k-button">
-            <span class="k-icon k-i-add"></span>
-            جدید
-        </a>
-        <div class="btn-group">
-            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                عملیات گروهی
-            </button>
-            <div class="dropdown-menu">
-                <a class="dropdown-item" href="##" onclick="moveToCategory()">انتقال به دسته</a>
-                <a class="dropdown-item" href="##" onclick="assignTag()">تخصیص تگ</a>
-            </div>
-        </div>
-        <div class="btn-group" id="columnSelection">
-            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                انتخاب ستون ها
-            </button>
-            <div class="dropdown-menu">
-                @foreach (var c in gridColumns)
-                {
-                    <label>
-                        <input type="checkbox" class="gridColumnCheckbox" name="gridColumns" value="@c.Member" checked="@(!c.Hidden)" />
-                        @Html.Raw(c.Title)
-                    </label>
-                    <br />
-                }
-            </div>
-        </div>
-        <button type="button" class="btn btn-primary" onclick="exportToExcel(false);" @*data-toggle="modal" data-target="#exportModal"*@>
-            <i class="fa fa-export"></i>
-            خروجی اکسل (صفحه جاری)
-        </button>
-        <button type="button" class="btn btn-primary" onclick="exportToExcel(true);">
-            <i class="fa fa-export"></i>
-            خروجی اکسل (همه صفحات)
-        </button>
-        <button type="button" class="btn btn-warning" onclick="showIpmortDialog()">
-            <i class="fa fa-import"></i>
-            دریافت اطلاعات از فایل اکسل
-        </button>
-    </div>
+	<div class="refreshBtnContainer">
+		<a href="##" onclick="window.open('@Url.Content("~/Staff/Product")'); return false;" class="k-pager-refresh k-link k-button">
+			<span class="k-icon k-i-add"></span>
+			جدید
+		</a>
+		<div class="btn-group">
+			<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				عملیات گروهی
+			</button>
+			<div class="dropdown-menu">
+				<a class="dropdown-item" href="##" onclick="moveToCategory()">انتقال به دسته</a>
+				<a class="dropdown-item" href="##" onclick="assignTag()">تخصیص تگ</a>
+			</div>
+		</div>
+		<div class="btn-group" id="columnSelection">
+			<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				انتخاب ستون ها
+			</button>
+			<div class="dropdown-menu">
+				@foreach (var c in gridColumns)
+				{
+					<label>
+						<input type="checkbox" class="gridColumnCheckbox" name="gridColumns" value="@c.Member" checked="@(!c.Hidden)" />
+						@Html.Raw(c.Title)
+					</label>
+					<br />
+				}
+			</div>
+		</div>
+		<button type="button" class="btn btn-primary" onclick="exportToExcel(false);" @*data-toggle="modal" data-target="#exportModal"*@>
+			<i class="fa fa-export"></i>
+			خروجی اکسل (صفحه جاری)
+		</button>
+		<button type="button" class="btn btn-primary" onclick="exportToExcel(true);">
+			<i class="fa fa-export"></i>
+			خروجی اکسل (همه صفحات)
+		</button>
+		<button type="button" class="btn btn-warning" onclick="showIpmortDialog()">
+			<i class="fa fa-import"></i>
+			دریافت اطلاعات از فایل اکسل
+		</button>
+	</div>
 </script>
 
 
 <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <form action="@Url.Content("~/Staff/Products/Import")" method="post" enctype="multipart/form-data">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">ویرایش اطلاعات با استفاده از فایل اکسل</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="card">
-                        <div class="card-body">
-                            <p>کالا با استفاده از یکی از مشخصات زیر پیدا میشود:</p>
-                            <ul>
-                                <li>شناسه</li>
-                                <li>کد</li>
-                                <li>نام</li>
-                            </ul>
-                            <p>موارد زیر در کالا ها به روز رسانی میشوند:</p>
-                            <ul>
-                                <li>قیمت</li>
-                                <li>قیمت با تخفیف</li>
-                                <li>وضعیت</li>
-                                <li>موجودی</li>
-                                <li>منتشر شده</li>
-                                <li>درصد تسهیم (شماره ی شبای ذینفع را در عنوان ستون قرار دهید)</li>
-                                <li>محدودیت خرید (عنوان محدودیت خرید تعریف شده)</li>
-                                <li>حداقل تعداد خرید</li>
-                                <li>حداکثر تعداد خرید</li>
-                                <li>بازه ی زمانی اعمال محدودیت خرید</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <b>فایل را انتخاب کنید</b>
-                    <input type="file" name="excelFile" />
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">دریافت اطلاعات</button>
-                </div>
-            </div>
-        </div>
-    </form>
+	<form action="@Url.Content("~/Staff/Products/Import")" method="post" enctype="multipart/form-data">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">ویرایش اطلاعات با استفاده از فایل اکسل</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="card">
+						<div class="card-body">
+							<p>کالا با استفاده از یکی از مشخصات زیر پیدا میشود:</p>
+							<ul>
+								<li>شناسه</li>
+								<li>کد</li>
+								<li>نام</li>
+							</ul>
+							<p>موارد زیر در کالا ها به روز رسانی میشوند:</p>
+							<ul>
+								<li>قیمت</li>
+								<li>قیمت با تخفیف</li>
+								<li>وضعیت</li>
+								<li>موجودی</li>
+								<li>منتشر شده</li>
+								<li>درصد تسهیم (شماره ی شبای ذینفع را در عنوان ستون قرار دهید)</li>
+								<li>محدودیت خرید (عنوان محدودیت خرید تعریف شده)</li>
+								<li>حداقل تعداد خرید</li>
+								<li>حداکثر تعداد خرید</li>
+								<li>بازه ی زمانی اعمال محدودیت خرید</li>
+							</ul>
+						</div>
+					</div>
+					<b>فایل را انتخاب کنید</b>
+					<input type="file" name="excelFile" />
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">دریافت اطلاعات</button>
+				</div>
+			</div>
+		</div>
+	</form>
 </div>
 
 
 @section js{
-    <script type="text/javascript">
+	<script type="text/javascript">
 
         function showIpmortDialog() {
             $("#importModal").modal("show");
@@ -437,5 +569,5 @@
                 $.unblockUI();
             }
         }
-    </script>
+	</script>
 }

@@ -115,7 +115,8 @@ namespace MahtaKala.Controllers.Staff
         public async Task<ActionResult> OrderDetails(long id)
         {
             var order = await db.Orders
-                .Include(a => a.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product)
+                .Include(a => a.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product).ThenInclude(a => a.Supplier)
+                .Include(a => a.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product).ThenInclude(a => a.Seller)
                 .Include(a => a.User)
                 .Include(a => a.Address)
                 .FirstOrDefaultAsync(a => a.Id == id);

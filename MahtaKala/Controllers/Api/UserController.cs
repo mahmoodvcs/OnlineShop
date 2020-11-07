@@ -300,7 +300,7 @@ namespace MahtaKala.Controllers
         /// <summary>
         /// Deletes an address for a user
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
         [Authorize]
         [HttpDelete]

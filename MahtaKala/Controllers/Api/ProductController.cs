@@ -219,7 +219,8 @@ namespace MahtaKala.Controllers
                     ImageList = a.ImageList,
                     Price = a.Prices.FirstOrDefault().Price,
                     DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
-                    Prices = a.Prices
+                    Prices = a.Prices,
+                    Quantity = a.Quantities.First().Quantity
                 }).ToListAsync();
 
             //Product.Properties must be Dictionary

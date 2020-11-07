@@ -47,6 +47,8 @@
                 <tr>
                     <th>نام کالا</th>
                     <th>کد کالا</th>
+                    <th>فروشنده</th>
+                    <th>تأمین کننده</th>
                     <th>تعداد</th>
                     <th>قیمت واحد</th>
                     <th>قیمت کل</th>
@@ -58,6 +60,8 @@
                     <tr>
                         <td>@p.ProductPrice.Product.Title</td>
                         <td>@p.ProductPrice.Product.Code</td>
+                        <td>@(p.ProductPrice.Product.Seller == null ? "" : p.ProductPrice.Product.Seller.Name)</td>
+                        <td>@(p.ProductPrice.Product.Supplier == null ? "" : p.ProductPrice.Product.Supplier.Name)</td>
                         <td>@p.Quantity</td>
                         <td>@p.UnitPrice</td>
                         <td>@p.FinalPrice</td>
