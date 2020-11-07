@@ -178,6 +178,9 @@
 	columns.Bound(p => p.Quantity).Title("موجودی").Format("{0:n0}");//.Filterable(false);
 	columns.Bound(p => p.Status).Title("وضعیت");//.Filterable(false);
 	columns.Bound(p => p.Published).ClientTemplate("#=Published?'بلی':'خیر'#").Title("منتشر شده");
+	columns.Bound(p => p.MinBuyQuota).Title("حداقل خرید").Hidden(true);
+	columns.Bound(p => p.MaxBuyQuota).Title("حداکثر خرید").Hidden(true);
+	columns.Bound(p => p.BuyQuotaDays).Title("بازه زمانی محدودیت خرید").Hidden(true);
 	columns.Command(command => command.Custom("ویرایش").Click("EditQuestion")).Width(90);
 	columns.Command(command => command.Custom("حذف").Click("RemoveQuestion")).Width(90);
 

@@ -32,6 +32,9 @@ namespace MahtaKala.Infrustructure
                     Status = TranslateExtentions.GetTitle(a.Status),
                     Published = a.Published,
                     Quantity = a.Quantity,
+                    MinBuyQuota = a.MinBuyQuota,
+                    MaxBuyQuota = a.MaxBuyQuota,
+                    BuyQuotaDays = a.BuyQuotaDays,
                     Code = a.Code,
                     Seller = a.Seller
                 });

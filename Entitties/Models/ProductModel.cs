@@ -23,5 +23,9 @@ namespace MahtaKala.Entities.Models
         public string Seller { get; set; }
         public string Code { get; set; }
         public int Quantity { get; set; }
+        public int? MinBuyQuota { get; set; }
+        public int? MaxBuyQuota { get; set; }
+        public int? BuyQuotaDays { get; set; }
+
     }
 }

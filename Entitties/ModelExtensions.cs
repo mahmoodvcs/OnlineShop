@@ -26,7 +26,10 @@ namespace MahtaKala.Entities
                 Status = a.Status,
                 Published = a.Published,
                 Seller = a.Seller.Name,
-                Code = a.Code
+                Code = a.Code,
+                MinBuyQuota = a.MinBuyQuota,
+                MaxBuyQuota = a.MaxBuyQuota,
+                BuyQuotaDays = a.BuyQuotaDays
             });
             return result;
         }
