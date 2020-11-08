@@ -83,7 +83,7 @@ namespace MahtaKala.Entities
         [Display(Name = "ناموجود")]
         NotAvailable = 2,
         [Display(Name = "امکان خرید ندارد")]
-        CantBuy
+        CantBuy = 3
     }
 
     public class Characteristic

@@ -210,48 +210,49 @@ namespace MahtaKala.Controllers
         [HttpGet]
         public async Task<ProductModel> Product(long id)
         {
-            var data = await productService.ProductsView()
+            List<ProductModel> data = await productService.ProductsView(true)
                 .Where(a => a.Id == id)
-                .Select(a => new ProductModel
-                {
-                    Id = a.Id,
-                    Brand_Id = a.BrandId,
-                    Brand = a.Seller.Name,
-                    Category_Id = a.ProductCategories.FirstOrDefault().CategoryId,
-                    Category = a.ProductCategories.FirstOrDefault().Category.Title,
-                    Description = a.Description,
-                    Status = a.Status,
-                    Title = a.Title,
-                    Thubmnail = a.Thubmnail,
-                    Characteristics = a.Characteristics,
-                    PropertiesKeyValues = a.Properties,
-                    ImageList = a.ImageList,
-                    Price = a.Prices.FirstOrDefault().Price,
-                    DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
-                    Prices = a.Prices,
-                    Quantity = a.Quantities.First().Quantity
-                }).ToListAsync();
-
-            //Product.Properties must be Dictionary
-            return data.Select(a => new ProductModel
-            {
-                Id = a.Id,
-                Brand_Id = a.Brand_Id,
-                Brand = a.Brand,
-                Category_Id = a.Category_Id,
-                Category = a.Category,
-                Status = a.Status,
-                Description = a.Description,
-                Title = a.Title,
-                Thubmnail = imageService.GetImageUrl(a.Id, a.Thubmnail),
-                Characteristics = a.Characteristics,
-                Properties = a.PropertiesKeyValues?.ToDictionary(a => a.Key, a => a.Value),
-                ImageList = imageService.GetImageUrls(a.Id, a.ImageList),
-                Price = a.Prices?.FirstOrDefault()?.Price,
-                DiscountPrice = a.Prices?.FirstOrDefault()?.DiscountPrice,
-                Prices = a.Prices
-            }).FirstOrDefault();
-        }
+				.Select(a => new ProductModel
+				{
+					Id = a.Id,
+					Brand_Id = a.BrandId,
+					Brand = a.Seller.Name,
+					Category_Id = a.ProductCategories.FirstOrDefault().CategoryId,
+					Category = a.ProductCategories.FirstOrDefault().Category.Title,
+					Description = a.Description,
+					Status = a.Status,
+					Title = a.Title,
+					Thubmnail = a.Thubmnail,
+					Characteristics = a.Characteristics,
+					PropertiesKeyValues = a.Properties,
+					ImageList = a.ImageList,
+					Price = a.Prices.FirstOrDefault().Price,
+					DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
+					Prices = a.Prices,
+					Quantity = a.Quantities.First().Quantity
+				}).ToListAsync();
+            return data[0];
+			//Product.Properties must be Dictionary
+			//return data.Select(a => new ProductModel
+			//{
+			//    Id = a.Id,
+			//    Brand_Id = a.Brand_Id,
+			//    Brand = a.Brand,
+			//    Category_Id = a.Category_Id,
+			//    Category = a.Category,
+			//    Status = a.Status,
+			//    Description = a.Description,
+			//    Title = a.Title,
+			//    Thubmnail = imageService.GetImageUrl(a.Id, a.Thubmnail),
+			//    Characteristics = a.Characteristics,
+			//    Properties = a.PropertiesKeyValues?.ToDictionary(a => a.Key, a => a.Value),
+			//    ImageList = imageService.GetImageUrls(a.Id, a.ImageList),
+			//    Price = a.Prices?.FirstOrDefault()?.Price,
+			//    DiscountPrice = a.Prices?.FirstOrDefault()?.DiscountPrice,
+			//    Prices = a.Prices,
+			//    Quantity = a.Quantity
+			//}).FirstOrDefault();
+		}
 
         [HttpGet]
         public async Task<List<ProductConciseModel>> Products([FromQuery] long? category, [FromQuery] int offset, [FromQuery] int page)
@@ -259,13 +260,14 @@ namespace MahtaKala.Controllers
             List<long> cids = new List<long>();
             if (category.HasValue)
                 cids.Add(category.Value);
+
             return await GetProductsData(cids, offset, page);
         }
 
         [NonAction]
         public async Task<List<ProductConciseModel>> GetProductsData(IEnumerable<long> categoryIds, int offset, int page)
         {
-            var query = productService.ProductsView(categoryIds: categoryIds?.ToArray());
+            var query = productService.ProductsView(includePrices: true, categoryIds: categoryIds?.ToArray());
 
             query = query.Skip(offset).Take(page);
 
