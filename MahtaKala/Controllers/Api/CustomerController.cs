@@ -183,7 +183,9 @@ namespace MahtaKala.Controllers.Api
 			{
                 pagerModel = new PagerModel() { Offset = 0, Page = int.MaxValue };
 			}
-            var query = db.Orders.Where(o => o.State == OrderState.Paid ||
+            var query = db.Orders
+                .Include(o => o.Address).ThenInclude(a => a.City)
+                .Where(o => o.State == OrderState.Paid ||
                                       o.State == OrderState.Delivered ||
                                       o.State == OrderState.Sent)
                 .Where(a => a.UserId == UserId)

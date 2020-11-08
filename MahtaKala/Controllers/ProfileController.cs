@@ -71,7 +71,8 @@ namespace MahtaKala.Controllers
 
 		public async Task<IActionResult> BuyHistory()
 		{
-			var query = db.Orders.Where(o => (o.State == OrderState.Paid ||
+			var query = db.Orders.Include(o => o.Address).ThenInclude(a => a.City)
+				.Where(o => (o.State == OrderState.Paid ||
 												o.State == OrderState.Delivered ||
 												o.State == OrderState.Sent) && o.UserId == UserId)
 								.OrderByDescending(x => x.CheckOutDate);
