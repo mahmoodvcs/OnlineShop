@@ -4,6 +4,7 @@ using MahtaKala.GeneralServices.Payment;
 using MahtaKala.GeneralServices.Payment.PardakhtNovin;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
+using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models.Payment;
 using MahtaKala.Services;
 using MahtaKala.SharedServices;
@@ -157,7 +158,7 @@ namespace MahtaKala.Controllers
         private string GenerateTrackingNumber(Payment payment)
         {
             if (payment.OrderId <= 0)
-                throw new Exception($"Payment.OrderId has the value {payment.OrderId}, which is not valid!");
+                throw new ApiException(400, $"Payment.OrderId has the value {payment.OrderId}, which is not valid!");
             var charSet = new char[] { '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 
                                        'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 
                                        'N', 'P', 'R', 'S', 'T', 'W', 'Y', 'Z' };
@@ -172,7 +173,7 @@ namespace MahtaKala.Controllers
                     resultBuilder.Append(charSet[rand.Next(0, charSet.Length)]);
                 }
             }
-            // Shuffling the tracking number will make just it a bit difficult to decipher the algorithm on the first glance!
+            // Shuffling the tracking number will make it just a bit difficult to decipher the algorithm on the first glance!
             // p.s. We're not gonna do anything about the second glance! Sowwy!
             string rawResult = resultBuilder.ToString();
             resultBuilder.Clear();
