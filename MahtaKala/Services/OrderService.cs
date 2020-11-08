@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders.Physical;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,12 @@ namespace MahtaKala.Services
         private readonly IBankPaymentService bankService;
         private readonly SettingsService settingsService;
         private readonly IDeliveryService deliveryService;
+
+        private const long CarSpareParts_CategoryId = 168;
+        private const long SuperMarket_CategoryId = 134;
+        private const long ProteinProducts_CategoryId = 135;
+        private const long FruitsAndVegetables_CategoryId = 136;
+        private const long StationeryProducts_CategoryId = 140;
 
         public OrderService(
             ICurrentUserService currentUserService,
@@ -247,8 +254,10 @@ namespace MahtaKala.Services
             {
                 throw new ApiException(400, $"محصول '{prod.Title}' موجود نیست");
             }
+
             await CheckProductMaxQuota(priceId, count, prod);
         }
+
         private async Task CheckProductMaxQuota(long priceId, int count, ProductInfo prod)
         {
             if (prod.MaxBuyQuota == null)
@@ -283,6 +292,51 @@ namespace MahtaKala.Services
             }
         }
 
+        private async Task CheckForCategoryConflicts(IQueryable<ShoppingCart> cart, ProductInfo productInfo)
+        {
+            if (cart == null || await cart.CountAsync() == 0)
+                return;
+            //var newProductCategoryId = await db.ProductPrices.Where(x => x.Id == productPriceId).FirstOrDefaultAsync();
+            bool newItemIsASparePart = await ProductBelongsToCarSparePartsCategory(productInfo.Id);
+
+            foreach (var cartItem in cart)
+            {
+                var cartItemIsASparePart = await ProductBelongsToCarSparePartsCategory(cartItem.ProductPrice.ProductId);
+                if (newItemIsASparePart != cartItemIsASparePart)
+                    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_SparePartsCategoryConflict);
+            }
+        }
+
+        private void GetCategoryChildrenRecursive(Category category, List<long> resultList)
+        {
+            if (category.Children == null || category.Children.Count == 0)
+                return;
+            foreach (var child in category.Children)
+            {
+                if (!resultList.Contains(child.Id))
+                {
+                    resultList.Add(child.Id);
+                    GetCategoryChildrenRecursive(child, resultList);
+                }
+            }
+        }
+
+        private async Task<bool> ProductBelongsToCarSparePartsCategory(long productId)
+        {
+            var baseCategory = await db.Categories.Where(x => x.Id == CarSpareParts_CategoryId).Include(x => x.Children)
+                .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
+                .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
+                .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
+                .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children).FirstAsync();
+            var sparePartsCategoryIds = new List<long>();
+            sparePartsCategoryIds.Add(baseCategory.Id);
+            GetCategoryChildrenRecursive(baseCategory, sparePartsCategoryIds);
+            
+            bool thisIsASparePartProduct = await db.Products.AnyAsync(x => x.Id == productId
+                    && x.ProductCategories.Any(y => sparePartsCategoryIds.Contains(y.CategoryId)));
+            return thisIsASparePartProduct;
+        }
+
         private async Task<long> UpdateCart(ShoppingCart cartItem, long productPriceId, int count)
         {
             ProductInfo info = await GetProductInfo(cartItem, productPriceId);
@@ -297,7 +351,9 @@ namespace MahtaKala.Services
                 var priceIds = cart.Select(a => a.ProductPriceId);
                 if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.Seller.Basket != info.Basket).Any())
                     throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_DefferentSeller);
-
+                // TODO: Incomplete!
+                await CheckForCategoryConflicts(cart, info);
+                // TODO: Incomplete!
 
                 cartItem = new ShoppingCart
                 {
@@ -328,6 +384,7 @@ namespace MahtaKala.Services
                     .Where(p => p.Id == productPriceId)
                     .Select(a => new ProductInfo
                     {
+                        Id = a.Product.Id,
                         SellerId = a.Product.SellerId,
                         Basket = a.Product.Seller.Basket,
                         Status = a.Product.Status,
@@ -343,6 +400,7 @@ namespace MahtaKala.Services
             {
                 info = new ProductInfo
                 {
+                    Id = cartItem.ProductPrice.ProductId,
                     SellerId = cartItem.ProductPrice.Product.SellerId,
                     BuyQuotaDays = cartItem.ProductPrice.Product.BuyQuotaDays,
                     MaxBuyQuota = cartItem.ProductPrice.Product.MaxBuyQuota,
@@ -705,7 +763,8 @@ namespace MahtaKala.Services
 
     internal class ProductInfo
     {
-        public long? SellerId { get; set; }
+		public long Id { get; set; }
+		public long? SellerId { get; set; }
         public string Basket { get; set; }
         public ProductStatus Status { get; set; }
         public int? MinBuyQuota { get; set; }

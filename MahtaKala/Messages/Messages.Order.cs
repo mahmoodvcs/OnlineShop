@@ -24,6 +24,8 @@ namespace MahtaKala.Messages
             public const string CannotAddProduct_MaxQuota = "حداکثر تعداد خرید محصول {0}، {1} عدد میباشد.";
             public const string CannotAddProduct_WrongCity = "محصول {0} فقط در شهر {1} موجود میباشد.";
             public const string CannotAddProduct_WrongProvince = "محصول {0} فقط در استان {1} موجود میباشد.";
+            // TODO: This message is NOT confirmed! The text is temporary! Get the real one!
+            public const string CannotAddProduct_SparePartsCategoryConflict = "محصولات دسته لوازم یدکی خودرو را نمیتوان با محصولات دیگر دسته ها همزمان خرید.";
         }
     }
 }
