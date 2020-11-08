@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.Helpers;
 using MahtaKala.Models.CustomerModels;
+using MahtaKala.Models.UserModels;
 using MahtaKala.Services;
 using MahtaKala.SharedServices;
 using Microsoft.EntityFrameworkCore;
@@ -23,9 +24,11 @@ namespace MahtaKala.Models
         public string LastName { get; set; }
         public string State { get; set; }
         public string DeliveryTrackNo { get; set; }
+        public long? Address_Id { get; set; }
+        public AddressModel Address { get; set; }
         public IList<OrderItemModel> OrderItems { get; set; }
 
-        public static async Task<List<OrderModel>> Get(IQueryable<Order> ordersQuery, IProductImageService productImageService)
+		public static async Task<List<OrderModel>> Get(IQueryable<Order> ordersQuery, IProductImageService productImageService)
         {
             var data = await ordersQuery.Select(a => new
             {
@@ -40,6 +43,8 @@ namespace MahtaKala.Models
                 a.DelivererNo,
                 a.User.FirstName,
                 a.User.LastName,
+                a.AddressId,
+                a.Address,
                 items = a.Items.Select(i=>new
                 {
                     i.Id,
@@ -66,6 +71,19 @@ namespace MahtaKala.Models
                 Price = (long)a.Price,
                 SendDate = Util.GetPersianDate( a.SendDate),
                 State = TranslateExtentions.GetTitle(a.State),
+                Address_Id = a.AddressId,
+                Address = a.Address == null ? null :
+                new AddressModel() 
+                {
+                    Id = a.Address.Id,
+                    Title = a.Address.Title,
+                    City = a.Address.CityId,
+                    Province = a.Address.City == null ? 0 : a.Address.City.ProvinceId,
+                    Details = a.Address.Details,
+                    Postal_Code = a.Address.PostalCode,
+                    Lat = a.Address.Lat,
+                    Lng = a.Address.Lng
+                },
                 OrderItems = a.items.Select(i=>new OrderItemModel
                 {
                     Code = i.Code,
