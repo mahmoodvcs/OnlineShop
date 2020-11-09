@@ -1,4 +1,5 @@
-﻿using MahtaKala.Infrustructure.Extensions;
+﻿using MahtaKala.Entities;
+using MahtaKala.Infrustructure.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,5 +28,18 @@ namespace MahtaKala.Models.UserModels
         }
         public double Lat { get; set; }
         public double Lng { get; set; }
+
+        public AddressModel() { }
+        public AddressModel(UserAddress userAddress)
+        {
+            Id = userAddress.Id;
+            Title = userAddress.Title;
+            City = userAddress.CityId;
+            Province = userAddress.City == null ? 0 : userAddress.City.ProvinceId;
+            Details = userAddress.Details;
+            Postal_Code = userAddress.PostalCode;
+            Lat = userAddress.Lat;
+            Lng = userAddress.Lng;
+        }
     }
 }

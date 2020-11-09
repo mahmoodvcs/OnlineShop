@@ -22,6 +22,7 @@ using MahtaKala.Infrustructure.Extensions;
 using MahtaKala.Models;
 using MahtaKala.Models.ProductModels;
 using MahtaKala.Models.StaffModels;
+using MahtaKala.Models.UserModels;
 using MahtaKala.Services;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Http;
@@ -1354,11 +1355,14 @@ namespace MahtaKala.Controllers
                 {
                     Id = a.Id,
                     TotalPrice = a.TotalPrice,
+                    a.DeliveryPrice,
                     a.CheckOutDate,
                     a.ApproximateDeliveryDate,
                     a.ActualDeliveryDate,
                     a.User.FirstName,
                     a.User.LastName,
+                    a.AddressId,
+                    a.Address,
                     a.SendDate,
                     State = a.State
                 }).ToDataSourceResultAsync(request, a => new OrderModel
@@ -1368,9 +1372,12 @@ namespace MahtaKala.Controllers
                     ApproximateDeliveryDate = Util.GetPersianDate(a.ApproximateDeliveryDate),
                     SendDate = Util.GetPersianDate(a.SendDate),
                     ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
-                    Price = (long)a.TotalPrice,
+                    Price = a.TotalPrice,
+                    DeliveryPrice = a.DeliveryPrice,
                     FirstName = a.FirstName,
                     LastName = a.LastName,
+                    Address_Id = a.AddressId,
+                    Address = new AddressModel(a.Address),
                     State = TranslateExtentions.GetTitle(a.State)
                 });
 

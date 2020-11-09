@@ -209,28 +209,28 @@ namespace MahtaKala.Controllers
 
         [HttpGet]
         public async Task<ProductModel> Product(long id)
-        {
-            List<ProductModel> data = await productService.ProductsView(true)
-                .Where(a => a.Id == id)
-                .Select(a => new ProductModel
-                {
-                    Id = a.Id,
-                    Brand_Id = a.BrandId,
-                    Brand = a.Seller.Name,
-                    Category_Id = a.ProductCategories.FirstOrDefault().CategoryId,
-                    Category = a.ProductCategories.FirstOrDefault().Category.Title,
-                    Description = a.Description,
-                    Status = a.Status,
-                    Title = a.Title,
-                    Thubmnail = a.Thubmnail,// imageService.GetImageUrl(a.Id, a.Thubmnail),
-                    Characteristics = a.Characteristics,
-                    PropertiesKeyValues = a.Properties,
-                    ImageList = a.ImageList,// imageService.GetImageUrls(a.Id, a.ImageList),
-                    Price = a.Prices.FirstOrDefault().Price,
-                    DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
-                    Prices = a.Prices,
-                    Quantity = a.Quantities.First().Quantity
-                }).ToListAsync();
+		{
+			List<ProductModel> data = await productService.ProductsView(true)
+				.Where(a => a.Id == id)
+				.Select(a => new ProductModel
+				{
+					Id = a.Id,
+					Brand_Id = a.BrandId,
+					Brand = a.Seller.Name,
+					Category_Id = a.ProductCategories.FirstOrDefault().CategoryId,
+					Category = a.ProductCategories.FirstOrDefault().Category.Title,
+					Description = a.Description,
+					Status = a.Status,
+					Title = a.Title,
+					Thubmnail = a.Thubmnail,// imageService.GetImageUrl(a.Id, a.Thubmnail),
+					Characteristics = a.Characteristics,
+					PropertiesKeyValues = a.Properties,
+					ImageList = a.ImageList,// imageService.GetImageUrls(a.Id, a.ImageList),
+					Price = a.Prices.FirstOrDefault().Price,
+					DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
+					Prices = a.Prices,
+					Quantity = a.Quantities.First().Quantity
+				}).ToListAsync();
             data[0].Thubmnail = imageService.GetImageUrl(data[0].Id, data[0].Thubmnail);
             data[0].ImageList = imageService.GetImageUrls(data[0].Id, data[0].ImageList);
             data[0].Properties = data[0].PropertiesKeyValues.ToDictionary(a => a.Key, a => a.Value);
