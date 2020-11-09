@@ -292,9 +292,9 @@ namespace MahtaKala.Services
             }
         }
 
-        private async Task CheckForCategoryConflicts(IQueryable<ShoppingCart> cart, ProductInfo productInfo)
+        private async Task CheckForCategoryConflicts(List<ShoppingCart> cart, ProductInfo productInfo)
         {
-            if (cart == null || await cart.CountAsync() == 0)
+            if (cart == null || cart.Count() == 0)
                 return;
             //var newProductCategoryId = await db.ProductPrices.Where(x => x.Id == productPriceId).FirstOrDefaultAsync();
             bool newItemIsASparePart = await ProductBelongsToCarSparePartsCategory(productInfo.Id);
@@ -353,7 +353,7 @@ namespace MahtaKala.Services
                 if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.Seller.Basket != info.Basket).Any())
                     throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_DefferentSeller);
                 // TODO: Incomplete!
-                await CheckForCategoryConflicts(cart, info);
+                await CheckForCategoryConflicts(cart.ToList(), info);
                 // TODO: Incomplete!
 
                 cartItem = new ShoppingCart
@@ -529,7 +529,7 @@ namespace MahtaKala.Services
 
             order.TotalPrice = CalculateTotalPrice(order);
             order.DeliveryPrice = GetDeliveryPrice(order);
-
+            
             await db.SaveChangesAsync();
 
             transaction.Complete();
@@ -546,6 +546,7 @@ namespace MahtaKala.Services
 
         private async Task CheckCartValidity(long addressId, List<ShoppingCart> cartItems)
         {
+            List<ShoppingCart> progressiveCart = new List<ShoppingCart>();
             foreach (var item in cartItems)
             {
                 var p = item.ProductPrice.Product;
@@ -561,6 +562,8 @@ namespace MahtaKala.Services
                 ProductInfo info = await GetProductInfo(item, item.ProductPriceId);
                 await CheckCartItemValidity(item.ProductPriceId, item.Count, info);
                 await CheckProductBuyLimitations(addressId, item.ProductPriceId, item.Count, item.ProductPrice.ProductId, item.ProductPrice.Product.Title);
+                await CheckForCategoryConflicts(progressiveCart, info);
+                progressiveCart.Add(item);
             }
         }
 
