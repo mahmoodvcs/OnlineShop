@@ -321,8 +321,7 @@ namespace MahtaKala.Services
             }
         }
 
-		//private
-		public async Task<bool> ProductBelongsToCarSparePartsCategory(long productId)
+		private async Task<bool> ProductBelongsToCarSparePartsCategory(long productId)
         {
             var baseCategory = await db.Categories.Where(x => x.Id == CarSpareParts_CategoryId).Include(x => x.Children)
                 .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
