@@ -321,13 +321,15 @@ namespace MahtaKala.Services
             }
         }
 
-        private async Task<bool> ProductBelongsToCarSparePartsCategory(long productId)
+		//private
+		public async Task<bool> ProductBelongsToCarSparePartsCategory(long productId)
         {
             var baseCategory = await db.Categories.Where(x => x.Id == CarSpareParts_CategoryId).Include(x => x.Children)
                 .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
                 .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
                 .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
-                .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children).FirstAsync();
+                .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
+                .FirstAsync();
             var sparePartsCategoryIds = new List<long>();
             sparePartsCategoryIds.Add(baseCategory.Id);
             GetCategoryChildrenRecursive(baseCategory, sparePartsCategoryIds);
