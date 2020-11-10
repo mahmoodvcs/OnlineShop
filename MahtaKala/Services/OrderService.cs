@@ -352,9 +352,9 @@ namespace MahtaKala.Services
                 var priceIds = cart.Select(a => a.ProductPriceId);
                 if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.Seller.Basket != info.Basket).Any())
                     throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_DefferentSeller);
-                // TODO: Incomplete!
+                
                 await CheckForCategoryConflicts(cart.ToList(), info);
-                // TODO: Incomplete!
+                //TODO: Check for Tehran/Non-Tehran category-address conflicts (issue #244)
 
                 cartItem = new ShoppingCart
                 {

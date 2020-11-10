@@ -1174,6 +1174,10 @@ namespace MahtaKala.Controllers
                 {
                     if (file.Length > 0)
                     {
+                        if (file.Length > 3145728)  // This number, expressed in bytes, is equivalent to 3 megabytes (3145728 bytes = 3 megabytes)
+                        {
+                            throw new ApiException(400, "حجم فایل عکس محصول بیش از اندازه بزرگ است! (ماکزیمم: 3 مگابایت)");
+                        }
                         var fileExtension = Path.GetExtension(file.FileName);
                         var fileName = Guid.NewGuid() + fileExtension;
 
@@ -1210,6 +1214,10 @@ namespace MahtaKala.Controllers
                     }
                     await CheckProductAccess(product);
                     var file = thumbnails.First();
+                    if (file.Length > 51200) // 51200 bytes = 50 kilobytes
+                    {
+                        throw new ApiException(400, "حجم فایل عکس پیش نمایش بیش از اندازه بزرگ است! (ماکزیمم: 50 کیلوبایت)");
+                    }
                     var fileName = $"thumbnail-{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
                     //var path = Path.Combine(ProductsImagesPath, ID.ToString());
                     //using var ms = new MemoryStream();
