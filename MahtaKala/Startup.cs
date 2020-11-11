@@ -1,6 +1,7 @@
 using CacheManager.Core;
 using EFSecondLevelCache.Core;
 using MahtaKala.Entities;
+using MahtaKala.Entities.EskaadEntities;
 using MahtaKala.Entities.ExceptionHandling;
 using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Delivery;
@@ -103,6 +104,10 @@ namespace MahtaKala
             services.AddDbContext<DataContext>(options =>
             {
                 options.UseNpgsql(Configuration.GetConnectionString("DataContextPG")).UseSnakeCaseNamingConvention();
+            });
+            services.AddDbContext<EskaadContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("EskaadSharedDB")/*, x => x.UseNetTopologySuite()*/);
             });
             services.AddMvc(options => { options.UseCustomStringModelBinder(); });
             RegisterMyServices(services);
