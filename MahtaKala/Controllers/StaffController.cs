@@ -1014,7 +1014,7 @@ namespace MahtaKala.Controllers
                 // NOT parents, because, it's the policy that only child (or leaf, in graph terminology) categories 
                 // can have products directly connected to them. 
                 // Also, the code block has been moved here, at the top of the action method, because it's a 
-                // validation, and, in case of failure, the whole method should be stoped (and reversed, if neccessary).
+                // validation, and, in case of failure, the whole method should be stopped (and reversed, if neccessary).
                 var categoryIds = JsonConvert.DeserializeObject<string[]>(Request.Form["CategoryIds"][0]).Select(a => long.Parse(a));
                 var categories = db.Categories.Where(x => categoryIds.Contains(x.Id)).ToList();
                 foreach (var cat in categoryIds)

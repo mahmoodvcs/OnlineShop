@@ -1,0 +1,33 @@
+﻿@using MahtaKala.Models.StaffModels;
+@*@model List<EskaadMerchandiseModel>*@
+@{
+	Layout = "~/Views/Shared/_Staff.cshtml";
+	ViewBag.Title = "واحد بازرگانی";
+}
+
+@(Html.Kendo().Grid<EskaadMerchandiseModel>()
+	.Name("Grid")
+	.Columns(cols =>
+	{
+		cols.Bound(x => x.Code).Title("کد (اسکاد)");
+		cols.Bound(x => x.Name).Title("نام (اسکاد)");
+		cols.Bound(x => x.Unit).Title("واحد");
+		cols.Bound(x => x.Count).Title("موجودی (اسکاد)");
+		cols.Bound(x => x.Active).Title("فعال (اسکاد)");
+		cols.Bound(x => x.Price).Title("قیمت");
+		cols.Bound(x => x.Code_Mahta).Title("کد (مهتا)");
+		cols.Bound(x => x.Name_Mahta).Title("نام (مهتا)");
+		cols.Bound(x => x.Quantity_Mahta).Title("موجودی (مهتا)");
+		cols.Bound(x => x.Status_Mahta).Title("وضعیت کالا (مهتا)");
+		cols.Bound(x => x.IsPublished_Mahta).Title("منتشرشده (مهتا)");
+	}).Pageable(pageable => pageable
+		.Refresh(true)
+		.PageSizes(true)
+		.PageSizes(new int[] { 5, 10, 20, 50 })
+		.ButtonCount(5))
+	.Sortable()
+	.DataSource(datasource => 
+		datasource.Ajax()
+		.PageSize(50)
+		.Read(read => read.Action("GetEskaadMerchandiseDataSource", "BusinessDept")))
+)
