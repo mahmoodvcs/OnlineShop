@@ -316,11 +316,12 @@ namespace MahtaKala.Controllers
                 Id = a.Id,
                 Brand = a.Seller.Name,
                 Category = a.ProductCategories.FirstOrDefault().Category.Title,
+                Status = a.Status,
                 Title = a.Title,
                 Thubmnail = imageService.GetImageUrl(a.Id, a.Thubmnail),
                 Price = a.Prices.FirstOrDefault().Price,
                 DiscountPrice = a.Prices.FirstOrDefault().DiscountPrice,
-                Status = a.Status
+                Quantity = a.Quantities.First().Quantity
             })
             .ToListAsync();
         }
