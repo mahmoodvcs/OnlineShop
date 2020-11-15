@@ -9,7 +9,12 @@ namespace MahtaKala.Infrustructure.Extensions
     {
         public static string ToEnglishNumber(this object Text)
         {
-            string str = (string)Text;
+            if (Text == null || !(Text is string) || string.IsNullOrEmpty((string)Text))
+			{
+				return string.Empty;
+			}
+
+			string str = (string)Text;
             string vInt = "۱۲۳۴۵۶۷۸۹۰";
             char[] mystring = str.ToCharArray(0, str.Length);
             var newStr = string.Empty;
