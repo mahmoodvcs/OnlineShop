@@ -9,7 +9,7 @@ namespace MahtaKala.Infrustructure.Extensions
     {
         public static string ToEnglishNumber(this object Text)
         {
-            if (Text == null || !(Text is string) || string.IsNullOrEmpty((string)Text))
+            if (Text == null || !(Text is string stringText) || string.IsNullOrEmpty(stringText))
 			{
 				return string.Empty;
 			}
