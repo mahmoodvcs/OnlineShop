@@ -17,8 +17,18 @@ namespace MahtaKala.Helpers
     public static class Util
     {
 		public const char ZeroWidthNonBreakingSpace = '​';
+		public static readonly Dictionary<string, string> PersianDaysOfTheWeek = new Dictionary<string, string>()
+		    { { "saturday", "شنبه" },
+			{ "sunday", "یکشنبه" },
+			{ "monday", "دوشنبه" },
+			{ "tuesday", "سه شنبه" },
+			{ "wednesday", "چهارشنبه" },
+			{ "thursday", "پنجشنبه" },
+			{ "friday", "جمعه" } };
+        public static readonly List<string> PersianDayOfTheWeekByIndex = new List<string>()
+            { "یکشنبه", "دوشنبه", "سه شنبه", "چهارشنبه", "پنجشنبه", "جمعه", "شنبه" };
 
-        public static string TrimString(string input)
+		public static string TrimString(string input)
         {
             return input.Trim().Trim(ZeroWidthNonBreakingSpace);
         }
@@ -197,7 +207,8 @@ namespace MahtaKala.Helpers
             if (d == null)
                 return null;
             PersianCalendar pc = new PersianCalendar();
-            return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} - ساعت {d.Value:HH\\:mm} تا {d.Value + range:HH\\:mm}";
+            var persianDayOfTheWeek = PersianDayOfTheWeekByIndex[(int)pc.GetDayOfWeek(d.Value)];
+            return $"{persianDayOfTheWeek} {pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} - ساعت {d.Value:HH\\:mm} تا {d.Value + range:HH\\:mm}";
         }
 
         public static string GetTimeSpanPersianString(TimeSpan timeSpan)

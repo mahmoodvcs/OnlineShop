@@ -539,7 +539,8 @@ namespace MahtaKala.Services
         public DateTime GetApproximateDeilveryDate()
         {
             DateTime now = DateTime.Now;
-            return now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(19);
+            //return now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(19);
+            return now.TimeOfDay.Hours > 13 ? now.Date.AddDays(1).AddHours(19) : now.Date.AddHours(19);
         }
 
         public TimeSpan DeliveryTimeSpan => TimeSpan.FromHours(2);

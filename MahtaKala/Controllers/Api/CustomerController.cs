@@ -165,15 +165,26 @@ namespace MahtaKala.Controllers.Api
         public async Task<CheckoutResponseModel> Checkout(CheckoutModel checkoutModel)
         {
             var order = await orderService.Checkout(checkoutModel.AddressId);
-
+            string deliveryMessage = GetDeliveryTimeMessage(order);
             var payment = await orderService.InitPayment(order, pathService.AppBaseUrl + "/Payment/Paid?source=api");
             string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}&source=api";
 
             return new CheckoutResponseModel
             {
                 OrderId = order.Id,
-                PaymentUrl = payUrl
+                PaymentUrl = payUrl,
+                TimeOfDeliveryMessage = deliveryMessage
             };
+        }
+
+        private string GetDeliveryTimeMessage(Order order)
+        {
+            if (order == null)
+                return string.Empty;
+            if (!order.ApproximateDeliveryDate.HasValue)
+                return string.Empty;
+            string message = "زمان ارسال سفارش: " + Util.GetPersianDateRange(order.ApproximateDeliveryDate, orderService.DeliveryTimeSpan);
+            return message;
         }
 
         [HttpGet]
