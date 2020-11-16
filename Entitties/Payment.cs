@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -37,10 +38,15 @@ namespace MahtaKala.Entities
 
     public enum PaymentState
     {
+        [Description("آغاز فرایند پرداخت")]
         Registerd,
+        [Description("ارسال به بانک")]
         SentToBank,
+        [Description("پرداخت تأیید نشده")]
         PaidNotVerified,
+        [Description("ناموفق")]
         Failed,
+        [Description("پرداخت موفق")]
         Succeeded,
     }
 }

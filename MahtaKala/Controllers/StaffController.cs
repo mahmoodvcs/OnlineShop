@@ -1589,6 +1589,51 @@ namespace MahtaKala.Controllers
 
         #endregion Tags
 
+        #region Settlements
+        [HttpGet]
+        [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
+        public ActionResult PaymentSettlementList()
+        {
+            ViewData["Title"] = "لیست اقلام تسهیم";
+            return View();
+        }
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
+        public async Task<IActionResult> GetPaymentSettlementListData([DataSourceRequest] DataSourceRequest request)
+        {
+            var query = db.PaymentSettlements.AsQueryable();
+            if (base.User.Type != UserType.Admin)
+            {
+                if (base.User.Type == UserType.Seller)
+                {
+                    var sellerId = await GetSellerId();
+                    var seller = db.Sellers.Where(x => x.Id == sellerId).SingleOrDefault();
+                    if (seller == null)
+                        return null;
+                    query = query.Where(x => x.ShabaId.ToLower().Equals(seller.AccountNumber.ToLower()));
+                }
+            }
+            var result = await query.Select(x => 
+            new PaymentSettlementVM()
+            { 
+                Id = x.Id,
+                Amount = x.Amount,
+                Date = x.Date,
+                ItemId = x.ItemId,
+                Name = x.Name,
+                OrderId = x.OrderId,
+                Order = x.Order,
+                PayFor = x.PayFor,
+                PaymentId = x.PaymentId,
+                Payment = x.Payment,
+                Response = x.Response,
+                ShabaId = x.ShabaId,
+                Status = x.Status
+            }).ToDataSourceResultAsync(request);
+            return KendoJson(result);
+        }
+
+        #endregion Settlements
 
         [HttpGet]
         [Authorize(UserType.Admin)]
