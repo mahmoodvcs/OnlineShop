@@ -18,7 +18,7 @@ namespace MahtaKala.Services
         }
 
         public const string OrderDeliveryCodeReceived = "کد تأیید تحویل سفارش دریافت شد: {0}.";
-        public const string InvalidDeliveryCodeReceived = "کد ارسال شده معتبر نیست: {0}.";
+        public const string InvalidDeliveryCodeReceived = "خطا! کد ارسال شده معتبر نیست: {0}.";
 
         public void SMSReceived(string sender, string body, DateTime receiveDate)
         {
@@ -30,7 +30,7 @@ namespace MahtaKala.Services
             string error;
             if (order == null)
             {
-                error = "خطا! سفارشی با این کد در سیستم ثبت نشده است.";
+                error = "سفارشی با این کد در سیستم ثبت نشده است.";
                 smsService.Send(sender, string.Format(InvalidDeliveryCodeReceived, error));
                 return;
             }
@@ -38,6 +38,7 @@ namespace MahtaKala.Services
             try
             {
                 orderService.SetOrderDelivered(order.Id).Wait();
+                smsService.Send(sender, string.Format(OrderDeliveryCodeReceived, order.TrackNo));
             }
             catch(BadRequestException ex)
             {

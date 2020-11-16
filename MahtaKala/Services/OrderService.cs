@@ -654,14 +654,14 @@ namespace MahtaKala.Services
             var order = await db.Orders.Include(a => a.Items).FirstOrDefaultAsync(a => a.Id == orderId);
             if (order.State == OrderState.Delivered)
             {
-                throw new BadRequestException("خطا! این کد قبلاً دریافت شده است.");
+                throw new BadRequestException("این کد قبلاً دریافت شده است.");
             }
             if (order.State == OrderState.Initial || order.State == OrderState.CheckedOut)
             {
-                throw new BadRequestException("خطا! هزینه ی سفارش پرداخت نشده است.");
+                throw new BadRequestException("هزینه ی سفارش پرداخت نشده است.");
             }
             else if (order.State == OrderState.Canceled)
-                throw new BadRequestException("خطا! این سفارش قبلاً لغو شده است.");
+                throw new BadRequestException("این سفارش قبلاً لغو شده است.");
 
 
             var items = order.Items.Where(a => a.State == OrderItemState.Sent);

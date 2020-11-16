@@ -1427,31 +1427,33 @@ namespace MahtaKala.Controllers
         //    return Json(new { success = true });
         //}
 
-        [AjaxAction]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
-        public async Task<ActionResult> ConfirmDelivered(long Id, string TrackNo)
-        {
-            var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
-            if (order == null)
-            {
-                throw new EntityNotFoundException<Order>(Id);
-            }
-            if (order.TrackNo != TrackNo)
-            {
-                return Json(new { success = false, message = Messages.Messages.Order.ErrorWrongTrackNo });
-            }
-            if (order.State == OrderState.Sent)
-            {
-                order.State = OrderState.Delivered;
-                order.ActualDeliveryDate = DateTime.Now;
-            }
-            else
-            {
-                return Json(new { success = false, message = Messages.Messages.Order.ErrorConvertStateToDelivered });
-            }
-            await db.SaveChangesAsync();
-            return Json(new { success = true });
-        }
+        // This action was implemented as a test, and it has no actual usage for the project!
+        // So, there's no reason for not commenting it out!
+        //[AjaxAction]
+        //[Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
+        //public async Task<ActionResult> ConfirmDelivered(long Id, string TrackNo)
+        //{
+        //    var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
+        //    if (order == null)
+        //    {
+        //        throw new EntityNotFoundException<Order>(Id);
+        //    }
+        //    if (order.TrackNo != TrackNo)
+        //    {
+        //        return Json(new { success = false, message = Messages.Messages.Order.ErrorWrongTrackNo });
+        //    }
+        //    if (order.State == OrderState.Sent)
+        //    {
+        //        order.State = OrderState.Delivered;
+        //        order.ActualDeliveryDate = DateTime.Now;
+        //    }
+        //    else
+        //    {
+        //        return Json(new { success = false, message = Messages.Messages.Order.ErrorConvertStateToDelivered });
+        //    }
+        //    await db.SaveChangesAsync();
+        //    return Json(new { success = true });
+        //}
 
 
         #endregion
