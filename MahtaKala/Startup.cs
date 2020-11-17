@@ -105,17 +105,21 @@ namespace MahtaKala
                 options.UseNpgsql(Configuration.GetConnectionString("DataContextPG")).UseSnakeCaseNamingConvention();
             });
             services.AddMvc(options => { options.UseCustomStringModelBinder(); });
-            RegisterMyServices(services);
+            RegisterMyServices(services, Configuration);
         }
 
-        private static void RegisterMyServices(IServiceCollection services)
+        private static void RegisterMyServices(IServiceCollection services, IConfiguration config)
         {
-            services.AddScoped<ISMSService, PayamSMSV2>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBankPaymentService, PardakhtNovinService>();
             services.AddScoped<IFileService, FileService>();
-            services.AddScoped<OrderService>();
-            services.AddSingleton<AppSettings>();
+			//services.AddScoped<ISMSService, PayamSMSV2>();
+			//services.AddSingleton<ISMSService, PayamSMSV2>();
+			services.AddTransient<ISMSService, PayamSMSV2>();
+			//services.AddScoped<OrderService>();
+			//services.AddSingleton<OrderService>();
+			services.AddTransient<OrderService>();
+			services.AddSingleton<AppSettings>();
             services.AddSingleton<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IProductImageService, ProductImageService>();
@@ -130,7 +134,7 @@ namespace MahtaKala
             services.AddScoped<IDeliveryService, YarBoxDeliveryService>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
-            TaskManager.RegisterTasks(services);
+            TaskManager.RegisterTasks(services, config);
 
             services.AddEFSecondLevelCache();
             // Add an in-memory cache service provider
@@ -202,6 +206,10 @@ namespace MahtaKala
             {
                 var userService = serviceScope.ServiceProvider.GetService<IUserService>();
                 userService.CreateAdminUserIfNotExist();
+                //var deliveryCodeReceiver = serviceScope.ServiceProvider.GetService<DeliveryCodeReceiver>();
+                // Why would someone ever need this kind of complication?! Isn't it a little too much?! Do we really need all these layers of "abstraction" (or, "complication", if we want to be honest!) stacked on top of each other?!
+                //SMSManager.RegisterProcessor(deliveryCodeReceiver);
+                // Temporarily removed...
             }
 
             //TODO: consider the performance overhead

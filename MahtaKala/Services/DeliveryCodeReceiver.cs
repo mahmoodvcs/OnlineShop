@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.SMS;
+using MahtaKala.Infrustructure;
 using MahtaKala.Infrustructure.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,19 @@ namespace MahtaKala.Services
 {
     public class DeliveryCodeReceiver : ISMSProcessor
     {
-        public DeliveryCodeReceiver()
+        //private readonly SingletonDataContext db;
+        private readonly DataContext db;
+        private readonly ISMSService smsService;
+        private readonly OrderService orderService;
+        public DeliveryCodeReceiver(
+            //SingletonDataContext dbContext, 
+            DataContext dbContext,
+            ISMSService smsSrvc, 
+            OrderService orderSrvc)
         {
+            db = dbContext;
+            smsService = smsSrvc;
+            orderService = orderSrvc;
         }
 
         public const string OrderDeliveryCodeReceived = "کد تأیید تحویل سفارش دریافت شد: {0}.";
@@ -22,9 +34,9 @@ namespace MahtaKala.Services
 
         public void SMSReceived(string sender, string body, DateTime receiveDate)
         {
-            var db = MyServiceProvider.ResolveService<DataContext>();
-            var smsService = MyServiceProvider.ResolveService<ISMSService>();
-            var orderService = MyServiceProvider.ResolveService<OrderService>();
+            //var db = MyServiceProvider.ResolveService<DataContext>();
+            //var smsService = MyServiceProvider.ResolveService<ISMSService>();
+            //var orderService = MyServiceProvider.ResolveService<OrderService>();
             var order = db.Orders.FirstOrDefault(x => x.TrackNo.ToLower().Equals(body.ToLower()));
 
             string error;

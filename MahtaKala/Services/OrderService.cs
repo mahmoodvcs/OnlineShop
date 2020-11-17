@@ -69,7 +69,7 @@ namespace MahtaKala.Services
 
         #endregion Constants
         User User => currentUserService.User;
-        public async Task<Order> GetUserOrder()
+        public async Task<Order> GetUserOrder() // WHAT THE HELL IS THIS??
         {
             var list = await db.Orders
                 .Include(a => a.Items)
@@ -607,23 +607,32 @@ namespace MahtaKala.Services
             }
         }
 
-        public async Task RollbackUnsuccessfulPayments()
-        {
-            var initalStates = QuantitySubtractedOrderStates.Except(SuccessfulOrderStates).ToArray();
-            var list = await db.Orders.Where(a => a.CheckOutDate < DateTime.Now.AddMinutes(-20)
-                && initalStates.Contains(a.State)).ToListAsync();
-            foreach (var item in list)
-            {
+        //public async Task RollbackUnsuccessfulPayments()
+        //{
+        //    var initalStates = QuantitySubtractedOrderStates.Except(SuccessfulOrderStates).ToArray();
+        //    var list = await db.Orders.Where(a => a.CheckOutDate < DateTime.Now.AddMinutes(-20)
+        //        && initalStates.Contains(a.State)).ToListAsync();
+        //    foreach (var item in list)
+        //    {
 
-            }
+        //    }
+        //}
+
+        public async Task RollbackOrder(long orderId)
+        {
+            var order = new Order() { Id = orderId };
+            await RollbackQuantity(order);
         }
 
         async Task RollbackQuantity(Order origOrder)
         {
-            if (SuccessfulOrderStates.Contains(origOrder.State))
-                throw new Exception($"Invalid order state: Id: {origOrder.Id} - State: {origOrder.State}");
-
             var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product).FirstAsync(a => a.Id == origOrder.Id);
+            if (order == null)
+                throw new BadRequestException($"Invalid order Id! Order with Id {origOrder.Id} does not exist!");
+            if (SuccessfulOrderStates.Contains(order.State))
+                throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {origOrder.State}");
+            if (order.State == OrderState.Canceled)
+                throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {origOrder.State}");
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
 
             order.State = OrderState.Canceled;
@@ -633,8 +642,9 @@ namespace MahtaKala.Services
             foreach (var item in order.Items)
             {
                 var quantity = quantities.FirstOrDefault(a => a.ProductId == item.ProductPrice.ProductId);
+                bool itWasZeroBeforeRollBack = (quantity.Quantity == 0);
                 quantity.Quantity += item.Quantity;
-                if (item.ProductPrice.Product.Status == ProductStatus.NotAvailable && quantity.Quantity > 0)
+                if (item.ProductPrice.Product.Status == ProductStatus.NotAvailable && quantity.Quantity > 0 && itWasZeroBeforeRollBack)
                 {
                     item.ProductPrice.Product.Status = ProductStatus.Available;
                 }

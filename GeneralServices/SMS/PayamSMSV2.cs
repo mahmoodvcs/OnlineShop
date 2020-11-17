@@ -15,8 +15,8 @@ namespace MahtaKala.GeneralServices.SMS
 {
     public class PayamSMSV2 : SMSServiceBase, ISMSService
     {
-        public const string OrderDeliveryCodeReceived = "کد تأیید تحویل سفارش دریافت شد: {0}.";
-        public const string InvalidDeliveryCodeReceived = "کد ارسال شده معتبر نیست: {0}.";
+        //public const string OrderDeliveryCodeReceived = "کد تأیید تحویل سفارش دریافت شد: {0}.";
+        //public const string InvalidDeliveryCodeReceived = "کد ارسال شده معتبر نیست: {0}.";
 
         public PayamSMSV2(ILogger<PayamSMSV2> logger, DataContext db)
         {
@@ -28,6 +28,7 @@ namespace MahtaKala.GeneralServices.SMS
         const string UserName = "kaspian556";
         const string Password = "123456987";
         const string SenderNumber = "982000446";//"982000446000";
+        const string ReceiverNumber = "982000556";
         private readonly ILogger<PayamSMSV2> logger;
         private readonly DataContext db;
 
@@ -45,7 +46,7 @@ namespace MahtaKala.GeneralServices.SMS
         {
             var lastId = db.ReceivedSMSs.Max(a => a.OperatorId);
             PayamSMSV2Service.SMSAPIPortTypeClient cl = new PayamSMSV2Service.SMSAPIPortTypeClient();
-            var data = await cl.ViewReceiveAsync(OrganizationName, UserName, Password, SenderNumber, lastId);
+            var data = await cl.ViewReceiveAsync(OrganizationName, UserName, Password, ReceiverNumber, lastId);
             if (data.Length == 0)
                 return;
             if(data.Length == 1 && data[0].Body == null && data[0].ID.StartsWith("E"))
@@ -64,11 +65,45 @@ namespace MahtaKala.GeneralServices.SMS
                     Sender = item.From
                 };
                 db.ReceivedSMSs.Add(sms);
-                SMSManager.SMSReceived(sms.Sender, sms.Message, sms.Date);
+                //SMSManager.SMSReceived(sms.Sender, sms.Message, sms.Date);
+                // TODO: TEMP...
+
+                // endof TODO: TEMP...
             }
             await db.SaveChangesAsync();
             await ReadReceivedSMSs();
         }
+
+        //public const string OrderDeliveryCodeReceived = "کد تأیید تحویل سفارش دریافت شد: {0}.";
+        //public const string InvalidDeliveryCodeReceived = "خطا! کد ارسال شده معتبر نیست: {0}.";
+
+        //public async Task SMSReceived(string sender, string body, DateTime receiveDate)
+        //{
+        //    //var db = MyServiceProvider.ResolveService<DataContext>();
+        //    //var smsService = MyServiceProvider.ResolveService<ISMSService>();
+        //    //var orderService = MyServiceProvider.ResolveService<OrderService>();
+        //    var order = db.Orders.FirstOrDefault(x => x.TrackNo.ToLower().Equals(body.ToLower()));
+
+        //    string error;
+        //    if (order == null)
+        //    {
+        //        error = "سفارشی با این کد در سیستم ثبت نشده است.";
+        //        //smsService.
+        //        await Send(sender, string.Format(InvalidDeliveryCodeReceived, error));
+        //        return;
+        //    }
+
+        //    try
+        //    {
+        //        orderService.SetOrderDelivered(order.Id).Wait();
+        //        smsService.Send(sender, string.Format(OrderDeliveryCodeReceived, order.TrackNo));
+        //    }
+        //    catch (BadRequestException ex)
+        //    {
+        //        smsService.Send(sender, string.Format(InvalidDeliveryCodeReceived, ex.Message));
+        //        throw;
+        //    }
+        //}
 
 
         //readonly Dictionary<string, string> ErrorCodes=new Dictionary<string, string>

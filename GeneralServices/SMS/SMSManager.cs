@@ -8,6 +8,10 @@ namespace MahtaKala.GeneralServices.SMS
     {
         public static IReadOnlyList<ISMSProcessor> SMSPorcessors { get; } = new List<ISMSProcessor>();
 
+        public static void RegisterProcessor(string processorTypeFullName)
+        { 
+
+        }
         public static void RegisterProcessor(ISMSProcessor processor)
         {
             ((List<ISMSProcessor>)SMSPorcessors).Add(processor);
