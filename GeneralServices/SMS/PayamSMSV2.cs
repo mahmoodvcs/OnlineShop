@@ -18,10 +18,11 @@ namespace MahtaKala.GeneralServices.SMS
         //public const string OrderDeliveryCodeReceived = "کد تأیید تحویل سفارش دریافت شد: {0}.";
         //public const string InvalidDeliveryCodeReceived = "کد ارسال شده معتبر نیست: {0}.";
 
-        public PayamSMSV2(ILogger<PayamSMSV2> logger, DataContext db)
+        public PayamSMSV2(ILogger<PayamSMSV2> logger)//, DataContext db, SMSManager sManager)
         {
             this.logger = logger;
-            this.db = db;
+            //this.db = db;
+            //this.smsManager = sManager;
         }
 
         const string OrganizationName = "kaspian556";
@@ -31,6 +32,9 @@ namespace MahtaKala.GeneralServices.SMS
         const string ReceiverNumber = "982000556";
         private readonly ILogger<PayamSMSV2> logger;
         private readonly DataContext db;
+        private readonly SMSManager smsManager;
+
+        private List<ReceivedSMS> receivedSMSes;
 
         public override async Task<bool> Send(string number, string message)
         {
@@ -42,11 +46,18 @@ namespace MahtaKala.GeneralServices.SMS
             throw new Exception("Error Sending SMS. Code: " + result[0].ID);
         }
 
+        public override async Task<IEnumerable<ReceivedSMS>> GetReceivedSMSes()
+        {
+            receivedSMSes = new List<ReceivedSMS>();
+            await ReadReceivedSMSs();
+            return receivedSMSes;
+        }
+
         public override async Task ReadReceivedSMSs()
         {
-            var lastId = db.ReceivedSMSs.Max(a => a.OperatorId);
+            //var lastId = db.ReceivedSMSs.Max(a => a.OperatorId);
             PayamSMSV2Service.SMSAPIPortTypeClient cl = new PayamSMSV2Service.SMSAPIPortTypeClient();
-            var data = await cl.ViewReceiveAsync(OrganizationName, UserName, Password, ReceiverNumber, lastId);
+            var data = await cl.ViewReceiveAsync(OrganizationName, UserName, Password, ReceiverNumber, null);// lastId);
             if (data.Length == 0)
                 return;
             if(data.Length == 1 && data[0].Body == null && data[0].ID.StartsWith("E"))
@@ -64,13 +75,11 @@ namespace MahtaKala.GeneralServices.SMS
                     OperatorId = item.ID,
                     Sender = item.From
                 };
-                db.ReceivedSMSs.Add(sms);
-                //SMSManager.SMSReceived(sms.Sender, sms.Message, sms.Date);
-                // TODO: TEMP...
-
-                // endof TODO: TEMP...
+                receivedSMSes.Add(sms);
+                //db.ReceivedSMSs.Add(sms);
+                //smsManager.SMSReceived(sms.Sender, sms.Message, sms.Date);
             }
-            await db.SaveChangesAsync();
+            //await db.SaveChangesAsync();
             await ReadReceivedSMSs();
         }
 

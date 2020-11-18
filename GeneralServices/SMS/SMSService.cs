@@ -1,4 +1,7 @@
-﻿using System;
+﻿using MahtaKala.Entities;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
@@ -11,12 +14,14 @@ namespace MahtaKala.GeneralServices
         Task<bool> Send(string number, string message);
         Task<int> SendOTP(string number, string message);
         Task ReadReceivedSMSs();
+        Task<IEnumerable<ReceivedSMS>> GetReceivedSMSes();
 
     }
 
     public abstract class SMSServiceBase : ISMSService
     {
         public abstract Task ReadReceivedSMSs();
+        public abstract Task<IEnumerable<ReceivedSMS>> GetReceivedSMSes();
 
         public abstract Task<bool> Send(string number, string message);
 

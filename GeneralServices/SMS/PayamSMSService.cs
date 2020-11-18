@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using MahtaKala.Entities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -66,6 +67,11 @@ namespace MahtaKala.GeneralServices
         }
 
         public override Task ReadReceivedSMSs()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<IEnumerable<ReceivedSMS>> GetReceivedSMSes()
         {
             throw new NotImplementedException();
         }

@@ -122,6 +122,7 @@ namespace MahtaKala
 			services.AddSingleton<AppSettings>();
             services.AddSingleton<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            
             services.AddSingleton<IProductImageService, ProductImageService>();
             services.AddSingleton<ICategoryImageService, CategoryImageService>();
             services.AddSingleton<ImagesPathStrategy>();
@@ -197,6 +198,8 @@ namespace MahtaKala
 
             MyAppContext.SetHttpContextAccessor(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
             MyServiceProvider.SetSetviceProvider(app.ApplicationServices.GetRequiredService<IServiceProvider>());
+            //SMSManager.SetHttpContextAccessor(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
+            //SMSManager.RegisterProcessorType(typeof(DeliveryCodeReceiver));
 
             UpdateDatabase(app);
 
@@ -206,9 +209,11 @@ namespace MahtaKala
             {
                 var userService = serviceScope.ServiceProvider.GetService<IUserService>();
                 userService.CreateAdminUserIfNotExist();
+                //var smsManager = serviceScope.ServiceProvider.GetService<SMSManager>();
+                //smsManager.RegisterProcessorType(typeof(DeliveryCodeReceiver));
                 //var deliveryCodeReceiver = serviceScope.ServiceProvider.GetService<DeliveryCodeReceiver>();
                 // Why would someone ever need this kind of complication?! Isn't it a little too much?! Do we really need all these layers of "abstraction" (or, "complication", if we want to be honest!) stacked on top of each other?!
-                //SMSManager.RegisterProcessor(deliveryCodeReceiver);
+
                 // Temporarily removed...
             }
 

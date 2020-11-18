@@ -6,6 +6,6 @@ namespace MahtaKala.GeneralServices.SMS
 {
     public interface ISMSProcessor
     {
-        void SMSReceived(string sender, string body, DateTime receiveDate);
+        string SMSReceived(string sender, string body, DateTime receiveDate);
     }
 }

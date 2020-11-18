@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Payment;
+using MahtaKala.GeneralServices.SMS;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.SharedServices;
@@ -664,20 +665,20 @@ namespace MahtaKala.Services
             var order = await db.Orders.Include(a => a.Items).FirstOrDefaultAsync(a => a.Id == orderId);
             if (order.State == OrderState.Delivered)
             {
-                throw new BadRequestException("این کد قبلاً دریافت شده است.");
+                throw new BadRequestException(SMSManager.TEMP_MARK + "این کد قبلاً دریافت شده است.");
             }
             if (order.State == OrderState.Initial || order.State == OrderState.CheckedOut)
             {
-                throw new BadRequestException("هزینه ی سفارش پرداخت نشده است.");
+                throw new BadRequestException(SMSManager.TEMP_MARK + "هزینه ی سفارش پرداخت نشده است.");
             }
             else if (order.State == OrderState.Canceled)
-                throw new BadRequestException("این سفارش قبلاً لغو شده است.");
+                throw new BadRequestException(SMSManager.TEMP_MARK + "این سفارش قبلاً لغو شده است.");
 
 
             var items = order.Items.Where(a => a.State == OrderItemState.Sent);
             if (items.Count() == 0)
             {
-                throw new BadRequestException("این سفارش قلم ارسال شده ندارد.");
+                throw new BadRequestException(SMSManager.TEMP_MARK + "این سفارش قلم ارسال شده ندارد.");
             }
 
             foreach (var item in items)

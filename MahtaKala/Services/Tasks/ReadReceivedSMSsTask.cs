@@ -1,4 +1,5 @@
 ﻿using MahtaKala.GeneralServices;
+using MahtaKala.GeneralServices.SMS;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Quartz;
@@ -23,8 +24,10 @@ namespace MahtaKala.Services.Tasks
         {
             using (var scope = provider.CreateScope())
             {
-                var smsService = scope.ServiceProvider.GetService<ISMSService>();
-                await smsService.ReadReceivedSMSs();
+                //var smsService = scope.ServiceProvider.GetService<ISMSService>();
+                //await smsService.ReadReceivedSMSs();
+                var smsManager = scope.ServiceProvider.GetService<SMSManager>();
+                await smsManager.FetchAndProcessReceivedSMSes();
             }
         }
     }
