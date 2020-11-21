@@ -631,9 +631,9 @@ namespace MahtaKala.Services
             if (order == null)
                 throw new BadRequestException($"Invalid order Id! Order with Id {origOrder.Id} does not exist!");
             if (SuccessfulOrderStates.Contains(order.State))
-                throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {origOrder.State}");
-            if (order.State == OrderState.Canceled)
-                throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {origOrder.State}");
+                throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {order.State}");
+            //if (order.State == OrderState.Canceled)
+            //    throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {order.State}");
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
 
             order.State = OrderState.Canceled;

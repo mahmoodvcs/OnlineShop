@@ -30,7 +30,7 @@ namespace MahtaKala.Services
 		public async Task RoundUpOrphans()
 		{
 			var orphanStates = orderService.QuantitySubtractedOrderStates.Except(orderService.SuccessfulOrderStates).ToList();
-			var orphanDateThreshold = DateTime.Now.Add(DiscardOrderThreshold);
+			var orphanDateThreshold = DateTime.Now.Subtract(DiscardOrderThreshold);	// Orders with checkout date prior to one hour ago
 			var orphanOrderIds = db.Orders.Where(x => x.CheckOutDate < orphanDateThreshold 
 				&& orphanStates.Contains(x.State)).Select(x => x.Id).ToList();
 			foreach (var orphanId in orphanOrderIds)
