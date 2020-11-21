@@ -1592,6 +1592,43 @@ namespace MahtaKala.Controllers
         #region Settlements
         [HttpGet]
         [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
+        public ActionResult ProductPaymentPartyList()
+        {
+            ViewData["Title"] = "لیست اقلام تسهیم";
+            return View();
+        }
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
+        public async Task<IActionResult> GetProductPaymentPartyListData([DataSourceRequest] DataSourceRequest request)
+        {
+            var query = db.ProductPaymentParties
+                .Include(x => x.PaymentParty)
+                .Include(x => x.Product).AsQueryable();
+            if (base.User.Type != UserType.Admin)
+            {
+                if (base.User.Type == UserType.Seller)
+                {
+                    var sellerId = await GetSellerId();
+                    var seller = db.Sellers.Where(x => x.Id == sellerId).SingleOrDefault();
+                    if (seller == null)
+                        return null;
+                    query = query.Where(x => x.PaymentParty.ShabaId.ToLower().Equals(seller.AccountNumber.ToLower()));
+                }
+            }
+            var result = await query.Select(x =>
+            new ProductPaymentPartyVM()
+            {
+                ProductId = x.ProductId,
+                Product = x.Product,
+                PaymentPartyId = x.PaymentPartyId,
+                PaymentParty = x.PaymentParty,
+                Percent = x.Percent
+            }).ToDataSourceResultAsync(request);
+            return KendoJson(result);
+        }
+
+        [HttpGet]
+        [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
         public ActionResult PaymentSettlementList()
         {
             ViewData["Title"] = "لیست اقلام تسهیم";
