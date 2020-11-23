@@ -112,7 +112,19 @@ namespace MahtaKala.Controllers
         public async Task<ActionResult> Paid()//didn't work [FromQuery]string source)
         {
             var payment = await DoPaymentCallbackOperations();
-            return View("PaidFromApi", payment);
+            var paymentModel = new BackFromPaymentVM(payment);
+            // This is just a precaution, because normally, the Payment object should contain the source from which 
+            // the payment process is originated, which makes the query parameter "source" redundant!
+            //if (!string.IsNullOrWhiteSpace(source))
+            //{
+            //    source = source.Trim().ToLower();
+            //    if (source.Equals("website"))
+            //        paymentModel.PaymentSourceUsed = SourceUsedForPayment.WebSite;
+            //    else if (source.Equals("mobileapp"))
+            //        paymentModel.PaymentSourceUsed = SourceUsedForPayment.MobileApp;
+            //}
+            paymentModel.BaseUrl = pathService.AppBaseUrl;
+            return View("PaidFromApi", paymentModel);
         }
 
         [HttpPost]

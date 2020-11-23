@@ -1,5 +1,8 @@
-﻿@model MahtaKala.Entities.Payment
+﻿@model MahtaKala.Models.Payment.BackFromPaymentVM
 
+@{
+	string returnToHref = "";
+}
 <html>
     <head>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
@@ -13,11 +16,22 @@
             }
             else
             {
-                <h2>پرداخت ناموفق </h2>
+                <h2>پرداخت ناموفق</h2>
             }
 
+            @if (Model.PaymentSourceUsed == SourceUsedForPayment.MobileApp)
+			{
+				returnToHref = "Mahtakala://BackFromPayment?status=" + Model.State;
+			}
+			else
+			{
+				//returnToHref = "http://www.mahtakala.ir/"
+				//if (Model.BaseUrl.ToLower().Contains("mahtakala.ir"))
+				returnToHref = Model.BaseUrl;
+			}
 
-            <a class="btn btn-primary" href="Mahtakala://BackFromPayment?status=@Model.State">
+
+            <a class="btn btn-primary" href="@returnToHref">
             بازگشت به اپلیکیشن
             </a>
 

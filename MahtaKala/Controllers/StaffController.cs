@@ -1238,6 +1238,7 @@ namespace MahtaKala.Controllers
             return Content("");
         }
 
+        [HttpPost]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<ActionResult> DeleteImage(long Id, string fileName)
         {
@@ -1296,6 +1297,7 @@ namespace MahtaKala.Controllers
             return Json(new { Success = true });
         }
 
+        [HttpPost]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<JsonResult> Product_AssignTag(ProductChangeCategoryModel model)
         {
@@ -1597,6 +1599,7 @@ namespace MahtaKala.Controllers
             ViewData["Title"] = "لیست اقلام تسهیم";
             return View();
         }
+
         [HttpPost]
         [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
         public async Task<IActionResult> GetProductPaymentPartyListData([DataSourceRequest] DataSourceRequest request)
@@ -1634,6 +1637,7 @@ namespace MahtaKala.Controllers
             ViewData["Title"] = "لیست اقلام تسهیم";
             return View();
         }
+
         [HttpPost]
         [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
         public async Task<IActionResult> GetPaymentSettlementListData([DataSourceRequest] DataSourceRequest request)

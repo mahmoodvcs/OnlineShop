@@ -578,14 +578,15 @@ namespace MahtaKala.Services
         {
             return order.Items.Sum(a => a.UnitPrice * a.Quantity) + GetDeliveryPrice(order);
         }
-        public async Task<Payment> InitPayment(Order order, string returnUrl)
+        public async Task<Payment> InitPayment(Order order, string returnUrl, SourceUsedForPayment paymentOriginatedFrom)
         {
             var payment = new Entities.Payment()
             {
                 Amount = order.TotalPrice,
                 Order = order,
                 State = PaymentState.Registerd,
-                RegisterDate = DateTime.Now
+                RegisterDate = DateTime.Now,
+                PaymentSourceUsed = paymentOriginatedFrom
             };
             db.Payments.Add(payment);
             await db.SaveChangesAsync();
