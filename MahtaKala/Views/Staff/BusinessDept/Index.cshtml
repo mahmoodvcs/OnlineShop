@@ -9,12 +9,12 @@
 	.Name("Grid")
 	.Columns(cols =>
 	{
-		cols.Bound(x => x.Code).Title("کد (اسکاد)");
-		cols.Bound(x => x.Name).Title("نام (اسکاد)");
-		cols.Bound(x => x.Unit).Title("واحد");
-		cols.Bound(x => x.Count).Title("موجودی (اسکاد)");
-		cols.Bound(x => x.Active).Title("فعال (اسکاد)");
-		cols.Bound(x => x.Price).Title("قیمت");
+		cols.Bound(x => x.Code_Eskaad).Title("کد (اسکاد)");
+		cols.Bound(x => x.Name_Eskaad).Title("نام (اسکاد)");
+		cols.Bound(x => x.Unit_Eskaad).Title("واحد");
+		cols.Bound(x => x.Count_Eskaad).Title("موجودی (اسکاد)");
+		cols.Bound(x => x.Active_Eskaad).Title("فعال (اسکاد)");
+		cols.Bound(x => x.Price_Eskaad).Title("قیمت");
 		cols.Bound(x => x.Code_Mahta).Title("کد (مهتا)");
 		cols.Bound(x => x.Name_Mahta).Title("نام (مهتا)");
 		cols.Bound(x => x.Quantity_Mahta).Title("موجودی (مهتا)");
@@ -26,7 +26,7 @@
 		.PageSizes(new int[] { 5, 10, 20, 50 })
 		.ButtonCount(5))
 	.Sortable()
-	.DataSource(datasource => 
+	.DataSource(datasource =>
 		datasource.Ajax()
 		.PageSize(50)
 		.Read(read => read.Action("GetEskaadMerchandiseDataSource", "BusinessDept")))

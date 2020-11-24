@@ -34,6 +34,8 @@ namespace MahtaKala.Controllers.Staff
 			return View("~/Views/Staff/BusinessDept/Index.cshtml");
 		}
 
+		[HttpPost]
+		[Authorize(UserType.Admin, UserType.Staff)]
 		public IActionResult GetEskaadMerchandiseDataSource([DataSourceRequest] DataSourceRequest request)
 		{
 			var ourProducts = db.Products.Include(x => x.Quantities)
@@ -73,7 +75,13 @@ namespace MahtaKala.Controllers.Staff
 			{
 				if (processedProductIds.ContainsKey(product.Code))
 				{
-					continue;
+					if (processedProductIds[product.Code] == product.Id)
+						continue;
+					else
+					{
+						// This means we have two products with different Ids and identical codes!
+						// TODO: Inform the proper authorities to take action against the devil's wrong-doings! This will not stand!
+					}
 				}
 				EskaadMerchandiseModel newItem = new EskaadMerchandiseModel(product);
 				newItem.SetItemProirity();

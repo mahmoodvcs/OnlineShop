@@ -67,10 +67,14 @@ namespace MahtaKala.Entities
         [Display(Name ="حجم")]
         public decimal Volume { get; set; }
 
-        //public bool Deleted { get; set; }
+        [Display(Name = "آستانه اخطار اول (زرد)")]
+        public int YellowWarningThreshold { get; set; } = 0;
+        [Display(Name = "آستانه اخطار دوم (قرمز)")]
+        public int RedWarningThreshold { get; set; } = 0;
+		//public bool Deleted { get; set; }
 
 
-        [NotMapped]
+		[NotMapped]
         public ProductPrice Price => Prices?.FirstOrDefault();
     }
 
