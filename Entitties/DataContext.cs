@@ -21,7 +21,7 @@ namespace MahtaKala.Entities
 
         public DataContext()
         { }
-        public DataContext(DbContextOptions options) :base(options)
+        public DataContext(DbContextOptions<DataContext> options) :base(options)
         {
 
         }
@@ -135,10 +135,15 @@ namespace MahtaKala.Entities
 
         public DbSet<ReceivedSMS> ReceivedSMSs { get; set; }
 
+		#region Eskaad Merchandise & Orders
+		public DbSet<EskaadMerchandise> EskaadMerchandise { get; set; }
+		public DbSet<EskaadSales> EskaadSales { get; set; }
+		#endregion Eskaad Merchandise & Orders
 
-        #region Get Titles
 
-        private static Dictionary<Type, string> tableTitles = new Dictionary<Type, string>();
+		#region Get Titles
+
+		private static Dictionary<Type, string> tableTitles = new Dictionary<Type, string>();
         public static string GetEntityTitle<TEntity>()
         {
             return GetEntityTitle(typeof(TEntity));

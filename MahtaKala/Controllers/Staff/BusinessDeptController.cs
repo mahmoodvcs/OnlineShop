@@ -38,6 +38,14 @@ namespace MahtaKala.Controllers.Staff
 		[Authorize(UserType.Admin, UserType.Staff)]
 		public IActionResult GetEskaadMerchandiseDataSource([DataSourceRequest] DataSourceRequest request)
 		{
+			var now = DateTime.Now;
+			var shouldFetchNewData = db.EskaadMerchandise.Where(x => x.FetchedDate.Date.Equals(now.Date)).Any();
+			if (!shouldFetchNewData)
+			{
+				var localEskaadMerchandise = db.EskaadMerchandise.Where(x => x.FetchedDate.Date.Equals(now.Date)).ToList();
+				var resultMerchandiseModels = localEskaadMerchandise.Select(x => new EskaadMerchandiseModel(x)).ToList();
+				// Send these resultMerchandiseModels to the view
+			}
 			var ourProducts = db.Products.Include(x => x.Quantities)
 				.Where(x => x.SellerId == ESKAAD_SELLER_ID).ToList();
 			var eskaadMerchandise = eskaadDb.Merchandise.ToList();
