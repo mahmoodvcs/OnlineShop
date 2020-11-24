@@ -1238,6 +1238,7 @@ namespace MahtaKala.Controllers
             return Content("");
         }
 
+        [HttpPost]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<ActionResult> DeleteImage(long Id, string fileName)
         {
@@ -1296,6 +1297,7 @@ namespace MahtaKala.Controllers
             return Json(new { Success = true });
         }
 
+        [HttpPost]
         [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Seller })]
         public async Task<JsonResult> Product_AssignTag(ProductChangeCategoryModel model)
         {
@@ -1427,31 +1429,33 @@ namespace MahtaKala.Controllers
         //    return Json(new { success = true });
         //}
 
-        [AjaxAction]
-        [Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
-        public async Task<ActionResult> ConfirmDelivered(long Id, string TrackNo)
-        {
-            var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
-            if (order == null)
-            {
-                throw new EntityNotFoundException<Order>(Id);
-            }
-            if (order.TrackNo != TrackNo)
-            {
-                return Json(new { success = false, message = Messages.Messages.Order.ErrorWrongTrackNo });
-            }
-            if (order.State == OrderState.Sent)
-            {
-                order.State = OrderState.Delivered;
-                order.ActualDeliveryDate = DateTime.Now;
-            }
-            else
-            {
-                return Json(new { success = false, message = Messages.Messages.Order.ErrorConvertStateToDelivered });
-            }
-            await db.SaveChangesAsync();
-            return Json(new { success = true });
-        }
+        // This action was implemented as a test, and it has no actual usage for the project!
+        // So, there's no reason for not commenting it out!
+        //[AjaxAction]
+        //[Authorize(new UserType[] { UserType.Staff, UserType.Admin, UserType.Delivery }, Order = 1)]
+        //public async Task<ActionResult> ConfirmDelivered(long Id, string TrackNo)
+        //{
+        //    var order = await db.Orders.Where(o => o.Id == Id).FirstOrDefaultAsync();
+        //    if (order == null)
+        //    {
+        //        throw new EntityNotFoundException<Order>(Id);
+        //    }
+        //    if (order.TrackNo != TrackNo)
+        //    {
+        //        return Json(new { success = false, message = Messages.Messages.Order.ErrorWrongTrackNo });
+        //    }
+        //    if (order.State == OrderState.Sent)
+        //    {
+        //        order.State = OrderState.Delivered;
+        //        order.ActualDeliveryDate = DateTime.Now;
+        //    }
+        //    else
+        //    {
+        //        return Json(new { success = false, message = Messages.Messages.Order.ErrorConvertStateToDelivered });
+        //    }
+        //    await db.SaveChangesAsync();
+        //    return Json(new { success = true });
+        //}
 
 
         #endregion
@@ -1587,6 +1591,90 @@ namespace MahtaKala.Controllers
 
         #endregion Tags
 
+        #region Settlements
+        [HttpGet]
+        [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
+        public ActionResult ProductPaymentPartyList()
+        {
+            ViewData["Title"] = "لیست اقلام تسهیم";
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
+        public async Task<IActionResult> GetProductPaymentPartyListData([DataSourceRequest] DataSourceRequest request)
+        {
+            var query = db.ProductPaymentParties
+                .Include(x => x.PaymentParty)
+                .Include(x => x.Product).AsQueryable();
+            if (base.User.Type != UserType.Admin)
+            {
+                if (base.User.Type == UserType.Seller)
+                {
+                    var sellerId = await GetSellerId();
+                    var seller = db.Sellers.Where(x => x.Id == sellerId).SingleOrDefault();
+                    if (seller == null)
+                        return null;
+                    query = query.Where(x => x.PaymentParty.ShabaId.ToLower().Equals(seller.AccountNumber.ToLower()));
+                }
+            }
+            var result = await query.Select(x =>
+            new ProductPaymentPartyVM()
+            {
+                ProductId = x.ProductId,
+                Product = x.Product,
+                PaymentPartyId = x.PaymentPartyId,
+                PaymentParty = x.PaymentParty,
+                Percent = x.Percent
+            }).ToDataSourceResultAsync(request);
+            return KendoJson(result);
+        }
+
+        [HttpGet]
+        [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
+        public ActionResult PaymentSettlementList()
+        {
+            ViewData["Title"] = "لیست اقلام تسهیم";
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(new UserType[] { UserType.Admin, UserType.Seller })]
+        public async Task<IActionResult> GetPaymentSettlementListData([DataSourceRequest] DataSourceRequest request)
+        {
+            var query = db.PaymentSettlements.AsQueryable();
+            if (base.User.Type != UserType.Admin)
+            {
+                if (base.User.Type == UserType.Seller)
+                {
+                    var sellerId = await GetSellerId();
+                    var seller = db.Sellers.Where(x => x.Id == sellerId).SingleOrDefault();
+                    if (seller == null)
+                        return null;
+                    query = query.Where(x => x.ShabaId.ToLower().Equals(seller.AccountNumber.ToLower()));
+                }
+            }
+            var result = await query.Select(x => 
+            new PaymentSettlementVM()
+            { 
+                Id = x.Id,
+                Amount = x.Amount,
+                Date = x.Date,
+                ItemId = x.ItemId,
+                Name = x.Name,
+                OrderId = x.OrderId,
+                Order = x.Order,
+                PayFor = x.PayFor,
+                PaymentId = x.PaymentId,
+                Payment = x.Payment,
+                Response = x.Response,
+                ShabaId = x.ShabaId,
+                Status = x.Status
+            }).ToDataSourceResultAsync(request);
+            return KendoJson(result);
+        }
+
+        #endregion Settlements
 
         [HttpGet]
         [Authorize(UserType.Admin)]

@@ -1,6 +1,7 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.GeneralServices;
 using MahtaKala.GeneralServices.Payment;
+using MahtaKala.GeneralServices.SMS;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.SharedServices;
@@ -69,7 +70,7 @@ namespace MahtaKala.Services
 
         #endregion Constants
         User User => currentUserService.User;
-        public async Task<Order> GetUserOrder()
+        public async Task<Order> GetUserOrder() // WHAT THE HELL IS THIS??
         {
             var list = await db.Orders
                 .Include(a => a.Items)
@@ -539,7 +540,8 @@ namespace MahtaKala.Services
         public DateTime GetApproximateDeilveryDate()
         {
             DateTime now = DateTime.Now;
-            return now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(19);
+            //return now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(19);
+            return now.TimeOfDay.Hours > 13 ? now.Date.AddDays(1).AddHours(19) : now.Date.AddHours(19);
         }
 
         public TimeSpan DeliveryTimeSpan => TimeSpan.FromHours(2);
@@ -576,14 +578,15 @@ namespace MahtaKala.Services
         {
             return order.Items.Sum(a => a.UnitPrice * a.Quantity) + GetDeliveryPrice(order);
         }
-        public async Task<Payment> InitPayment(Order order, string returnUrl)
+        public async Task<Payment> InitPayment(Order order, string returnUrl, SourceUsedForPayment paymentOriginatedFrom)
         {
             var payment = new Entities.Payment()
             {
                 Amount = order.TotalPrice,
                 Order = order,
                 State = PaymentState.Registerd,
-                RegisterDate = DateTime.Now
+                RegisterDate = DateTime.Now,
+                PaymentSourceUsed = paymentOriginatedFrom
             };
             db.Payments.Add(payment);
             await db.SaveChangesAsync();
@@ -606,23 +609,32 @@ namespace MahtaKala.Services
             }
         }
 
-        public async Task RollbackUnsuccessfulPayments()
-        {
-            var initalStates = QuantitySubtractedOrderStates.Except(SuccessfulOrderStates).ToArray();
-            var list = await db.Orders.Where(a => a.CheckOutDate < DateTime.Now.AddMinutes(-20)
-                && initalStates.Contains(a.State)).ToListAsync();
-            foreach (var item in list)
-            {
+        //public async Task RollbackUnsuccessfulPayments()
+        //{
+        //    var initalStates = QuantitySubtractedOrderStates.Except(SuccessfulOrderStates).ToArray();
+        //    var list = await db.Orders.Where(a => a.CheckOutDate < DateTime.Now.AddMinutes(-20)
+        //        && initalStates.Contains(a.State)).ToListAsync();
+        //    foreach (var item in list)
+        //    {
 
-            }
+        //    }
+        //}
+
+        public async Task RollbackOrder(long orderId)
+        {
+            var order = new Order() { Id = orderId };
+            await RollbackQuantity(order);
         }
 
         async Task RollbackQuantity(Order origOrder)
         {
-            if (SuccessfulOrderStates.Contains(origOrder.State))
-                throw new Exception($"Invalid order state: Id: {origOrder.Id} - State: {origOrder.State}");
-
             var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product).FirstAsync(a => a.Id == origOrder.Id);
+            if (order == null)
+                throw new BadRequestException($"Invalid order Id! Order with Id {origOrder.Id} does not exist!");
+            if (SuccessfulOrderStates.Contains(order.State))
+                throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {order.State}");
+            //if (order.State == OrderState.Canceled)
+            //    throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {order.State}");
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
 
             order.State = OrderState.Canceled;
@@ -632,8 +644,9 @@ namespace MahtaKala.Services
             foreach (var item in order.Items)
             {
                 var quantity = quantities.FirstOrDefault(a => a.ProductId == item.ProductPrice.ProductId);
+                bool itWasZeroBeforeRollBack = (quantity.Quantity == 0);
                 quantity.Quantity += item.Quantity;
-                if (item.ProductPrice.Product.Status == ProductStatus.NotAvailable && quantity.Quantity > 0)
+                if (item.ProductPrice.Product.Status == ProductStatus.NotAvailable && quantity.Quantity > 0 && itWasZeroBeforeRollBack)
                 {
                     item.ProductPrice.Product.Status = ProductStatus.Available;
                 }
@@ -653,20 +666,20 @@ namespace MahtaKala.Services
             var order = await db.Orders.Include(a => a.Items).FirstOrDefaultAsync(a => a.Id == orderId);
             if (order.State == OrderState.Delivered)
             {
-                throw new BadRequestException("خطا! این کد قبلاً دریافت شده است.");
+                throw new BadRequestException(SMSManager.TEMP_MARK + "این کد قبلاً دریافت شده است.");
             }
             if (order.State == OrderState.Initial || order.State == OrderState.CheckedOut)
             {
-                throw new BadRequestException("خطا! هزینه ی سفارش پرداخت نشده است.");
+                throw new BadRequestException(SMSManager.TEMP_MARK + "هزینه ی سفارش پرداخت نشده است.");
             }
             else if (order.State == OrderState.Canceled)
-                throw new BadRequestException("خطا! این سفارش قبلاً لغو شده است.");
+                throw new BadRequestException(SMSManager.TEMP_MARK + "این سفارش قبلاً لغو شده است.");
 
 
             var items = order.Items.Where(a => a.State == OrderItemState.Sent);
             if (items.Count() == 0)
             {
-                throw new BadRequestException("این سفارش قلم ارسال شده ندارد.");
+                throw new BadRequestException(SMSManager.TEMP_MARK + "این سفارش قلم ارسال شده ندارد.");
             }
 
             foreach (var item in items)

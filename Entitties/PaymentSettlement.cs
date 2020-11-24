@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -29,13 +30,18 @@ namespace MahtaKala.Entities
 
     public enum PaymentSettlementStatus
     {
+        [Description("فرستاده شد")]
         Sent,
+        [Description("موفق")]
         Succeeded,
+        [Description("ناموفق")]
         Failed
     }
     public enum PayFor
     {
+        [Description("هزینه کالا")]
         OrderItem,
+        [Description("هزینه ارسال")]
         Delivery
     }
 

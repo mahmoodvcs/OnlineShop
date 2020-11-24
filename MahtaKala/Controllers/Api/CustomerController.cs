@@ -34,6 +34,10 @@ namespace MahtaKala.Controllers.Api
         private readonly IProductImageService productImageService;
         private readonly IPathService pathService;
         private readonly OrderService orderService;
+        public const string OriginatedFrom_HeaderKey = "device";
+        public const string OriginatedFromWebsite_HeaderValue = "webapp";
+        public const string OriginatedFromAndroid_HeaderValue = "android";
+        public const string OriginatedFromIOS_HeaderValue = "ios";
 
         public CustomerController(DataContext context,
             ILogger<CustomerController> logger,
@@ -164,16 +168,53 @@ namespace MahtaKala.Controllers.Api
         [HttpPost]
         public async Task<CheckoutResponseModel> Checkout(CheckoutModel checkoutModel)
         {
-            var order = await orderService.Checkout(checkoutModel.AddressId);
+            var paymentRequestOriginatedFrom = SourceUsedForPayment.Unrecognized;
+            //Microsoft.Extensions.Primitives.StringValues device;
+            //HttpContext.Request.Headers.TryGetValue("device", out device);
+            if (HttpContext.Request.Headers.ContainsKey(OriginatedFrom_HeaderKey))
+            {
+                var device = HttpContext.Request.Headers[OriginatedFrom_HeaderKey].FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(device))
+				{
+                    device = device.Trim().ToLower();
+                    if (device.Equals(OriginatedFromWebsite_HeaderValue))
+                    {
+                        paymentRequestOriginatedFrom = SourceUsedForPayment.WebSite;
+                    }
+                    else if (device.Equals(OriginatedFromAndroid_HeaderValue) 
+                        || device.Equals(OriginatedFromIOS_HeaderValue))
+                    {
+                        paymentRequestOriginatedFrom = SourceUsedForPayment.MobileApp;
+                    }
+					else
+					{
+                        paymentRequestOriginatedFrom = SourceUsedForPayment.Unrecognized;
+					}
+				}
+            }
 
-            var payment = await orderService.InitPayment(order, pathService.AppBaseUrl + "/Payment/Paid?source=api");
-            string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}&source=api";
+            var order = await orderService.Checkout(checkoutModel.AddressId);
+            string deliveryMessage = GetDeliveryTimeMessage(order);
+            var returnUrl = pathService.AppBaseUrl + "/Payment/Paid";//?source=api";
+            var payment = await orderService.InitPayment(order, returnUrl, paymentRequestOriginatedFrom);
+            string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}";
 
             return new CheckoutResponseModel
             {
                 OrderId = order.Id,
-                PaymentUrl = payUrl
+                PaymentUrl = payUrl,
+                TimeOfDeliveryMessage = deliveryMessage
             };
+        }
+
+        private string GetDeliveryTimeMessage(Order order)
+        {
+            if (order == null)
+                return string.Empty;
+            if (!order.ApproximateDeliveryDate.HasValue)
+                return string.Empty;
+            string message = "زمان ارسال سفارش: " + Util.GetPersianDateRange(order.ApproximateDeliveryDate, orderService.DeliveryTimeSpan);
+            return message;
         }
 
         [HttpGet]

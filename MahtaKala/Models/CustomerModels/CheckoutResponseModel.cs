@@ -10,5 +10,6 @@ namespace MahtaKala.Models.CustomerModels
     {
         public long OrderId { get; set; }
         public string PaymentUrl { get; set; }
-    }
+		public string TimeOfDeliveryMessage { get; set; }
+	}
 }

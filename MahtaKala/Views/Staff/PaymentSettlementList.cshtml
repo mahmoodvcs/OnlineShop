@@ -1,0 +1,43 @@
+﻿@using MahtaKala.Infrustructure.Extensions;
+@{
+	ViewData["Title"] = "PaymentSettlements";
+	Layout = "~/Views/Shared/_Staff.cshtml";
+}
+<style>
+	#grid {
+		min-width: 1250px;
+	}
+</style>
+
+@*@(Html.Kendo().Grid<MahtaKala.Entities.Models.ProductListModel>().Name("grid").Columns(columns =>*@
+@(Html.Kendo().Grid<MahtaKala.Models.PaymentSettlementVM>().Name("grid").Columns(columns =>
+{
+	columns.Bound(s => s.Id).Title("شناسه");
+	columns.Bound(s => s.Name).Title("نام");
+	columns.Bound(s => s.ShabaId).Title("شماره شبا");
+	columns.Bound(s => s.PayForPersian).Title("سهم از:");
+	columns.Bound(s => s.Amount).Format("{0:n0}").Title("مبلغ سهم");
+	columns.Bound(s => s.SettlementDatePersian).Title("تاریخ تسهیم");
+	columns.Bound(s => s.SettlementStatusPersian).Title("وضعیت");
+	columns.Bound(s => s.OrderId).Title("شناسه سفارش");
+	columns.Bound(s => s.PaymentStatusPersian).Title("وضعیت پرداخت");
+})
+.Pageable(pageable => pageable
+	.Refresh(true)
+	.PageSizes(true)
+	.PageSizes(new int[] { 5, 10, 20, 50 })
+	.ButtonCount(5))
+.Sortable()
+.Filterable()
+.DataSource(dataSource => dataSource
+	.Ajax()
+	.PageSize(50)
+	.Model(model =>
+	{
+		model.Id(p => p.Id);
+
+	})
+	.Read(read => read.Action("GetPaymentSettlementListData", "Staff"))
+	.Sort(s => s.Add(a => a.Id))
+	)
+)

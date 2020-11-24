@@ -110,19 +110,24 @@ namespace MahtaKala
                 options.UseSqlServer(Configuration.GetConnectionString("EskaadSharedDB")/*, x => x.UseNetTopologySuite()*/);
             });
             services.AddMvc(options => { options.UseCustomStringModelBinder(); });
-            RegisterMyServices(services);
+            RegisterMyServices(services, Configuration);
         }
 
-        private static void RegisterMyServices(IServiceCollection services)
+        private static void RegisterMyServices(IServiceCollection services, IConfiguration config)
         {
-            services.AddScoped<ISMSService, PayamSMSV2>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IBankPaymentService, PardakhtNovinService>();
             services.AddScoped<IFileService, FileService>();
-            services.AddScoped<OrderService>();
-            services.AddSingleton<AppSettings>();
+			//services.AddScoped<ISMSService, PayamSMSV2>();
+			//services.AddSingleton<ISMSService, PayamSMSV2>();
+			services.AddTransient<ISMSService, PayamSMSV2>();
+			//services.AddScoped<OrderService>();
+			//services.AddSingleton<OrderService>();
+			services.AddTransient<OrderService>();
+			services.AddSingleton<AppSettings>();
             services.AddSingleton<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            
             services.AddSingleton<IProductImageService, ProductImageService>();
             services.AddSingleton<ICategoryImageService, CategoryImageService>();
             services.AddSingleton<ImagesPathStrategy>();
@@ -135,7 +140,7 @@ namespace MahtaKala
             services.AddScoped<IDeliveryService, YarBoxDeliveryService>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
-            TaskManager.RegisterTasks(services);
+            TaskManager.RegisterTasks(services, config);
 
             services.AddEFSecondLevelCache();
             // Add an in-memory cache service provider
@@ -198,6 +203,8 @@ namespace MahtaKala
 
             MyAppContext.SetHttpContextAccessor(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
             MyServiceProvider.SetSetviceProvider(app.ApplicationServices.GetRequiredService<IServiceProvider>());
+            //SMSManager.SetHttpContextAccessor(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
+            //SMSManager.RegisterProcessorType(typeof(DeliveryCodeReceiver));
 
             UpdateDatabase(app);
 
@@ -207,6 +214,12 @@ namespace MahtaKala
             {
                 var userService = serviceScope.ServiceProvider.GetService<IUserService>();
                 userService.CreateAdminUserIfNotExist();
+                //var smsManager = serviceScope.ServiceProvider.GetService<SMSManager>();
+                //smsManager.RegisterProcessorType(typeof(DeliveryCodeReceiver));
+                //var deliveryCodeReceiver = serviceScope.ServiceProvider.GetService<DeliveryCodeReceiver>();
+                // Why would someone ever need this kind of complication?! Isn't it a little too much?! Do we really need all these layers of "abstraction" (or, "complication", if we want to be honest!) stacked on top of each other?!
+
+                // Temporarily removed...
             }
 
             //TODO: consider the performance overhead

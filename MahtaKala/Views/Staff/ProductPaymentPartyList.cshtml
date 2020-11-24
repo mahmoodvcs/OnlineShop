@@ -1,0 +1,33 @@
+﻿
+@{
+	//ViewData["Title"] = "ProductPaymentPartyList";
+	Layout = "~/Views/Shared/_Staff.cshtml";
+}
+
+@(Html.Kendo().Grid<MahtaKala.Models.ProductPaymentPartyVM>().Name("grid").Columns(columns =>
+{
+	columns.Bound(s => s.ProductId).Title("شناسه محصول");
+	columns.Bound(s => s.ProductName).Title("نام محصول").Sortable(false).Filterable(false);
+	columns.Bound(s => s.PaymentPartyName).Title("نام دارنده سهم").Sortable(false).Filterable(false);
+	columns.Bound(s => s.PaymentPartyShaba).Title("شماره شبای دارنده سهم").Sortable(false).Filterable(false);
+	columns.Bound(s => s.PercentBetween0And1).Format("{0:P2}").Title("درصد سهم").Sortable(false).Filterable(false);
+})
+.Pageable(pageable => pageable
+	.Refresh(true)
+	.PageSizes(true)
+	.PageSizes(new int[] { 5, 10, 20, 50 })
+	.ButtonCount(5))
+.Sortable()
+.Filterable()
+.DataSource(dataSource => dataSource
+	.Ajax()
+	.PageSize(50)
+	.Model(model =>
+	{
+		model.Id(p => new { p.ProductId, p.PaymentPartyId });
+
+	})
+	.Read(read => read.Action("GetProductPaymentPartyListData", "Staff"))
+	.Sort(s => s.Add(a => a.ProductId))
+	)
+)
