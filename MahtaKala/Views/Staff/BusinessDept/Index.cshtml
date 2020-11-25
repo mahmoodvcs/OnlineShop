@@ -20,6 +20,8 @@
 		cols.Bound(x => x.Quantity_Mahta).Title("موجودی (مهتا)");
 		cols.Bound(x => x.Status_Mahta).Title("وضعیت کالا (مهتا)");
 		cols.Bound(x => x.IsPublished_Mahta).Title("منتشرشده (مهتا)");
+		cols.Bound(x => x.PresentInEskaad).Title("موجود در اسکاد").ClientTemplate("#=PresentInEskaad?'بلی':'خیر'#");
+		cols.Bound(x => x.PresentInMahta).Title("موجود در مهتا").ClientTemplate("#=PresentInMahta?'بلی':'خیر'#");
 	}).Pageable(pageable => pageable
 		.Refresh(true)
 		.PageSizes(true)

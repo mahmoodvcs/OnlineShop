@@ -126,8 +126,8 @@ namespace MahtaKala.Models.StaffModels
 			if (merchandiseItem == null)
 				return;
 			this.Id_Eskaad = merchandiseItem.Id;
-			this.Code_Eskaad = merchandiseItem.Code;
-			this.Name_Eskaad = merchandiseItem.Name;
+			this.Code_Eskaad = merchandiseItem.Code.Trim();
+			this.Name_Eskaad = merchandiseItem.Name.Trim();
 			this.Unit_Eskaad = merchandiseItem.Unit;
 			this.Count_Eskaad = merchandiseItem.Count;
 			this.Place_Eskaad = merchandiseItem.Place;
