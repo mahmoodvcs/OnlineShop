@@ -42,6 +42,12 @@ namespace MahtaKala.GeneralServices.Payment
         //{
         //    public string MerchantId { get; set; }
         //}
+
+        public string MoveAlong(string terminal, string buyId, long amount, string date, string time, string returnUrl, string securityKey)
+        {
+            throw new NotImplementedException();
+        }
+
         public PardakhtNovinService(IPathService pathService, DataContext dataContext, ILogger<IBankPaymentService> logger)
         {
             this.pathService = pathService;

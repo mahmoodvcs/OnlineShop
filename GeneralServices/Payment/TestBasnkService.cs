@@ -12,6 +12,10 @@ namespace MahtaKala.GeneralServices.Payment
     {
         private DataContext db;
 
+        public string MoveAlong(string terminal, string buyId, long amount, string date, string time, string returnUrl, string securityKey)
+        {
+            throw new NotImplementedException();
+        }
         public TestBasnkService(DataContext dataContext)
         {
             this.db = dataContext;
