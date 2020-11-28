@@ -7,6 +7,7 @@ using Kendo.Mvc.UI;
 using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
 using MahtaKala.Entities.EskaadEntities;
+using MahtaKala.Helpers;
 using MahtaKala.Models.StaffModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,7 @@ namespace MahtaKala.Controllers.Staff
 		public const long ESKAAD_SELLER_ID = 54;
 
 		public BusinessDeptController(
-			DataContext context, 
+			DataContext context,
 			ILogger<BusinessDeptController> logger,
 			EskaadContext eskaadContext) : base(context, logger)
 		{
@@ -56,29 +57,38 @@ namespace MahtaKala.Controllers.Staff
 				Dictionary<string, long> processedProductIds = new Dictionary<string, long>();
 				foreach (var eskaadItem in eskaadMerchandise)
 				{
-					var itemCode = eskaadItem.Code.Trim();
-					if (itemCode.Length < 7)
+					var eskaadItemCode = eskaadItem.Code.Trim();
+					if (eskaadItemCode.Length < 7)
 					{
-						logger.LogError($"Unrecognized Eskaad product code! The code ({itemCode}) doesn't contain enough digits! (7 and 8 are the only acceptable code lengths, legend has it!)", eskaadItem.Id);
+						logger.LogError($"Unrecognized Eskaad product code! The code ({eskaadItemCode}) doesn't contain enough digits! (7 and 8 are the only acceptable code lengths, legend has it!)", eskaadItem.Id);
 						//throw new Exception("");    // TODO: appropriate exception handling
 					}
-					if (itemCode.Length > 8)
+					if (eskaadItemCode.Length > 8)
 					{
-						logger.LogError($"Unrecognized Eskaad product code! The code ({itemCode}) is supposed to contain 7 or 8 digits, but, there are more!", eskaadItem.Id);
+						logger.LogError($"Unrecognized Eskaad product code! The code ({eskaadItemCode}) is supposed to contain 7 or 8 digits, but, there are more!", eskaadItem.Id);
 						//throw new Exception("");    // TODO: appropriate exception handling
 					}
 					EskaadMerchandiseModel newItem = new EskaadMerchandiseModel(eskaadItem);
-					string mahta_code = itemCode.Substring(itemCode.Length - 6, 6);
+					string mahta_code = eskaadItemCode.Substring(eskaadItemCode.Length - 6, 6);
 					if (ourProducts.Count(x => x.Code.Equals(mahta_code)) > 1)
 						logger.LogError($"This is not good at all! The \"Code\" property in products should be unique, but that's not the case for this code:{mahta_code}");
 					var ourRespectiveProduct = ourProducts.Where(x => x.Code.Equals(mahta_code)).FirstOrDefault();
+					if (ourRespectiveProduct == null)
+					{
+						long foundProductId = FindProductBasedOnTitleSimilarities(ourProducts, eskaadItem);
+						if (foundProductId > 0)
+						{
+							ourRespectiveProduct = ourProducts.First(x => x.Id == foundProductId);
+						}
+
+					}
 					if (ourRespectiveProduct != null)
 					{
 						newItem.SetMahtaValues(ourRespectiveProduct);
 						//processedProductCodes.Add(ourRespectiveProduct.Code);
 						if (processedProductIds.ContainsKey(ourRespectiveProduct.Code))
 						{
-							logger.LogError($"There's more than one product in Eskaad's list with their code as \"{itemCode}\"");
+							logger.LogError($"There's more than one product in Eskaad's list with their code as \"{eskaadItemCode}\"");
 							// TODO: Exception handling!
 						}
 						else
@@ -126,6 +136,9 @@ namespace MahtaKala.Controllers.Staff
 							// This can not happen! (it'll probably never happen in its whole life time)
 							// This means we have two products with different Ids and identical codes!
 							// TODO: Inform the proper authorities to take action against the devil's wrong-doings! This will not stand!
+							logger.LogError($"EskaadMerchandise -- Product 1;Code:{product.Code}, Id:{product.Id} - " +
+								$"Product 2; Code:{product.Code}, Id:{processedProductIds[product.Code]} - THIS IS UNACCEPTABLE!");
+							continue;
 						}
 					}
 					EskaadMerchandiseModel newItem = new EskaadMerchandiseModel(product);
@@ -134,6 +147,53 @@ namespace MahtaKala.Controllers.Staff
 				}
 				return KendoJson(merchandiseModels.AsQueryable().ToDataSourceResult(request));
 			}
+		}
+
+		private long FindProductBasedOnTitleSimilarities(List<Product> products, Merchandise eskaadMerchandiseItem)
+		{
+			var eskaadItemTitle = Util.NormalizeStringForComparison2(eskaadMerchandiseItem.Name);
+			List<Product> normalizedProducts = new List<Product>();
+			foreach (var product in products)
+			{
+				var newP = new Product() { Id = product.Id, Title = Util.NormalizeStringForComparison2(product.Title) };
+				normalizedProducts.Add(newP);
+			}
+			var ourRespectiveProduct = normalizedProducts.Where(x => x.Title.Equals(eskaadItemTitle)).FirstOrDefault();
+			if (ourRespectiveProduct == null)
+			{
+				int howManyTitlesContainThisOne = normalizedProducts.Count(x => x.Title.Contains(eskaadItemTitle));
+				if (howManyTitlesContainThisOne > 0)
+				{
+					if (howManyTitlesContainThisOne == 1)
+					{
+						ourRespectiveProduct = normalizedProducts.First(x => x.Title.Contains(eskaadItemTitle));
+					}
+					else    // This means that there is more than one product with its title containing the title we're currently checking
+					{
+						//logger.LogInformation()
+						// TODO: What to do?! With this kind of bizarre situations?!
+					}
+				}
+			}
+			if (ourRespectiveProduct == null)
+			{
+				int howManyThisTitleContains = normalizedProducts.Count(x => eskaadItemTitle.Contains(x.Title));
+				if (howManyThisTitleContains > 0)
+				{
+					if (howManyThisTitleContains == 1)
+					{
+						ourRespectiveProduct = normalizedProducts.First(x => eskaadItemTitle.Contains(x.Title));
+					}
+					else    // This means the set of products - which their titles are substrings of 
+							// this title we're currently checking - has more than one member
+					{
+						// TODO: What to do?! With this kind of bizarre situations?!
+					}
+				}
+			}
+			if (ourRespectiveProduct != null)
+				return ourRespectiveProduct.Id;
+			return 0;
 		}
 
 	}

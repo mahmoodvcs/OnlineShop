@@ -16,7 +16,8 @@ namespace MahtaKala.Helpers
 {
     public static class Util
     {
-		public const char ZeroWidthNonBreakingSpace = '​';
+		public const char ZERO_WIDTH_NON_BREAKING_SPACE = '​';
+        public const char STANDARD_SPACE_CHARACTER = ' ';
 		public static readonly Dictionary<string, string> PersianDaysOfTheWeek = new Dictionary<string, string>()
 		    { { "saturday", "شنبه" },
 			{ "sunday", "یکشنبه" },
@@ -30,9 +31,48 @@ namespace MahtaKala.Helpers
 
 		public static string TrimString(string input)
         {
-            return input.Trim().Trim(ZeroWidthNonBreakingSpace);
+            return input.Trim().Trim(ZERO_WIDTH_NON_BREAKING_SPACE);
         }
 
+        public static string NormalizeStringForComparison1(string input)
+        {
+            input = input.ToLower();
+            var resultBuilder = new StringBuilder();
+            for (int i = 0; i < input.Length; i++)
+            { 
+                if(char.IsWhiteSpace(input[i]))
+				{
+                    if (resultBuilder.Length > 0 && resultBuilder[resultBuilder.Length - 1] != STANDARD_SPACE_CHARACTER)
+                    {
+                        resultBuilder.Append(STANDARD_SPACE_CHARACTER);
+                    }
+				}
+				else
+				{
+                    resultBuilder.Append(input[i]);
+				}
+            }
+            return resultBuilder.ToString();
+        }
+
+        public static string NormalizeStringForComparison2(string input)
+        {
+            input = input.ToLower();
+            var wordList = Regex.Split(input, @"\s{2,}").ToList();
+            var resultBuilder = new StringBuilder();
+            foreach (var word in wordList)
+            {
+                if (resultBuilder.Length > 0)
+                    resultBuilder.Append(' ');
+                resultBuilder.Append(word);
+            }
+            return resultBuilder.ToString();
+        }
+
+        //public static bool AssessSimilarity(string input1, string input2)
+        //{ 
+
+        //}
 
 		public static string NormalizePhoneNumber(string phoneNumber)
         {

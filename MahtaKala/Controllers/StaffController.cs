@@ -1543,7 +1543,7 @@ namespace MahtaKala.Controllers
             else
             {
                 //if (db.Tags.Any(x => Util.TrimString(x.Name).Equals(tag.Name)))
-                if (db.Tags.Any(x => x.Name.Trim().Trim(Util.ZeroWidthNonBreakingSpace).Equals(tag.Name)))
+                if (db.Tags.Any(x => x.Name.Trim().Trim(Util.ZERO_WIDTH_NON_BREAKING_SPACE).Equals(tag.Name)))
                 {
                     throw new BadRequestException($"درج ناموفق: نام وارد شده تکراری است! تگ با نام \"{tag.Name}\" قبلاً در دیتابیس تعریف شده است.");
                 }
@@ -1565,7 +1565,7 @@ namespace MahtaKala.Controllers
                 var dbTag = await db.Tags.FindAsync(tag.Id);
                 tag.Name = Util.TrimString(tag.Name);
                 if (db.Tags.Any(x => !x.Id.Equals(tag.Id) && //Util.TrimString(x.Name).Equals(tag.Name)))
-                    x.Name.Trim().Trim(Util.ZeroWidthNonBreakingSpace).Equals(tag.Name)))
+                    x.Name.Trim().Trim(Util.ZERO_WIDTH_NON_BREAKING_SPACE).Equals(tag.Name)))
                 {
                     throw new BadRequestException($"ویرایش ناموفق: نام وارد شده تکراری است! تگ با نام \"{tag.Name}\" قبلاً در دیتابیس تعریف شده است.");
                 }

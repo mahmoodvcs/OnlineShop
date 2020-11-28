@@ -32,4 +32,21 @@
 		datasource.Ajax()
 		.PageSize(50)
 		.Read(read => read.Action("GetEskaadMerchandiseDataSource", "BusinessDept")))
+	.Events(ev => ev.DataBound("onGridDataBound"))
 )
+
+@section js{ 
+	<script type="text/javascript">
+		function onGridDataBound(e) {
+			var grid = this;
+			var currentRecords = grid.dataSource.view();
+			for (var i = 0; i < currentRecords.length; i++) {
+				if (currentRecords[i].yellowWarningThreshold_Mahta > 0
+					&& currentRecords[i].quantity_Mahta > 0
+					&& currentRecords[i].quantity_Mahta <= currentRecords[i].yellowWarningThreshold_Mahta) {
+					grid.tbody.find("tr[data-uid='" + currentRecords[i].uid + "']").HtmlAttributes["style"] = "background:yellow";
+				}
+			}
+		}
+	</script>
+}
