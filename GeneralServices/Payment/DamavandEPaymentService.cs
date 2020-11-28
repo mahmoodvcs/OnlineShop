@@ -16,11 +16,11 @@ namespace MahtaKala.GeneralServices.Payment
 {
 	public class DamavandEPaymentService : IBankPaymentService
 	{
-		private const string TERMINUL_NUMBER = "70000212";
-		private const string MERCHAND_NUMBER = "075441191000002";
+		private const string TERMINUL_NUMBER = "70000234";
+		private const string MERCHAND_NUMBER = "075735191000001";
 		private const string SECURITY_KEY = "B3A22799F6F2C5D17C7FEB2DC04550192616D749";
 		private const string REGISTERED_MERCHANT_WEBSITE = "https://mahtakala.ir";
-		private const string REGISTERED_MERCHANT_IP = "82.99.24.204";
+		private const string REGISTERED_MERCHANT_IP = "91.99.73.126";
 
 		private readonly IPathService pathService;
 		private readonly DataContext dbContext;
