@@ -148,6 +148,52 @@ namespace MahtaKala.Controllers
             return View(payment);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> TempPaymentTestmentForMentKishdeh()
+        {
+            if (!User.NationalCode.Contains("0079645488"))
+                return Ok("Ah ah! No way, dude! Don't be a wise-ass!");
+            var product = await db.Products.Include(x => x.Prices).Where(x => x.Status == ProductStatus.Available 
+                                                        && x.Quantities.Count > 0 && x.Quantities.First().Quantity > 0)
+                //.OrderBy(x => x.Prices.First().Price)
+                .FirstOrDefaultAsync();
+            if (product == null)
+                return Ok("There is no product with a quantity greater than 0! What's goin' on here?!");
+            await orderService.EmptyCart();
+            await orderService.AddToCart(product.Prices.First().Id);
+            var addressId = db.Addresses
+                .Where(x => x.UserId == User.Id 
+                    && !string.IsNullOrEmpty(x.Details) 
+                    && x.Details.Length > 1)
+                .First().Id;
+            var order = await orderService.Checkout(addressId);
+            var returnUrl = pathService.AppBaseUrl + "/Payment/TempPaymentCallBack";//?source=api";
+            var payment = await orderService.InitPayment(order, returnUrl, SourceUsedForPayment.MobileApp);
+            string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}";
+            return Redirect(payUrl);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> TempPaymentCallBack()
+        {
+            using (var reader = new StreamReader(Request.Body))
+            {
+                var body = await reader.ReadToEndAsync();
+                logger.LogError("doomsdaydevice - The request body is: " + Request.Body);
+                Payment payment = await bankPaymentService.Paid(body);
+                if (payment == null || payment.Id == 0)
+                    return Json(new
+                    {
+                        message = "The Payment object returned from the Paid method of the bankService seems to have a problem! Look at this for fox sake! :P",
+                        payment = payment
+                    });
+                await orderService.Paid(payment);
+                var model = new BackFromPaymentVM(payment);
+                return View("PaidFromApi", model);
+            }
+
+        }
+
         private async Task<Payment> DoPaymentCallbackOperations()
         {
             using (var reader = new StreamReader(Request.Body))
