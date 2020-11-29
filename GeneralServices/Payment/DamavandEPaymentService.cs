@@ -120,7 +120,11 @@ namespace MahtaKala.GeneralServices.Payment
 
 			var tokenRequestResult = JsonConvert.DeserializeObject<DamavandIPGResult>(tokenRequestRawResult);
 			if (tokenRequestResult.State == (int)DamavandIPGResultState.Failed)
+			{
+				logger.LogError($"Request for token faild! Sent model is as follows: {modelToSendRaw}");
+				logger.LogError($"Also, here's their response: {tokenRequestRawResult}");
 				throw new Exception($"Error in receiving token from the bank! Error data is as follows: ErrorCode: {tokenRequestResult.ErrorCode} - ErrorDescription: {tokenRequestResult.ErrorDescription}");
+			}
 
 			return tokenRequestResult.Res;
 		}
