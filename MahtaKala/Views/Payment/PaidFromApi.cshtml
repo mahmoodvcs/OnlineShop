@@ -9,17 +9,17 @@
     </head>
     <body style="font-family:Tahoma;">
 
-        <div style="text-align:center">
-            @if (Model.State == MahtaKala.Entities.PaymentState.Succeeded)
-            {
-                <h2>پرداخت موفقیت آمیز</h2>
-            }
-            else
-            {
-                <h2>پرداخت ناموفق</h2>
-            }
+		<div style="text-align:center">
+			@if (Model.State == MahtaKala.Entities.PaymentState.Succeeded)
+			{
+				<h2>پرداخت موفقیت آمیز</h2>
+			}
+			else
+			{
+				<h2>پرداخت ناموفق</h2>
+			}
 
-            @if (Model.PaymentSourceUsed == SourceUsedForPayment.MobileApp)
+			@*@if (Model.PaymentSourceUsed == SourceUsedForPayment.MobileApp)
 			{
 				returnToHref = "Mahtakala://BackFromPayment?status=" + Model.State;
 			}
@@ -28,14 +28,41 @@
 				//returnToHref = "http://www.mahtakala.ir/"
 				//if (Model.BaseUrl.ToLower().Contains("mahtakala.ir"))
 				returnToHref = Model.BaseUrl;
-			}
+			}*@
 
 
-            <a class="btn btn-primary" href="@returnToHref">
-            بازگشت به اپلیکیشن
-            </a>
+			<a class="btn btn-primary" href="#" onclick="closeTab1(); return false;">
+				بازگشت به اپلیکیشن 1
+			</a>
+			<a class="btn btn-primary" href="#" onclick="closeTab2(); return false;">
+				بازگشت به اپلیکیشن 2
+			</a>
+			<a class="btn btn-primary" href="#" onclick="setTimeout(function () { closeTab3(); }, 1000); return false;">
+				بازگشت به اپلیکیشن 3
+			</a>
+			<a class="btn btn-primary" href="#" onclick="setTimeout(function () { closeTab4(); }, 1000); return false;">
+				بازگشت به اپلیکیشن 4
+			</a>
 
-        </div>
+		</div>
 
     </body>
 </html>
+
+@section js{ 
+<script type="text/javascript">
+	function closeTab1() {
+		window.close();
+	}
+	function closeTab2() {
+		window.top.close();
+	}
+	function closeTab3() {
+		var ww = window.open(window.location, '_self'); ww.close();
+	}
+	function closeTab4() {
+		window.open(window.location, '_self').close();
+	}
+
+</script>
+}
