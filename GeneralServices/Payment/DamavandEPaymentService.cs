@@ -146,7 +146,7 @@ namespace MahtaKala.GeneralServices.Payment
 			paymentRequestResult.BuyID = dictionary["buyid"];
 			paymentRequestResult.Token = dictionary["token"];
 			int paymentId = int.Parse(paymentRequestResult.BuyID);
-			var payment = await dbContext.Payments.Where(x => x.Id == paymentId).FirstOrDefaultAsync();
+			var payment = await dbContext.Payments.Include(x => x.Order).Where(x => x.Id == paymentId).FirstOrDefaultAsync();
 			if (payment == null)
 			{
 				logger.LogError($"Invalid Payment.Id {paymentId}. Does not exist.");

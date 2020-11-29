@@ -201,7 +201,7 @@ namespace MahtaKala.Controllers
             using (var reader = new StreamReader(Request.Body))
             {
                 var body = await reader.ReadToEndAsync();
-                logger.LogError("doomsdaydevice - The request body is: " + Request.Body);
+                logger.LogError("doomsdaydevice - The request body is: " + body);
                 Payment payment = await bankPaymentService.Paid(body);
                 if (payment == null || payment.Id == 0)
                     return Json(new
