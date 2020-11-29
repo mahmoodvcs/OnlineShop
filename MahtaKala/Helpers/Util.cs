@@ -34,9 +34,9 @@ namespace MahtaKala.Helpers
             return input.Trim().Trim(ZERO_WIDTH_NON_BREAKING_SPACE);
         }
 
-        public static string NormalizeStringForComparison1(string input)
+        public static string RemoveExcessWhiteSpaces1(string input)
         {
-            input = input.ToLower();
+            //input = input.ToLower();
             var resultBuilder = new StringBuilder();
             for (int i = 0; i < input.Length; i++)
             { 
@@ -55,10 +55,45 @@ namespace MahtaKala.Helpers
             return resultBuilder.ToString();
         }
 
-        public static string NormalizeStringForComparison2(string input)
+        public static string RemoveExcessWhiteSpaces2(string input)
         {
-            input = input.ToLower();
-            var wordList = Regex.Split(input, @"\s{2,}").ToList();
+            //input = input.ToLower();
+            var wordList = Regex.Split(input, @"\s{1,}").ToList();
+            var resultBuilder = new StringBuilder();
+            foreach (var word in wordList)
+            {
+                if (string.IsNullOrWhiteSpace(word))
+                    continue;
+                if (resultBuilder.Length > 0)
+                    resultBuilder.Append(' ');
+                resultBuilder.Append(word);
+            }
+            return resultBuilder.ToString();
+        }
+
+        public static string NormalizeStringForWordWiseLooseComparison(string input)
+        {
+            string result = ReplaceArabicCharacters(input.ToLower());
+            result = RemoveExcessSpacesAndSortWordsForLooseComparison(result);
+            return result;
+        }
+
+        public static string ReplaceArabicCharacters(string input)
+        {
+            return input.Replace("ﮎ", "ک").Replace("ﮏ", "ک").Replace("ﮐ", "ک").Replace("ﮑ", "ک").Replace("ك", "ک").Replace("ي", "ی");
+        }
+
+        public static string RemoveExcessSpacesAndSortWordsForLooseComparison(string input)
+        {
+            var words = Regex.Split(input, @"\s{1,}").ToList();
+            words = words.Except(words.Where(x => string.IsNullOrWhiteSpace(x))).ToList();
+            var wordList = new List<string>();
+            foreach (var word in words)
+            {
+                if (!string.IsNullOrWhiteSpace(word))
+                    wordList.Add(word);
+            }
+            wordList.Sort();
             var resultBuilder = new StringBuilder();
             foreach (var word in wordList)
             {

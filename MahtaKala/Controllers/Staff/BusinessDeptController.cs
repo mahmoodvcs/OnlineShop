@@ -151,11 +151,11 @@ namespace MahtaKala.Controllers.Staff
 
 		private long FindProductBasedOnTitleSimilarities(List<Product> products, Merchandise eskaadMerchandiseItem)
 		{
-			var eskaadItemTitle = Util.NormalizeStringForComparison2(eskaadMerchandiseItem.Name);
+			var eskaadItemTitle = Util.RemoveExcessWhiteSpaces2(eskaadMerchandiseItem.Name);
 			List<Product> normalizedProducts = new List<Product>();
 			foreach (var product in products)
 			{
-				var newP = new Product() { Id = product.Id, Title = Util.NormalizeStringForComparison2(product.Title) };
+				var newP = new Product() { Id = product.Id, Title = Util.RemoveExcessWhiteSpaces2(product.Title) };
 				normalizedProducts.Add(newP);
 			}
 			var ourRespectiveProduct = normalizedProducts.Where(x => x.Title.Equals(eskaadItemTitle)).FirstOrDefault();
