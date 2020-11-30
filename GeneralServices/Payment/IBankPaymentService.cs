@@ -8,7 +8,6 @@ namespace MahtaKala.GeneralServices.Payment
 {
     public interface IBankPaymentService
     {
-        string MoveAlong(string terminal, string buyId, long amount, string date, string time, string returnUrl, string securityKey);
         Task<string> GetToken(Entities.Payment payment, string returnUrl);
         string GetPayUrl(Entities.Payment payment);
         Task<Entities.Payment> Paid(string bankReturnBody);

@@ -44,19 +44,6 @@ namespace MahtaKala.Controllers
             this.SMSService = smsService;
         }
 
-        [Authorize(MahtaKala.Entities.UserType.Admin)]
-        public ActionResult MoveAlongThisDoesn_tConcernYou(string terminal, string buyId, long amount, string date, string time, string returnUrl, string securityKey)
-        {
-            //var product = db.Products.Include(x => x.Price)
-            //    .First(x => x.Prices.Count > 0 && x.Quantities.Count > 0 && x.Quantities.First().Quantity > 0 && x.Status == ProductStatus.Available);
-            //await orderService.AddToCart(product.Prices.First().Id);
-            //var addressId = db.Addresses.First(x => x.UserId == User.Id && x.Details.Length > 0).Id;
-            //var order = await orderService.Checkout(addressId);
-            //var payment = await orderService.InitPayment(order, "https://mahtakala.ir:5050/Payment/MoveAlongeThisDoesn2_tConcernYou", SourceUsedForPayment.MobileApp);
-            var message = bankPaymentService.MoveAlong(terminal, buyId, amount, date, time, returnUrl, securityKey);
-            return Json(message);
-        }
-
         public async Task<ActionResult> Pay(long pid, string uid)
         {
             var payment = await db.Payments.FindAsync(pid);

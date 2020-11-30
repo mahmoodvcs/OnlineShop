@@ -38,50 +38,6 @@ namespace MahtaKala.GeneralServices.Payment
 			this.logger = logger;
 		}
 
-		public string MoveAlong(string terminal, string buyId, long amount, string date, string time, string returnUrl, string securityKey)
-		{
-
-			//string checksumSeedString = TERMINUL_NUMBER + payment.Id.ToString() + payment.Amount.ToString() + dateFormatted + timeFormatted + returnUrl + SECURITY_KEY;
-			if (string.IsNullOrWhiteSpace(terminal))
-				terminal = TERMINUL_NUMBER;
-			if (string.IsNullOrWhiteSpace(securityKey))
-				securityKey = SECURITY_KEY;
-			string checksumSeed = terminal + buyId + amount.ToString() + date + time + returnUrl + securityKey;
-			var checksum = HashSHa1(checksumSeed);
-			var modelToSend = new DamavandPayRequestModel
-			{
-				TerminalNumber = terminal,
-				BuyID = buyId,
-				Amount = amount,
-				Date = date,
-				Time = time,
-				RedirectURL = returnUrl,
-				Language = "fa",
-				CheckSum = checksum
-			};
-			var webClient = new WebClient();
-
-			webClient.Encoding = System.Text.Encoding.UTF8;
-			webClient.Headers[HttpRequestHeader.ContentType] = "application/json;charset=utf-8";
-			var modelToSendRaw = JsonConvert.SerializeObject(modelToSend);
-
-			var requestResultRaw = webClient.UploadString(PAYMENT_REQUEST_URL, modelToSendRaw);
-
-			var result = JsonConvert.DeserializeObject<DamavandIPGResult>(requestResultRaw);
-			string message;
-			if (result.State == 1)
-			{
-				message = "finally! Damavand accepted the thing!" + result.Res;
-				logger.LogError(message);
-			}
-			else
-			{
-				message = $"What the hell is wrong with this thing?!! error code: {result.ErrorCode} - error description: {result.ErrorDescription}";
-				logger.LogError(message);
-			}
-			return message;
-		}
-
 		public string GetPayUrl(Entities.Payment payment)
 		{
 			return PAY_URL;
