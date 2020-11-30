@@ -95,10 +95,7 @@ namespace MahtaKala.GeneralServices.Payment
 			//	P.S. here, the plus means "string concatenation"
 			string dateFormatted = payment.RegisterDate.Date.ToString("yyyy/MM/dd");
 			string timeFormatted = payment.RegisterDate.ToString("HH:mm");
-			string checksumNOTseedString = TERMINUL_NUMBER + payment.Id.ToString() + payment.Amount.ToString() + dateFormatted + timeFormatted + returnUrl + SECURITY_KEY;
 			string checksumSeedString = TERMINUL_NUMBER + payment.Id.ToString() + ((long)payment.Amount).ToString() + dateFormatted + timeFormatted + returnUrl + SECURITY_KEY;
-			logger.LogError($"checksum seed WITHOUT casting to long: {checksumNOTseedString}");
-			logger.LogError($"checksum seed WITH casting: {checksumSeedString}");
 			string checksum = HashSHa1(checksumSeedString);
 
 			var modelToBeSent = new DamavandPayRequestModel
