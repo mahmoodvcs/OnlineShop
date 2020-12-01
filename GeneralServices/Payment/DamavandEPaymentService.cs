@@ -94,21 +94,9 @@ namespace MahtaKala.GeneralServices.Payment
 		{
 			var dictionary = bankReturnBody.Split('&').ToDictionary(a => a.Split('=')[0].ToLower(), a => a.Split('=')[1]);
 			var paymentRequestResult = new DamavandBeginPaymentResult();
-			paymentRequestResult.ReferenceNumber = dictionary["referencenumber"];
-			paymentRequestResult.TrackingNumber = dictionary["trackingnumber"];
 			paymentRequestResult.BuyID = dictionary["buyid"];
 			paymentRequestResult.Token = dictionary["token"];
-			string amountStr = dictionary["amount"];
-			//paymentRequestResult.Amount = long.Parse(amountStr);
-			
-			if (!long.TryParse(amountStr, out long receivedAmountValue))
-			{
-				logger.LogError($"Invalid \"Amount\" string received from the bank! It should be an integer " +
-					$"(a number, greater than zero, without any decimal points). The vlaue received from the bank is: {amountStr}");
-				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
-				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
-			}
-			paymentRequestResult.Amount = receivedAmountValue;
+
 			int paymentId = int.Parse(paymentRequestResult.BuyID);
 			var payment = await dbContext.Payments.Include(x => x.Order).Where(x => x.Id == paymentId).FirstOrDefaultAsync();
 			if (payment == null)
@@ -141,6 +129,37 @@ namespace MahtaKala.GeneralServices.Payment
 				dbContext.SaveChanges();
 				return payment;
 			}
+			if (!dictionary.ContainsKey("referencenumber"))
+			{
+				logger.LogError($"Payment not successful! Key \"referencenumber\" not present in the request body!");
+				var rollbackResult = RollPaymentBack(paymentRequestResult.Token);
+				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+			}
+			if (!dictionary.ContainsKey("trackingnumber"))
+			{
+				logger.LogError($"Payment not successful! Key \"trackingnumber\" not present in the request body!");
+				var rollbackResult = RollPaymentBack(paymentRequestResult.Token);
+				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+			}
+			if (!dictionary.ContainsKey("amount"))
+			{
+				logger.LogError($"Payment not successful! Key \"amount\" not present in the request body!");
+				var rollbackResult = RollPaymentBack(paymentRequestResult.Token);
+				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+			}
+			paymentRequestResult.ReferenceNumber = dictionary["referencenumber"];
+			paymentRequestResult.TrackingNumber = dictionary["trackingnumber"];
+			string amountStr = dictionary["amount"];
+			//paymentRequestResult.Amount = long.Parse(amountStr);
+
+			if (!long.TryParse(amountStr, out long receivedAmountValue))
+			{
+				logger.LogError($"Invalid \"amount\" string received from the bank! It should be an integer " +
+					$"(a number, greater than zero, without any decimal points). The vlaue received from the bank is: {amountStr}");
+				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
+				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+			}
+			paymentRequestResult.Amount = receivedAmountValue;
 			payment.ReferenceNumber = paymentRequestResult.ReferenceNumber;
 			payment.TrackingNumber = paymentRequestResult.TrackingNumber;
 
