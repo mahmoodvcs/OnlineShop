@@ -135,73 +135,73 @@ namespace MahtaKala.Controllers
             return View(payment);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> TempPaymentTestmentForMentKishdeh()
-        {
-            if (!User.NationalCode.Contains("0079645488"))
-                return Ok("Ah ah! No way, dude! Don't be a wise-ass!");
-            var product = await db.Products.Include(x => x.Prices).Where(x => x.Status == ProductStatus.Available 
-                                                        && x.Quantities.Count > 0 && x.Quantities.First().Quantity > 0)
-                //.OrderBy(x => x.Prices.First().Price)
-                .FirstOrDefaultAsync();
-            if (product == null)
-                return Ok("There is no product with a quantity greater than 0! What's goin' on here?!");
-            await orderService.EmptyCart();
-            await orderService.AddToCart(product.Prices.First().Id);
-            if (!db.Addresses.Any(x => x.UserId == User.Id && x.Disabled == false && !string.IsNullOrEmpty(x.Details)&& x.Details.Length > 1))
-			{
-                var tehran = db.Cities.Where(x => x.Name.Contains("تهران")).FirstOrDefault();
-                if (tehran == null)
-                    tehran = db.Cities.Where(x => x.Name.Contains("تهرا") || x.Name.Contains("هران")).FirstOrDefault();
-                if (tehran == null)
-                    tehran = db.Cities.Where(x => !string.IsNullOrEmpty(x.Name) && x.ProvinceId > 1).FirstOrDefault();
-                if (tehran == null)
-                    logger.LogError("Go lug yourself!!");
-                var newAddress = new UserAddress()
-                {
-                    Title = "Home Sweet/Crappy Home!",
-                    Details = "توی خونه ش یه باغه! غذاش روی اجاقه! وااااای وای",
-                    PostalCode = "1234567890",
-                    CityId = tehran.Id,
-                    Disabled = false,
-                    UserId = User.Id
-                };
-                db.Addresses.Add(newAddress);
-                await db.SaveChangesAsync();
-			}
-            var addressId = db.Addresses
-                .Where(x => x.UserId == User.Id 
-                    && x.Disabled == false
-                    && !string.IsNullOrEmpty(x.Details) 
-                    && x.Details.Length > 1)
-                .First().Id;
-            var order = await orderService.Checkout(addressId);
-            var returnUrl = pathService.AppBaseUrl + "/Payment/TempPaymentCallBack";//?source=api";
-            var payment = await orderService.InitPayment(order, returnUrl, SourceUsedForPayment.MobileApp);
-            string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}";
-            return Redirect(payUrl);
-        }
+   //     [HttpGet]
+   //     public async Task<IActionResult> TempPaymentTestmentForMentKishdeh()
+   //     {
+   //         if (!User.NationalCode.Contains("0079645488"))
+   //             return Ok("Ah ah! No way, dude! Don't be a wise-ass!");
+   //         var product = await db.Products.Include(x => x.Prices).Where(x => x.Status == ProductStatus.Available 
+   //                                                     && x.Quantities.Count > 0 && x.Quantities.First().Quantity > 0)
+   //             //.OrderBy(x => x.Prices.First().Price)
+   //             .FirstOrDefaultAsync();
+   //         if (product == null)
+   //             return Ok("There is no product with a quantity greater than 0! What's goin' on here?!");
+   //         await orderService.EmptyCart();
+   //         await orderService.AddToCart(product.Prices.First().Id);
+   //         if (!db.Addresses.Any(x => x.UserId == User.Id && x.Disabled == false && !string.IsNullOrEmpty(x.Details)&& x.Details.Length > 1))
+			//{
+   //             var tehran = db.Cities.Where(x => x.Name.Contains("تهران")).FirstOrDefault();
+   //             if (tehran == null)
+   //                 tehran = db.Cities.Where(x => x.Name.Contains("تهرا") || x.Name.Contains("هران")).FirstOrDefault();
+   //             if (tehran == null)
+   //                 tehran = db.Cities.Where(x => !string.IsNullOrEmpty(x.Name) && x.ProvinceId > 1).FirstOrDefault();
+   //             if (tehran == null)
+   //                 logger.LogError("Go lug yourself!!");
+   //             var newAddress = new UserAddress()
+   //             {
+   //                 Title = "Home Sweet/Crappy Home!",
+   //                 Details = "توی خونه ش یه باغه! غذاش روی اجاقه! وااااای وای",
+   //                 PostalCode = "1234567890",
+   //                 CityId = tehran.Id,
+   //                 Disabled = false,
+   //                 UserId = User.Id
+   //             };
+   //             db.Addresses.Add(newAddress);
+   //             await db.SaveChangesAsync();
+			//}
+   //         var addressId = db.Addresses
+   //             .Where(x => x.UserId == User.Id 
+   //                 && x.Disabled == false
+   //                 && !string.IsNullOrEmpty(x.Details) 
+   //                 && x.Details.Length > 1)
+   //             .First().Id;
+   //         var order = await orderService.Checkout(addressId);
+   //         var returnUrl = pathService.AppBaseUrl + "/Payment/TempPaymentCallBack";//?source=api";
+   //         var payment = await orderService.InitPayment(order, returnUrl, SourceUsedForPayment.MobileApp);
+   //         string payUrl = pathService.AppBaseUrl + $"/Payment/Pay?pid={payment.Id}&uid={payment.UniqueId}";
+   //         return Redirect(payUrl);
+   //     }
 
-        [HttpPost]
-        public async Task<ActionResult> TempPaymentCallBack()
-        {
-            using (var reader = new StreamReader(Request.Body))
-            {
-                var body = await reader.ReadToEndAsync();
-                logger.LogError("doomsdaydevice - The request body is: " + body);
-                Payment payment = await bankPaymentService.Paid(body);
-                if (payment == null || payment.Id == 0)
-                    return Json(new
-                    {
-                        message = "The Payment object returned from the Paid method of the bankService seems to have a problem! Look at this for fox sake! :P",
-                        payment = payment
-                    });
-                await orderService.Paid(payment);
-                var model = new BackFromPaymentVM(payment);
-                return View("PaidFromApi", model);
-            }
+        //[HttpPost]
+        //public async Task<ActionResult> TempPaymentCallBack()
+        //{
+        //    using (var reader = new StreamReader(Request.Body))
+        //    {
+        //        var body = await reader.ReadToEndAsync();
+        //        logger.LogError("doomsdaydevice - The request body is: " + body);
+        //        Payment payment = await bankPaymentService.Paid(body);
+        //        if (payment == null || payment.Id == 0)
+        //            return Json(new
+        //            {
+        //                message = "The Payment object returned from the Paid method of the bankService seems to have a problem! Look at this for fox sake! :P",
+        //                payment = payment
+        //            });
+        //        await orderService.Paid(payment);
+        //        var model = new BackFromPaymentVM(payment);
+        //        return View("PaidFromApi", model);
+        //    }
 
-        }
+        //}
 
         private async Task<Payment> DoPaymentCallbackOperations()
         {

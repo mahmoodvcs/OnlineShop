@@ -601,7 +601,7 @@ namespace MahtaKala.Services
             if (payment.State == PaymentState.Succeeded)
             {
                 await EmptyCart(payment.Order?.UserId);
-                await deliveryService.InitDelivery(payment.OrderId);
+                //await deliveryService.InitDelivery(payment.OrderId);
             }
             else
             {
