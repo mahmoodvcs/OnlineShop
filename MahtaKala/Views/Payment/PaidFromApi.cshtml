@@ -19,7 +19,7 @@
 				<h2>پرداخت ناموفق</h2>
 			}
 
-			@*@if (Model.PaymentSourceUsed == SourceUsedForPayment.MobileApp)
+			@if (Model.PaymentSourceUsed == SourceUsedForPayment.MobileApp)
 			{
 				returnToHref = "Mahtakala://BackFromPayment?status=" + Model.State;
 			}
@@ -28,10 +28,10 @@
 				//returnToHref = "http://www.mahtakala.ir/"
 				//if (Model.BaseUrl.ToLower().Contains("mahtakala.ir"))
 				returnToHref = Model.BaseUrl;
-			}*@
+			}
 
 
-			<a class="btn btn-primary" href="#" onclick="closeTab1(); return false;">
+			@*<a class="btn btn-primary" href="#" onclick="closeTab1(); return false;">
 				بازگشت به اپلیکیشن 1
 			</a>
 			<a class="btn btn-primary" href="#" onclick="closeTab2(); return false;">
@@ -42,7 +42,7 @@
 			</a>
 			<a class="btn btn-primary" href="#" onclick="setTimeout(function () { closeTab4(); }, 1000); return false;">
 				بازگشت به اپلیکیشن 4
-			</a>
+			</a>*@
 
 		</div>
 

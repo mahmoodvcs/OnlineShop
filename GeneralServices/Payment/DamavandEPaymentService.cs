@@ -98,22 +98,38 @@ namespace MahtaKala.GeneralServices.Payment
 			paymentRequestResult.TrackingNumber = dictionary["trackingnumber"];
 			paymentRequestResult.BuyID = dictionary["buyid"];
 			paymentRequestResult.Token = dictionary["token"];
+			string amountStr = dictionary["amount"];
+			//paymentRequestResult.Amount = long.Parse(amountStr);
+			
+			if (!long.TryParse(amountStr, out long receivedAmountValue))
+			{
+				logger.LogError($"Invalid \"Amount\" string received from the bank! It should be an integer " +
+					$"(a number, greater than zero, without any decimal points). The vlaue received from the bank is: {amountStr}");
+				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
+				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+			}
+			paymentRequestResult.Amount = receivedAmountValue;
 			int paymentId = int.Parse(paymentRequestResult.BuyID);
 			var payment = await dbContext.Payments.Include(x => x.Order).Where(x => x.Id == paymentId).FirstOrDefaultAsync();
 			if (payment == null)
 			{
 				logger.LogError($"Invalid Payment.Id {paymentId}. Does not exist.");
+				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
 				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
 			}
 			if (payment.PayToken != paymentRequestResult.Token)
 			{
 				logger.LogError($"Payment token does not match. Payment.Id: {paymentId}. Ours: '{payment.PayToken}'. Bank: '{paymentRequestResult.Token}'");
+				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
 				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
 			}
 			int stateValue;
 			if (!int.TryParse(dictionary["state"], out stateValue))
 			{
-				throw new Exception($"Incorrect \"State\" value received from the bank! It's supposed to be \"0\" or \"1\" (as opposed to {dictionary["state"]})");
+
+				logger.LogError($"Incorrect \"State\" value received from the bank! It's supposed to be \"0\" or \"1\" (as opposed to {dictionary["state"]})");
+				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
+				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
 			}
 			paymentRequestResult.State = stateValue;
 			if (paymentRequestResult.State != 1)
@@ -144,6 +160,15 @@ namespace MahtaKala.GeneralServices.Payment
 				// TODO: Implement and call the function which cancels the payment process, i.e. calls 
 				//		PayReverse service of ecd(Damavand), and returns the money to the user's bank account
 				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
+				if (paymentRequestResult.Amount != (long)payment.Amount)
+				{
+					logger.LogError($"Incorrect \"Amount\" value received from the bank! Amount value received from the bank: " +
+						$"{paymentRequestResult.Amount} - Amount value recorded in Payment object: {payment.Amount}");
+				}
+				if (payment.State != PaymentState.SentToBank)
+				{
+					logger.LogError($"Payment object has an incorrect \"State\" value! It's value should be \"SentToBank\", but, it's not! The current value: {payment.State}");
+				}
 			}
 			else
 			{
@@ -163,6 +188,7 @@ namespace MahtaKala.GeneralServices.Payment
 						$"- ErrorDescription: {confirmationResult.ErrorDescription}");
 				}
 			}
+			await dbContext.SaveChangesAsync();
 			return payment;
 		}
 
