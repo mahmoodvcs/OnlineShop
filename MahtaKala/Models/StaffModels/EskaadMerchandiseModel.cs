@@ -2,6 +2,7 @@
 using MahtaKala.Entities.EskaadEntities;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -33,6 +34,7 @@ namespace MahtaKala.Models.StaffModels
 
 		public string Validation_Eskaad { get; set; }
 		public byte? Tax_Eskaad { get; set; }
+		public MatchingMethod MatchingMethod { get; set; }
 
 		public EskaadMerchandiseModel()
 		{ }
@@ -59,6 +61,7 @@ namespace MahtaKala.Models.StaffModels
 			this.PresentInEskaad = eskaadMerchandiseItem.PresentInEskaad;
 			this.Validation_Eskaad = eskaadMerchandiseItem.Validation_Eskaad;
 			this.Tax_Eskaad = eskaadMerchandiseItem.Tax_Eskaad;
+			this.MatchingMethod = eskaadMerchandiseItem.MatchingMethod;
 		}
 		public EskaadMerchandiseModel(Merchandise merchandiseItem)
 		{

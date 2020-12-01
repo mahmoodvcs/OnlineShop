@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -36,5 +37,6 @@ namespace MahtaKala.Entities
 		public string Validation_Eskaad { get; set; }
         public byte? Tax_Eskaad { get; set; }
 		public DateTime FetchedDate { get; set; }
+		public MatchingMethod MatchingMethod { get; set; }
 	}
 }
