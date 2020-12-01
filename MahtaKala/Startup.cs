@@ -116,7 +116,8 @@ namespace MahtaKala
         private static void RegisterMyServices(IServiceCollection services, IConfiguration config)
         {
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IBankPaymentService, PardakhtNovinService>();
+            //services.AddScoped<IBankPaymentService, PardakhtNovinService>();
+            services.AddScoped<IBankPaymentService, DamavandEPaymentService>();
             services.AddScoped<IFileService, FileService>();
 			//services.AddScoped<ISMSService, PayamSMSV2>();
 			//services.AddSingleton<ISMSService, PayamSMSV2>();

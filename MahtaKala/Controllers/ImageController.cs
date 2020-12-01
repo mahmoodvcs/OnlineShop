@@ -33,23 +33,39 @@ namespace MahtaKala.Controllers
         [ResponseCache(VaryByQueryKeys = new string[] { "id", "name" }, Duration = 100)]
         public FileContentResult Product(long id, string name)
         {
-            var img = productImageService.GetImage(id, name);
-            if (img == null)
+            try
             {
-                img = new byte[0];
+                var img = productImageService.GetImage(id, name);
+                if (img == null)
+                {
+                    img = new byte[0];
+                }
+                return File(img, "image/jpeg");
             }
-            return File(img, "image/jpeg");
+            catch (Exception e)
+            {
+                logger.LogError(e, "Error retrieving image file!");
+                return null;
+            }
         }
         [ResponseCache(VaryByQueryKeys = new string[] { "id", "name" }, Duration = 100)]
         public FileContentResult Category(long id, string name)
         {
-            var img = categoryImageService.GetImage(id, name);
-            if (img == null)
-            {
-                img = new byte[0];
-            }
+            try
+			{
+                var img = categoryImageService.GetImage(id, name);
+                if (img == null)
+                {
+                    img = new byte[0];
+                }
 
-            return File(img, "image/jpeg");
+                return File(img, "image/jpeg");
+            }
+            catch (Exception e)
+			{
+                logger.LogError(e, "Error retreiving image file!");
+                return null;
+			}
         }
     }
 }
