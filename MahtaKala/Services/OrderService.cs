@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders.Physical;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System;
@@ -29,6 +30,7 @@ namespace MahtaKala.Services
         private readonly IBankPaymentService bankService;
         private readonly SettingsService settingsService;
         private readonly IDeliveryService deliveryService;
+        private readonly ILogger<OrderService> logger;
 
         private const long CarSpareParts_CategoryId = 168;
         private const long SuperMarket_CategoryId = 134;
@@ -41,7 +43,8 @@ namespace MahtaKala.Services
             DataContext dataContext,
             IBankPaymentService bankService,
             SettingsService settingsService,
-            IDeliveryService deliveryService
+            IDeliveryService deliveryService,
+            ILogger<OrderService> logger
             )
         {
             this.currentUserService = currentUserService;
@@ -49,6 +52,7 @@ namespace MahtaKala.Services
             this.bankService = bankService;
             this.settingsService = settingsService;
             this.deliveryService = deliveryService;
+            this.logger = logger;
         }
 
         #region Constants
@@ -605,7 +609,40 @@ namespace MahtaKala.Services
             }
             else
             {
-                await RollbackQuantity(payment.Order);
+                try
+                {
+                    await RollbackQuantity(payment.Order);
+                }
+                catch (Exception e)
+                {
+                    var message = e.Message;
+                    var iterator = e;
+                    while (iterator.InnerException != null)
+                    {
+                        iterator = iterator.InnerException;
+                        message += iterator.Message;
+                    }
+                    message = message.ToLower();
+                    if (message.Contains("System.InvalidOperationException")
+                        && message.Contains("An exception has been raised that is likely due to a transient failure")
+                        && message.Contains("40001: could not serialize access due to concurrent update")) 
+                    { // This means that roll-back operation failed due to the transaction lock on product quantities, 
+                      // so, we just need to wait and try again! We will wait a while, and then, try again.
+                        await WaitAndRetryRollingBack(payment.Order);
+                    }
+                }
+            }
+        }
+
+        private async Task WaitAndRetryRollingBack(Order order)
+        {
+            try
+            {
+                await RollbackQuantity(order);
+            }
+            catch (Exception e)
+            { 
+
             }
         }
 
@@ -676,10 +713,21 @@ namespace MahtaKala.Services
                 throw new BadRequestException(SMSManager.TEMP_MARK + "این سفارش قبلاً لغو شده است.");
 
 
-            var items = order.Items.Where(a => a.State == OrderItemState.Sent);
+            var items = order.Items.Where(a => a.State == OrderItemState.Sent || a.State == OrderItemState.None);
             if (items.Count() == 0)
             {
                 throw new BadRequestException(SMSManager.TEMP_MARK + "این سفارش قلم ارسال شده ندارد.");
+            }
+            if (items.Any(x => x.State == OrderItemState.None))
+            {
+                var unsentItems = items.Where(x => x.State == OrderItemState.None).ToList();
+                var message = $"CAUTION!! OrderId: {order.Id} - SetOrderDelivered - {unsentItems.Count} items with state \"None\" - These items' state will be set as \"Delivered\" as well, but, take caution!" +
+                    $"The items' ids are as follows:";
+                foreach(var unsentItem in unsentItems)
+				{
+
+				}
+                logger.LogError(message);
             }
 
             foreach (var item in items)

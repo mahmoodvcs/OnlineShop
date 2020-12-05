@@ -99,17 +99,39 @@ namespace MahtaKala.GeneralServices.Payment
 
 			int paymentId = int.Parse(paymentRequestResult.BuyID);
 			var payment = await dbContext.Payments.Include(x => x.Order).Where(x => x.Id == paymentId).FirstOrDefaultAsync();
+			//bool paymentSuccessful = true;
 			if (payment == null)
 			{
 				logger.LogError($"Invalid Payment.Id {paymentId}. Does not exist.");
 				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
-				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				var alternativePayment = await dbContext.Payments.Include(x => x.Order)
+					.Where(x => x.PayToken.Equals(paymentRequestResult.Token)).FirstOrDefaultAsync();
+				if (alternativePayment != null)
+				{
+					payment = alternativePayment;
+					payment.State = PaymentState.Failed;
+					payment.Order.State = OrderState.Canceled;
+					await dbContext.SaveChangesAsync();
+					return payment;
+				}
+				else
+				{
+					throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				}
+				//paymentSuccessful = false;
+				//throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
 			}
 			if (payment.PayToken != paymentRequestResult.Token)
 			{
 				logger.LogError($"Payment token does not match. Payment.Id: {paymentId}. Ours: '{payment.PayToken}'. Bank: '{paymentRequestResult.Token}'");
-				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
-				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				//var rollbackResult = RollPaymentBack(paymentRequestResult.Token);
+				var rollbackResult = RollPaymentBack(payment.PayToken);
+				payment.State = PaymentState.Failed;
+				payment.Order.State = OrderState.Canceled;
+				await dbContext.SaveChangesAsync();
+				return payment;
+				//paymentSuccessful = false;
+				//throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
 			}
 			int stateValue;
 			if (!int.TryParse(dictionary["state"], out stateValue))
@@ -117,7 +139,12 @@ namespace MahtaKala.GeneralServices.Payment
 
 				logger.LogError($"Incorrect \"State\" value received from the bank! It's supposed to be \"0\" or \"1\" (as opposed to {dictionary["state"]})");
 				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
-				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				payment.State = PaymentState.Failed;
+				payment.Order.State = OrderState.Canceled;
+				await dbContext.SaveChangesAsync();
+				return payment;
+				//throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				//paymentSuccessful = false;
 			}
 			paymentRequestResult.State = stateValue;
 			if (paymentRequestResult.State != 1)
@@ -133,20 +160,33 @@ namespace MahtaKala.GeneralServices.Payment
 			{
 				logger.LogError($"Payment not successful! Key \"referencenumber\" not present in the request body!");
 				var rollbackResult = RollPaymentBack(paymentRequestResult.Token);
-				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				//throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				payment.State = PaymentState.Failed;
+				payment.Order.State = OrderState.Canceled;
+				await dbContext.SaveChangesAsync();
+				return payment;
 			}
 			if (!dictionary.ContainsKey("trackingnumber"))
 			{
 				logger.LogError($"Payment not successful! Key \"trackingnumber\" not present in the request body!");
 				var rollbackResult = RollPaymentBack(paymentRequestResult.Token);
-				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				//throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				payment.State = PaymentState.Failed;
+				payment.Order.State = OrderState.Canceled;
+				await dbContext.SaveChangesAsync();
+				return payment;
 			}
 			if (!dictionary.ContainsKey("amount"))
 			{
 				logger.LogError($"Payment not successful! Key \"amount\" not present in the request body!");
 				var rollbackResult = RollPaymentBack(paymentRequestResult.Token);
-				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				//throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				payment.State = PaymentState.Failed;
+				payment.Order.State = OrderState.Canceled;
+				await dbContext.SaveChangesAsync();
+				return payment;
 			}
+
 			paymentRequestResult.ReferenceNumber = dictionary["referencenumber"];
 			paymentRequestResult.TrackingNumber = dictionary["trackingnumber"];
 			string amountStr = dictionary["amount"];
@@ -157,8 +197,13 @@ namespace MahtaKala.GeneralServices.Payment
 				logger.LogError($"Invalid \"amount\" string received from the bank! It should be an integer " +
 					$"(a number, greater than zero, without any decimal points). The vlaue received from the bank is: {amountStr}");
 				var roolbackResult = RollPaymentBack(paymentRequestResult.Token);
-				throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				//throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
+				payment.State = PaymentState.Failed;
+				payment.Order.State = OrderState.Canceled;
+				await dbContext.SaveChangesAsync();
+				return payment;
 			}
+
 			paymentRequestResult.Amount = receivedAmountValue;
 			payment.ReferenceNumber = paymentRequestResult.ReferenceNumber;
 			payment.TrackingNumber = paymentRequestResult.TrackingNumber;
@@ -188,6 +233,10 @@ namespace MahtaKala.GeneralServices.Payment
 				{
 					logger.LogError($"Payment object has an incorrect \"State\" value! It's value should be \"SentToBank\", but, it's not! The current value: {payment.State}");
 				}
+				payment.State = PaymentState.Failed;
+				payment.Order.State = OrderState.Canceled;
+				await dbContext.SaveChangesAsync();
+				return payment;
 			}
 			else
 			{
