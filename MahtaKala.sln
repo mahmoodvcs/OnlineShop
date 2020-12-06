@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharedServices", "SharedSer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExportDataToPG", "ExportDataToPG\ExportDataToPG.csproj", "{B0F10FE6-8F22-42D9-96C9-49CB708F03E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuantityRollerBacker", "QuantityRollerBacker\QuantityRollerBacker.csproj", "{A90E6363-88E0-4D05-86D2-8E60E51027DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{B0F10FE6-8F22-42D9-96C9-49CB708F03E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0F10FE6-8F22-42D9-96C9-49CB708F03E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0F10FE6-8F22-42D9-96C9-49CB708F03E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A90E6363-88E0-4D05-86D2-8E60E51027DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A90E6363-88E0-4D05-86D2-8E60E51027DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A90E6363-88E0-4D05-86D2-8E60E51027DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A90E6363-88E0-4D05-86D2-8E60E51027DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
