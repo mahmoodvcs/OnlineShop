@@ -615,47 +615,83 @@ namespace MahtaKala.Services
                 }
                 catch (Exception e)
                 {
-                    var message = e.Message;
-                    var iterator = e;
-                    while (iterator.InnerException != null)
-                    {
-                        iterator = iterator.InnerException;
-                        message += iterator.Message;
-                    }
-                    message = message.ToLower();
-                    if (message.Contains("System.InvalidOperationException")
-                        && message.Contains("An exception has been raised that is likely due to a transient failure")
-                        && message.Contains("40001: could not serialize access due to concurrent update")) 
-                    { // This means that roll-back operation failed due to the transaction lock on product quantities, 
-                      // so, we just need to wait and try again! We will wait a while, and then, try again.
-                        await WaitAndRetryRollingBack(payment.Order);
-                    }
+					//var message = e.Message;
+					//var iterator = e;
+					//while (iterator.InnerException != null)
+					//{
+					//    iterator = iterator.InnerException;
+					//    message += iterator.Message;
+					//}
+					//message = message.ToLower();
+					//if (message.Contains("System.InvalidOperationException")
+					//    && message.Contains("An exception has been raised that is likely due to a transient failure")
+					//    && message.Contains("40001: could not serialize access due to concurrent update")) 
+					//{ // This means that roll-back operation failed due to the transaction lock on product quantities, 
+					//  // so, we just need to wait and try again! We will wait a while, and then, try again.
+                    if (TryAgain(e))
+					    await WaitAndRetryRollingBack(payment.Order, 2);
+					else
+					{
+                        LogRollBackFailure(e, payment);
+					}
+					//}
+				}
+            }
+        }
+
+        private void LogRollBackFailure(Exception e, Payment payment)
+        {
+            var message = e.Message;
+            var exceptionIterator = e;
+            while (exceptionIterator.InnerException != null)
+            {
+                exceptionIterator = exceptionIterator.InnerException;
+                message += Environment.NewLine + ">>>GOING ONE LEVEL IN<<<" + Environment.NewLine +
+                    "Inner Exception: " + exceptionIterator.Message;
+            }
+            logger.LogError($"!!!CRITICAL ERROR!!! Rollback operation failed for payment with id {payment.Id}" +
+                $" Exception thrown is as follows: {message}");
+        }
+
+        private bool TryAgain(Exception ex)
+        {
+            var message = ex.Message;
+            var iterator = ex;
+            while (iterator.InnerException != null)
+            {
+                iterator = iterator.InnerException;
+                message += iterator.Message;
+            }
+            message = message.ToLower();
+            if (message.Contains("System.InvalidOperationException".ToLower())
+                && message.Contains("An exception has been raised that is likely due to a transient failure".ToLower())
+                && message.Contains("40001: could not serialize access due to concurrent update".ToLower()))
+            { // This means that roll-back operation failed due to the transaction lock on product quantities, 
+              // so, we just need to wait and try again! We will wait a while, and then, try again.
+                return true;
+            }
+            return false;
+        }
+
+        private async Task WaitAndRetryRollingBack(Order order, int tryCount)
+        {
+            while (tryCount >= 0)
+            {
+                System.Threading.Thread.Sleep(10000);
+                try
+                {
+                    await RollbackQuantity(order);
+                }
+                catch (Exception e)
+                {
+                    if (!TryAgain(e))
+                        break;
+                    tryCount -= 1;
                 }
             }
         }
 
-        private async Task WaitAndRetryRollingBack(Order order)
-        {
-            try
-            {
-                await RollbackQuantity(order);
-            }
-            catch (Exception e)
-            { 
-
-            }
-        }
-
-        //public async Task RollbackUnsuccessfulPayments()
-        //{
-        //    var initalStates = QuantitySubtractedOrderStates.Except(SuccessfulOrderStates).ToArray();
-        //    var list = await db.Orders.Where(a => a.CheckOutDate < DateTime.Now.AddMinutes(-20)
-        //        && initalStates.Contains(a.State)).ToListAsync();
-        //    foreach (var item in list)
-        //    {
-
-        //    }
-        //}
+        
 
         public async Task RollbackOrder(long orderId)
         {

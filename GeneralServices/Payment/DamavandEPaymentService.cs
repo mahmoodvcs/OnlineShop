@@ -289,6 +289,9 @@ namespace MahtaKala.GeneralServices.Payment
 				{
 					await PaymentFailureImminent(payment, dbContext);
 				}
+				//payment.State = PaymentState.Failed;
+				//payment.Order.State = OrderState.Canceled;
+				//await dbContext.SaveChangesAsync();
 				return payment;
 			}
 			else
