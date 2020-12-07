@@ -1,5 +1,6 @@
 ﻿using MahtaKala.Entities;
 using MahtaKala.GeneralServices.Payment.Models;
+using MahtaKala.GeneralServices.Payment.PardakhtNovin;
 using MahtaKala.SharedServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,8 +9,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MahtaKala.GeneralServices.Payment
@@ -30,6 +34,27 @@ namespace MahtaKala.GeneralServices.Payment
 		private const string PAY_URL = "https://ecd.shaparak.ir/ipg_ecd/PayStart";
 		private const string PAYMENT_CONFIRMATION_URL = "https://ecd.shaparak.ir/ipg_ecd/PayConfirmation";
 		private const string PAYMENT_ROLLBACK_URL = "https://ecd.shaparak.ir/ipg_ecd/PayReverse";
+
+		const string ShareApiAddress = "http://178.252.189.82:9000/api/SettlementRequest";
+		const string inqueiryAddress = "http://178.252.189.82:9000/api/InquiryTransactionSettlement";
+		const string shareUsername = "mahtaws";
+		const string sharePassword = "Ab123456";
+
+		private async Task<string> Post(string address, string body)
+		{
+			HttpClient client = new HttpClient();
+			client.DefaultRequestHeaders.Accept.Clear();
+			client.DefaultRequestHeaders.Accept.Add(
+				new MediaTypeWithQualityHeaderValue("application/json"));
+			//client.DefaultRequestHeaders.Add("Content-Type", "application/json");
+			client.DefaultRequestHeaders.Add("username", shareUsername);
+			client.DefaultRequestHeaders.Add("password", sharePassword);
+
+			var content = new StringContent(body, Encoding.UTF8, "application/json");
+			var response = await client.PostAsync(address, content);
+			var resStr = await response.Content.ReadAsStringAsync();
+			return resStr;
+		}
 
 		public DamavandEPaymentService(DataContext dbContext, IPathService pathService, ILogger<IBankPaymentService> logger)
 		{
@@ -211,9 +236,56 @@ namespace MahtaKala.GeneralServices.Payment
 			return payment;
 		}
 
-		public Task SharePayment(Entities.Payment payment, List<PaymentShareDataItem> items)
+		public async Task SharePayment(Entities.Payment payment, List<PaymentShareDataItem> items)
 		{
-			throw new NotImplementedException();
+			SettlementRequest request = new SettlementRequest()
+			{
+				referenceNumber = new string('0', 12 - payment.PSPReferenceNumber.Length) + payment.PSPReferenceNumber,
+				scatteredSettlement = items.GroupBy(a => a.ShabaId).Select(a => new ScatteredSettlementDetails
+				{
+					settlementIban = a.Key,
+					shareAmount = (int)a.Sum(c => c.Amount)
+				}).ToList()
+			};
+
+			var date = DateTime.Now;
+			var psItems = items.Select(a => new PaymentSettlement
+			{
+				Amount = (int)a.Amount,
+				Date = date,
+				Name = a.Name,
+				OrderId = payment.OrderId,
+				PaymentId = payment.Id,
+				ShabaId = a.ShabaId,
+				Status = PaymentSettlementStatus.Sent,
+				PayFor = a.PayFor,
+				ItemId = a.ItemId
+			}).ToList();
+
+			await dbContext.PaymentSettlements.AddRangeAsync(psItems);
+			await dbContext.SaveChangesAsync();
+
+			var reqSgtring = "[" + System.Text.Json.JsonSerializer.Serialize(request) + "]";
+			logger.LogInformation(reqSgtring);
+			var resStr = await Post(ShareApiAddress, reqSgtring);
+			logger.LogInformation(resStr);
+			var responses = System.Text.Json.JsonSerializer.Deserialize<SettlementRequestResponse[]>(resStr);
+
+			if (responses.Length != request.scatteredSettlement.Count)
+			{
+				logger.LogError($"Payment share response count mismatch. PaymentId: {payment.Id} - Request: {reqSgtring} \r\n\r\nResponse: {resStr}");
+				throw new Exception($"Payment share response count mismatch. PaymentId: {payment.Id}");
+			}
+
+			for (int i = 0; i < responses.Length; i++)
+			{
+				foreach (var item in psItems.Where(a => a.ShabaId == request.scatteredSettlement[i].settlementIban))
+				{
+					psItems[i].Status = responses[i].status == StatusType.Succeed ? PaymentSettlementStatus.Succeeded : PaymentSettlementStatus.Failed;
+					psItems[i].Response = responses[i].message;
+				}
+			}
+			await dbContext.SaveChangesAsync();
 		}
 
 		private DamavandIPGResult ConfirmPayment(string token)
