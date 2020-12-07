@@ -888,8 +888,12 @@ namespace MahtaKala.Controllers
                     query = query.Where(x => x.Published == isPublishedFilterValue);
                 }                    
             }
-            var data = await query.Project().ToListResultAsync(request);
-            return KendoJson(data);
+            if (await query.AnyAsync())
+            {
+                var data = await query.Project().ToListResultAsync(request);
+                return KendoJson(data);
+            }
+            return KendoJson(new DataSourceResult());
         }
 
         //private void FlexTextFilter<T>(IQueryable<T> query, Expression<Func<T, object>> p, string text)
