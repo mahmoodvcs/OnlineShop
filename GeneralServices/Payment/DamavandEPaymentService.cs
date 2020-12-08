@@ -363,7 +363,7 @@ namespace MahtaKala.GeneralServices.Payment
 		{
 			SettlementRequest request = new SettlementRequest()
 			{
-				referenceNumber = new string('0', 12 - payment.PSPReferenceNumber.Length) + payment.PSPReferenceNumber,
+				referenceNumber = payment.ReferenceNumber,//new string('0', 12 - payment.PSPReferenceNumber.Length) + payment.PSPReferenceNumber,
 				scatteredSettlement = items.GroupBy(a => a.ShabaId).Select(a => new ScatteredSettlementDetails
 				{
 					settlementIban = a.Key,
@@ -389,9 +389,9 @@ namespace MahtaKala.GeneralServices.Payment
 			await dbContext.SaveChangesAsync();
 
 			var reqSgtring = "[" + System.Text.Json.JsonSerializer.Serialize(request) + "]";
-			logger.LogInformation(reqSgtring);
+			logger.LogWarning($"Damavand.SharePayment - Sending request string: {reqSgtring}");
 			var resStr = await Post(ShareApiAddress, reqSgtring);
-			logger.LogInformation(resStr);
+			logger.LogWarning($"Damavand.SharePayment - Request sent. Result string: {resStr}");
 			var responses = System.Text.Json.JsonSerializer.Deserialize<SettlementRequestResponse[]>(resStr);
 
 			if (responses.Length != request.scatteredSettlement.Count)
@@ -409,6 +409,7 @@ namespace MahtaKala.GeneralServices.Payment
 				}
 			}
 			await dbContext.SaveChangesAsync();
+			logger.LogWarning("Damavand.SharePayment - Sharing process reached its end!");
 		}
 
 		private DamavandIPGResult ConfirmPayment(string token)

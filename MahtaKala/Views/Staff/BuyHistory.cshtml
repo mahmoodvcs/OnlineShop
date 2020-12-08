@@ -14,45 +14,62 @@
     </fieldset>
 
 </div>
+@{ 
+	var currentUserObject = Context.Items["User"];
+	User currentUser = null;
+	if (currentUserObject != null && currentUserObject is User)
+	{
+		currentUser = (User)currentUserObject;
+	}
+	else
+	{
+		throw new Exception("unauthorized staff! Action denied!");
+	}
+}
 
 @(Html.Kendo().Grid<MahtaKala.Models.OrderModel>().Name("grid").Columns(columns =>
 {
-    columns.Bound(p => p.FirstName).Title("نام");
-    columns.Bound(p => p.LastName).Title("نام خانوادگی");
-    columns.Bound(p => p.CheckoutDate).Title("تاریخ سفارش");
-    columns.Bound(p => p.State).Title("وضعیت").Filterable(false);//.Filterable(fc=> { fc.UI("dateFilter"); });
-    columns.Bound(p => p.ApproximateDeliveryDate).Title("تاریخ تقریبی تحویل");
-    columns.Bound(p => p.SendDate).Title("تاریخ ارسال");
-    columns.Bound(p => p.ActualDeliveryDate).Title("تاریخ تحویل");
-    columns.Bound(p => p.Price).Title("قیمت");
-    columns.Command(command => command.Custom("جزئیات").Click("viewDetails")).Width(90);
-    //columns.Command(command => command.Custom("تایید ارسال").Click("ConfirmSent")).Width(90);
-    columns.Command(command => command.Custom("تایید تحویل").Click("ConfirmDelivered")).Width(90);
+	columns.Bound(p => p.FirstName).Title("نام");
+	columns.Bound(p => p.LastName).Title("نام خانوادگی");
+	columns.Bound(p => p.CheckoutDate).Title("تاریخ سفارش");
+	columns.Bound(p => p.State).Title("وضعیت").Filterable(false);//.Filterable(fc=> { fc.UI("dateFilter"); });
+	columns.Bound(p => p.ApproximateDeliveryDate).Title("تاریخ تقریبی تحویل");
+	columns.Bound(p => p.SendDate).Title("تاریخ ارسال");
+	columns.Bound(p => p.ActualDeliveryDate).Title("تاریخ تحویل");
+	columns.Bound(p => p.Price).Title("قیمت");
+	columns.Command(command => command.Custom("جزئیات").Click("viewDetails")).Width(90);
+	//columns.Command(command => command.Custom("تایید ارسال").Click("ConfirmSent")).Width(90);
+
+	if (currentUser.Type == UserType.Admin)
+	{
+		columns.Bound(p => p.DeliveryTrackNo).Title("کد تحویل");
+		columns.Command(command => command.Custom("تایید تحویل").Click("ConfirmDelivered")).Width(90);
+	}
 
 })
-    .Scrollable()
-    .Filterable(c=>
-    {
-        //c.Mode(GridFilterMode.Row).Operators(oc=> { oc.ForString(sc=> { sc.Contains()})});
-    })
-    .Sortable()
-    .Pageable(pageable => pageable
-        .Refresh(true)
-        .PageSizes(true)
-        .PageSizes(new int[] { 5, 10, 20, 50 })
-        .ButtonCount(5))
-    .Sortable()
-    .DataSource(dataSource => dataSource
-            .Ajax()
-            .PageSize(50)
-            .Model(model =>
-            {
-                model.Id(p => p.Id);
+	.Scrollable()
+	.Filterable(c=>
+	{
+		//c.Mode(GridFilterMode.Row).Operators(oc=> { oc.ForString(sc=> { sc.Contains()})});
+	})
+	.Sortable()
+	.Pageable(pageable => pageable
+		.Refresh(true)
+		.PageSizes(true)
+		.PageSizes(new int[] { 5, 10, 20, 50 })
+		.ButtonCount(5))
+	.Sortable()
+	.DataSource(dataSource => dataSource
+			.Ajax()
+			.PageSize(50)
+			.Model(model =>
+			{
+				model.Id(p => p.Id);
 
-            })
-            .Read(read => read.Action("GetBuyHistory", "Staff").Data("getAdditionalData"))
-            .Sort(sc=>sc.Add(a=>a.CheckoutDate).Descending())
-                                                                                                                                                                                                                                                                                )
+			})
+			.Read(read => read.Action("GetBuyHistory", "Staff").Data("getAdditionalData"))
+			.Sort(sc=>sc.Add(a=>a.CheckoutDate).Descending())
+																																																																				)
     )
 @section js{
     <script type="text/javascript">
@@ -105,7 +122,7 @@
                 },
             }).then((result) => {
                 if (result.value) {
-                    $.post("@Url.Action("ConfirmDelivered", "Staff")",
+                    $.post("@Url.Action("ShareOrderPayment", "Staff")",
                         {
                             Id: dataItem.Id,
                             TrackNo: result.value

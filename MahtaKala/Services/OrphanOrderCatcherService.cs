@@ -18,7 +18,7 @@ namespace MahtaKala.Services
 		private readonly OrderService orderService;
 		private readonly ILogger<OrphanOrderCatcherService> logger;
 		// One hour after the order has been checked out, if it is not in a conclusive state, it's considered "orphan", and would be cancelled.
-		private readonly TimeSpan DiscardOrderThreshold = new TimeSpan(1, 0, 0);	
+		private readonly TimeSpan DiscardOrderThreshold = new TimeSpan(1, 0, 0);
 		
 		public OrphanOrderCatcherService(
 			//SingletonDataContext dataContext,
@@ -42,8 +42,9 @@ namespace MahtaKala.Services
 				try
 				{
 					var order = new Order() { Id = orphanId };
+					logger.LogWarning($"OrphanOrderCatcherService - {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} - Calling RollBack on Order {orphanId}...");
 					await orderService.RollbackOrder(orphanId);
-					logger.LogInformation($"OrphanOrderCatcherService - {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} - Order with id {orphanId} have been successfully rolled back!");
+					logger.LogWarning($"OrphanOrderCatcherService - {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} - Order with id {orphanId} have been successfully rolled back!");
 				}
 				catch (Exception e)
 				{

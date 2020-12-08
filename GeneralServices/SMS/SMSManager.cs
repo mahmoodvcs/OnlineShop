@@ -1,5 +1,6 @@
 ﻿using MahtaKala.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +13,7 @@ namespace MahtaKala.GeneralServices.SMS
         private readonly IEnumerable<ISMSProcessor> SMSProcessors;
 		private readonly ISMSService smsService;
 		private readonly DataContext db;
+		private readonly ILogger<SMSManager> logger;
 
 		public const string TEMP_MARK = "$Markham(#_>";
 		public const string OrderDeliveryCodeReceived = "کد تأیید تحویل سفارش دریافت شد: {0}.";
@@ -21,12 +23,16 @@ namespace MahtaKala.GeneralServices.SMS
 		//private IHttpContextAccessor contextAccessor;
 		//      private HttpContext Current => contextAccessor.HttpContext;
 
-		public SMSManager(IEnumerable<ISMSProcessor> processors, ISMSService smsSrvc, DataContext dataContext)
+		public SMSManager(IEnumerable<ISMSProcessor> processors
+			, ISMSService smsSrvc
+			, DataContext dataContext
+			, ILogger<SMSManager> logger)
 		{
             //contextAccessor = accessor;
             SMSProcessors = processors;
 			smsService = smsSrvc;
 			db = dataContext;
+			this.logger = logger;
 		}
 
 		//public void SetHttpContextAccessor(IHttpContextAccessor accessor)
@@ -87,7 +93,14 @@ namespace MahtaKala.GeneralServices.SMS
 				}
 				catch (Exception ex)
 				{
+					string wholeError = ex.Message;
 					var exceptionDigger = ex;
+					while (exceptionDigger.InnerException != null)
+					{
+						exceptionDigger = exceptionDigger.InnerException;
+						wholeError += exceptionDigger.Message;
+					}
+					logger.LogError($"SMSManager.SMSReceived - Exception: {wholeError}");
 					while (exceptionDigger != null && !exceptionDigger.Message.StartsWith(TEMP_MARK))
 					{
 						exceptionDigger = exceptionDigger.InnerException;
@@ -105,9 +118,7 @@ namespace MahtaKala.GeneralServices.SMS
 					else
 					{
 						smsService.Send(sender, string.Format(InvalidDeliveryCodeReceived, userError + ex.Message));
-						//TODO: IMPORTANT! log! ASAP!
 					}
-					//TODO: log
 				}
 			}
 		}
