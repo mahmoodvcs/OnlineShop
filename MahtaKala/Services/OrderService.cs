@@ -31,12 +31,14 @@ namespace MahtaKala.Services
         private readonly SettingsService settingsService;
         private readonly IDeliveryService deliveryService;
         private readonly ILogger<OrderService> logger;
+        private readonly RandomGenerator randomNumberGenerator;
 
         private const long CarSpareParts_CategoryId = 168;
         private const long SuperMarket_CategoryId = 134;
         private const long ProteinProducts_CategoryId = 135;
         private const long FruitsAndVegetables_CategoryId = 136;
         private const long StationeryProducts_CategoryId = 140;
+        private const int MillisecondsStepPeriod = 10000; // 10 seconds is the step length of "waiting before trying again"
 
         public OrderService(
             ICurrentUserService currentUserService,
@@ -44,7 +46,8 @@ namespace MahtaKala.Services
             IBankPaymentService bankService,
             SettingsService settingsService,
             IDeliveryService deliveryService,
-            ILogger<OrderService> logger
+            ILogger<OrderService> logger,
+            RandomGenerator randomGenerator
             )
         {
             this.currentUserService = currentUserService;
@@ -53,6 +56,7 @@ namespace MahtaKala.Services
             this.settingsService = settingsService;
             this.deliveryService = deliveryService;
             this.logger = logger;
+            this.randomNumberGenerator = randomGenerator;
         }
 
         #region Constants
@@ -628,7 +632,7 @@ namespace MahtaKala.Services
 					//    && message.Contains("40001: could not serialize access due to concurrent update")) 
 					//{ // This means that roll-back operation failed due to the transaction lock on product quantities, 
 					//  // so, we just need to wait and try again! We will wait a while, and then, try again.
-                    if (TryAgain(e))
+                    if (ExceptionIsDueToTransactionLockOnDatabase(e))
 					    await WaitAndRetryRollingBack(payment.Order, 2);
 					else
 					{
@@ -653,7 +657,7 @@ namespace MahtaKala.Services
                 $" Exception thrown is as follows: {message}");
         }
 
-        private bool TryAgain(Exception ex)
+        private bool ExceptionIsDueToTransactionLockOnDatabase(Exception ex)
         {
             var message = ex.Message;
             var iterator = ex;
@@ -673,27 +677,37 @@ namespace MahtaKala.Services
             return false;
         }
 
-        private async Task WaitAndRetryRollingBack(Order order, int tryCount)
+        private async Task WaitAndRetryRollingBack(Order order, int howManyTriesBeforeGivingUp)
         {
-            string functionStartTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            logger.LogWarning($"WaitAndRetryRollingBack - {functionStartTime}");
-            while (tryCount >= 0)
+            string timeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            logger.LogWarning($"WaitAndRetryRollingBack - {timeTag}");
+            int trialNumber = 0;
+            while (trialNumber < howManyTriesBeforeGivingUp)
             {
-                System.Threading.Thread.Sleep(10000);
+                double randomWaitScale = randomNumberGenerator.NextDouble();
+                int millisecondsToWait = (int)(Math.Pow(2, trialNumber) * randomWaitScale * MillisecondsStepPeriod);
+                logger.LogWarning($"Sudo-random decesion made! Gonna wait for {millisecondsToWait} milliseconds...");
+                System.Threading.Thread.Sleep(millisecondsToWait);
                 try
                 {
-                    logger.LogWarning($"Waiting finished - TryCount: {tryCount} - Calling Rollback on Order: {order.Id}");
-                    await RollbackQuantity(order);
-                    logger.LogWarning($"This try was successful! RollBack is done on order: {order.Id} - StartTime: {functionStartTime}!");
+                    logger.LogWarning($"Waiting finished - Trial number: {trialNumber} - Calling Rollback on Order: {order.Id}");
+                    await TryRollingQuantityBack(order);
+                    logger.LogWarning($"This try was successful! RollBack is done on order: {order.Id} - Function time tag: {timeTag}!");
                     return;
                 }
                 catch (Exception e)
                 {
-                    if (!TryAgain(e))
+                    if (!ExceptionIsDueToTransactionLockOnDatabase(e))
                         throw e;
-                    tryCount -= 1;
+                    trialNumber++;
                 }
             }
+            // If we're here, it means that after a bunch of trials (the number given as an input parameter), rolling back
+            // still wasn't successful, and all failures were due to the transaction lock set on database table Quantities.
+            logger.LogError($"Tried {howManyTriesBeforeGivingUp} times to roll back order with id {order.Id}, all of which " +
+                $"was to no avail! Also, all trials were faield with the same reason - the transaction lock, set on database in order to " +
+                $"keep write operations from running concurrently - which could create inconsistency in the inventory quantity data.");
+            logger.LogError($"TODO: This order (id:{order.Id}) is now ");
         }
 
         
@@ -704,7 +718,20 @@ namespace MahtaKala.Services
             await RollbackQuantity(order);
         }
 
-        async Task RollbackQuantity(Order origOrder)
+        async Task RollbackQuantity(Order order)
+        {
+            try
+            {
+                await TryRollingQuantityBack(order);
+            }
+            catch (Exception e)
+            {
+                if (ExceptionIsDueToTransactionLockOnDatabase(e))
+                    await WaitAndRetryRollingBack(order, 5);
+            }
+        }
+
+        private async Task TryRollingQuantityBack(Order origOrder)
         {
             var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product).FirstAsync(a => a.Id == origOrder.Id);
             if (order == null)

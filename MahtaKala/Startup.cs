@@ -123,6 +123,7 @@ namespace MahtaKala
 			services.AddSingleton<AppSettings>();
             services.AddSingleton<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<RandomGenerator>();
             
             services.AddSingleton<IProductImageService, ProductImageService>();
             services.AddSingleton<ICategoryImageService, CategoryImageService>();
