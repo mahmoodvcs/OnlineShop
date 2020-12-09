@@ -613,33 +613,33 @@ namespace MahtaKala.Services
             }
             else
             {
-                try
-                {
+                //try
+                //{
                     await RollbackQuantity(payment.Order);
-                }
-                catch (Exception e)
-                {
-					//var message = e.Message;
-					//var iterator = e;
-					//while (iterator.InnerException != null)
-					//{
-					//    iterator = iterator.InnerException;
-					//    message += iterator.Message;
-					//}
-					//message = message.ToLower();
-					//if (message.Contains("System.InvalidOperationException")
-					//    && message.Contains("An exception has been raised that is likely due to a transient failure")
-					//    && message.Contains("40001: could not serialize access due to concurrent update")) 
-					//{ // This means that roll-back operation failed due to the transaction lock on product quantities, 
-					//  // so, we just need to wait and try again! We will wait a while, and then, try again.
-                    if (ExceptionIsDueToTransactionLockOnDatabase(e))
-					    await WaitAndRetryRollingBack(payment.Order, 2);
-					else
-					{
-                        LogRollBackFailure(e, payment);
-					}
-					//}
-				}
+    //            }
+    //            catch (Exception e)
+    //            {
+				//	//var message = e.Message;
+				//	//var iterator = e;
+				//	//while (iterator.InnerException != null)
+				//	//{
+				//	//    iterator = iterator.InnerException;
+				//	//    message += iterator.Message;
+				//	//}
+				//	//message = message.ToLower();
+				//	//if (message.Contains("System.InvalidOperationException")
+				//	//    && message.Contains("An exception has been raised that is likely due to a transient failure")
+				//	//    && message.Contains("40001: could not serialize access due to concurrent update")) 
+				//	//{ // This means that roll-back operation failed due to the transaction lock on product quantities, 
+				//	//  // so, we just need to wait and try again! We will wait a while, and then, try again.
+    //                if (ExceptionIsDueToTransactionLockOnDatabase(e))
+				//	    await WaitAndRetryRollingBack(payment.Order, 2);
+				//	else
+				//	{
+    //                    LogRollBackFailure(e, payment);
+				//	}
+				//	//}
+				//}
             }
         }
 
@@ -707,7 +707,9 @@ namespace MahtaKala.Services
             logger.LogError($"Tried {howManyTriesBeforeGivingUp} times to roll back order with id {order.Id}, all of which " +
                 $"was to no avail! Also, all trials were faield with the same reason - the transaction lock, set on database in order to " +
                 $"keep write operations from running concurrently - which could create inconsistency in the inventory quantity data.");
-            logger.LogError($"TODO: This order (id:{order.Id}) is now ");
+            //logger.LogError($"TODO: This order (id:{order.Id}) is now ");
+            //TODO: Now, this order should be considered as "orphan", and treated as such next time the "catcher" wakes up!
+            I am a compile error! I'm here to make sure this commit won't get executed!
         }
 
         
