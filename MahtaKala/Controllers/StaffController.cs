@@ -48,6 +48,7 @@ namespace MahtaKala.Controllers
         private readonly IPathService pathService;
         private readonly ProductService productService;
         private readonly ISMSService smsService;
+        private readonly OrderService orderService;
 
         public StaffController(
             DataContext context,
@@ -58,7 +59,8 @@ namespace MahtaKala.Controllers
             ImportService importService,
             CategoryService categoryService,
             IPathService pathService,
-            ProductService productService
+            ProductService productService,
+            OrderService orderService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
@@ -68,6 +70,7 @@ namespace MahtaKala.Controllers
             this.pathService = pathService;
             this.productService = productService;
             this.smsService = smsService;
+            this.orderService = orderService;
         }
 
         [Authorize(UserType.Staff, UserType.Admin, UserType.Delivery, UserType.Seller)]
@@ -1378,7 +1381,8 @@ namespace MahtaKala.Controllers
                     a.AddressId,
                     a.Address,
                     a.SendDate,
-                    State = a.State
+                    State = a.State,
+                    a.TrackNo
                 }).ToDataSourceResultAsync(request, a => new OrderModel
                 {
                     Id = a.Id,
@@ -1392,7 +1396,8 @@ namespace MahtaKala.Controllers
                     LastName = a.LastName,
                     Address_Id = a.AddressId,
                     Address = new AddressModel(a.Address),
-                    State = TranslateExtentions.GetTitle(a.State)
+                    State = TranslateExtentions.GetTitle(a.State),
+                    DeliveryTrackNo = a.TrackNo
                 });
 
             var list = JsonConvert.SerializeObject(data, Formatting.None,
@@ -1432,6 +1437,45 @@ namespace MahtaKala.Controllers
         //    }
         //    return Json(new { success = true });
         //}
+
+        [AjaxAction]
+        [Authorize(new UserType[] { UserType.Admin }, Order = 1)]
+        public async Task<ActionResult> ShareOrderPayment(long Id, string TrackNo)
+        {
+            TrackNo = TrackNo.ToUpper();
+            var order = await db.Orders.Where(x => x.Id == Id).FirstOrDefaultAsync();
+            if (order == null)
+            {
+                throw new EntityNotFoundException<Order>(Id);
+            }
+            if (string.IsNullOrWhiteSpace(order.TrackNo))
+            {
+                return Json(new { success = false, message = "این سفارش کد پیگیری ندارد!" });
+            }
+            if (string.IsNullOrWhiteSpace(TrackNo) || TrackNo != order.TrackNo)
+            {
+                return Json(new { success = false, message = Messages.Messages.Order.ErrorWrongTrackNo });
+            }
+            string functionTimeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            if (order.State == OrderState.Sent || order.State == OrderState.Paid)
+            {
+                logger.LogWarning($"Staff/ShareOrderPayment - Setting Order Delivered (which includes sharing the payment) - TimeTag: {functionTimeTag}");
+                await orderService.SetOrderDelivered(order.Id);
+            }
+            else if (order.State == OrderState.Delivered)
+            {
+                if (await db.PaymentSettlements.Where(x => x.OrderId == order.Id).AnyAsync())
+                {
+                    string message = $"تسهیم برای سفارش {order.Id} قبلا انجام شده است!";
+                    logger.LogError(message);
+                    return Json(new { success = false, message });
+                }
+                logger.LogWarning($"Staff/ShareOrderPayment - Only Sharing Order Payment - TimeTag: {functionTimeTag}");
+                await orderService.ShareOrderPayment(order.Id, true);
+            }
+            logger.LogWarning($"Staff/ShareOrderPayment - DONE - TimeTag: {functionTimeTag}");
+            return Json(new { success = true });
+        }
 
         // This action was implemented as a test, and it has no actual usage for the project!
         // So, there's no reason for not commenting it out!

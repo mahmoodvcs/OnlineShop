@@ -675,17 +675,22 @@ namespace MahtaKala.Services
 
         private async Task WaitAndRetryRollingBack(Order order, int tryCount)
         {
+            string functionStartTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            logger.LogWarning($"WaitAndRetryRollingBack - {functionStartTime}");
             while (tryCount >= 0)
             {
                 System.Threading.Thread.Sleep(10000);
                 try
                 {
+                    logger.LogWarning($"Waiting finished - TryCount: {tryCount} - Calling Rollback on Order: {order.Id}");
                     await RollbackQuantity(order);
+                    logger.LogWarning($"This try was successful! RollBack is done on order: {order.Id} - StartTime: {functionStartTime}!");
+                    return;
                 }
                 catch (Exception e)
                 {
                     if (!TryAgain(e))
-                        break;
+                        throw e;
                     tryCount -= 1;
                 }
             }
@@ -708,24 +713,30 @@ namespace MahtaKala.Services
                 throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {order.State}");
             //if (order.State == OrderState.Canceled)
             //    throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {order.State}");
+            string functionStartTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
-
+            string rollbackLog = $"<<ROLLING BACK SOME QUANTITIES>>{functionStartTime}\t" + Environment.NewLine;
+            rollbackLog += $"OrderId: {order.Id} - OrderState-before: {order.State}" + Environment.NewLine;
             order.State = OrderState.Canceled;
             var productIds = order.Items.Select(a => a.ProductPrice.ProductId).ToList();
             var quantities = await db.ProductQuantities.FromSqlRaw<ProductQuantity>($"SELECT* FROM product_quantities pq WHERE pq.product_id in ({string.Join(',', productIds)}) FOR UPDATE").ToListAsync();
-
+            rollbackLog += "Quantity.Id, Quantity.quantity-before, Quantity.quantity-after, OrderItem.Id, OrderItem.quantity\t" + Environment.NewLine;
             foreach (var item in order.Items)
             {
                 var quantity = quantities.FirstOrDefault(a => a.ProductId == item.ProductPrice.ProductId);
                 bool itWasZeroBeforeRollBack = (quantity.Quantity == 0);
+                rollbackLog += $"{quantity.Id}, {quantity.Quantity}, ";
                 quantity.Quantity += item.Quantity;
+                rollbackLog += $"{quantity.Quantity}, {item.Id}, {item.Quantity}\t" + Environment.NewLine;
                 if (item.ProductPrice.Product.Status == ProductStatus.NotAvailable && quantity.Quantity > 0 && itWasZeroBeforeRollBack)
                 {
                     item.ProductPrice.Product.Status = ProductStatus.Available;
                 }
             }
-
+            rollbackLog += $"---Now Saving Changes---{functionStartTime}\t" + Environment.NewLine;
             await db.SaveChangesAsync();
+            rollbackLog += $"---Changes Were Saved---{functionStartTime}\t" + Environment.NewLine;
+            logger.LogWarning(rollbackLog);
             transaction.Complete();
         }
 
@@ -779,8 +790,10 @@ namespace MahtaKala.Services
 
         public async Task ShareOrderPayment(long orderId, bool includeDelivery)
         {
-            Payment payment = await GetPaymentToShare(orderId);
+            string functionStartTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
+            logger.LogWarning($"OrderService.ShareOrderPayment - StartTime: {functionStartTime}");
+            Payment payment = await GetPaymentToShare(orderId);
             var items = db.OrderItems.Where(a => a.OrderId == orderId && a.State == OrderItemState.Delivered)
                 .Select(a => new
                 {
@@ -845,19 +858,19 @@ namespace MahtaKala.Services
             return payments[0];
         }
 
-        public async Task ShareDeliveryPayment(long orderId)
-        {
-            Payment payment = await GetPaymentToShare(orderId);
-            await bankService.SharePayment(payment, new List<PaymentShareDataItem>
-            {
-                new PaymentShareDataItem
-                {
-                    Amount = GetDeliveryPrice(),
-                    Name = deliveryService.GetName(),
-                    ShabaId = deliveryService.GetShabaId()
-                }
-            });
-        }
+        //public async Task ShareDeliveryPayment(long orderId)
+        //{
+        //    Payment payment = await GetPaymentToShare(orderId);
+        //    await bankService.SharePayment(payment, new List<PaymentShareDataItem>
+        //    {
+        //        new PaymentShareDataItem
+        //        {
+        //            Amount = GetDeliveryPrice(),
+        //            Name = deliveryService.GetName(),
+        //            ShabaId = deliveryService.GetShabaId()
+        //        }
+        //    });
+        //}
     }
 
 
