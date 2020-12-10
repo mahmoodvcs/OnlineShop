@@ -769,11 +769,7 @@ namespace MahtaKala.Services
             {
                 var unsentItems = items.Where(x => x.State == OrderItemState.None).ToList();
                 var message = $"CAUTION!! OrderId: {order.Id} - SetOrderDelivered - {unsentItems.Count} items with state \"None\" - These items' state will be set as \"Delivered\" as well, but, take caution!" +
-                    $"The items' ids are as follows:";
-                foreach(var unsentItem in unsentItems)
-				{
-
-				}
+                    $"The items' ids are as follows: {string.Join(',', unsentItems.Select(x => x.Id.ToString()))}";
                 logger.LogError(message);
             }
 
