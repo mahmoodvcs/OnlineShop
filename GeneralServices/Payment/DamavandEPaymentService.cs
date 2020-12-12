@@ -121,7 +121,7 @@ namespace MahtaKala.GeneralServices.Payment
 			var paymentRequestResult = new DamavandBeginPaymentResult();
 			paymentRequestResult.BuyID = dictionary["buyid"];
 			paymentRequestResult.Token = dictionary["token"];
-			var resultTokenLoweCase = paymentRequestResult.Token.ToLower();
+			var resultTokenLowerCase = paymentRequestResult.Token.ToLower();
 
 			int paymentId = int.Parse(paymentRequestResult.BuyID);
 			var payment = await dbContext.Payments.Include(x => x.Order).Where(x => x.Id == paymentId).FirstOrDefaultAsync();
@@ -130,7 +130,7 @@ namespace MahtaKala.GeneralServices.Payment
 				logger.LogError($"Invalid Payment.Id {paymentId}. Does not exist.");
 				var rollBackResult = RollPaymentBack(paymentRequestResult.Token);
 				var alternativePayment = await dbContext.Payments.Include(x => x.Order)
-					.Where(x => x.PayToken.ToLower().Equals(resultTokenLoweCase)).FirstOrDefaultAsync();
+					.Where(x => x.PayToken.ToLower().Equals(resultTokenLowerCase)).FirstOrDefaultAsync();
 				if (alternativePayment != null && rollBackResult.State == 1)
 				{
 					payment = alternativePayment;
@@ -147,14 +147,14 @@ namespace MahtaKala.GeneralServices.Payment
 				//paymentSuccessful = false;
 				//throw new Exception(ServiceMessages.Payment.InvalidBankResponse);
 			}
-			if (payment.PayToken.ToLower() != resultTokenLoweCase)
+			if (payment.PayToken.ToLower() != resultTokenLowerCase)
 			{
 				logger.LogError($"Payment token does not match. Payment.Id: {paymentId}. Ours: '{payment.PayToken}'. Bank: '{paymentRequestResult.Token}'");
 				var rollbackResult = RollPaymentBack(paymentRequestResult.Token);
 				//var rollbackResult = RollPaymentBack(payment.PayToken);
-				if (dbContext.Payments.Any(x => x.PayToken.ToLower().Equals(resultTokenLoweCase)))
+				if (dbContext.Payments.Any(x => x.PayToken.ToLower().Equals(resultTokenLowerCase)))
 				{
-					var paymentObjectBasedOnToken = dbContext.Payments.Include(x => x.Order).First(x => x.PayToken.ToLower().Equals(resultTokenLoweCase));
+					var paymentObjectBasedOnToken = dbContext.Payments.Include(x => x.Order).First(x => x.PayToken.ToLower().Equals(resultTokenLowerCase));
 					//var paymentBasedOnBuyId = payment;
 					payment = paymentObjectBasedOnToken;
 				}
@@ -345,7 +345,7 @@ namespace MahtaKala.GeneralServices.Payment
 			if (payment.State != PaymentState.Failed && payment.State != PaymentState.Succeeded)
 			{
 				payment.State = PaymentState.Failed;
-				payment.Order.State = OrderState.Canceled;
+				//payment.Order.State = OrderState.Canceled;
 				await dbContext.SaveChangesAsync();
 			}
 			else
@@ -394,18 +394,54 @@ namespace MahtaKala.GeneralServices.Payment
 			logger.LogWarning($"Damavand.SharePayment - Request sent. Result string: {resStr}");
 			var responses = System.Text.Json.JsonSerializer.Deserialize<SettlementRequestResponse[]>(resStr);
 
-			if (responses.Length != request.scatteredSettlement.Count)
-			{
-				logger.LogError($"Payment share response count mismatch. PaymentId: {payment.Id} - Request: {reqSgtring} \r\n\r\nResponse: {resStr}");
-				throw new Exception($"Payment share response count mismatch. PaymentId: {payment.Id}");
-			}
+			//if (responses.Length != request.scatteredSettlement.Count)
+			//{
+			//	logger.LogError($"Payment share response count mismatch. PaymentId: {payment.Id} - Request: {reqSgtring} \r\n\r\nResponse: {resStr}");
+			//	throw new Exception($"Payment share response count mismatch. PaymentId: {payment.Id}");
+			//}
 
-			for (int i = 0; i < responses.Length; i++)
+			if (responses.Length == request.scatteredSettlement.Count)
 			{
-				foreach (var item in psItems.Where(a => a.ShabaId == request.scatteredSettlement[i].settlementIban))
+				for (int i = 0; i < responses.Length; i++)
 				{
-					psItems[i].Status = responses[i].status == StatusType.Succeed ? PaymentSettlementStatus.Succeeded : PaymentSettlementStatus.Failed;
-					psItems[i].Response = responses[i].message;
+					foreach (var item in psItems.Where(a => a.ShabaId == request.scatteredSettlement[i].settlementIban))
+					{
+						psItems[i].Status = responses[i].status == StatusType.Succeed ? PaymentSettlementStatus.Succeeded : PaymentSettlementStatus.Failed;
+						psItems[i].Response = responses[i].message;
+					}
+				}
+			}
+			else
+			{
+				if (responses.Length == 1)
+				{
+					if (responses[0].success && responses[0].status == StatusType.Succeed)
+					{
+						logger.LogWarning($"Damavand.SharePayment - PaymentId: {payment.Id} - Settlement request result was successful (but there's only one!");
+						foreach (var item in psItems)
+						{
+							item.Status = PaymentSettlementStatus.Succeeded;
+							item.Response = responses[0].message;
+						}
+					}
+					else
+					{
+						// TODO: Throw Exception?
+						logger.LogError($"Damavand.SharePayment - PaymentId: {payment.Id} - Settlement request failed! Response Success: {responses[0].success} " +
+							$"- Response Status: {responses[0].status} - Response Message: {responses[0].message}");
+						foreach (var item in psItems)
+						{
+							item.Status = PaymentSettlementStatus.Failed;
+							item.Response = responses[0].message;
+						}
+					}
+				}
+				else
+				{
+					string errorMessage = $"Damavand.SharePayment PaymentId: {payment.Id} - Response count invalid! Number of response objects is {responses.Length}," +
+						$" which is not one, and also, is not the same as request object count! The whole response is: {resStr}";
+					logger.LogError(errorMessage);
+					throw new Exception(errorMessage);
 				}
 			}
 			await dbContext.SaveChangesAsync();
@@ -437,22 +473,22 @@ namespace MahtaKala.GeneralServices.Payment
 
 		private DamavandIPGResult RollPaymentBack(string token)
 		{
-            //try
-            //{
-            var modelToSend = new { Token = token };
+			//try
+			//{
+			var modelToSend = new { Token = token };
 
-            var webClient = new WebClient();
-            webClient.Encoding = System.Text.Encoding.UTF8;
-            webClient.Headers[HttpRequestHeader.ContentType] = "application/json;charset=utf-8";
-            var modelToSendRaw = JsonConvert.SerializeObject(modelToSend);
-            var resultRawString = webClient.UploadString(PAYMENT_ROLLBACK_URL, modelToSendRaw);
-            var result = JsonConvert.DeserializeObject<DamavandIPGResult>(resultRawString);
+			var webClient = new WebClient();
+			webClient.Encoding = System.Text.Encoding.UTF8;
+			webClient.Headers[HttpRequestHeader.ContentType] = "application/json;charset=utf-8";
+			var modelToSendRaw = JsonConvert.SerializeObject(modelToSend);
+			var resultRawString = webClient.UploadString(PAYMENT_ROLLBACK_URL, modelToSendRaw);
+			var result = JsonConvert.DeserializeObject<DamavandIPGResult>(resultRawString);
 
-            return result;
-            //}
-            //catch (Exception)
-            //{
-            //}
+			return result;
+			//}
+			//catch (Exception)
+			//{
+			//}
 		}
 
 		private string HashSHa1(string input)

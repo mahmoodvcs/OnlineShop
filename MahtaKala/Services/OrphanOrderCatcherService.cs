@@ -42,13 +42,13 @@ namespace MahtaKala.Services
 				try
 				{
 					var order = new Order() { Id = orphanId };
-					logger.LogWarning($"OrphanOrderCatcherService - {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} - Calling RollBack on Order {orphanId}...");
+					logger.LogWarning($"OrphanOrderCatcherService - {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")} - Calling RollBack on Order {orphanId}...");
 					await orderService.RollbackOrder(orphanId);
-					logger.LogWarning($"OrphanOrderCatcherService - {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} - Order with id {orphanId} have been successfully rolled back!");
+					logger.LogWarning($"OrphanOrderCatcherService - {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")} - Order with id {orphanId} have been successfully rolled back!");
 				}
 				catch (Exception e)
 				{
-					var message = $"OrphanOrderCatcherService - {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} - " +
+					var message = $"OrphanOrderCatcherService - {DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff")} - " +
 						$"Exception thrown while dealing with orphan order with id {orphanId}. Now the exception's message: {e.Message}";
 					while (e.InnerException != null)
 					{

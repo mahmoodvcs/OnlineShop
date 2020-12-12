@@ -679,7 +679,7 @@ namespace MahtaKala.Services
 
         private async Task WaitAndRetryRollingBack(Order order, int howManyTriesBeforeGivingUp)
         {
-            string timeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            string timeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
             logger.LogWarning($"WaitAndRetryRollingBack - {timeTag}");
             int trialNumber = 0;
             while (trialNumber < howManyTriesBeforeGivingUp)
@@ -709,7 +709,7 @@ namespace MahtaKala.Services
                 $"keep write operations from running concurrently - which could create inconsistency in the inventory quantity data.");
             //logger.LogError($"TODO: This order (id:{order.Id}) is now ");
             //TODO: Now, this order should be considered as "orphan", and treated as such next time the "catcher" wakes up!
-            I am a compile error! I'm here to make sure this commit won't get executed!
+            //I am a compile error! I'm here to make sure this commit won't get executed!
         }
 
         
@@ -737,14 +737,19 @@ namespace MahtaKala.Services
         {
             var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product).FirstAsync(a => a.Id == origOrder.Id);
             if (order == null)
-                throw new BadRequestException($"Invalid order Id! Order with Id {origOrder.Id} does not exist!");
+                throw new BadRequestException($"QuantityRollBack - Invalid order Id! Order with Id {origOrder.Id} does not exist!");
             if (SuccessfulOrderStates.Contains(order.State))
-                throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {order.State}");
-            //if (order.State == OrderState.Canceled)
-            //    throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {order.State}");
-            string functionStartTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                throw new BadRequestException($"QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
+
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
-            string rollbackLog = $"<<ROLLING BACK SOME QUANTITIES>>{functionStartTime}\t" + Environment.NewLine;
+
+            if (order.State == OrderState.Canceled)
+            {
+                transaction.Complete();
+                throw new BadRequestException($"{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")}QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
+            }
+			string timeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
+            string rollbackLog = $"<<ROLLING BACK SOME QUANTITIES>>{timeTag}\t" + Environment.NewLine;
             rollbackLog += $"OrderId: {order.Id} - OrderState-before: {order.State}" + Environment.NewLine;
             order.State = OrderState.Canceled;
             var productIds = order.Items.Select(a => a.ProductPrice.ProductId).ToList();
@@ -762,9 +767,9 @@ namespace MahtaKala.Services
                     item.ProductPrice.Product.Status = ProductStatus.Available;
                 }
             }
-            rollbackLog += $"---Now Saving Changes---{functionStartTime}\t" + Environment.NewLine;
+            rollbackLog += $"---Now Saving Changes---{timeTag}\t" + Environment.NewLine;
             await db.SaveChangesAsync();
-            rollbackLog += $"---Changes Were Saved---{functionStartTime}\t" + Environment.NewLine;
+            rollbackLog += $"---Changes Were Saved---{timeTag}\t" + Environment.NewLine;
             logger.LogWarning(rollbackLog);
             transaction.Complete();
         }
@@ -815,9 +820,9 @@ namespace MahtaKala.Services
 
         public async Task ShareOrderPayment(long orderId, bool includeDelivery)
         {
-            string functionStartTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            string functionTImeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
 
-            logger.LogWarning($"OrderService.ShareOrderPayment - StartTime: {functionStartTime}");
+            logger.LogWarning($"OrderService.ShareOrderPayment - StartTime: {functionTImeTag}");
             Payment payment = await GetPaymentToShare(orderId);
             var items = db.OrderItems.Where(a => a.OrderId == orderId && a.State == OrderItemState.Delivered)
                 .Select(a => new

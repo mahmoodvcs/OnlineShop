@@ -1456,7 +1456,7 @@ namespace MahtaKala.Controllers
             {
                 return Json(new { success = false, message = Messages.Messages.Order.ErrorWrongTrackNo });
             }
-            string functionTimeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            string functionTimeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
             if (order.State == OrderState.Sent || order.State == OrderState.Paid)
             {
                 logger.LogWarning($"Staff/ShareOrderPayment - Setting Order Delivered (which includes sharing the payment) - TimeTag: {functionTimeTag}");
