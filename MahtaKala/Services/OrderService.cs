@@ -746,7 +746,7 @@ namespace MahtaKala.Services
             if (order.State == OrderState.Canceled)
             {
                 transaction.Complete();
-                throw new BadRequestException($"{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")}QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
+                throw new BadRequestException($"{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")} QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
             }
 			string timeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
             string rollbackLog = $"<<ROLLING BACK SOME QUANTITIES>>{timeTag}\t" + Environment.NewLine;
@@ -767,9 +767,9 @@ namespace MahtaKala.Services
                     item.ProductPrice.Product.Status = ProductStatus.Available;
                 }
             }
-            rollbackLog += $"---Now Saving Changes---{timeTag}\t" + Environment.NewLine;
+            rollbackLog += $"CurrentTime:{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")}---Now Saving Changes--- FunctionTimeTag:{timeTag}\t{Environment.NewLine}";
             await db.SaveChangesAsync();
-            rollbackLog += $"---Changes Were Saved---{timeTag}\t" + Environment.NewLine;
+            rollbackLog += $"CurrentTime:{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")}---Changes Were Saved--- FunctionTimeTag:{timeTag}\t{Environment.NewLine}";
             logger.LogWarning(rollbackLog);
             transaction.Complete();
         }

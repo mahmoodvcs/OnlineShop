@@ -268,6 +268,21 @@ namespace MahtaKala.Controllers
             return resultBuilder.ToString();
         }
 
+        private long PaymentIdFromTrackingNumber(string trackingNumber)
+        {
+            var charSet = new char[] { '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B',
+                                       'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M',
+                                       'N', 'P', 'R', 'S', 'T', 'W', 'Y', 'Z' };
+            string unshuffled = "" + trackingNumber[2] 
+                + trackingNumber[0] + trackingNumber[3] 
+                + trackingNumber[6] + trackingNumber[5]
+                + trackingNumber[1] + trackingNumber[4];
+            if (unshuffled.Contains('X'))
+                unshuffled = unshuffled.Substring(0, unshuffled.IndexOf('X'));
+            var inBaseTen = Util.ChangeNumberBaseTo10(unshuffled, charSet);
+            return inBaseTen;
+        }
+
         //public async Task<string> ShareTest(long id)
         //{
         //    var ser = (PardakhtNovinService)bankPaymentService;
