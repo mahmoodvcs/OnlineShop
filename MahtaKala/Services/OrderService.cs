@@ -38,7 +38,7 @@ namespace MahtaKala.Services
         private const long ProteinProducts_CategoryId = 135;
         private const long FruitsAndVegetables_CategoryId = 136;
         private const long StationeryProducts_CategoryId = 140;
-        private const int MillisecondsStepPeriod = 10000; // 10 seconds is the step length of "waiting before trying again"
+        private const int MillisecondsStepPeriod = 3000; // 3 seconds is the step length of "waiting before trying again"
 
         public OrderService(
             ICurrentUserService currentUserService,
@@ -667,8 +667,7 @@ namespace MahtaKala.Services
                 message += iterator.Message;
             }
             message = message.ToLower();
-            if (message.Contains("System.InvalidOperationException".ToLower())
-                && message.Contains("An exception has been raised that is likely due to a transient failure".ToLower())
+            if (message.Contains("An exception has been raised that is likely due to a transient failure".ToLower())
                 && message.Contains("40001: could not serialize access due to concurrent update".ToLower()))
             { // This means that roll-back operation failed due to the transaction lock on product quantities, 
               // so, we just need to wait and try again! We will wait a while, and then, try again.
@@ -685,6 +684,7 @@ namespace MahtaKala.Services
             while (trialNumber < howManyTriesBeforeGivingUp)
             {
                 double randomWaitScale = randomNumberGenerator.NextDouble();
+                randomWaitScale = (randomWaitScale + 1.0) / 2.0;    // Changing the random number range from [0, 1) to [0.5, 1)
                 int millisecondsToWait = (int)(Math.Pow(2, trialNumber) * randomWaitScale * MillisecondsStepPeriod);
                 logger.LogWarning($"Sudo-random decesion made! Gonna wait for {millisecondsToWait} milliseconds...");
                 System.Threading.Thread.Sleep(millisecondsToWait);
@@ -730,6 +730,8 @@ namespace MahtaKala.Services
             {
                 if (ExceptionIsDueToTransactionLockOnDatabase(e))
                     await WaitAndRetryRollingBack(order, 5);
+                else
+                    throw e;
             }
         }
 
@@ -742,6 +744,7 @@ namespace MahtaKala.Services
                 throw new BadRequestException($"QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
 
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
+            order = await db.Orders.FromSqlRaw<Order>($"SELECT * FROM orders WHERE id = {origOrder.Id} FOR UPDATE;").FirstOrDefaultAsync();
 
             if (order.State == OrderState.Canceled)
             {
