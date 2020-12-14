@@ -312,7 +312,7 @@ namespace MahtaKala.Services
             {
                 var cartItemIsASparePart = await ProductBelongsToCarSparePartsCategory(cartItem.ProductPrice.ProductId);
                 if (newItemIsASparePart != cartItemIsASparePart)
-                    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_SparePartsCategoryConflict);
+                    throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_SparePartsCategoryConflict);
             }
         }
 
