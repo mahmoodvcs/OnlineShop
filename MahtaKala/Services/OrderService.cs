@@ -32,12 +32,14 @@ namespace MahtaKala.Services
         private readonly IDeliveryService deliveryService;
         private readonly ILogger<OrderService> logger;
         private readonly RandomGenerator randomNumberGenerator;
+        private readonly IList<string> HamrahKhodroSaipa_TitleWordsList = new List<string>() { "همراه", "خودرو", "سایپا" }.AsReadOnly();
 
         private const long CarSpareParts_CategoryId = 168;
         private const long SuperMarket_CategoryId = 134;
         private const long ProteinProducts_CategoryId = 135;
         private const long FruitsAndVegetables_CategoryId = 136;
         private const long StationeryProducts_CategoryId = 140;
+        private const long HamrahKhodroSaipa_SellerId = 57;
         private const int MillisecondsStepPeriod = 3000; // 3 seconds is the step length of "waiting before trying again"
 
         public OrderService(
@@ -359,7 +361,10 @@ namespace MahtaKala.Services
                     throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_NotAvailable, info.Title));
 
                 var priceIds = cart.Select(a => a.ProductPriceId);
-                if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.Seller.Basket != info.Basket).Any())
+                if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && 
+                        !string.IsNullOrWhiteSpace(a.Product.Seller.Basket) && 
+                        !string.IsNullOrWhiteSpace(info.Basket) &&  
+                        a.Product.Seller.Basket != info.Basket).Any())
                     throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_DefferentSeller);
                 
                 await CheckForCategoryConflicts(cart.ToList(), info);
@@ -548,7 +553,12 @@ namespace MahtaKala.Services
         public DateTime GetApproximateDeilveryDate()
         {
             DateTime now = DateTime.Now;
-            //return now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(19);
+            var query = GetCartQuery();
+            var priceIds = query.Select(x => x.ProductPriceId).ToList();
+            if (db.ProductPrices.Where(x => priceIds.Contains(x.Id) && x.Product.SellerId == HamrahKhodroSaipa_SellerId).Any())
+			{
+                return now.AddDays(2).AddMinutes(now.Minute > 0 ? 60 - now.Minute : 0);
+			}
             return now.TimeOfDay.Hours > 13 ? now.Date.AddDays(1).AddHours(19) : now.Date.AddHours(19);
         }
 
