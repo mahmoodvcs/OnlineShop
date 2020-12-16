@@ -674,7 +674,7 @@ namespace MahtaKala.Controllers
         {
             if (db.Products.Any(c => c.BrandId == id))
             {
-                return Json(new { Success = false, Message = "امکان حذف برند دارای کالا نمی باشد." });
+                return Json(new { Success = false, Message = "امکان حذف برند دارای کالا وجود ندارد." });
             }
             else
             {
@@ -1459,7 +1459,7 @@ namespace MahtaKala.Controllers
             string functionTimeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
             if (order.State == OrderState.Sent || order.State == OrderState.Paid)
             {
-                logger.LogWarning($"Staff/ShareOrderPayment - Setting Order Delivered (which includes sharing the payment) - TimeTag: {functionTimeTag}");
+                logger.LogWarning($"Staff/ShareOrderPayment - Setting Order Delivered (which includes sharing the payment) - OrderId: {Id} - TimeTag: {functionTimeTag}");
                 await orderService.SetOrderDelivered(order.Id);
             }
             else if (order.State == OrderState.Delivered)
@@ -1470,11 +1470,51 @@ namespace MahtaKala.Controllers
                     logger.LogError(message);
                     return Json(new { success = false, message });
                 }
-                logger.LogWarning($"Staff/ShareOrderPayment - Only Sharing Order Payment - TimeTag: {functionTimeTag}");
+                logger.LogWarning($"Staff/ShareOrderPayment - Only Sharing Order Payment - OrderId: {Id} - TimeTag: {functionTimeTag}");
                 await orderService.ShareOrderPayment(order.Id, true);
             }
-            logger.LogWarning($"Staff/ShareOrderPayment - DONE - TimeTag: {functionTimeTag}");
+            logger.LogWarning($"Staff/ShareOrderPayment - DONE - OrderId: {Id} - TimeTag: {functionTimeTag}");
             return Json(new { success = true });
+        }
+
+        [AjaxAction]
+        [Authorize(UserType.Admin, Order = 1)]
+        public async Task<IActionResult> RemoveOrderSettlementsIfFailed(long orderId)
+        {
+            string functionTimeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
+            logger.LogWarning($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - TimeTag:{functionTimeTag} ");
+            var order = await db.Orders.Where(x => x.Id == orderId).SingleOrDefaultAsync();
+            if (order == null)
+            {
+                logg
+                throw new EntityNotFoundException<Order>(orderId);
+            }
+            var payment = await db.Payments.Where(x => x.OrderId == orderId && x.State == PaymentState.Succeeded).OrderByDescending(x => x.RegisterDate).FirstOrDefaultAsync();
+            if (payment == null)
+			{
+                logger.LogError($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - TimeTag:{functionTimeTag} - There's no successful recorded for this order! Removing NOT successful!");
+                return Json(new { success = false, message = "این سفارش، پرداخت موفقیت آمیز ندارد!" });
+            }
+            var orderPaymentSettlements = await db.PaymentSettlements.Where(x => x.PaymentId == payment.Id).ToListAsync();
+            if (orderPaymentSettlements == null || orderPaymentSettlements.Count == 0)
+            {
+                logger.LogError($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - PaymentId: {payment.Id} - TimeTag:{functionTimeTag} - There aren't any Settlement objects recorded for this payment! Removing NOT successful!");
+                return Json(new { success = false, message = "آخرین پرداخت موفق مربوط به این سفارش، آیتم تسهیم ندارد!" });
+            }
+            if (orderPaymentSettlements.Any(x => x.Status == PaymentSettlementStatus.Succeeded))
+			{
+                logger.LogError($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - PaymentId: {payment.Id} - TimeTag:{functionTimeTag} - Some settlements' status is 'Succeeded'! Removing NOT successful!");
+                return Json(new { success = false, message = "این سفارش تسهیم موفق دارد! در صورتی حذف تسهیم ها ممکن خواهد بود که هیچ یک موفق نبوده باشند! با ادمین سیستم تماس بگیرید!" });
+            }
+            if (orderPaymentSettlements.Any(x => x.Status != PaymentSettlementStatus.Failed))
+            {
+                logger.LogError($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - PaymentId: {payment.Id} - TimeTag:{functionTimeTag} - Some settlements' status is not 'Failed'! Removing NOT successful!");
+                return Json(new { success = false, message = "برخی از آیتم های تسهیم، وضعیتی غیر از 'ناموفق' دارند! برای حذف، وضعیت تمامی تسهیم ها باید ناموفق باشد! با ادمین سیستم تماس بگیرید!" });
+            }
+            db.PaymentSettlements.RemoveRange(orderPaymentSettlements);
+            int numOfDeletedRows = await db.SaveChangesAsync();
+            logger.LogWarning($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - PaymentId: {payment.Id} - TimeTag:{functionTimeTag} - Successfuly Done! Number of deleted rows: {numOfDeletedRows} ");
+            return return Json(new { success = true });
         }
 
         // This action was implemented as a test, and it has no actual usage for the project!
