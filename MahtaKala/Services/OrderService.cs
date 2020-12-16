@@ -754,7 +754,7 @@ namespace MahtaKala.Services
                 throw new BadRequestException($"QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
 
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
-            order = await db.Orders.FromSqlRaw<Order>($"SELECT * FROM orders WHERE id = {origOrder.Id} FOR UPDATE;").FirstOrDefaultAsync();
+            order = await db.Orders.FromSqlRaw<Order>($"SELECT * FROM orders WHERE id = {origOrder.Id} FOR UPDATE").FirstOrDefaultAsync();
 
             if (order.State == OrderState.Canceled)
             {
