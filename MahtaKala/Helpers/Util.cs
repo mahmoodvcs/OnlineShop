@@ -275,7 +275,7 @@ namespace MahtaKala.Helpers
                 return null;
             PersianCalendar pc = new PersianCalendar();
             if (truncateTimeOfDay)
-                return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)}";
+                return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value):00}/{pc.GetDayOfMonth(d.Value):00}";
             return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} {d.Value:HH:mm}";
         }
 

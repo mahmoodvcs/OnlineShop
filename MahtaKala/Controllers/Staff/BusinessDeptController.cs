@@ -82,6 +82,85 @@ namespace MahtaKala.Controllers.Staff
 		}
 		
 		[Authorize(UserType.Admin, UserType.Staff)]
+		public async Task<IActionResult> ImportSaleOrdersFromExcel()
+		{
+			var now = DateTime.Now;
+			//var excelFileContent = System.IO.File.ReadAllLines("F:\\Workspace\\Files\\EskaadOrdersToBePlaced-1399-09-23-1.csv");
+			var excelFileContent = System.IO.File.ReadAllLines("F:\\Workspace\\Files\\EskaadOrdersToBePlaced-1399-09-23-2.csv");
+			List<string> unsuccessfulOrderCodes = new List<string>();
+			List<string> unsuccessfulOrderReasons = new List<string>();
+			int placedOrdersCount = 0;
+			int failedOrderCount = 0;
+			if (eskaadDb.Sales.Any())
+			{
+				eskaadDb.Sales.RemoveRange(eskaadDb.Sales);
+				//await eskaadDb.SaveChangesAsync();
+			}
+			//foreach (var line in excelFileContent)
+			for (int i = 1; i<excelFileContent.Length; i++)
+			{
+				var line = excelFileContent[i];
+				var values = line.Split(',');
+				var eskaadCode = values[1];
+				var mahtaCode = values[2];
+				if (string.IsNullOrWhiteSpace(mahtaCode))
+					mahtaCode = eskaadCode.Substring(1);
+				int foundCount = await eskaadDb.Merchandise.Where(x => x.Code.Equals(eskaadCode)).CountAsync();
+				if (foundCount == 0)
+				{
+					unsuccessfulOrderCodes.Add(eskaadCode);
+					unsuccessfulOrderReasons.Add($"The code {eskaadCode} (mahta code: {mahtaCode}) is not present in Eskaad db!");
+					failedOrderCount++;
+				}
+				else if (foundCount > 1)
+				{
+					unsuccessfulOrderCodes.Add(eskaadCode);
+					unsuccessfulOrderReasons.Add($"The code {eskaadCode} (mahta code: {mahtaCode}) has more than one equal in Eskaad db ({foundCount}, actually!)");
+					failedOrderCount++;
+				}
+				else if (foundCount != 1)
+				{
+					unsuccessfulOrderCodes.Add(eskaadCode);
+					unsuccessfulOrderReasons.Add($"Eskaad code: {eskaadCode} - mahta code: {mahtaCode} - Huh?! This many found:{foundCount}");
+					failedOrderCount++;
+				}
+				else
+				{
+					var merchandise = eskaadDb.Merchandise.Where(x => x.Code.Equals(eskaadCode)).First();
+					int orderQuantity = int.Parse(values[11]);
+					var saleHistoryItem = new EskaadSales();
+					var eskaadSaleOrder = new MahtaKala.Entities.EskaadEntities.Sales();
+					eskaadSaleOrder.Code = merchandise.Code;
+					saleHistoryItem.Code = merchandise.Code;
+					eskaadSaleOrder.SaleCount = saleHistoryItem.SaleCount = orderQuantity;
+					if (int.Parse(merchandise.Place) != int.Parse(values[6]))
+					{
+						Console.WriteLine("Places do NOT match!");
+					}
+					eskaadSaleOrder.Place = saleHistoryItem.Place = merchandise.Place;
+					eskaadSaleOrder.Date = Util.GetPersianDate(now, true);
+					saleHistoryItem.Date = eskaadSaleOrder.Date;
+					eskaadSaleOrder.EskadBankCode = null;
+					saleHistoryItem.EskadBankCode = null;
+					eskaadSaleOrder.Transact = null;
+					saleHistoryItem.Transact = null;
+					eskaadSaleOrder.SalePrice = saleHistoryItem.SalePrice = 0;
+					eskaadSaleOrder.MahtaFactorTotal = saleHistoryItem.MahtaFactorTotal = 0;
+					eskaadSaleOrder.MahtaCountBefore = saleHistoryItem.MahtaCountBefore = 0;
+					eskaadSaleOrder.MahtaFactor = saleHistoryItem.MahtaFactor = "1000003";
+					eskaadSaleOrder.Validation = saleHistoryItem.Validation = merchandise.Validation;
+					eskaadSaleOrder.Flag = saleHistoryItem.Flag = 1;
+					eskaadDb.Sales.Add(eskaadSaleOrder);
+					db.EskaadSales.Add(saleHistoryItem);
+					placedOrdersCount++;
+				}
+			}
+			await eskaadDb.SaveChangesAsync();
+			await db.SaveChangesAsync();
+			return Ok(new { SuccessfullyPlaced = placedOrdersCount, Failures = failedOrderCount });
+		}
+
+		[Authorize(UserType.Admin, UserType.Staff)]
 		public async Task<IActionResult> Index()
 		{
 			var now = DateTime.Now;
