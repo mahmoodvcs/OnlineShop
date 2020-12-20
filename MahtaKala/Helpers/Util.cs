@@ -269,14 +269,24 @@ namespace MahtaKala.Helpers
             return false;
         }
 
-        public static string GetPersianDate(DateTime? d, bool truncateTimeOfDay = false)
+        public static string GetPersianDate(DateTime? d, bool truncateTimeOfDay = false, bool formatValuesWithLeadingZeros = false)
         {
             if (d == null)
                 return null;
             PersianCalendar pc = new PersianCalendar();
+            string dateStr;
+            string timeStr = $"{d.Value:HH:mm}";
+            if (formatValuesWithLeadingZeros)
+            {
+                dateStr = $"{pc.GetYear(d.Value):0000}/{pc.GetMonth(d.Value):00}/{pc.GetDayOfMonth(d.Value):00}";
+            }
+			else
+			{
+                dateStr = $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)}";
+            }
             if (truncateTimeOfDay)
-                return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value):00}/{pc.GetDayOfMonth(d.Value):00}";
-            return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} {d.Value:HH:mm}";
+                return dateStr;
+            return dateStr + timeStr;
         }
 
         public static string GetPersianDateRange(DateTime? d, TimeSpan range)

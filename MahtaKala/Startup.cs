@@ -87,6 +87,13 @@ namespace MahtaKala
                     Type = SecuritySchemeType.Http
                 });
             });
+            services.AddAuthorizationCore(options =>
+            {
+                foreach(var userName in EskaadService.ESKAAD_AUTHORIZED_USERS)
+				{
+                    options.AddPolicy("EskaadAuthorizedUsers", policy => policy.RequireUserName(userName));
+                }
+            });
             // In production, the Angular files will be served from this directory
             //services.AddSpaStaticFiles(configuration =>
             //{

@@ -6,7 +6,7 @@
 }
 
 @(Html.Kendo().Grid<MahtaKala.Entities.EskaadEntities.Merchandise>()
-	.Name("Grid")
+	.Name("MerchandiseGrid")
 	.Columns(cols =>
 	{
 		cols.Bound(x => x.Code).Title("کد");
@@ -15,7 +15,7 @@
 		cols.Bound(x => x.Count).Title("موجودی اسکاد");
 		cols.Bound(x => x.Active).Title("فعال");
 		cols.Bound(x => x.Price).Title("قیمت");
-		cols.Command(command => command.Custom("سفارش").Click("AddToOrders")).Width(90);
+		cols.Command(command => command.Custom("سفارش").Click("AddOrderDraft")).Width(90);
 	}).Pageable(pageable => pageable
 		.Refresh(true)
 		.PageSizes(true)
@@ -28,19 +28,101 @@
 		.Read(read => read.Action("GetEskaadMerchandiseDataSource", "BusinessDept")))
 //.Events(ev => ev.DataBound("onGridDataBound"))
 )
+@(Html.Kendo().Grid<MahtaKala.Entities.EskaadOrderDraft>()
+		.Name("OrderDraftGrid")
+		.Columns(cols =>
+		{
+			cols.Bound(x => x.EskaadCode).Title("کد");
+			cols.Bound(x => x.Quantity).Title("تعداد سفارش");
+			cols.Bound(x => x.CreatedDatePersian).Title("روز ثبت");
+			cols.Bound(x => x.CreatedBy.Username).Title("ساخته شده توسط");
+		})
+		.Pageable(pageable => pageable
+			.Refresh(true)
+			.PageSizes(true)
+			.PageSizes(new int[] { 5, 10, 20, 50 })
+			.ButtonCount(5))
+		.Sortable()
+		.DataSource(datasource =>
+			datasource.Ajax()
+			.PageSize(50)
+			.Read(read => read.Action("GetOrderDraftDataSource", "BusinessDept")))
+    )
+
+<input type="button" onclick="PlaceOrdersForToday()" value="ارسال سفارش امروز برای اسکاد" />
 
 @section js{
 	<script type="text/javascript">
-		function onGridDataBound(e) {
-			var grid = this;
-			var currentRecords = grid.dataSource.view();
-			for (var i = 0; i < currentRecords.length; i++) {
-				if (currentRecords[i].yellowWarningThreshold_Mahta > 0
-					&& currentRecords[i].quantity_Mahta > 0
-					&& currentRecords[i].quantity_Mahta <= currentRecords[i].yellowWarningThreshold_Mahta) {
-					grid.tbody.find("tr[data-uid='" + currentRecords[i].uid + "']").HtmlAttributes["style"] = "background:yellow";
-				}
+		function PlaceOrdersForToday() {
+			var alreadyOrderedToday = true;
+			$.post("@Url.Action("EskaadOrdersAlreadyPlacedForToday", "Staff/BusinessDept")",
+				function (response) {
+					alreadyOrderedToday = response.alreadyDoneToday;
+					if (alreadyOrderedToday) {
+						//location.reload();
+						ShowError("سفارش امروز برای اسکاد قبلاً ثبت شده است!");
+						return;
+					}
+				})
+				.fail(function (response) {
+					ShowError(response.responseText);
+					return;
+				});
+			if (!alreadyOrderedToday) {
+				$.post("@Url.Action("PlaceEskaadOrdersForToday", "Staff/BusinessDept")",
+					function (response) {
+						if (response.success) {
+							location.reload();
+							return;
+						}
+						else {
+							ShowError(response.message);
+							return;
+						}
+					})
+					.fail(function (response) {
+						ShowError(response.responseText);
+						return;
+					});
 			}
 		}
+
+		function AddOrderDraft(e) {
+            e.preventDefault();
+            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+            Swal.fire({
+                title: "تعداد مورد نیاز",
+                text: "تعداد درخواستی برای سفارش خود را وارد نمایید:",
+				input: 'number',
+                showCancelButton: true,
+                inputPlaceholder: "تعداد سفارش",
+                preConfirm: (value) => {
+                    if (value === false || value === "")
+                        Swal.showValidationMessage("لطفاً تعداد درخواستی برای سفارش را وارد کنید.");
+                    else if (isNaN(value))
+                        Swal.showValidationMessage("تعداد درخواستی معتبر نیست!");
+                    else if (!Number.isInteger(value))
+                        Swal.showValidationMessage("لطفاً یک عدد صحیح وارد کنید.");
+                },
+            }).then((result) => {
+                if (Number.isInteger(result.value)) {
+                    $.post("@Url.Action("AddNewOrderItem", "Staff/BusinessDept")",
+                        {
+							merchandiseCode: dataItem.Code,
+                            quantity: result.value
+                        },
+                        function (response) {
+                            if (response.success) {
+                                //location.reload();
+								$("#OrderDraftGrid").data("kendoGrid").dataSource.read();
+                            } else {
+                                ShowError(response.message);
+                            }
+                        })
+                        .fail(function (response) {
+                            ShowError(response.responseText);
+                        });
+                }
+            });
 	</script>
 }

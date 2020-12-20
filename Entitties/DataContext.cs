@@ -136,7 +136,7 @@ namespace MahtaKala.Entities
         public DbSet<ReceivedSMS> ReceivedSMSs { get; set; }
 
 		#region Eskaad Merchandise & Orders
-		public DbSet<EskaadOrdersToBePlaced> EskaadOrdersToBePlaceds { get; set; }
+		public DbSet<EskaadOrderDraft> EskaadOrderDrafts { get; set; }
 		//public DbSet<EskaadMerchandise> EskaadMerchandise { get; set; }
 		//public DbSet<EskaadSales> EskaadSales { get; set; }
 		//      public DbSet<EskaadMerchandiseToProductMatching> eskaadMerchandiseToProductMatchings { get; set; }
