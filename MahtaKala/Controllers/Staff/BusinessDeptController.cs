@@ -29,22 +29,77 @@ namespace MahtaKala.Controllers.Staff
 			this.eskaadDb = eskaadContext;
 		}
 
+		public async Task<IActionResult> ImportOrdersFromExcel()
+		{
+			var fileContent = System.IO.File.ReadAllLines("E:\\My Documents\\Programming\\Mahta Workspace - Started 1399-07-16\\From gitlab.mahtakala.ir\\File\\eskad-order- to be placed.csv");
+			var persianDate = Util.GetPersianDate(DateTime.Now, true);
+			int numOfSucceeded = 0;
+			int numOfErrors = 0;
+			//foreach (var line in fileContent)
+			List<string> errorCodes = new List<string>();
+			for (int i = 1; i<fileContent.Length; i++)
+			{
+				var line = fileContent[i];
+				var values = line.Split(',');
+				var eskaadCode = values[0];
+				var foundCount = await eskaadDb.Merchandise.Where(x => x.Code.Equals(eskaadCode)).CountAsync();
+				if (foundCount != 1)
+				{
+					errorCodes.Add(eskaadCode + " : " + foundCount);
+					numOfErrors++;
+				}
+				else
+				{
+					var merchandise = eskaadDb.Merchandise.Where(x => x.Code.Equals(eskaadCode)).Single();
+					var orderQuantity = int.Parse(values[1]);
+					if (merchandise.Count < orderQuantity)
+					{
+						Console.WriteLine("Not enough inventory!");
+						continue;
+					}
+					if (int.Parse(merchandise.Place) == 13)
+					{
+						Console.WriteLine("13!");
+						continue;
+					}
+					var saleOrder = new Sales();
+					saleOrder.Code = merchandise.Code;
+					saleOrder.Date = persianDate;
+					saleOrder.Place = merchandise.Place;
+
+					saleOrder.SaleCount = orderQuantity;
+					saleOrder.SalePrice = merchandise.Price;
+					saleOrder.MahtaFactor = "1000004";
+					saleOrder.Flag = 0;
+					saleOrder.MahtaCountBefore = 0;
+					saleOrder.Validation = merchandise.Validation;
+					eskaadDb.Sales.Add(saleOrder);
+					numOfSucceeded++;
+				}
+			}
+			await eskaadDb.SaveChangesAsync();
+			return Ok(new { Succeeded = numOfSucceeded, Error = numOfErrors });
+		}
+		
 		[Authorize(UserType.Admin, UserType.Staff)]
 		public async Task<IActionResult> Index()
 		{
 			var now = DateTime.Now;
-			var alreadyDoneToday = await MerchandiseImportAlreadyDoneToday();
+			var alreadyDoneToday = await EskaadOrderAlreadyPlacedToday();
 			if (alreadyDoneToday)
 			{
-				return View("~/Views/Staff/BusinessDept/Index.cshtml");
+				return RedirectToAction("Sales");// View("~/Views/Staff/BusinessDept/Sales");
 			}
-			return RedirectToAction("ProductMatchings");	
+			return View();
 		}
 
-		private async Task<bool> MerchandiseImportAlreadyDoneToday()
+
+		private async Task<bool> EskaadOrderAlreadyPlacedToday()
 		{
 			var now = DateTime.Now;
-			var alreadyDoneToday = await db.EskaadMerchandise.AnyAsync(x => x.FetchedDate.Date.Equals(now.Date));
+			var todayPersian = Util.GetPersianDate(now, true);
+			//var alreadyDoneToday = await db.EskaadMerchandise.AnyAsync(x => x.FetchedDate.Date.Equals(now.Date));
+			var alreadyDoneToday = await eskaadDb.Sales.AnyAsync(x => x.Date.Equals(todayPersian));
 			return alreadyDoneToday;
 		}
 
@@ -52,20 +107,28 @@ namespace MahtaKala.Controllers.Staff
 		[Authorize(UserType.Admin, UserType.Staff)]
 		public async Task<IActionResult> GetEskaadMerchandiseDataSource([DataSourceRequest] DataSourceRequest request)
 		{
-			var now = DateTime.Now;
-			var alreadyDoneToday = await MerchandiseImportAlreadyDoneToday();
-			if (alreadyDoneToday)
-			{
-				var localEskaadMerchandise = await db.EskaadMerchandise.Where(x => x.FetchedDate.Date.Equals(now.Date)).ToListAsync();
-				var resultMerchandiseModels = localEskaadMerchandise.Select(x => new EskaadMerchandiseModel(x)).ToList();
-				return KendoJson(resultMerchandiseModels.AsQueryable().ToDataSourceResult(request));
-			}
-			else
-			{// If we're here, it means today's data is not present in our database, so we need to do the whole thing, 
-			 // which starts with Matching, in another page...
-				return RedirectToAction("ProductMatchings");
-			}
+			var eskaadMerchandise = eskaadDb.Merchandise.AsQueryable();
+			return KendoJson(eskaadMerchandise.ToDataSourceResult(request));
 		}
+
+		//[HttpPost]
+		//[Authorize(UserType.Admin, UserType.Staff)]
+		//public async Task<IActionResult> GetEskaadMerchandiseDataSource([DataSourceRequest] DataSourceRequest request)
+		//{
+		//	var now = DateTime.Now;
+		//	var alreadyDoneToday = await EskaadOrderAlreadyPlacedToday();
+		//	if (alreadyDoneToday)
+		//	{
+		//		var localEskaadMerchandise = await db.EskaadMerchandise.Where(x => x.FetchedDate.Date.Equals(now.Date)).ToListAsync();
+		//		var resultMerchandiseModels = localEskaadMerchandise.Select(x => new EskaadMerchandiseModel(x)).ToList();
+		//		return KendoJson(resultMerchandiseModels.AsQueryable().ToDataSourceResult(request));
+		//	}
+		//	else
+		//	{// If we're here, it means today's data is not present in our database, so we need to do the whole thing, 
+		//	 // which starts with Matching, in another page...
+		//		return RedirectToAction("ProductMatchings");
+		//	}
+		//}
 
 		private async Task<bool> ProductMatchingAlreadyDoneToday()
 		{
@@ -74,122 +137,122 @@ namespace MahtaKala.Controllers.Staff
 			return alreadyDoneToday;
 		}
 
-		public async Task<IActionResult> ProductMatchings()
-		{
-			var now = DateTime.Now;
-			var alreadyMatchedForToday = await ProductMatchingAlreadyDoneToday();
-			if (alreadyMatchedForToday)
-			{
-				var matchings = db.eskaadMerchandiseToProductMatchings.Where(x => x.CreatedDate.Date.Equals(now.Date)).ToList();
-				return matchings;
-			}
-			var now = DateTime.Now;
-			var ourProducts = await db.Products.Include(x => x.Quantities)
-					.Where(x => x.SellerId == ESKAAD_SELLER_ID).ToListAsync();
-			var eskaadMerchandise = await eskaadDb.Merchandise.ToListAsync();
-			var merchandiseModels = new List<EskaadMerchandiseModel>();
-			Dictionary<string, long> processedProductIds = new Dictionary<string, long>();
-			Dictionary<string, string> mahtaIdToEskaadCodeMatching = new Dictionary<string, string>();
+		//public async Task<IActionResult> ProductMatchings()
+		//{
+		//	var now = DateTime.Now;
+		//	var alreadyMatchedForToday = await ProductMatchingAlreadyDoneToday();
+		//	if (alreadyMatchedForToday)
+		//	{
+		//		var matchings = db.eskaadMerchandiseToProductMatchings.Where(x => x.CreatedDate.Date.Equals(now.Date)).ToList();
+		//		return matchings;
+		//	}
+		//	var now = DateTime.Now;
+		//	var ourProducts = await db.Products.Include(x => x.Quantities)
+		//			.Where(x => x.SellerId == ESKAAD_SELLER_ID).ToListAsync();
+		//	var eskaadMerchandise = await eskaadDb.Merchandise.ToListAsync();
+		//	var merchandiseModels = new List<EskaadMerchandiseModel>();
+		//	Dictionary<string, long> processedProductIds = new Dictionary<string, long>();
+		//	Dictionary<string, string> mahtaIdToEskaadCodeMatching = new Dictionary<string, string>();
 
-			foreach (var eskaadItem in eskaadMerchandise)
-			{
-				var eskaadItemCode = eskaadItem.Code.Trim();
-				if (eskaadItemCode.Length < 7)
-				{
-					logger.LogError($"Unrecognized Eskaad product code! The code ({eskaadItemCode}) doesn't contain enough digits! (7 and 8 are the only acceptable code lengths, legend has it!)", eskaadItem.Id);
-					//throw new Exception("");    // TODO: appropriate exception handling
-				}
-				if (eskaadItemCode.Length > 8)
-				{
-					logger.LogError($"Unrecognized Eskaad product code! The code ({eskaadItemCode}) is supposed to contain 7 or 8 digits, but, there are more!", eskaadItem.Id);
-					//throw new Exception("");    // TODO: appropriate exception handling
-				}
-				EskaadMerchandiseModel newItem = new EskaadMerchandiseModel(eskaadItem);
-				string mahta_code = eskaadItemCode.Substring(eskaadItemCode.Length - 6, 6);
-				if (ourProducts.Count(x => x.Code.Equals(mahta_code)) > 1)
-					logger.LogError($"This is not good at all! The \"Code\" property in products should be unique, but that's not the case for this code:{mahta_code}");
-				var ourRespectiveProduct = ourProducts.Where(x => x.Code.Equals(mahta_code)).FirstOrDefault();
-				bool matchedByCode = true;
-				if (ourRespectiveProduct == null)
-				{
-					matchedByCode = false;
-					long foundProductId = FindProductBasedOnTitleSimilarities(ourProducts, eskaadItem);
-					if (foundProductId > 0)
-					{
-						ourRespectiveProduct = ourProducts.First(x => x.Id == foundProductId);
-					}
+		//	foreach (var eskaadItem in eskaadMerchandise)
+		//	{
+		//		var eskaadItemCode = eskaadItem.Code.Trim();
+		//		if (eskaadItemCode.Length < 7)
+		//		{
+		//			logger.LogError($"Unrecognized Eskaad product code! The code ({eskaadItemCode}) doesn't contain enough digits! (7 and 8 are the only acceptable code lengths, legend has it!)", eskaadItem.Id);
+		//			//throw new Exception("");    // TODO: appropriate exception handling
+		//		}
+		//		if (eskaadItemCode.Length > 8)
+		//		{
+		//			logger.LogError($"Unrecognized Eskaad product code! The code ({eskaadItemCode}) is supposed to contain 7 or 8 digits, but, there are more!", eskaadItem.Id);
+		//			//throw new Exception("");    // TODO: appropriate exception handling
+		//		}
+		//		EskaadMerchandiseModel newItem = new EskaadMerchandiseModel(eskaadItem);
+		//		string mahta_code = eskaadItemCode.Substring(eskaadItemCode.Length - 6, 6);
+		//		if (ourProducts.Count(x => x.Code.Equals(mahta_code)) > 1)
+		//			logger.LogError($"This is not good at all! The \"Code\" property in products should be unique, but that's not the case for this code:{mahta_code}");
+		//		var ourRespectiveProduct = ourProducts.Where(x => x.Code.Equals(mahta_code)).FirstOrDefault();
+		//		bool matchedByCode = true;
+		//		if (ourRespectiveProduct == null)
+		//		{
+		//			matchedByCode = false;
+		//			long foundProductId = FindProductBasedOnTitleSimilarities(ourProducts, eskaadItem);
+		//			if (foundProductId > 0)
+		//			{
+		//				ourRespectiveProduct = ourProducts.First(x => x.Id == foundProductId);
+		//			}
 
-				}
-				if (ourRespectiveProduct != null)
-				{
-					newItem.SetMahtaValues(ourRespectiveProduct);
-					if (matchedByCode)
-						newItem.MatchingMethod = MatchingMethod.CodesAreIdentical;
-					else
-						newItem.MatchingMethod = MatchingMethod.NamesAreSimilar;
+		//		}
+		//		if (ourRespectiveProduct != null)
+		//		{
+		//			newItem.SetMahtaValues(ourRespectiveProduct);
+		//			if (matchedByCode)
+		//				newItem.MatchingMethod = MatchingMethod.CodesAreIdentical;
+		//			else
+		//				newItem.MatchingMethod = MatchingMethod.NamesAreSimilar;
 
-					//processedProductCodes.Add(ourRespectiveProduct.Code);
-					if (processedProductIds.ContainsKey(ourRespectiveProduct.Code))
-					{
-						logger.LogError($"Two different products from Eskaad have been matched with the same product from Mahta -  \"{eskaadItemCode}\"");
-						// TODO: Exception handling!
-					}
-					else
-					{
-						processedProductIds.Add(ourRespectiveProduct.Code, ourRespectiveProduct.Id);
-					}
-				}
-				newItem.SetItemProirity();
-				merchandiseModels.Add(newItem);
-				// We fetched Eskaad's data from their database, and processed it for viewing purposes...
-				// Now, to save what we copied from Eskaad in our own db...
-				var merchandiseHistoryItem = new EskaadMerchandise();
-				merchandiseHistoryItem.Id_Eskaad = newItem.Id_Eskaad;
-				merchandiseHistoryItem.ProductId_Mahta = newItem.ProductId_Mahta;
-				merchandiseHistoryItem.Code_Eskaad = newItem.Code_Eskaad;
-				merchandiseHistoryItem.Code_Mahta = newItem.Code_Mahta;
-				merchandiseHistoryItem.Name_Eskaad = newItem.Name_Eskaad;
-				merchandiseHistoryItem.Name_Mahta = newItem.Name_Mahta;
-				merchandiseHistoryItem.Unit_Eskaad = newItem.Unit_Eskaad;
-				merchandiseHistoryItem.Count_Eskaad = newItem.Count_Eskaad;
-				merchandiseHistoryItem.Quantity_Mahta = newItem.Quantity_Mahta;
-				merchandiseHistoryItem.YellowWarningThreshold_Mahta = newItem.YellowWarningThreshold_Mahta;
-				merchandiseHistoryItem.RedWarningThreshold_Mahta = newItem.RedWarningThreshold_Mahta;
-				merchandiseHistoryItem.Place_Eskaad = newItem.Place_Eskaad;
-				merchandiseHistoryItem.Price_Eskaad = newItem.Price_Eskaad;
-				merchandiseHistoryItem.Active_Eskaad = newItem.Active_Eskaad;
-				merchandiseHistoryItem.Status_Mahta = newItem.Status_Mahta;
-				merchandiseHistoryItem.IsPublished_Mahta = newItem.IsPublished_Mahta;
-				merchandiseHistoryItem.PresentInEskaad = newItem.PresentInEskaad;
-				merchandiseHistoryItem.PresentInMahta = newItem.PresentInMahta;
-				merchandiseHistoryItem.Validation_Eskaad = newItem.Validation_Eskaad;
-				merchandiseHistoryItem.Tax_Eskaad = newItem.Tax_Eskaad;
-				merchandiseHistoryItem.FetchedDate = now;
-				db.EskaadMerchandise.Add(merchandiseHistoryItem);
-			}
-			await db.SaveChangesAsync();
-			foreach (var product in ourProducts)
-			{
-				if (processedProductIds.ContainsKey(product.Code))
-				{
-					if (processedProductIds[product.Code] == product.Id)
-						continue;
-					else
-					{
-						// This can not happen! (it'll probably never happen in its whole life time)
-						// This means we have two products with different Ids and identical codes!
-						// TODO: Inform the proper authorities to take action against the devil's wrong-doings! This will not stand!
-						logger.LogError($"EskaadMerchandise -- Product 1;Code:{product.Code}, Id:{product.Id} - " +
-							$"Product 2; Code:{product.Code}, Id:{processedProductIds[product.Code]} - THIS IS UNACCEPTABLE!");
-						continue;
-					}
-				}
-				EskaadMerchandiseModel newItem = new EskaadMerchandiseModel(product);
-				newItem.SetItemProirity();
-				merchandiseModels.Add(newItem);
-			}
-			return KendoJson(merchandiseModels.AsQueryable().ToDataSourceResult(request));
-		}
+		//			//processedProductCodes.Add(ourRespectiveProduct.Code);
+		//			if (processedProductIds.ContainsKey(ourRespectiveProduct.Code))
+		//			{
+		//				logger.LogError($"Two different products from Eskaad have been matched with the same product from Mahta -  \"{eskaadItemCode}\"");
+		//				// TODO: Exception handling!
+		//			}
+		//			else
+		//			{
+		//				processedProductIds.Add(ourRespectiveProduct.Code, ourRespectiveProduct.Id);
+		//			}
+		//		}
+		//		newItem.SetItemProirity();
+		//		merchandiseModels.Add(newItem);
+		//		// We fetched Eskaad's data from their database, and processed it for viewing purposes...
+		//		// Now, to save what we copied from Eskaad in our own db...
+		//		var merchandiseHistoryItem = new EskaadMerchandise();
+		//		merchandiseHistoryItem.Id_Eskaad = newItem.Id_Eskaad;
+		//		merchandiseHistoryItem.ProductId_Mahta = newItem.ProductId_Mahta;
+		//		merchandiseHistoryItem.Code_Eskaad = newItem.Code_Eskaad;
+		//		merchandiseHistoryItem.Code_Mahta = newItem.Code_Mahta;
+		//		merchandiseHistoryItem.Name_Eskaad = newItem.Name_Eskaad;
+		//		merchandiseHistoryItem.Name_Mahta = newItem.Name_Mahta;
+		//		merchandiseHistoryItem.Unit_Eskaad = newItem.Unit_Eskaad;
+		//		merchandiseHistoryItem.Count_Eskaad = newItem.Count_Eskaad;
+		//		merchandiseHistoryItem.Quantity_Mahta = newItem.Quantity_Mahta;
+		//		merchandiseHistoryItem.YellowWarningThreshold_Mahta = newItem.YellowWarningThreshold_Mahta;
+		//		merchandiseHistoryItem.RedWarningThreshold_Mahta = newItem.RedWarningThreshold_Mahta;
+		//		merchandiseHistoryItem.Place_Eskaad = newItem.Place_Eskaad;
+		//		merchandiseHistoryItem.Price_Eskaad = newItem.Price_Eskaad;
+		//		merchandiseHistoryItem.Active_Eskaad = newItem.Active_Eskaad;
+		//		merchandiseHistoryItem.Status_Mahta = newItem.Status_Mahta;
+		//		merchandiseHistoryItem.IsPublished_Mahta = newItem.IsPublished_Mahta;
+		//		merchandiseHistoryItem.PresentInEskaad = newItem.PresentInEskaad;
+		//		merchandiseHistoryItem.PresentInMahta = newItem.PresentInMahta;
+		//		merchandiseHistoryItem.Validation_Eskaad = newItem.Validation_Eskaad;
+		//		merchandiseHistoryItem.Tax_Eskaad = newItem.Tax_Eskaad;
+		//		merchandiseHistoryItem.FetchedDate = now;
+		//		db.EskaadMerchandise.Add(merchandiseHistoryItem);
+		//	}
+		//	await db.SaveChangesAsync();
+		//	foreach (var product in ourProducts)
+		//	{
+		//		if (processedProductIds.ContainsKey(product.Code))
+		//		{
+		//			if (processedProductIds[product.Code] == product.Id)
+		//				continue;
+		//			else
+		//			{
+		//				// This can not happen! (it'll probably never happen in its whole life time)
+		//				// This means we have two products with different Ids and identical codes!
+		//				// TODO: Inform the proper authorities to take action against the devil's wrong-doings! This will not stand!
+		//				logger.LogError($"EskaadMerchandise -- Product 1;Code:{product.Code}, Id:{product.Id} - " +
+		//					$"Product 2; Code:{product.Code}, Id:{processedProductIds[product.Code]} - THIS IS UNACCEPTABLE!");
+		//				continue;
+		//			}
+		//		}
+		//		EskaadMerchandiseModel newItem = new EskaadMerchandiseModel(product);
+		//		newItem.SetItemProirity();
+		//		merchandiseModels.Add(newItem);
+		//	}
+		//	return KendoJson(merchandiseModels.AsQueryable().ToDataSourceResult(request));
+		//}
 
 		private long FindProductBasedOnTitleSimilarities(List<Product> products, Merchandise eskaadMerchandiseItem)
 		{

@@ -1,0 +1,46 @@
+﻿@using MahtaKala.Models.StaffModels;
+
+@{
+	Layout = "~/Views/Shared/_Staff.cshtml";
+	ViewBag.Title = "واحد بازرگانی";
+}
+
+@(Html.Kendo().Grid<MahtaKala.Entities.EskaadEntities.Merchandise>()
+	.Name("Grid")
+	.Columns(cols =>
+	{
+		cols.Bound(x => x.Code).Title("کد");
+		cols.Bound(x => x.Name).Title("نام");
+		cols.Bound(x => x.Unit).Title("واحد");
+		cols.Bound(x => x.Count).Title("موجودی اسکاد");
+		cols.Bound(x => x.Active).Title("فعال");
+		cols.Bound(x => x.Price).Title("قیمت");
+		cols.Command(command => command.Custom("سفارش").Click("AddToOrders")).Width(90);
+	}).Pageable(pageable => pageable
+		.Refresh(true)
+		.PageSizes(true)
+		.PageSizes(new int[] { 5, 10, 20, 50 })
+		.ButtonCount(5))
+	.Sortable()
+	.DataSource(datasource =>
+		datasource.Ajax()
+		.PageSize(50)
+		.Read(read => read.Action("GetEskaadMerchandiseDataSource", "BusinessDept")))
+//.Events(ev => ev.DataBound("onGridDataBound"))
+)
+
+@section js{
+	<script type="text/javascript">
+		function onGridDataBound(e) {
+			var grid = this;
+			var currentRecords = grid.dataSource.view();
+			for (var i = 0; i < currentRecords.length; i++) {
+				if (currentRecords[i].yellowWarningThreshold_Mahta > 0
+					&& currentRecords[i].quantity_Mahta > 0
+					&& currentRecords[i].quantity_Mahta <= currentRecords[i].yellowWarningThreshold_Mahta) {
+					grid.tbody.find("tr[data-uid='" + currentRecords[i].uid + "']").HtmlAttributes["style"] = "background:yellow";
+				}
+			}
+		}
+	</script>
+}

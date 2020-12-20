@@ -269,11 +269,13 @@ namespace MahtaKala.Helpers
             return false;
         }
 
-        public static string GetPersianDate(DateTime? d)
+        public static string GetPersianDate(DateTime? d, bool truncateTimeOfDay = false)
         {
             if (d == null)
                 return null;
             PersianCalendar pc = new PersianCalendar();
+            if (truncateTimeOfDay)
+                return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)}";
             return $"{pc.GetYear(d.Value)}/{pc.GetMonth(d.Value)}/{pc.GetDayOfMonth(d.Value)} {d.Value:HH:mm}";
         }
 

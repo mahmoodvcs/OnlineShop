@@ -238,174 +238,6 @@ namespace MahtaKala.Entities.Migrations
                     b.ToTable("dynamic_settings");
                 });
 
-            modelBuilder.Entity("MahtaKala.Entities.EskaadMerchandise", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id")
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<byte>("Active_Eskaad")
-                        .HasColumnName("active_eskaad")
-                        .HasColumnType("smallint");
-
-                    b.Property<string>("Code_Eskaad")
-                        .HasColumnName("code_eskaad")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Code_Mahta")
-                        .HasColumnName("code_mahta")
-                        .HasColumnType("text");
-
-                    b.Property<double>("Count_Eskaad")
-                        .HasColumnName("count_eskaad")
-                        .HasColumnType("double precision");
-
-                    b.Property<DateTime>("FetchedDate")
-                        .HasColumnName("fetched_date")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<long>("Id_Eskaad")
-                        .HasColumnName("id_eskaad")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsPublished_Mahta")
-                        .HasColumnName("is_published_mahta")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name_Eskaad")
-                        .HasColumnName("name_eskaad")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name_Mahta")
-                        .HasColumnName("name_mahta")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Place_Eskaad")
-                        .HasColumnName("place_eskaad")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("PresentInEskaad")
-                        .HasColumnName("present_in_eskaad")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("PresentInMahta")
-                        .HasColumnName("present_in_mahta")
-                        .HasColumnType("boolean");
-
-                    b.Property<double>("Price_Eskaad")
-                        .HasColumnName("price_eskaad")
-                        .HasColumnType("double precision");
-
-                    b.Property<long>("ProductId_Mahta")
-                        .HasColumnName("product_id_mahta")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Quantity_Mahta")
-                        .HasColumnName("quantity_mahta")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RedWarningThreshold_Mahta")
-                        .HasColumnName("red_warning_threshold_mahta")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status_Mahta")
-                        .HasColumnName("status_mahta")
-                        .HasColumnType("integer");
-
-                    b.Property<byte?>("Tax_Eskaad")
-                        .HasColumnName("tax_eskaad")
-                        .HasColumnType("smallint");
-
-                    b.Property<string>("Unit_Eskaad")
-                        .HasColumnName("unit_eskaad")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Validation_Eskaad")
-                        .HasColumnName("validation_eskaad")
-                        .HasColumnType("text");
-
-                    b.Property<int>("YellowWarningThreshold_Mahta")
-                        .HasColumnName("yellow_warning_threshold_mahta")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id")
-                        .HasName("pk_eskaad_merchandise");
-
-                    b.ToTable("eskaad_merchandise");
-                });
-
-            modelBuilder.Entity("MahtaKala.Entities.EskaadSales", b =>
-                {
-                    b.Property<long>("Id_Mahta")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id_mahta")
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Code")
-                        .HasColumnName("code")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Code_Mahta")
-                        .HasColumnName("code_mahta")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Date")
-                        .HasColumnName("date")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EskadBankCode")
-                        .HasColumnName("eskad_bank_code")
-                        .HasColumnType("text");
-
-                    b.Property<byte>("Flag")
-                        .HasColumnName("flag")
-                        .HasColumnType("smallint");
-
-                    b.Property<long>("Id")
-                        .HasColumnName("id")
-                        .HasColumnType("bigint");
-
-                    b.Property<double>("MahtaCountBefore")
-                        .HasColumnName("mahta_count_before")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("MahtaFactor")
-                        .HasColumnName("mahta_factor")
-                        .HasColumnType("text");
-
-                    b.Property<double>("MahtaFactorTotal")
-                        .HasColumnName("mahta_factor_total")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Place")
-                        .HasColumnName("place")
-                        .HasColumnType("text");
-
-                    b.Property<double>("SaleCount")
-                        .HasColumnName("sale_count")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("SalePrice")
-                        .HasColumnName("sale_price")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Transact")
-                        .HasColumnName("transact")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Validation")
-                        .HasColumnName("validation")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id_Mahta")
-                        .HasName("pk_eskaad_sales");
-
-                    b.ToTable("eskaad_sales");
-                });
-
             modelBuilder.Entity("MahtaKala.Entities.Order", b =>
                 {
                     b.Property<long>("Id")
@@ -720,10 +552,6 @@ namespace MahtaKala.Entities.Migrations
                         .HasColumnName("published")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("RedWarningThreshold")
-                        .HasColumnName("red_warning_threshold")
-                        .HasColumnType("integer");
-
                     b.Property<long?>("SellerId")
                         .HasColumnName("seller_id")
                         .HasColumnType("bigint");
@@ -753,10 +581,6 @@ namespace MahtaKala.Entities.Migrations
                     b.Property<decimal>("Weight")
                         .HasColumnName("weight")
                         .HasColumnType("numeric");
-
-                    b.Property<int>("YellowWarningThreshold")
-                        .HasColumnName("yellow_warning_threshold")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id")
                         .HasName("pk_products");
