@@ -19,6 +19,7 @@ namespace MahtaKala.Entities
         [StringLength(255)]
         public string Title { get; set; }
 
+        [Display(Name = "توضیحات")]
         public string Description { get; set; }
 
         public IList<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();

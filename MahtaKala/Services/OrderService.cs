@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders.Physical;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
 using System;
@@ -29,19 +30,26 @@ namespace MahtaKala.Services
         private readonly IBankPaymentService bankService;
         private readonly SettingsService settingsService;
         private readonly IDeliveryService deliveryService;
+        private readonly ILogger<OrderService> logger;
+        private readonly RandomGenerator randomNumberGenerator;
+        private readonly IList<string> HamrahKhodroSaipa_TitleWordsList = new List<string>() { "همراه", "خودرو", "سایپا" }.AsReadOnly();
 
         private const long CarSpareParts_CategoryId = 168;
         private const long SuperMarket_CategoryId = 134;
         private const long ProteinProducts_CategoryId = 135;
         private const long FruitsAndVegetables_CategoryId = 136;
         private const long StationeryProducts_CategoryId = 140;
+        private const long HamrahKhodroSaipa_SellerId = 57;
+        private const int MillisecondsStepPeriod = 3000; // 3 seconds is the step length of "waiting before trying again"
 
         public OrderService(
             ICurrentUserService currentUserService,
             DataContext dataContext,
             IBankPaymentService bankService,
             SettingsService settingsService,
-            IDeliveryService deliveryService
+            IDeliveryService deliveryService,
+            ILogger<OrderService> logger,
+            RandomGenerator randomGenerator
             )
         {
             this.currentUserService = currentUserService;
@@ -49,6 +57,8 @@ namespace MahtaKala.Services
             this.bankService = bankService;
             this.settingsService = settingsService;
             this.deliveryService = deliveryService;
+            this.logger = logger;
+            this.randomNumberGenerator = randomGenerator;
         }
 
         #region Constants
@@ -304,7 +314,7 @@ namespace MahtaKala.Services
             {
                 var cartItemIsASparePart = await ProductBelongsToCarSparePartsCategory(cartItem.ProductPrice.ProductId);
                 if (newItemIsASparePart != cartItemIsASparePart)
-                    throw new ApiException(400, Messages.Messages.Order.CannotAddProduct_SparePartsCategoryConflict);
+                    throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_SparePartsCategoryConflict);
             }
         }
 
@@ -351,7 +361,10 @@ namespace MahtaKala.Services
                     throw new ApiException(400, string.Format(Messages.Messages.Order.CannotAddProduct_NotAvailable, info.Title));
 
                 var priceIds = cart.Select(a => a.ProductPriceId);
-                if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && a.Product.Seller.Basket != info.Basket).Any())
+                if (db.ProductPrices.Where(a => priceIds.Contains(a.Id) && 
+                        !string.IsNullOrWhiteSpace(a.Product.Seller.Basket) && 
+                        !string.IsNullOrWhiteSpace(info.Basket) &&  
+                        a.Product.Seller.Basket != info.Basket).Any())
                     throw new ApiException(412, Messages.Messages.Order.CannotAddProduct_DefferentSeller);
                 
                 await CheckForCategoryConflicts(cart.ToList(), info);
@@ -540,7 +553,12 @@ namespace MahtaKala.Services
         public DateTime GetApproximateDeilveryDate()
         {
             DateTime now = DateTime.Now;
-            //return now.TimeOfDay.Hours > 12 ? now.Date.AddDays(1).AddHours(10) : now.Date.AddHours(19);
+            var query = GetCartQuery();
+            var priceIds = query.Select(x => x.ProductPriceId).ToList();
+            if (db.ProductPrices.Where(x => priceIds.Contains(x.Id) && x.Product.SellerId == HamrahKhodroSaipa_SellerId).Any())
+			{
+                return now.AddDays(2).AddMinutes(now.Minute > 0 ? 60 - now.Minute : 0);
+			}
             return now.TimeOfDay.Hours > 13 ? now.Date.AddDays(1).AddHours(19) : now.Date.AddHours(19);
         }
 
@@ -601,24 +619,110 @@ namespace MahtaKala.Services
             if (payment.State == PaymentState.Succeeded)
             {
                 await EmptyCart(payment.Order?.UserId);
-                await deliveryService.InitDelivery(payment.OrderId);
+                //await deliveryService.InitDelivery(payment.OrderId);
             }
             else
             {
-                await RollbackQuantity(payment.Order);
+                //try
+                //{
+                    await RollbackQuantity(payment.Order);
+    //            }
+    //            catch (Exception e)
+    //            {
+				//	//var message = e.Message;
+				//	//var iterator = e;
+				//	//while (iterator.InnerException != null)
+				//	//{
+				//	//    iterator = iterator.InnerException;
+				//	//    message += iterator.Message;
+				//	//}
+				//	//message = message.ToLower();
+				//	//if (message.Contains("System.InvalidOperationException")
+				//	//    && message.Contains("An exception has been raised that is likely due to a transient failure")
+				//	//    && message.Contains("40001: could not serialize access due to concurrent update")) 
+				//	//{ // This means that roll-back operation failed due to the transaction lock on product quantities, 
+				//	//  // so, we just need to wait and try again! We will wait a while, and then, try again.
+    //                if (ExceptionIsDueToTransactionLockOnDatabase(e))
+				//	    await WaitAndRetryRollingBack(payment.Order, 2);
+				//	else
+				//	{
+    //                    LogRollBackFailure(e, payment);
+				//	}
+				//	//}
+				//}
             }
         }
 
-        //public async Task RollbackUnsuccessfulPayments()
-        //{
-        //    var initalStates = QuantitySubtractedOrderStates.Except(SuccessfulOrderStates).ToArray();
-        //    var list = await db.Orders.Where(a => a.CheckOutDate < DateTime.Now.AddMinutes(-20)
-        //        && initalStates.Contains(a.State)).ToListAsync();
-        //    foreach (var item in list)
-        //    {
+        private void LogRollBackFailure(Exception e, Payment payment)
+        {
+            var message = e.Message;
+            var exceptionIterator = e;
+            while (exceptionIterator.InnerException != null)
+            {
+                exceptionIterator = exceptionIterator.InnerException;
+                message += Environment.NewLine + ">>>GOING ONE LEVEL IN<<<" + Environment.NewLine +
+                    "Inner Exception: " + exceptionIterator.Message;
+            }
+            logger.LogError($"!!!CRITICAL ERROR!!! Rollback operation failed for payment with id {payment.Id}" +
+                $" Exception thrown is as follows: {message}");
+        }
 
-        //    }
-        //}
+        private bool ExceptionIsDueToTransactionLockOnDatabase(Exception ex)
+        {
+            var message = ex.Message;
+            var iterator = ex;
+            while (iterator.InnerException != null)
+            {
+                iterator = iterator.InnerException;
+                message += iterator.Message;
+            }
+            message = message.ToLower();
+            if (message.Contains("An exception has been raised that is likely due to a transient failure".ToLower())
+                && message.Contains("40001: could not serialize access due to concurrent update".ToLower()))
+            { // This means that roll-back operation failed due to the transaction lock on product quantities, 
+              // so, we just need to wait and try again! We will wait a while, and then, try again.
+                return true;
+            }
+            return false;
+        }
+
+        private async Task WaitAndRetryRollingBack(Order order, int howManyTriesBeforeGivingUp)
+        {
+            string timeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
+            logger.LogWarning($"WaitAndRetryRollingBack - {timeTag}");
+            int trialNumber = 0;
+            while (trialNumber < howManyTriesBeforeGivingUp)
+            {
+                double randomWaitScale = randomNumberGenerator.NextDouble();
+                randomWaitScale = (randomWaitScale + 1.0) / 2.0;    // Changing the random number range from [0, 1) to [0.5, 1)
+                int millisecondsToWait = (int)(Math.Pow(2, trialNumber) * randomWaitScale * MillisecondsStepPeriod);
+                logger.LogWarning($"Sudo-random decesion made! Gonna wait for {millisecondsToWait} milliseconds...");
+                System.Threading.Thread.Sleep(millisecondsToWait);
+                try
+                {
+                    logger.LogWarning($"Waiting finished - Trial number: {trialNumber} - Calling Rollback on Order: {order.Id}");
+                    await TryRollingQuantityBack(order);
+                    logger.LogWarning($"This try was successful! RollBack is done on order: {order.Id} - Function time tag: {timeTag}!");
+                    return;
+                }
+                catch (Exception e)
+                {
+                    if (!ExceptionIsDueToTransactionLockOnDatabase(e))
+                        throw e;
+                    trialNumber++;
+                }
+            }
+            // If we're here, it means that after a bunch of trials (the number given as an input parameter), rolling back
+            // still wasn't successful, and all failures were due to the transaction lock set on database table Quantities.
+            logger.LogError($"Tried {howManyTriesBeforeGivingUp} times to roll back order with id {order.Id}, all of which " +
+                $"was to no avail! Also, all trials were faield with the same reason - the transaction lock, set on database in order to " +
+                $"keep write operations from running concurrently - which could create inconsistency in the inventory quantity data.");
+            //logger.LogError($"TODO: This order (id:{order.Id}) is now ");
+            //TODO: Now, this order should be considered as "orphan", and treated as such next time the "catcher" wakes up!
+            //I am a compile error! I'm here to make sure this commit won't get executed!
+        }
+
+        
 
         public async Task RollbackOrder(long orderId)
         {
@@ -626,33 +730,60 @@ namespace MahtaKala.Services
             await RollbackQuantity(order);
         }
 
-        async Task RollbackQuantity(Order origOrder)
+        async Task RollbackQuantity(Order order)
+        {
+            try
+            {
+                await TryRollingQuantityBack(order);
+            }
+            catch (Exception e)
+            {
+                if (ExceptionIsDueToTransactionLockOnDatabase(e))
+                    await WaitAndRetryRollingBack(order, 5);
+                else
+                    throw e;
+            }
+        }
+
+        private async Task TryRollingQuantityBack(Order origOrder)
         {
             var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product).FirstAsync(a => a.Id == origOrder.Id);
             if (order == null)
-                throw new BadRequestException($"Invalid order Id! Order with Id {origOrder.Id} does not exist!");
+                throw new BadRequestException($"QuantityRollBack - Invalid order Id! Order with Id {origOrder.Id} does not exist!");
             if (SuccessfulOrderStates.Contains(order.State))
-                throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {order.State}");
-            //if (order.State == OrderState.Canceled)
-            //    throw new BadRequestException($"Invalid order state: Id: {origOrder.Id} - State: {order.State}");
-            using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
+                throw new BadRequestException($"QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
 
+            using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
+            order = await db.Orders.FromSqlRaw<Order>($"SELECT * FROM orders WHERE id = {origOrder.Id} FOR UPDATE").FirstOrDefaultAsync();
+
+            if (order.State == OrderState.Canceled)
+            {
+                transaction.Complete();
+                throw new BadRequestException($"{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")} QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
+            }
+			string timeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
+            string rollbackLog = $"<<ROLLING BACK SOME QUANTITIES>>{timeTag}\t" + Environment.NewLine;
+            rollbackLog += $"OrderId: {order.Id} - OrderState-before: {order.State}" + Environment.NewLine;
             order.State = OrderState.Canceled;
             var productIds = order.Items.Select(a => a.ProductPrice.ProductId).ToList();
             var quantities = await db.ProductQuantities.FromSqlRaw<ProductQuantity>($"SELECT* FROM product_quantities pq WHERE pq.product_id in ({string.Join(',', productIds)}) FOR UPDATE").ToListAsync();
-
+            rollbackLog += "Quantity.Id, Quantity.quantity-before, Quantity.quantity-after, OrderItem.Id, OrderItem.quantity\t" + Environment.NewLine;
             foreach (var item in order.Items)
             {
                 var quantity = quantities.FirstOrDefault(a => a.ProductId == item.ProductPrice.ProductId);
                 bool itWasZeroBeforeRollBack = (quantity.Quantity == 0);
+                rollbackLog += $"{quantity.Id}, {quantity.Quantity}, ";
                 quantity.Quantity += item.Quantity;
+                rollbackLog += $"{quantity.Quantity}, {item.Id}, {item.Quantity}\t" + Environment.NewLine;
                 if (item.ProductPrice.Product.Status == ProductStatus.NotAvailable && quantity.Quantity > 0 && itWasZeroBeforeRollBack)
                 {
                     item.ProductPrice.Product.Status = ProductStatus.Available;
                 }
             }
-
+            rollbackLog += $"CurrentTime:{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")}---Now Saving Changes--- FunctionTimeTag:{timeTag}\t{Environment.NewLine}";
             await db.SaveChangesAsync();
+            rollbackLog += $"CurrentTime:{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")}---Changes Were Saved--- FunctionTimeTag:{timeTag}\t{Environment.NewLine}";
+            logger.LogWarning(rollbackLog);
             transaction.Complete();
         }
 
@@ -676,10 +807,17 @@ namespace MahtaKala.Services
                 throw new BadRequestException(SMSManager.TEMP_MARK + "این سفارش قبلاً لغو شده است.");
 
 
-            var items = order.Items.Where(a => a.State == OrderItemState.Sent);
+            var items = order.Items.Where(a => a.State == OrderItemState.Sent || a.State == OrderItemState.None);
             if (items.Count() == 0)
             {
                 throw new BadRequestException(SMSManager.TEMP_MARK + "این سفارش قلم ارسال شده ندارد.");
+            }
+            if (items.Any(x => x.State == OrderItemState.None))
+            {
+                var unsentItems = items.Where(x => x.State == OrderItemState.None).ToList();
+                var message = $"CAUTION!! OrderId: {order.Id} - SetOrderDelivered - {unsentItems.Count} items with state \"None\" - These items' state will be set as \"Delivered\" as well, but, take caution!" +
+                    $"The items' ids are as follows: {string.Join(',', unsentItems.Select(x => x.Id.ToString()))}";
+                logger.LogError(message);
             }
 
             foreach (var item in items)
@@ -695,8 +833,10 @@ namespace MahtaKala.Services
 
         public async Task ShareOrderPayment(long orderId, bool includeDelivery)
         {
-            Payment payment = await GetPaymentToShare(orderId);
+            string functionTImeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
 
+            logger.LogWarning($"OrderService.ShareOrderPayment - StartTime: {functionTImeTag}");
+            Payment payment = await GetPaymentToShare(orderId);
             var items = db.OrderItems.Where(a => a.OrderId == orderId && a.State == OrderItemState.Delivered)
                 .Select(a => new
                 {
@@ -761,19 +901,19 @@ namespace MahtaKala.Services
             return payments[0];
         }
 
-        public async Task ShareDeliveryPayment(long orderId)
-        {
-            Payment payment = await GetPaymentToShare(orderId);
-            await bankService.SharePayment(payment, new List<PaymentShareDataItem>
-            {
-                new PaymentShareDataItem
-                {
-                    Amount = GetDeliveryPrice(),
-                    Name = deliveryService.GetName(),
-                    ShabaId = deliveryService.GetShabaId()
-                }
-            });
-        }
+        //public async Task ShareDeliveryPayment(long orderId)
+        //{
+        //    Payment payment = await GetPaymentToShare(orderId);
+        //    await bankService.SharePayment(payment, new List<PaymentShareDataItem>
+        //    {
+        //        new PaymentShareDataItem
+        //        {
+        //            Amount = GetDeliveryPrice(),
+        //            Name = deliveryService.GetName(),
+        //            ShabaId = deliveryService.GetShabaId()
+        //        }
+        //    });
+        //}
     }
 
 

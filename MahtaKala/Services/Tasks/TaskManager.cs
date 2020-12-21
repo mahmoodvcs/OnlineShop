@@ -32,16 +32,8 @@ namespace MahtaKala.Services.Tasks
             //services.AddScoped<DeliveryCodeReceiver>();
             
             services.AddScoped<ISMSProcessor, DeliveryCodeReceiver>();
-            // In order to use multiple processors for received messages, we just need to add the registeration code for
-            //    each additional processor service just like the line above. Note that we're ADDing new processors, so,
-            //    we shouldn't REMOVE the previously registered processors! So, just add some registeration code lines
-            //    to the registerations you already have, like so:
-            // services.AddScoped<ISMSProcessor, NewDeliveryCodeReceiverService>();
-            // services.AddScoped<ISMSProcessor, AnotherDeliveryCodeReceiverServiceWhichIsDifferent>();
-            // AND THAT'S ALL YOU HAVE TO DO TO ADD NEW smsRECEIVERS...
 
             services.AddScoped<SMSManager>();
-            //services.AddTransient<IProvider<DeliveryCodeReceiver>, Provider<DeliveryCodeReceiver>>();
             services.AddScoped<ReadReceivedSMSsTask>();
             services.AddScoped<OrphanOrderCatcherService>();
             services.AddScoped<CancelOrphanOrdersTask>();

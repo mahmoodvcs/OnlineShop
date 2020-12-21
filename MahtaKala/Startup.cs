@@ -23,6 +23,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Polly;
 using System;
 using System.IO;
 
@@ -135,6 +136,7 @@ namespace MahtaKala
 			services.AddSingleton<AppSettings>();
             services.AddSingleton<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<RandomGenerator>();
             
             services.AddSingleton<IProductImageService, ProductImageService>();
             services.AddSingleton<ICategoryImageService, CategoryImageService>();
@@ -160,6 +162,8 @@ namespace MahtaKala
                         .WithMicrosoftMemoryCacheHandle(instanceName: "MemoryCache1")
                         .WithExpiration(ExpirationMode.Absolute, TimeSpan.FromMinutes(10))
                         .Build());
+            // Retry policy using Polly
+            //Policy.
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

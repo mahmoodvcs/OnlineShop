@@ -48,6 +48,7 @@ namespace MahtaKala.Controllers
         private readonly IPathService pathService;
         private readonly ProductService productService;
         private readonly ISMSService smsService;
+        private readonly OrderService orderService;
 
         public StaffController(
             DataContext context,
@@ -58,7 +59,8 @@ namespace MahtaKala.Controllers
             ImportService importService,
             CategoryService categoryService,
             IPathService pathService,
-            ProductService productService
+            ProductService productService,
+            OrderService orderService
             ) : base(context, logger)
         {
             this.productImageService = productImageService;
@@ -68,6 +70,7 @@ namespace MahtaKala.Controllers
             this.pathService = pathService;
             this.productService = productService;
             this.smsService = smsService;
+            this.orderService = orderService;
         }
 
         [Authorize(UserType.Staff, UserType.Admin, UserType.Delivery, UserType.Seller)]
@@ -671,7 +674,7 @@ namespace MahtaKala.Controllers
         {
             if (db.Products.Any(c => c.BrandId == id))
             {
-                return Json(new { Success = false, Message = "امکان حذف برند دارای کالا نمی باشد." });
+                return Json(new { Success = false, Message = "امکان حذف برند دارای کالا وجود ندارد." });
             }
             else
             {
@@ -888,8 +891,12 @@ namespace MahtaKala.Controllers
                     query = query.Where(x => x.Published == isPublishedFilterValue);
                 }                    
             }
-            var data = await query.Project().ToListResultAsync(request);
-            return KendoJson(data);
+            if (await query.AnyAsync())
+            {
+                var data = await query.Project().ToListResultAsync(request);
+                return KendoJson(data);
+            }
+            return KendoJson(new DataSourceResult());
         }
 
         //private void FlexTextFilter<T>(IQueryable<T> query, Expression<Func<T, object>> p, string text)
@@ -1374,7 +1381,8 @@ namespace MahtaKala.Controllers
                     a.AddressId,
                     a.Address,
                     a.SendDate,
-                    State = a.State
+                    State = a.State,
+                    a.TrackNo
                 }).ToDataSourceResultAsync(request, a => new OrderModel
                 {
                     Id = a.Id,
@@ -1388,7 +1396,8 @@ namespace MahtaKala.Controllers
                     LastName = a.LastName,
                     Address_Id = a.AddressId,
                     Address = new AddressModel(a.Address),
-                    State = TranslateExtentions.GetTitle(a.State)
+                    State = TranslateExtentions.GetTitle(a.State),
+                    DeliveryTrackNo = a.TrackNo
                 });
 
             var list = JsonConvert.SerializeObject(data, Formatting.None,
@@ -1428,6 +1437,85 @@ namespace MahtaKala.Controllers
         //    }
         //    return Json(new { success = true });
         //}
+
+        [AjaxAction]
+        [Authorize(new UserType[] { UserType.Admin }, Order = 1)]
+        public async Task<ActionResult> ShareOrderPayment(long Id, string TrackNo)
+        {
+            TrackNo = TrackNo.ToUpper();
+            var order = await db.Orders.Where(x => x.Id == Id).FirstOrDefaultAsync();
+            if (order == null)
+            {
+                throw new EntityNotFoundException<Order>(Id);
+            }
+            if (string.IsNullOrWhiteSpace(order.TrackNo))
+            {
+                return Json(new { success = false, message = "این سفارش کد پیگیری ندارد!" });
+            }
+            if (string.IsNullOrWhiteSpace(TrackNo) || TrackNo != order.TrackNo)
+            {
+                return Json(new { success = false, message = Messages.Messages.Order.ErrorWrongTrackNo });
+            }
+            string functionTimeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
+            if (order.State == OrderState.Sent || order.State == OrderState.Paid)
+            {
+                logger.LogWarning($"Staff/ShareOrderPayment - Setting Order Delivered (which includes sharing the payment) - OrderId: {Id} - TimeTag: {functionTimeTag}");
+                await orderService.SetOrderDelivered(order.Id);
+            }
+            else if (order.State == OrderState.Delivered)
+            {
+                if (await db.PaymentSettlements.Where(x => x.OrderId == order.Id).AnyAsync())
+                {
+                    string message = $"تسهیم برای سفارش {order.Id} قبلا انجام شده است!";
+                    logger.LogError(message);
+                    return Json(new { success = false, message });
+                }
+                logger.LogWarning($"Staff/ShareOrderPayment - Only Sharing Order Payment - OrderId: {Id} - TimeTag: {functionTimeTag}");
+                await orderService.ShareOrderPayment(order.Id, true);
+            }
+            logger.LogWarning($"Staff/ShareOrderPayment - DONE - OrderId: {Id} - TimeTag: {functionTimeTag}");
+            return Json(new { success = true });
+        }
+
+        [AjaxAction]
+        [Authorize(UserType.Admin, Order = 1)]
+        public async Task<IActionResult> RemoveOrderSettlementsIfFailed(long orderId)
+        {
+            string functionTimeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
+            logger.LogWarning($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - TimeTag:{functionTimeTag} ");
+            var order = await db.Orders.Where(x => x.Id == orderId).SingleOrDefaultAsync();
+            if (order == null)
+            {
+                logg
+                throw new EntityNotFoundException<Order>(orderId);
+            }
+            var payment = await db.Payments.Where(x => x.OrderId == orderId && x.State == PaymentState.Succeeded).OrderByDescending(x => x.RegisterDate).FirstOrDefaultAsync();
+            if (payment == null)
+			{
+                logger.LogError($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - TimeTag:{functionTimeTag} - There's no successful recorded for this order! Removing NOT successful!");
+                return Json(new { success = false, message = "این سفارش، پرداخت موفقیت آمیز ندارد!" });
+            }
+            var orderPaymentSettlements = await db.PaymentSettlements.Where(x => x.PaymentId == payment.Id).ToListAsync();
+            if (orderPaymentSettlements == null || orderPaymentSettlements.Count == 0)
+            {
+                logger.LogError($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - PaymentId: {payment.Id} - TimeTag:{functionTimeTag} - There aren't any Settlement objects recorded for this payment! Removing NOT successful!");
+                return Json(new { success = false, message = "آخرین پرداخت موفق مربوط به این سفارش، آیتم تسهیم ندارد!" });
+            }
+            if (orderPaymentSettlements.Any(x => x.Status == PaymentSettlementStatus.Succeeded))
+			{
+                logger.LogError($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - PaymentId: {payment.Id} - TimeTag:{functionTimeTag} - Some settlements' status is 'Succeeded'! Removing NOT successful!");
+                return Json(new { success = false, message = "این سفارش تسهیم موفق دارد! در صورتی حذف تسهیم ها ممکن خواهد بود که هیچ یک موفق نبوده باشند! با ادمین سیستم تماس بگیرید!" });
+            }
+            if (orderPaymentSettlements.Any(x => x.Status != PaymentSettlementStatus.Failed))
+            {
+                logger.LogError($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - PaymentId: {payment.Id} - TimeTag:{functionTimeTag} - Some settlements' status is not 'Failed'! Removing NOT successful!");
+                return Json(new { success = false, message = "برخی از آیتم های تسهیم، وضعیتی غیر از 'ناموفق' دارند! برای حذف، وضعیت تمامی تسهیم ها باید ناموفق باشد! با ادمین سیستم تماس بگیرید!" });
+            }
+            db.PaymentSettlements.RemoveRange(orderPaymentSettlements);
+            int numOfDeletedRows = await db.SaveChangesAsync();
+            logger.LogWarning($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - PaymentId: {payment.Id} - TimeTag:{functionTimeTag} - Successfuly Done! Number of deleted rows: {numOfDeletedRows} ");
+            return return Json(new { success = true });
+        }
 
         // This action was implemented as a test, and it has no actual usage for the project!
         // So, there's no reason for not commenting it out!
