@@ -8,6 +8,7 @@ using MahtaKala.ActionFilter;
 using MahtaKala.Entities;
 using MahtaKala.Entities.EskaadEntities;
 using MahtaKala.Helpers;
+using MahtaKala.Infrustructure.ActionFilter;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Models.StaffModels;
 using MahtaKala.Services;
@@ -18,10 +19,13 @@ using Microsoft.Extensions.Logging;
 namespace MahtaKala.Controllers.Staff
 {
 	[Route("~/Staff/BusinessDept/[action]")]
+	[Authorize(UserType.Admin)]
 	public class BusinessDeptController : SiteControllerBase<BusinessDeptController>
 	{
 		private readonly EskaadContext eskaadDb;
 		private readonly EskaadService eskaadService;
+
+		private readonly string[] EligibleUsers = { "katouzian", "mosalli", "ali.d" };
 
 		public BusinessDeptController(
 			DataContext context,
@@ -33,10 +37,20 @@ namespace MahtaKala.Controllers.Staff
 			this.eskaadService = eskaadService;
 		}
 
+		private bool UserHasTheAuthority()
+		{
+			if (User == null)
+				return false;
+			if (string.IsNullOrWhiteSpace(User.Username) || !EligibleUsers.Contains(User.Username))
+				return false;
+			return true;
+		}
 
 		[Authorize(UserType.Admin, UserType.Staff)]
 		public async Task<IActionResult> Index()
 		{
+			if (!UserHasTheAuthority())
+				return RedirectToAction("Index", "Staff");
 			var now = DateTime.Now;
 			var alreadyDoneToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
 			if (alreadyDoneToday)
@@ -46,21 +60,28 @@ namespace MahtaKala.Controllers.Staff
 			return View();
 		}
 
+		[HttpGet]
 		public IActionResult EskaadMerchandise()
 		{
+			if (!UserHasTheAuthority())
+				return RedirectToAction("Index", "Staff");
 			return View("~/Views/Staff/BusinessDept/EskaadMerchandise.cshtml");
 		}
 
+		[HttpGet]
 		public async Task<IActionResult> EskaadOrdersAlreadyPlacedForToday()
 		{
 			var alreadyDoneToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
 			return Json(new { alreadyDoneToday });
 		}
 
+		[HttpPost]
 		public async Task<IActionResult> AddNewOrderItem(string merchandiseCode, int quantity)
 		{
-			var message = await eskaadService.AddNewOrderItem(merchandiseCode, quantity);
-			return Json(new { success = true, message });
+			if (!UserHasTheAuthority())
+				return Json(new { success = false, message = "Access denied!" });
+			(var success, var message) = await eskaadService.AddNewOrderItem(merchandiseCode, quantity);
+			return Json(new { success , message });
 		}
 
 
@@ -68,6 +89,8 @@ namespace MahtaKala.Controllers.Staff
 		//[Microsoft.AspNetCore.Authorization.Authorize(policy: "EskaadAuthorizedUsers")]
 		public async Task<IActionResult> GetEskaadMerchandiseDataSource([DataSourceRequest] DataSourceRequest request)
 		{
+			if (!UserHasTheAuthority())
+				return null;
 			var eskaadMerchandise = eskaadService.GetEskaadMerchandise(false, false);//eskaadDb.Merchandise.Where(x => Convert.ToInt32(x.Place) != 13).AsQueryable();
 			return KendoJson(await eskaadMerchandise.ToDataSourceResultAsync(request));
 		}
@@ -76,14 +99,28 @@ namespace MahtaKala.Controllers.Staff
 		[HttpPost]
 		public async Task<IActionResult> GetOrderDraftDataSource([DataSourceRequest] DataSourceRequest request)
 		{
+			if (!UserHasTheAuthority())
+				return null;
 			var orderDraftList = eskaadService.GetOrderDraftsForToday();
 			return KendoJson(await orderDraftList.ToDataSourceResultAsync(request));
 		}
 
+		[HttpPost]
+		[AjaxAction]
+		public async Task<IActionResult> DeleteOrderDraftItem(long id)
+		{
+			if (!UserHasTheAuthority())
+				return Json(new { success = false, message = "Access denied!" });
+			(var success, var message) = await eskaadService.DeleteOrderDraftItem(id);
+			return Json(new { success, message });
+		}
 
 		[HttpPost]
 		public async Task<IActionResult> PlaceEskaadOrdersForToday()
 		{
+			if (!UserHasTheAuthority())
+				return Json(new { success = false, message = "Access denied!" });
+
 			var alreadyOrderedToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
 			if (alreadyOrderedToday)
 				return Json(new { success = false, message = "سفارش امروز قبلاً ثبت شده است." });

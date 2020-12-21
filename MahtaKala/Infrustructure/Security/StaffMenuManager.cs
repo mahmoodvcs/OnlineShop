@@ -32,6 +32,7 @@ namespace MahtaKala.Infrustructure.Security
             new StaffMenuItem("گزارش خریدها", "~/Staff/BuyHistory", "bank",UserType.Delivery, UserType.Staff),
             new StaffMenuItem("لیست تسهیم", "~/Staff/ProductPaymentPartyList", "bank", UserType.Seller),
             new StaffMenuItem("اقلام فروخته شده", "~/Staff/Orders/Items", "bank",UserType.Seller, UserType.Staff),
+            new StaffMenuItem("سفارش محصولات اسکاد", "~/Staff/BusinessDept/EskaadMerchandise", "coins", true, "katouzian", "mosalli", "ali.d"),
             new StaffMenuItem("تنظیمات سیستم", "~/Staff/Settings", "gear"),
             new StaffMenuItem("تغییرات نسخه", "~/Staff/ReleaseNotes", "gear"),
         };
@@ -54,6 +55,14 @@ namespace MahtaKala.Infrustructure.Security
                     var cat = new StaffMenuCategory(item.Name, item.Icon, GetItems(user, ((StaffMenuCategory)item).Children).ToArray());
                     if (cat.Children.Any())
                         items.Add(cat);
+                }
+                else if (((StaffMenuItem)item).UserNames != null && ((StaffMenuItem)item).UserNames.Length > 0)
+                {
+                    var legalUsers = ((StaffMenuItem)item).UserNames;
+                    if (!string.IsNullOrWhiteSpace(user.Username) && legalUsers.Contains(user.Username))
+                    {
+                        items.Add(item);
+                    }
                 }
                 else if (user.Type == UserType.Admin || ((StaffMenuItem)item).Users.Contains(user.Type))
                     items.Add(item);
@@ -94,8 +103,19 @@ namespace MahtaKala.Infrustructure.Security
             Users = userTypes;
         }
 
+        public StaffMenuItem(string name, string url, string icon, bool authorizeByName = false, params string[] userNames)
+            : base(name, icon)
+        {
+            if (!authorizeByName)
+                throw new Exception("What the hell are you doing?! You should pass TRUE as the value for authorizeByName parameter!");
+            Url = url;
+            Users = null;
+            UserNames = userNames;
+        }
+
         public string Url { get; }
         public UserType[] Users { get; }
+        public string[] UserNames { get; }
     }
 
 }

@@ -57,6 +57,15 @@ namespace MahtaKala.Services
 			return orderDraftQuery;
 		}
 
+		public async Task<bool> TodaysOrdersAreSealed()
+		{
+			var now = DateTime.Now;
+			var ordersAreSealed = await dbContext.EskaadOrderDrafts.Where(x =>
+					x.CreatedDate.Date.Equals(now.Date) && x.OrderIsSealed)
+				.AnyAsync();
+			return ordersAreSealed;
+		}
+
 		public async Task<bool> EskaadOrderAlreadyPlacedToday()
 		{
 			var now = DateTime.Now;
@@ -67,25 +76,35 @@ namespace MahtaKala.Services
 			return alreadyDoneToday;
 		}
 
-		public async Task<string> AddNewOrderItem(string code, int quantity)
+		public async Task<(bool, string)> AddNewOrderItem(string code, int quantity)
 		{
 			var now = DateTime.Now;
 			var todayPersian = Util.GetPersianDate(now, true, true);
 			string message = "";
-			if (await dbContext.EskaadOrderDrafts.AnyAsync(x =>
+			if (await dbContext.EskaadOrderDrafts
+				.Include(x => x.CreatedBy)
+				.Include(x => x.UpdatedBy)
+				.AnyAsync(x =>
 					x.CreatedDate.Date.Equals(now.Date)
 					&& x.OrderIsSealed))
 			{
-				throw new ApiException(512, $"سفارشات امروز ({todayPersian}) بسته شده اند! امکان افزودن سفارش جدید برای امروز وجود ندارد!");
+				//throw new ApiException(512, $"سفارشات امروز ({todayPersian}) بسته شده اند! امکان افزودن سفارش جدید برای امروز وجود ندارد!");
+				return (false, $"سفارشات امروز ({todayPersian}) بسته شده اند! امکان افزودن سفارش جدید برای امروز وجود ندارد!");
 			}
-			var eskaadOrderDraftItem = dbContext.EskaadOrderDrafts.Where(x =>
-					x.CreatedDate.Equals(now.Date) && x.EskaadCode.Equals(code))
-				.FirstOrDefault();
-			//if (alreadyExistingOrderDraft != null)
-			//{
-			//	quantity += alreadyExistingOrderDraft.Quantity;
-			//}
-			if (!await eskaadDbContext.Merchandise.AnyAsync(x => x.Code.Equals(code) 
+			var draftItemsQuery = dbContext.EskaadOrderDrafts.Where(x =>
+					x.CreatedDate.Date.Equals(now.Date) && x.EskaadCode.Equals(code))
+				.AsQueryable();
+			var draftCount = await draftItemsQuery.CountAsync();
+			if (draftCount > 1)
+			{
+				var allDraftItems = await draftItemsQuery.OrderByDescending(x => x.CreatedDate).ToListAsync();
+				for (int i = 1; i < allDraftItems.Count; i++)
+					dbContext.EskaadOrderDrafts.Remove(allDraftItems[i]);
+				await dbContext.SaveChangesAsync();
+			}
+			var eskaadOrderDraftItem = await draftItemsQuery.FirstOrDefaultAsync();
+
+			if (!await eskaadDbContext.Merchandise.AnyAsync(x => x.Code.Equals(code)
 					&& Convert.ToInt32(x.Place) != MAHTA_STORAGE_NUMBER_IN_ESKAAD
 					&& x.Active == 1))
 			{
@@ -93,15 +112,13 @@ namespace MahtaKala.Services
 				//if (await dbContext.EskaadOrderDrafts.AnyAsync(x => x.CreatedDate.Equals(now.Date) && x.EskaadCode.Equals(code)))
 				if (eskaadOrderDraftItem != null)
 				{
-					//var notAvailableAnyMoreEntity = dbContext.EskaadOrderDrafts.Where(x =>
-					//		x.CreatedDate.Equals(now.Date) && x.EskaadCode.Equals(code)).First();
 					dbContext.EskaadOrderDrafts.Remove(eskaadOrderDraftItem);
 					await dbContext.SaveChangesAsync();
 					message = $"آیتم از پیش ثبت شده ی امروز با کد {code} نیز از لیست لیست حذف می شود.";
 				}
 				message = $"کالایی با کد {code} در دیتابیس اسکاد وجود ندارد!" + Environment.NewLine + message;
 				//throw new ApiException(512, errorMessage);
-				return message;
+				return (false, message);
 			}
 			var merchandiseItem = await eskaadDbContext.Merchandise.Where(x => x.Code.Equals(code)
 					&& Convert.ToInt32(x.Place) != MAHTA_STORAGE_NUMBER_IN_ESKAAD
@@ -111,7 +128,7 @@ namespace MahtaKala.Services
 			{
 				message = "";
 				if (eskaadOrderDraftItem != null)
-				{ 
+				{
 					if (merchandiseItem.Count < eskaadOrderDraftItem.Quantity)
 					{
 						message = $"آیتم قبلاً ثبت شده ی امروز با کد {code} نیز از لیست حذف می شود - تعداد ثبت شده: {eskaadOrderDraftItem.Quantity}";
@@ -127,18 +144,21 @@ namespace MahtaKala.Services
 					+ $" انبار اسکاد موجود نیست! تعداد موجود: {merchandiseItem.Count} - تعداد مورد نیاز: {quantity}"
 					+ message;
 				//throw new ApiException(512, errorMessage);
-				return message;
+				return (false, message);
 			}
 
 			if (eskaadOrderDraftItem != null)
 			{
-				eskaadOrderDraftItem.UpdatedById = User.Id;
-				eskaadOrderDraftItem.Quantity = quantity;
+				if (eskaadOrderDraftItem.CreatedById != User.Id)
+				{
+					eskaadOrderDraftItem.UpdatedById = User.Id;
+				}
 				eskaadOrderDraftItem.UpdatedDate = now;
+				eskaadOrderDraftItem.Quantity = quantity;
 				await dbContext.SaveChangesAsync();
 				message = $"پیش سفارش با کد {eskaadOrderDraftItem.EskaadCode} از پیش در لیست " +
 					$"ثبت شده است! تعداد درخواستی به {eskaadOrderDraftItem.Quantity} تغییر کرد.";
-				return message;
+				return (true, message);
 			}
 
 			eskaadOrderDraftItem = new EskaadOrderDraft()
@@ -154,7 +174,49 @@ namespace MahtaKala.Services
 			await dbContext.SaveChangesAsync();
 			message = $"پیش سفارش با کد {eskaadOrderDraftItem.EskaadCode} با " +
 				$"تعداد {eskaadOrderDraftItem.Quantity} به لیست اضافه شد.";
-			return message;
+			return (true, message);
+		}
+
+		public async Task<(bool, string)> DeleteOrderDraftItem(long draftItemId)
+		{
+			var orderDraftItem = await dbContext.EskaadOrderDrafts.SingleOrDefaultAsync(x => x.Id == draftItemId);
+			if (orderDraftItem == null)
+			{
+				return (false, "آیتمی با آی دی مورد نظر یافت نشد!");
+			}
+			var now = DateTime.Now;
+			//if (!orderDraftItem.CreatedDate.Date.Equals(now.Date))
+			//{
+			//	return (false, "آیتم مورد نظر مربوط به امروز نیست!");
+			//}
+			if (orderDraftItem.OrderIsSealed)
+			{
+				return (false, "این پیش سفارش، در دیتابیس اسکاد نهایی شده است، و قابل حذف نیست.");
+			}
+			var shortPersiaanDate = Util.GetPersianDate(orderDraftItem.CreatedDate.Date, true, false);
+			var formattedPersianDate = Util.GetPersianDate(orderDraftItem.CreatedDate.Date, true, true);
+			var relatedSalesItemsQuery = eskaadDbContext.Sales.Where(x => x.Code.Equals(orderDraftItem.EskaadCode) &&
+					(x.Date.Equals(shortPersiaanDate) || x.Date.Equals(formattedPersianDate))).AsQueryable();
+			if (await relatedSalesItemsQuery.AnyAsync())
+			{ 
+				if (await relatedSalesItemsQuery.CountAsync() > 1)
+				{
+					var errorMessage = $"MORE THAN ONE ORDER ITEM WITH THE CODE {orderDraftItem.EskaadCode} ARE" +
+						$" RECORDED FOR THIS DATE (i.e. {orderDraftItem.CreatedDatePersian}) IN Eskaad's DATABASE!";
+					logger.LogError("EskaadService - DeleteOrderDraftItem - " + errorMessage);
+					//throw new ApiException(-8009, errorMessage);
+					return (false, errorMessage);
+				}
+				var eskaadSalesItem = await relatedSalesItemsQuery.FirstOrDefaultAsync();
+				if (eskaadSalesItem != null)
+				{
+					var errorMessage = $"این پیش سفارش نهایی نشده، ولی سفارش برای این کد ({eskaadSalesItem.Code}) در همین تاریخ در دیتابیس اسکاد ثبت شده است، و حذف آن ممکن نیست! لطفاً با ادمین سیستم تماس بگیرید.";
+					return (false, errorMessage);
+				}
+			}
+			dbContext.EskaadOrderDrafts.Remove(orderDraftItem);
+			await dbContext.SaveChangesAsync();
+			return (true, "حذف پیش سفارش با موفقیت انجام شد.");
 		}
 
 		private async Task<string> CreateToday_sFactor()
@@ -219,7 +281,7 @@ namespace MahtaKala.Services
 					Place = merchandiseItem.Place,
 					Validation = merchandiseItem.Validation,
 					MahtaFactor = todaysMahtaFactor,
-					SalePrice = 0,
+					SalePrice = merchandiseItem.Price,
 					MahtaFactorTotal = 0,
 					MahtaCountBefore = 0,
 					Transact = null,
