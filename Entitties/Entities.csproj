@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20201128113227_Add_Entities_Needed_To_Save_Eskaad_Merchandise_Orders.cs" />
+    <Compile Remove="Migrations\20201128113227_Add_Entities_Needed_To_Save_Eskaad_Merchandise_Orders.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EFSecondLevelCache.Core" Version="2.9.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.7">

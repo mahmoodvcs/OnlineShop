@@ -48,7 +48,7 @@ namespace MahtaKala.Controllers.Staff
 
 		public IActionResult EskaadMerchandise()
 		{
-			return View();
+			return View("~/Views/Staff/BusinessDept/EskaadMerchandise.cshtml");
 		}
 
 		public async Task<IActionResult> EskaadOrdersAlreadyPlacedForToday()

@@ -5,6 +5,7 @@
 	ViewBag.Title = "واحد بازرگانی";
 }
 
+
 @(Html.Kendo().Grid<MahtaKala.Entities.EskaadEntities.Merchandise>()
 	.Name("MerchandiseGrid")
 	.Columns(cols =>
@@ -15,7 +16,7 @@
 		cols.Bound(x => x.Count).Title("موجودی اسکاد");
 		cols.Bound(x => x.Active).Title("فعال");
 		cols.Bound(x => x.Price).Title("قیمت");
-		cols.Command(command => command.Custom("سفارش").Click("AddOrderDraft")).Width(90);
+		//cols.Command(command => command.Custom("سفارش").Click("AddOrderDraft")).Width(90);
 	}).Pageable(pageable => pageable
 		.Refresh(true)
 		.PageSizes(true)
@@ -24,10 +25,11 @@
 	.Sortable()
 	.DataSource(datasource =>
 		datasource.Ajax()
-		.PageSize(50)
+		.PageSize(20)
 		.Read(read => read.Action("GetEskaadMerchandiseDataSource", "BusinessDept")))
-//.Events(ev => ev.DataBound("onGridDataBound"))
 )
+<br />
+<br />
 @(Html.Kendo().Grid<MahtaKala.Entities.EskaadOrderDraft>()
 		.Name("OrderDraftGrid")
 		.Columns(cols =>
@@ -45,7 +47,7 @@
 		.Sortable()
 		.DataSource(datasource =>
 			datasource.Ajax()
-			.PageSize(50)
+			.PageSize(20)
 			.Read(read => read.Action("GetOrderDraftDataSource", "BusinessDept")))
     )
 
