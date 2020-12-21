@@ -1486,7 +1486,7 @@ namespace MahtaKala.Controllers
             var order = await db.Orders.Where(x => x.Id == orderId).SingleOrDefaultAsync();
             if (order == null)
             {
-                logg
+                logger.LogError($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - TimeTag:{functionTimeTag} - Ordre Not Found!");
                 throw new EntityNotFoundException<Order>(orderId);
             }
             var payment = await db.Payments.Where(x => x.OrderId == orderId && x.State == PaymentState.Succeeded).OrderByDescending(x => x.RegisterDate).FirstOrDefaultAsync();
@@ -1514,7 +1514,7 @@ namespace MahtaKala.Controllers
             db.PaymentSettlements.RemoveRange(orderPaymentSettlements);
             int numOfDeletedRows = await db.SaveChangesAsync();
             logger.LogWarning($"Staff/RemoveOrderSettlementsIfFailed - OrderId: {orderId} - PaymentId: {payment.Id} - TimeTag:{functionTimeTag} - Successfuly Done! Number of deleted rows: {numOfDeletedRows} ");
-            return return Json(new { success = true });
+            return Json(new { success = true });
         }
 
         // This action was implemented as a test, and it has no actual usage for the project!
