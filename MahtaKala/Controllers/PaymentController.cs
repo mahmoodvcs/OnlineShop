@@ -230,7 +230,7 @@ namespace MahtaKala.Controllers
                 db.SaveChanges();
                 string message = string.Format(Messages.Messages.Order.OrderPaymentSuccessMessage,
                     deliveryTrackingNumber /*same as order.TrackNo*/,
-                    Util.GetPersianDate(payment.Order.ApproximateDeliveryDate));
+                    Util.GetPersianDate(payment.Order.ApproximateDeliveryDate, true, true));
                 var number = db.Users.Where(a => a.Id == payment.Order.UserId).Select(a => a.MobileNumber).Single();
                 SMSService.Send(number, message);
             }

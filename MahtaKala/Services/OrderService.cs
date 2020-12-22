@@ -559,10 +559,10 @@ namespace MahtaKala.Services
 			{
                 return now.AddDays(2).AddMinutes(now.Minute > 0 ? 60 - now.Minute : 0);
 			}
-            return now.TimeOfDay.Hours > 13 ? now.Date.AddDays(1).AddHours(19) : now.Date.AddHours(19);
+            return now.TimeOfDay.Hours > 13 ? now.Date.AddDays(1).AddHours(18) : now.Date.AddHours(18);
         }
 
-        public TimeSpan DeliveryTimeSpan => TimeSpan.FromHours(2);
+        public TimeSpan DeliveryTimeSpan => TimeSpan.FromHours(3);
 
         private async Task CheckCartValidity(long addressId, List<ShoppingCart> cartItems)
         {

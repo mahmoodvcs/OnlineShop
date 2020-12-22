@@ -45,7 +45,7 @@ namespace MahtaKala.Services.Tasks
 			services.AddSingleton(new JobSchedule(
                 jobType: typeof(CancelOrphanOrdersTask),
                 //cronExpression: "0 1,1/2 * * * ? *")); // run every odd minute of every hour (except 
-                cronExpression: "0 0/15 * ? * * *")); // run every 15 minutes
+                cronExpression: "0 0 */12 ? * *")); // run every 12 hours
         }
     }
 }
