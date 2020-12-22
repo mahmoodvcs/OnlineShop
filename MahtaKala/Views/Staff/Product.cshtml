@@ -178,21 +178,21 @@
                     <label>
                         قیمت (واحد):
                     </label>
-                    @Html.TextBoxFor(a => a.RawPrice, new { @class = "form-control", type = "number", onchange = "UpdatePriceValues()" })
+                    @Html.TextBoxFor(a => a.RawPrice, new { @class = "form-control", type = "number", step = "any", onchange = "UpdatePriceValues()" })
                     @Html.ValidationMessageFor(a => a.RawPrice, "", new { @class = "text-danger" })
                 </div>
                 <div class="col-lg-3">
                     <label>
                         قیمت بعد از تخفیف (واحد):
                     </label>
-                    @Html.TextBoxFor(a => a.RawDiscountPrice, new { @class = "form-control", type = "number", onchange = "UpdatePriceValues()" })
+                    @Html.TextBoxFor(a => a.RawDiscountPrice, new { @class = "form-control", type = "number", step = "any" , onchange = "UpdatePriceValues()" })
                     @Html.ValidationMessageFor(a => a.RawDiscountPrice, "", new { @class = "text-danger" })
                 </div>
                 <div class="col-lg-3">
                     <lable>
                         ضریب قیمت:
                     </lable>
-                    @Html.TextBoxFor(a => a.PriceCoefficient, new { @class = "form-control", type = "number", onchange = "UpdatePriceValues()" })
+                    @Html.TextBoxFor(a => a.PriceCoefficient, new { @class = "form-control", type = "number", step = "any", onchange = "UpdatePriceValues()" })
                 </div>
                 <div class="col-lg-3">
                     <label>

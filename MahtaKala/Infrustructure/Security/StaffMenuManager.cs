@@ -29,12 +29,13 @@ namespace MahtaKala.Infrustructure.Security
                     new StaffMenuItem("دسته بندی کالا", "~/Staff/CategoryList", "open-box"),
                     new StaffMenuItem("کالا و خدمات", "~/Staff/ProductList", "gift"),
                 }),
-            new StaffMenuItem("گزارش خریدها", "~/Staff/BuyHistory", "bank",UserType.Delivery, UserType.Staff),
-            new StaffMenuItem("لیست تسهیم", "~/Staff/ProductPaymentPartyList", "bank", UserType.Seller),
-            new StaffMenuItem("اقلام فروخته شده", "~/Staff/Orders/Items", "bank",UserType.Seller, UserType.Staff),
-            new StaffMenuItem("سفارش محصولات اسکاد", "~/Staff/BusinessDept/EskaadMerchandise", "coins", true, "katouzian", "mosalli", "ali.d"),
-            new StaffMenuItem("تنظیمات سیستم", "~/Staff/Settings", "gear"),
-            new StaffMenuItem("تغییرات نسخه", "~/Staff/ReleaseNotes", "gear"),
+            new StaffMenuItem("گزارش خریدها", "~/Staff/BuyHistory", "shopping-basket",UserType.Delivery, UserType.Staff),
+            new StaffMenuItem("لیست تسهیم", "~/Staff/ProductPaymentPartyList", "network", UserType.Seller),
+            new StaffMenuItem("اقلام فروخته شده", "~/Staff/Orders/Items", "piggy-bank",UserType.Seller, UserType.Staff),
+            new StaffMenuItem("سفارش محصولات اسکاد", "~/Staff/BusinessDept/EskaadMerchandise", "price-tag", true, "katouzian", "mosalli", "ali.d"),
+            new StaffMenuItem("سفارشات ثبت شده ی اسکاد", "~/Staff/BusinessDept/EskaadSalesView", "notepad", true, "katouzian", "mosalli", "ali.d"),
+            new StaffMenuItem("تنظیمات سیستم", "~/Staff/Settings", "cogwheel-1"),
+            new StaffMenuItem("تغییرات نسخه", "~/Staff/ReleaseNotes", "menu-2"),
         };
 
         public static IEnumerable<StaffMenu> GetItems(HttpContext context)

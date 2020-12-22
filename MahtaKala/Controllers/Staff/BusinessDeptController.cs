@@ -46,18 +46,35 @@ namespace MahtaKala.Controllers.Staff
 			return true;
 		}
 
-		[Authorize(UserType.Admin, UserType.Staff)]
-		public async Task<IActionResult> Index()
+		//[Authorize(UserType.Admin, UserType.Staff)]
+		//public async Task<IActionResult> Index()
+		//{
+		//	if (!UserHasTheAuthority())
+		//		return RedirectToAction("Index", "Staff");
+		//	var now = DateTime.Now;
+		//	var alreadyDoneToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
+		//	if (alreadyDoneToday)
+		//	{
+		//		return RedirectToAction("Sales");// View("~/Views/Staff/BusinessDept/Sales");
+		//	}
+		//	return View();
+		//}
+
+		[HttpGet]
+		public IActionResult EskaadSalesView()
 		{
 			if (!UserHasTheAuthority())
 				return RedirectToAction("Index", "Staff");
-			var now = DateTime.Now;
-			var alreadyDoneToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
-			if (alreadyDoneToday)
-			{
-				return RedirectToAction("Sales");// View("~/Views/Staff/BusinessDept/Sales");
-			}
-			return View();
+			return View("~/Views/Staff/BusinessDept/EskaadSalesView.cshtml");
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> GetEskaadSalesDataSource([DataSourceRequest] DataSourceRequest request)
+		{
+			if (!UserHasTheAuthority())
+				return null;
+			var salesQuery = eskaadService.GetEskaadSales();
+			return KendoJson(await salesQuery.ToDataSourceResultAsync(request));
 		}
 
 		[HttpGet]
@@ -121,11 +138,11 @@ namespace MahtaKala.Controllers.Staff
 			if (!UserHasTheAuthority())
 				return Json(new { success = false, message = "Access denied!" });
 
-			var alreadyOrderedToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
-			if (alreadyOrderedToday)
-				return Json(new { success = false, message = "سفارش امروز قبلاً ثبت شده است." });
+			//var alreadyOrderedToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
+			//if (alreadyOrderedToday)
+			//	return Json(new { success = false, message = "سفارش امروز قبلاً ثبت شده است." });
 			var now = DateTime.Now;
-			var draftsCount = await db.EskaadOrderDrafts.CountAsync(x => x.CreatedDate.Date.Equals(now.Date));
+			var draftsCount = await db.EskaadOrderDrafts.CountAsync(x => x.CreatedDate.Date.Equals(now.Date) && !x.OrderIsSealed);
 			if (draftsCount == 0)
 			{
 				return Json(new { success = false, message = "پیش سفارش برای امروز ثبت نشده است! لطفاً ابتدا کالاهای مورد نظر خود را در پیش سفارش ثبت کنید." });

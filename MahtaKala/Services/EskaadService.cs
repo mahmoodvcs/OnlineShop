@@ -81,18 +81,18 @@ namespace MahtaKala.Services
 			var now = DateTime.Now;
 			var todayPersian = Util.GetPersianDate(now, true, true);
 			string message = "";
-			if (await dbContext.EskaadOrderDrafts
-				.Include(x => x.CreatedBy)
-				.Include(x => x.UpdatedBy)
-				.AnyAsync(x =>
-					x.CreatedDate.Date.Equals(now.Date)
-					&& x.OrderIsSealed))
-			{
-				//throw new ApiException(512, $"سفارشات امروز ({todayPersian}) بسته شده اند! امکان افزودن سفارش جدید برای امروز وجود ندارد!");
-				return (false, $"سفارشات امروز ({todayPersian}) بسته شده اند! امکان افزودن سفارش جدید برای امروز وجود ندارد!");
-			}
+			//if (await dbContext.EskaadOrderDrafts
+			//	.Include(x => x.CreatedBy)
+			//	.Include(x => x.UpdatedBy)
+			//	.AnyAsync(x =>
+			//		x.CreatedDate.Date.Equals(now.Date)
+			//		&& x.OrderIsSealed))
+			//{
+			//	//throw new ApiException(512, $"سفارشات امروز ({todayPersian}) بسته شده اند! امکان افزودن سفارش جدید برای امروز وجود ندارد!");
+			//	return (false, $"سفارشات امروز ({todayPersian}) بسته شده اند! امکان افزودن سفارش جدید برای امروز وجود ندارد!");
+			//}
 			var draftItemsQuery = dbContext.EskaadOrderDrafts.Where(x =>
-					x.CreatedDate.Date.Equals(now.Date) && x.EskaadCode.Equals(code))
+					x.CreatedDate.Date.Equals(now.Date) && x.EskaadCode.Equals(code) && !x.OrderIsSealed)
 				.AsQueryable();
 			var draftCount = await draftItemsQuery.CountAsync();
 			if (draftCount > 1)
@@ -234,22 +234,26 @@ namespace MahtaKala.Services
 		{
 			var now = DateTime.Now;
 			var todayPersian = Util.GetPersianDate(now, true, true);
-			if (await dbContext.EskaadOrderDrafts.AnyAsync(x =>
-					x.CreatedDate.Date.Equals(now.Date)
-					&& x.OrderIsSealed))
-			{
-				var errorMessage = $"سفارشات امروز ({todayPersian}) بسته شده اند! امکان افزودن سفارش جدید برای امروز وجود ندارد!";
-				logger.LogError("EskaadService - PlaceToday_sOrdersForEskaad - " + errorMessage);
-				throw new ApiException(512, errorMessage);
-			}
+			//if (await dbContext.EskaadOrderDrafts.AnyAsync(x =>
+			//		x.CreatedDate.Date.Equals(now.Date)
+			//		&& x.OrderIsSealed))
+			//{
+			//	var errorMessage = $"سفارشات امروز ({todayPersian}) بسته شده اند! امکان افزودن سفارش جدید برای امروز وجود ندارد!";
+			//	logger.LogError("EskaadService - PlaceToday_sOrdersForEskaad - " + errorMessage);
+			//	throw new ApiException(512, errorMessage);
+			//}
 			var todaysMahtaFactor = await CreateToday_sFactor();
-			var ordersForToday = await dbContext.EskaadOrderDrafts.Where(x => x.CreatedDate.Date.Equals(now.Date)).ToListAsync();
+			var ordersForToday = await dbContext.EskaadOrderDrafts
+				.Where(x => x.CreatedDate.Date.Equals(now.Date) && !x.OrderIsSealed)
+				.OrderBy(x => x.Id)
+				.ToListAsync();
 			var finalOrderList = new List<Sales>();
 			foreach (var draftItem in ordersForToday)
 			{
-				var merchandiseCount = await eskaadDbContext.Merchandise.CountAsync(x => x.Code.Equals(draftItem.EskaadCode)
+				var merchandiseItemQuery = eskaadDbContext.Merchandise.Where(x => x.Code.Equals(draftItem.EskaadCode)
 						&& Convert.ToInt32(x.Place) != MAHTA_STORAGE_NUMBER_IN_ESKAAD
 						&& x.Active == 1);
+				var merchandiseCount = await merchandiseItemQuery.CountAsync();
 				if (merchandiseCount > 1)
 				{
 					string errorMessage = $"خطا! بیش از یک کالای فعال با کد {draftItem.EskaadCode} در دیتابیس اسکاد وجود دارد! عملیات لغو میشود.";
@@ -262,9 +266,7 @@ namespace MahtaKala.Services
 					logger.LogError("EskaadService - PlaceToday_sOrdersForEskaad - " + errorMessage);
 					throw new ApiException(512, errorMessage);
 				}
-				var merchandiseItem = await eskaadDbContext.Merchandise.Where(x => x.Code.Equals(draftItem.EskaadCode)
-						&& Convert.ToInt32(x.Place) != MAHTA_STORAGE_NUMBER_IN_ESKAAD
-						&& x.Active == 1).SingleAsync();
+				var merchandiseItem = await merchandiseItemQuery.SingleAsync();
 				if (merchandiseItem.Count < draftItem.Quantity)
 				{
 					string errorMessage = $"خطا! موجودی کالا با کد {draftItem.EskaadCode} در انبار اسکاد کمتر از تعداد مورد نیاز است! " +
@@ -295,6 +297,20 @@ namespace MahtaKala.Services
 			int updatedCount = await eskaadDbContext.SaveChangesAsync();
 			await dbContext.SaveChangesAsync();
 			return updatedCount;
+		}
+
+		public IQueryable<Sales> GetEskaadSales(string dateFilter = "")
+		{
+
+			var salesQuery = eskaadDbContext.Sales
+				.OrderByDescending(x => x.Date)
+					.ThenByDescending(x => x.MahtaFactor).ThenByDescending(x => x.Id)
+				.AsQueryable();
+			if (!string.IsNullOrWhiteSpace(dateFilter))
+			{
+				salesQuery = salesQuery.Where(x => x.Date.Equals(dateFilter));
+			}
+			return salesQuery;
 		}
 	}
 }

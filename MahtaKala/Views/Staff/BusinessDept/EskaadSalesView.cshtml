@@ -1,0 +1,78 @@
+﻿@using Kendo.Mvc.UI
+@using MahtaKala.Entities.EskaadEntities;
+
+@{
+	Layout = "~/Views/Shared/_Staff.cshtml";
+	ViewBag.Title = "اسکاد - سفارشات ثبت شده";
+}
+<link href="~/css/toastr.css" rel="stylesheet" />
+
+@*<div class="alert alert-default">
+	<h4>
+		آقا سابولیکم!
+	</h4>
+</div>
+<div class="filterPanel">
+	<fieldset>
+		<legend>فیلتر ها:</legend>
+		<div class="row">
+			<div class="col-lg-3">
+				<label>تاریخ</label>
+				@(Html.Kendo().DropDownList()
+					  .Name("dateFilter")
+					  .HtmlAttributes(new { style = "width: 400px" })
+					  .DataTextField("Date")
+					  .DataValueField("Date")
+					  .DataSource(source => source
+						  .Custom()
+						  .Transport(transport => transport
+								.Read(read =>
+								{
+									read.Url("https://demos.telerik.com/kendo-ui/service/Products")
+										.DataType("jsonp");
+								})
+						  )
+					  )
+				)
+			</div>
+		</div>
+	</fieldset>
+</div>*@
+
+<div class="demo-section k-content">
+
+</div>
+
+@(Html.Kendo().Grid<Sales>()
+	.Name("SlaesGrid")
+	.Columns(cols =>
+	{
+		cols.Bound(x => x.Code).Title("کد").Width(90);
+		cols.Bound(x => x.SaleCount).Title("تعداد").Width(90);
+		cols.Bound(x => x.SalePrice).Title("قیمت واحد").Width(110);
+		cols.Bound(x => x.Place).Title("انبار").Width(90);
+		cols.Bound(x => x.Date).Title("تاریخ").Width(120);
+	}).Pageable(pageable => pageable
+		.Refresh(true)
+		.PageSizes(true)
+		.PageSizes(new int[] { 5, 10, 20, 50 })
+		.ButtonCount(5))
+	.Sortable()
+	.DataSource(datasource =>
+		datasource.Ajax()
+		.PageSize(20)
+		.Model(model =>
+		{
+			model.Id(p => p.Id);
+		})
+		.Read(read => read.Action("GetEskaadSalesDataSource", "BusinessDept")))
+)
+
+
+<script src="~/js/toastr.min.js"></script>
+
+@section js{
+	<script type="text/javascript">
+
+	</script>
+}

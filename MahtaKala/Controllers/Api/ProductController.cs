@@ -216,7 +216,7 @@ namespace MahtaKala.Controllers
 				{
 					Id = a.Id,
 					Brand_Id = a.BrandId,
-					Brand = a.Seller.Name,
+					Brand = a.Brand.Name,
 					Category_Id = a.ProductCategories.FirstOrDefault().CategoryId,
 					Category = a.ProductCategories.FirstOrDefault().Category.Title,
 					Description = a.Description,
@@ -278,7 +278,7 @@ namespace MahtaKala.Controllers
                 new ProductConciseModel
                 {
                     Id = prc.Id,
-                    Brand = prc.Seller.Name,
+                    Brand = prc.Brand.Name,
                     Category = prc.ProductCategories.First().Category.Title,
                     Status = prc.Status,
                     Title = prc.Title,
@@ -314,7 +314,7 @@ namespace MahtaKala.Controllers
             return await products.Select(a => new ProductConciseModel
             {
                 Id = a.Id,
-                Brand = a.Seller.Name,
+                Brand = a.Brand.Name,
                 Category = a.ProductCategories.FirstOrDefault().Category.Title,
                 Status = a.Status,
                 Title = a.Title,

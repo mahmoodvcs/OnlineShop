@@ -1,5 +1,4 @@
-﻿@using MahtaKala.Models.StaffModels;
-
+﻿
 @{
 	Layout = "~/Views/Shared/_Staff.cshtml";
 	ViewBag.Title = "اسکاد - کالاهای قابل سفارش";
@@ -176,25 +175,6 @@
 		}
 
 		function PlaceOrdersForToday() {
-			var alreadyOrderedToday = true;
-			$.get("@Url.Action("EskaadOrdersAlreadyPlacedForToday", "BusinessDept")",
-				function (response) {
-					alreadyOrderedToday = response.alreadyDoneToday;
-					if (alreadyOrderedToday) {
-						//location.reload();
-						ShowError("سفارش امروز برای اسکاد قبلاً ثبت شده است!");
-						return;
-					}
-					else {
-						ClearToPlaceOrders();
-					}
-				})
-				.fail(function (response) {
-					ShowError(response.responseText);
-					return;
-				});
-		}
-		function ClearToPlaceOrders() {
 			$.post("@Url.Action("PlaceEskaadOrdersForToday", "BusinessDept")",
 				function (response) {
 					if (response.success) {
