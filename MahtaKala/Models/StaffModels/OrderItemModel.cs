@@ -12,7 +12,8 @@ namespace MahtaKala.Models.StaffModels
         public string Date { get; set; }
         public string Product { get; set; }
         public long ProductId { get; set; }
-        public decimal Price { get; set; }
+		public string ProductCode { get; set; }
+		public decimal Price { get; set; }
         public int Count { get; set; }
         public long UserId { get; set; }
         public string State { get; set; }

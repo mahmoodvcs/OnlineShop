@@ -14,37 +14,51 @@
 <div class="card">
 	<div class="card-body">
 		<h3>مشخصات خریدار</h3>
-		<div class="row">
-			<div class="col-md-4">
-				<label>نام:</label>
-				@Model.User.FirstName @Model.User.LastName
-			</div>
-			<div class="col-md-4">
-				<label>شماره تلفن:</label>
-				@Model.User.MobileNumber
-			</div>
-			<div class="col-md-4">
-				<label>آدرس:</label>
-				@Model.Address?.Details
-			</div>
-		</div>
-		<br />
-		<div class="row">
-			<div class="col-md-4">
-				<label>کد ملی:</label>
-				@Model.User.NationalCode
-			</div>
-			<div class="col-md-4">
-				<label>تاریخ سفارش:</label>
-				@Util.GetPersianDate(Model.CheckOutDate)
-			</div>
-			<div class="col-md-4">
-				<label>قیمت کل:</label>
-				@Model.TotalPrice.ToString("n0") ریال
-			</div>
-			<div class="col-md-4">
-			</div>
-		</div>
+		<table style="width: 100%">
+			<tr>
+				<td style="float: right">
+					<div class="row">
+						<div class="col-md-4">
+							<label>نام:</label>
+							@Model.User.FirstName @Model.User.LastName
+						</div>
+						<div class="col-md-4">
+							<label>شماره تلفن:</label>
+							@Model.User.MobileNumber
+						</div>
+						<div class="col-md-4">
+							<label>آدرس:</label>
+							@Model.Address?.Details
+						</div>
+					</div>
+					<br />
+					<div class="row">
+						<div class="col-md-4">
+							<label>کد ملی:</label>
+							@Model.User.NationalCode
+						</div>
+						<div class="col-md-4">
+							<label>تاریخ سفارش:</label>
+							@Util.GetPersianDate(Model.CheckOutDate)
+						</div>
+						<div class="col-md-4">
+							<label>قیمت کل:</label>
+							@Model.TotalPrice.ToString("n0") ریال
+						</div>
+						<div class="col-md-4">
+						</div>
+					</div>
+				</td>
+				<td style="float: left">
+					<img src="/img/logo-110x110.png" style="text-align: left;" />
+					<br />
+					<div style="font-size: smaller; text-align: center;">
+						<p>فروشگاه اینترنتی مهتاکالا</p>
+						<p>www.mahtakala.ir</p>
+					</div>
+				</td>
+			</tr>
+		</table>
 		<br />
 		<hr />
 		<h3>اقلام</h3>

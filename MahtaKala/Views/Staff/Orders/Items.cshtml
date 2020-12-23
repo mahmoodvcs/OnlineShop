@@ -24,6 +24,8 @@
 {
     columns.Select();
     columns.Bound(p => p.Product).Title("کالا");
+    columns.Bound(p => p.ProductId).Title("شناسه کالا");
+    columns.Bound(p => p.ProductCode).Title("کد کالا");
     columns.Bound(p => p.Count).Title("تعداد");
     columns.Bound(p => p.Date).Title("تاریخ خرید");
     columns.Bound(p => p.State).Title("وضعیت");
@@ -34,10 +36,6 @@
 })
     .Selectable(c=>c.Mode(GridSelectionMode.Multiple))
     .Scrollable()
-    .Filterable(c=>
-    {
-        //c.Mode(GridFilterMode.Row).Operators(oc=> { oc.ForString(sc=> { sc.Contains()})});
-    })
     .Sortable()
     .ToolBar(c=>c.ClientTemplateId("gridToolbarTemplate"))
     .Pageable(pageable => pageable

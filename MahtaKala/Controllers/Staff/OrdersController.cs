@@ -80,7 +80,8 @@ namespace MahtaKala.Controllers.Staff
                             item.UnitPrice,
                             item.ProductPrice.ProductId,
                             item.Order.UserId,
-                            item.State
+                            item.State,
+                            item.ProductPrice.Product.Code
                         };
 
             var data = await items.ToDataSourceResultAsync(req, a => new OrderItemModel
@@ -93,7 +94,8 @@ namespace MahtaKala.Controllers.Staff
                 Product = a.Title,
                 ProductId = a.ProductId,
                 UserId = a.UserId,
-                State = TranslateExtentions.GetTitle(a.State)
+                State = TranslateExtentions.GetTitle(a.State),
+                ProductCode = a.Code
             });
             return KendoJson(data);
         }
