@@ -73,7 +73,7 @@ namespace MahtaKala.Controllers.Staff
 		{
 			if (!UserHasTheAuthority())
 				return null;
-			var salesQuery = eskaadService.GetEskaadSales();
+			var salesQuery = await eskaadService.GetEskaadSales();
 			return KendoJson(await salesQuery.ToDataSourceResultAsync(request));
 		}
 
@@ -118,7 +118,7 @@ namespace MahtaKala.Controllers.Staff
 		{
 			if (!UserHasTheAuthority())
 				return null;
-			var orderDraftList = eskaadService.GetOrderDraftsForToday();
+			var orderDraftList = await eskaadService.GetOrderDraftsForToday();
 			return KendoJson(await orderDraftList.ToDataSourceResultAsync(request));
 		}
 

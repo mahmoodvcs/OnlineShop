@@ -1,5 +1,5 @@
 ﻿@using Kendo.Mvc.UI
-@using MahtaKala.Entities.EskaadEntities;
+@using MahtaKala.Models.StaffModels;
 
 @{
 	Layout = "~/Views/Shared/_Staff.cshtml";
@@ -43,11 +43,12 @@
 
 </div>
 
-@(Html.Kendo().Grid<Sales>()
+@(Html.Kendo().Grid<EskaadSalesModel>()
 	.Name("SlaesGrid")
 	.Columns(cols =>
 	{
 		cols.Bound(x => x.Code).Title("کد").Width(90);
+		cols.Bound(x => x.ProductTitle).Title("نام کالا");
 		cols.Bound(x => x.SaleCount).Title("تعداد").Width(90);
 		cols.Bound(x => x.SalePrice).Title("قیمت واحد").Width(110);
 		cols.Bound(x => x.Place).Title("انبار").Width(90);

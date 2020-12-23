@@ -1,4 +1,4 @@
-﻿
+﻿@using MahtaKala.Models.StaffModels; 
 @{
 	Layout = "~/Views/Shared/_Staff.cshtml";
 	ViewBag.Title = "اسکاد - کالاهای قابل سفارش";
@@ -35,12 +35,14 @@
 
 <br />
 <br />
-@(Html.Kendo().Grid<MahtaKala.Entities.EskaadOrderDraft>()
+@(Html.Kendo().Grid<EskaadOrderDraftModel>()
 		.Name("OrderDraftGrid")
 		.Columns(cols =>
 		{
 			cols.Bound(x => x.EskaadCode).Title("کد");
+			cols.Bound(x => x.ProductTitle).Title("نام کالا");
 			cols.Bound(x => x.Quantity).Title("تعداد سفارش");
+			cols.Bound(x => x.UnitPrice).Title("قیمت واحد");
 			cols.Bound(x => x.CreatedDatePersian).Title("روز ثبت");
 			cols.Bound(x => x.CreatedBy.Username).Title("ساخته شده توسط");
 			cols.Bound(x => x.OrderIsSealed).Title("نهایی شده").ClientTemplate("#= OrderIsSealed ? 'بلی' : 'خیر' #").Width(110);

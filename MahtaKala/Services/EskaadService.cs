@@ -2,6 +2,7 @@
 using MahtaKala.Entities.EskaadEntities;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
+using MahtaKala.Models.StaffModels;
 using MahtaKala.SharedServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -50,11 +51,27 @@ namespace MahtaKala.Services
 			return merchandise;
 		}
 
-		public IQueryable<EskaadOrderDraft> GetOrderDraftsForToday()
+		public async Task<IQueryable<EskaadOrderDraft>> GetOrderDraftsForToday()
 		{
 			var now = DateTime.Now;
-			var orderDraftQuery = dbContext.EskaadOrderDrafts.Where(x => x.CreatedDate.Date.Equals(now.Date));
-			return orderDraftQuery;
+			var orderDrafts = await dbContext.EskaadOrderDrafts
+					.Include(x => x.CreatedBy)
+					.Include(x => x.UpdatedBy)
+					.Where(x => x.CreatedDate.Date.Equals(now.Date))
+					.OrderByDescending(x => x.CreatedDate)
+					.ToListAsync();
+			var eskaadCodes = orderDrafts.Select(x => x.EskaadCode).ToList();
+			var merchandiseList = await eskaadDbContext.Merchandise.Where(x => eskaadCodes.Contains(x.Code)).ToListAsync();
+			var resultList = new List<EskaadOrderDraftModel>();
+			foreach (string code in eskaadCodes)
+			{
+				var draftItem = orderDrafts.SingleOrDefault(x => x.EskaadCode.Equals(code));
+				var merchandiseItem = merchandiseList.SingleOrDefault(x => x.Code.Equals(code));
+				var draftModel = new EskaadOrderDraftModel(draftItem, merchandiseItem);
+				resultList.Add(draftModel);
+			}
+
+			return resultList.AsQueryable();
 		}
 
 		public async Task<bool> TodaysOrdersAreSealed()
@@ -198,7 +215,7 @@ namespace MahtaKala.Services
 			var relatedSalesItemsQuery = eskaadDbContext.Sales.Where(x => x.Code.Equals(orderDraftItem.EskaadCode) &&
 					(x.Date.Equals(shortPersiaanDate) || x.Date.Equals(formattedPersianDate))).AsQueryable();
 			if (await relatedSalesItemsQuery.AnyAsync())
-			{ 
+			{
 				if (await relatedSalesItemsQuery.CountAsync() > 1)
 				{
 					var errorMessage = $"MORE THAN ONE ORDER ITEM WITH THE CODE {orderDraftItem.EskaadCode} ARE" +
@@ -275,7 +292,7 @@ namespace MahtaKala.Services
 					throw new ApiException(512, errorMessage);
 				}
 				var newSaleItem = new Sales()
-				{ 
+				{
 					Code = merchandiseItem.Code,
 					SaleCount = draftItem.Quantity,
 					Date = todayPersian,
@@ -299,7 +316,7 @@ namespace MahtaKala.Services
 			return updatedCount;
 		}
 
-		public IQueryable<Sales> GetEskaadSales(string dateFilter = "")
+		public async Task<IQueryable<EskaadSalesModel>> GetEskaadSales(string dateFilter = "")
 		{
 
 			var salesQuery = eskaadDbContext.Sales
@@ -310,7 +327,25 @@ namespace MahtaKala.Services
 			{
 				salesQuery = salesQuery.Where(x => x.Date.Equals(dateFilter));
 			}
-			return salesQuery;
+			var salesList = await salesQuery.ToListAsync();
+			var codes = salesList.Select(x => x.Code).ToList();
+			var merchandiseList = await eskaadDbContext.Merchandise.Where(x => codes.Contains(x.Code)).ToListAsync();
+			var resultList = new List<EskaadSalesModel>();
+			foreach (var saleItem in salesList)
+			{
+				var salesModelItem = new EskaadSalesModel(saleItem);
+				var merchandiseItem = merchandiseList.FirstOrDefault(x => x.Code.Equals(saleItem.Code));
+				if (merchandiseItem != null)
+				{
+					salesModelItem.ProductTitle = merchandiseItem.Name;
+				}
+				else
+				{
+					salesModelItem.ProductTitle = "???";
+				}
+				resultList.Add(salesModelItem);
+			}
+			return resultList.AsQueryable();
 		}
 	}
 }
