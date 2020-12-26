@@ -275,7 +275,7 @@ namespace MahtaKala.Helpers
                 return null;
             PersianCalendar pc = new PersianCalendar();
             string dateStr;
-            string timeStr = $"{d.Value:HH:mm}";
+            string timeStr = $" - {d.Value:HH:mm}";
             if (formatValuesWithLeadingZeros)
             {
                 dateStr = $"{pc.GetYear(d.Value):0000}/{pc.GetMonth(d.Value):00}/{pc.GetDayOfMonth(d.Value):00}";
