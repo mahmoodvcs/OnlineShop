@@ -12,6 +12,8 @@ using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
+using Polly;
+using Polly.Retry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +35,7 @@ namespace MahtaKala.Services
         private readonly ILogger<OrderService> logger;
         private readonly RandomGenerator randomNumberGenerator;
         private readonly IList<string> HamrahKhodroSaipa_TitleWordsList = new List<string>() { "همراه", "خودرو", "سایپا" }.AsReadOnly();
+        private readonly AsyncRetryPolicy rollBackRetryPolicy;
 
         private const long CarSpareParts_CategoryId = 168;
         private const long SuperMarket_CategoryId = 134;
@@ -59,6 +62,35 @@ namespace MahtaKala.Services
             this.deliveryService = deliveryService;
             this.logger = logger;
             this.randomNumberGenerator = randomGenerator;
+            rollBackRetryPolicy = Policy.Handle<Exception>(ex =>
+                { 
+                    if (ex is InvalidOperationException 
+                        && ex.Message.ToLower().Contains("an exception has been raised that is likely due to a transient failure"))
+				    {
+                        if (ex.InnerException != null && ex.InnerException is Npgsql.PostgresException)
+					    {
+                            if (ex.InnerException.Message.ToLower().Contains("could not serialize access due to concurrent update"))
+                                return true;
+					    }
+				    }
+                    return false;
+                })
+                .WaitAndRetryAsync(5, retryCount =>
+                {
+                    var randomMilliseconds = randomGenerator.Next((int)Math.Pow(2, retryCount) * 1000);
+                    var waitingTime = TimeSpan.FromMilliseconds(randomMilliseconds);
+                    logger.LogWarning($"RetryPolicy: waiting for {waitingTime.TotalSeconds} seconds...");
+                    return waitingTime;
+                });
+            //rollBackRetryPolicy = Polly.Policy.
+            //        .Handle<InvalidOperationException>(x => x.Message.Contains("could not serialize access due to concurrent update"))
+            //        .WaitAndRetryAsync(2, retryAttempt =>
+            //        {
+            //            var timeToWait = TimeSpan.FromSeconds(Math.Pow(2, retryAttempt));
+            //            Console.WriteLine($"Waiting {timeToWait.TotalSeconds} seconds");
+            //            return timeToWait;
+            //        }
+            //        );
         }
 
         #region Constants
@@ -623,33 +655,7 @@ namespace MahtaKala.Services
             }
             else
             {
-                //try
-                //{
-                    await RollbackQuantity(payment.Order);
-    //            }
-    //            catch (Exception e)
-    //            {
-				//	//var message = e.Message;
-				//	//var iterator = e;
-				//	//while (iterator.InnerException != null)
-				//	//{
-				//	//    iterator = iterator.InnerException;
-				//	//    message += iterator.Message;
-				//	//}
-				//	//message = message.ToLower();
-				//	//if (message.Contains("System.InvalidOperationException")
-				//	//    && message.Contains("An exception has been raised that is likely due to a transient failure")
-				//	//    && message.Contains("40001: could not serialize access due to concurrent update")) 
-				//	//{ // This means that roll-back operation failed due to the transaction lock on product quantities, 
-				//	//  // so, we just need to wait and try again! We will wait a while, and then, try again.
-    //                if (ExceptionIsDueToTransactionLockOnDatabase(e))
-				//	    await WaitAndRetryRollingBack(payment.Order, 2);
-				//	else
-				//	{
-    //                    LogRollBackFailure(e, payment);
-				//	}
-				//	//}
-				//}
+                await RollbackQuantity(payment.Order);
             }
         }
 
@@ -686,41 +692,41 @@ namespace MahtaKala.Services
             return false;
         }
 
-        private async Task WaitAndRetryRollingBack(Order order, int howManyTriesBeforeGivingUp)
-        {
-            string timeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
-            logger.LogWarning($"WaitAndRetryRollingBack - {timeTag}");
-            int trialNumber = 0;
-            while (trialNumber < howManyTriesBeforeGivingUp)
-            {
-                double randomWaitScale = randomNumberGenerator.NextDouble();
-                randomWaitScale = (randomWaitScale + 1.0) / 2.0;    // Changing the random number range from [0, 1) to [0.5, 1)
-                int millisecondsToWait = (int)(Math.Pow(2, trialNumber) * randomWaitScale * MillisecondsStepPeriod);
-                logger.LogWarning($"Sudo-random decesion made! Gonna wait for {millisecondsToWait} milliseconds...");
-                System.Threading.Thread.Sleep(millisecondsToWait);
-                try
-                {
-                    logger.LogWarning($"Waiting finished - Trial number: {trialNumber} - Calling Rollback on Order: {order.Id}");
-                    await TryRollingQuantityBack(order);
-                    logger.LogWarning($"This try was successful! RollBack is done on order: {order.Id} - Function time tag: {timeTag}!");
-                    return;
-                }
-                catch (Exception e)
-                {
-                    if (!ExceptionIsDueToTransactionLockOnDatabase(e))
-                        throw e;
-                    trialNumber++;
-                }
-            }
-            // If we're here, it means that after a bunch of trials (the number given as an input parameter), rolling back
-            // still wasn't successful, and all failures were due to the transaction lock set on database table Quantities.
-            logger.LogError($"Tried {howManyTriesBeforeGivingUp} times to roll back order with id {order.Id}, all of which " +
-                $"was to no avail! Also, all trials were faield with the same reason - the transaction lock, set on database in order to " +
-                $"keep write operations from running concurrently - which could create inconsistency in the inventory quantity data.");
-            //logger.LogError($"TODO: This order (id:{order.Id}) is now ");
-            //TODO: Now, this order should be considered as "orphan", and treated as such next time the "catcher" wakes up!
-            //I am a compile error! I'm here to make sure this commit won't get executed!
-        }
+        //private async Task WaitAndRetryRollingBack(Order order, int howManyTriesBeforeGivingUp)
+        //{
+        //    string timeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
+        //    logger.LogWarning($"WaitAndRetryRollingBack - {timeTag}");
+        //    int trialNumber = 0;
+        //    while (trialNumber < howManyTriesBeforeGivingUp)
+        //    {
+        //        double randomWaitScale = randomNumberGenerator.NextDouble();
+        //        randomWaitScale = (randomWaitScale + 1.0) / 2.0;    // Changing the random number range from [0, 1) to [0.5, 1)
+        //        int millisecondsToWait = (int)(Math.Pow(2, trialNumber) * randomWaitScale * MillisecondsStepPeriod);
+        //        logger.LogWarning($"Sudo-random decesion made! Gonna wait for {millisecondsToWait} milliseconds...");
+        //        System.Threading.Thread.Sleep(millisecondsToWait);
+        //        try
+        //        {
+        //            logger.LogWarning($"Waiting finished - Trial number: {trialNumber} - Calling Rollback on Order: {order.Id}");
+        //            await TryRollingQuantityBack(order);
+        //            logger.LogWarning($"This try was successful! RollBack is done on order: {order.Id} - Function time tag: {timeTag}!");
+        //            return;
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            if (!ExceptionIsDueToTransactionLockOnDatabase(e))
+        //                throw e;
+        //            trialNumber++;
+        //        }
+        //    }
+        //    // If we're here, it means that after a bunch of trials (the number given as an input parameter), rolling back
+        //    // still wasn't successful, and all failures were due to the transaction lock set on database table Quantities.
+        //    logger.LogError($"Tried {howManyTriesBeforeGivingUp} times to roll back order with id {order.Id}, all of which " +
+        //        $"was to no avail! Also, all trials were faield with the same reason - the transaction lock, set on database in order to " +
+        //        $"keep write operations from running concurrently - which could create inconsistency in the inventory quantity data.");
+        //    //logger.LogError($"TODO: This order (id:{order.Id}) is now ");
+        //    //TODO: Now, this order should be considered as "orphan", and treated as such next time the "catcher" wakes up!
+        //    //I am a compile error! I'm here to make sure this commit won't get executed!
+        //}
 
         
 
@@ -732,18 +738,20 @@ namespace MahtaKala.Services
 
         async Task RollbackQuantity(Order order)
         {
-            try
-            {
-                await TryRollingQuantityBack(order);
-            }
-            catch (Exception e)
-            {
-                if (ExceptionIsDueToTransactionLockOnDatabase(e))
-                    await WaitAndRetryRollingBack(order, 5);
-                else
-                    throw e;
-            }
-        }
+            await rollBackRetryPolicy.ExecuteAsync(async () => await TryRollingQuantityBack(order));
+			//return await _retryPolicy.ExecuteAsync<string>(async () => await _messageRepository.GetHelloMessage());
+			//try
+			//{
+			//    await TryRollingQuantityBack(order);
+			//}
+			//catch (Exception e)
+			//{
+			//    if (ExceptionIsDueToTransactionLockOnDatabase(e))
+			//        await WaitAndRetryRollingBack(order, 5);
+			//    else
+			//        throw e;
+			//}
+		}
 
         private async Task TryRollingQuantityBack(Order origOrder)
         {

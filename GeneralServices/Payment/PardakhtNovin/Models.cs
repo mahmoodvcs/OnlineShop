@@ -4,6 +4,12 @@ using System.Text;
 
 namespace MahtaKala.GeneralServices.Payment.PardakhtNovin
 {
+    public class SettlementRequestSingleCustomer
+    {
+		public string referenceNumber { get; set; }
+        public string settlementIban { get; set; }
+        public int shareAmount { get; set; }
+    }
     public class SettlementRequest
     {
         public string referenceNumber { get; set; }
@@ -43,7 +49,7 @@ namespace MahtaKala.GeneralServices.Payment.PardakhtNovin
     {
         None = -1,
         NotFound = 0,
-        Settlemented = 1,
+        Settled = 1,
         WaitingForSettlement = 2,
         WaitingForDeterminingStatus = 3
     }
