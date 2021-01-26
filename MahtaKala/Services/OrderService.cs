@@ -762,17 +762,17 @@ namespace MahtaKala.Services
                 throw new BadRequestException($"QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
 
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
-            order = await db.Orders.FromSqlRaw<Order>($"SELECT * FROM orders WHERE id = {origOrder.Id} FOR UPDATE").FirstOrDefaultAsync();
+            var orderFromRaw = await db.Orders.FromSqlRaw<Order>($"SELECT * FROM orders WHERE id = {origOrder.Id} FOR UPDATE").FirstOrDefaultAsync();
 
-            if (order.State == OrderState.Canceled)
+            if (orderFromRaw.State == OrderState.Canceled)
             {
                 transaction.Complete();
-                throw new BadRequestException($"{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")} QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
+                throw new BadRequestException($"{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")} QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {orderFromRaw.State}");
             }
 			string timeTag = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
             string rollbackLog = $"<<ROLLING BACK SOME QUANTITIES>>{timeTag}\t" + Environment.NewLine;
-            rollbackLog += $"OrderId: {order.Id} - OrderState-before: {order.State}" + Environment.NewLine;
-            order.State = OrderState.Canceled;
+            rollbackLog += $"OrderId: {orderFromRaw.Id} - OrderState-before: {orderFromRaw.State}" + Environment.NewLine;
+            orderFromRaw.State = OrderState.Canceled;
             var productIds = order.Items.Select(a => a.ProductPrice.ProductId).ToList();
             var quantities = await db.ProductQuantities.FromSqlRaw<ProductQuantity>($"SELECT* FROM product_quantities pq WHERE pq.product_id in ({string.Join(',', productIds)}) FOR UPDATE").ToListAsync();
             rollbackLog += "Quantity.Id, Quantity.quantity-before, Quantity.quantity-after, OrderItem.Id, OrderItem.quantity\t" + Environment.NewLine;
