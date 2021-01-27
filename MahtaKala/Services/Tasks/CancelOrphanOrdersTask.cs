@@ -27,22 +27,22 @@ namespace MahtaKala.Services.Tasks
 		}
 	}
 
-	public class CancelOrphanOrdersTask2 : IJob
-	{
-		public CancelOrphanOrdersTask2(IServiceProvider provider)
-		{
-			this.provider = provider;
-		}
+	//public class CancelOrphanOrdersTask2 : IJob
+	//{
+	//	public CancelOrphanOrdersTask2(IServiceProvider provider)
+	//	{
+	//		this.provider = provider;
+	//	}
 
-		public IServiceProvider provider;
+	//	public IServiceProvider provider;
 
-		public async Task Execute(IJobExecutionContext context)
-		{
-			using (var scope = provider.CreateScope())
-			{
-				var orphanCatcherService = scope.ServiceProvider.GetService<OrphanOrderCatcherService>();
-				await orphanCatcherService.RoundUpOrphans();
-			}
-		}
-	}
+	//	public async Task Execute(IJobExecutionContext context)
+	//	{
+	//		using (var scope = provider.CreateScope())
+	//		{
+	//			var orphanCatcherService = scope.ServiceProvider.GetService<OrphanOrderCatcherService>();
+	//			await orphanCatcherService.RoundUpOrphans();
+	//		}
+	//	}
+	//}
 }

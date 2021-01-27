@@ -37,7 +37,7 @@ namespace MahtaKala.Services.Tasks
             services.AddScoped<ReadReceivedSMSsTask>();
             services.AddScoped<OrphanOrderCatcherService>();
             services.AddScoped<CancelOrphanOrdersTask>();
-            services.AddScoped<CancelOrphanOrdersTask2>();
+            //services.AddScoped<CancelOrphanOrdersTask2>();
 
 			services.AddSingleton(new JobSchedule(
 				jobType: typeof(ReadReceivedSMSsTask),
@@ -47,10 +47,10 @@ namespace MahtaKala.Services.Tasks
                 jobType: typeof(CancelOrphanOrdersTask),
                 cronExpression: "0 0/1 * * * ? *")); // run every odd minute of every hour (except 
                                                      //cronExpression: "0 0 */12 ? * *")); // run every 12 hours
-            services.AddSingleton(new JobSchedule(
-                jobType: typeof(CancelOrphanOrdersTask2),
-                cronExpression: "0 0/1 * * * ? *"
-                ));
+            //services.AddSingleton(new JobSchedule(
+            //    jobType: typeof(CancelOrphanOrdersTask2),
+            //    cronExpression: "0 0/1 * * * ? *"
+            //    ));
         }
     }
 }
