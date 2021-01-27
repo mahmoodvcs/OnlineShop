@@ -27,7 +27,7 @@
     columns.Bound(p => p.ProductId).Title("شناسه کالا");
     columns.Bound(p => p.ProductCode).Title("کد کالا");
     columns.Bound(p => p.Count).Title("تعداد");
-    columns.Bound(p => p.Date).Title("تاریخ خرید");
+    columns.Bound(p => p.Date).Title("تاریخ خرید").ClientTemplate("<div style=\"direction: ltr;\" >#= Date #</dive>");
     columns.Bound(p => p.State).Title("وضعیت");
     columns.Bound(p => p.Price).Title("قیمت واحد").Format("{0:n0}");
     columns.Command(command => command.Custom("تایید ارسال").Click("ConfirmSent")).Width(90);
