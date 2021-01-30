@@ -762,6 +762,8 @@ namespace MahtaKala.Services
                 throw new BadRequestException($"QuantityRollBack - Invalid order state: Id: {origOrder.Id} - State: {order.State}");
 
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
+            db.Entry(order).State = EntityState.Detached;
+            order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).ThenInclude(b => b.Product).FirstAsync(c => c.Id == origOrder.Id);
             var orderFromRaw = await db.Orders.FromSqlRaw<Order>($"SELECT * FROM orders WHERE id = {origOrder.Id} FOR UPDATE").FirstOrDefaultAsync();
 
             if (orderFromRaw.State == OrderState.Canceled)
@@ -791,6 +793,7 @@ namespace MahtaKala.Services
             rollbackLog += $"CurrentTime:{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")}---Now Saving Changes--- FunctionTimeTag:{timeTag}\t{Environment.NewLine}";
             await db.SaveChangesAsync();
             rollbackLog += $"CurrentTime:{DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss.fffffff")}---Changes Were Saved--- FunctionTimeTag:{timeTag}\t{Environment.NewLine}";
+            rollbackLog += $"OrderId: {orderFromRaw.Id} - OrderState-After: {orderFromRaw.State}" + Environment.NewLine;
             logger.LogWarning(rollbackLog);
             transaction.Complete();
         }
