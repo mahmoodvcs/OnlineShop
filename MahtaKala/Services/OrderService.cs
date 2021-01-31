@@ -755,7 +755,7 @@ namespace MahtaKala.Services
 
         private async Task TryRollingQuantityBack(Order origOrder)
         {
-            var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product).FirstAsync(a => a.Id == origOrder.Id);
+            var order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).ThenInclude(a => a.Product).ThenInclude(x => x.Quantities).FirstAsync(a => a.Id == origOrder.Id);
             if (order == null)
                 throw new BadRequestException($"QuantityRollBack - Invalid order Id! Order with Id {origOrder.Id} does not exist!");
             if (SuccessfulOrderStates.Contains(order.State))
@@ -763,6 +763,14 @@ namespace MahtaKala.Services
 
             using var transaction = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromSeconds(30), TransactionScopeAsyncFlowOption.Enabled);
             db.Entry(order).State = EntityState.Detached;
+            foreach (var item in order.Items)
+            {
+                foreach (var quantity in item.ProductPrice.Product.Quantities)
+                {
+                    db.Entry(quantity).State = EntityState.Detached;
+                }
+                db.Entry(item.ProductPrice).State = EntityState.Detached;
+            }
             order = await db.Orders.Include(o => o.Items).ThenInclude(a => a.ProductPrice).ThenInclude(b => b.Product).FirstAsync(c => c.Id == origOrder.Id);
             var orderFromRaw = await db.Orders.FromSqlRaw<Order>($"SELECT * FROM orders WHERE id = {origOrder.Id} FOR UPDATE").FirstOrDefaultAsync();
 
