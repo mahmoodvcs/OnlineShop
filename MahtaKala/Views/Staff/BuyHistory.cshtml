@@ -43,8 +43,8 @@
 	if (currentUser.Type == UserType.Admin)
 	{
 		columns.Bound(p => p.DeliveryTrackNo).Title("کد تحویل");
-		columns.Command(command => command.Custom("تایید تحویل").Click("ConfirmDelivered")).Width(90);
-        columns.Command(command => command.Custom("بازنشانی تسهیم").Click("RemoveFailedSettlements")).Width(110);
+		columns.Command(command => command.Custom("تایید تحویل").Click("ConfirmDelivered").Visible("canSettleOrder")).Width(90);
+        columns.Command(command => command.Custom("بازنشانی تسهیم").Click("RemoveFailedSettlements").Visible("canRemoveSettlements")).Width(110);
 	}
 
 })
@@ -106,6 +106,13 @@
                 }
             });
         }*@
+        var userIsOfAdminType = @(currentUser.Type == UserType.Admin ? "true" : "false");
+        function canSettleOrder(e) {
+            return e.ShowSettleOrderButton;
+        }
+        function canRemoveSettlements(e) {
+			return e.ShowDeleteSettlementsButton;
+		}
 
         function RemoveFailedSettlements(e) {
             e.preventDefault();

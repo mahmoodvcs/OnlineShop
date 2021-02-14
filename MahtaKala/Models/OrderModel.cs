@@ -28,6 +28,8 @@ namespace MahtaKala.Models
         public long? Address_Id { get; set; }
         public AddressModel Address { get; set; }
         public IList<OrderItemModel> OrderItems { get; set; }
+		public bool ShowSettleOrderButton { get; set; }
+		public bool ShowDeleteSettlementsButton { get; set; }
 
 		public static async Task<List<OrderModel>> Get(IQueryable<Order> ordersQuery, IProductImageService productImageService)
         {
@@ -60,7 +62,6 @@ namespace MahtaKala.Models
                     i.State,
                 })
             }).ToListAsync();
-
             return data.Select(a => new OrderModel
             {
                 ActualDeliveryDate = Util.GetPersianDate(a.ActualDeliveryDate),
@@ -72,7 +73,7 @@ namespace MahtaKala.Models
                 Id = a.Id,
                 Price = a.Price,
                 DeliveryPrice = a.DeliveryPrice,
-                SendDate = Util.GetPersianDate( a.SendDate),
+                SendDate = Util.GetPersianDate(a.SendDate),
                 State = TranslateExtentions.GetTitle(a.State),
                 Address_Id = a.AddressId,
                 Address = a.Address == null ? null :

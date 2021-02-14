@@ -1382,7 +1382,9 @@ namespace MahtaKala.Controllers
                     a.Address,
                     a.SendDate,
                     State = a.State,
-                    a.TrackNo
+                    a.TrackNo,
+                    showSettleOrderButton = !db.PaymentSettlements.Where(x => x.OrderId == a.Id).Any(),
+                    showDeleteSettlementsButton = (db.PaymentSettlements.Where(x => x.OrderId == a.Id).Any() && !(db.PaymentSettlements.Where(x => x.OrderId == a.Id && x.Status == PaymentSettlementStatus.Succeeded).Any())),
                 }).ToDataSourceResultAsync(request, a => new OrderModel
                 {
                     Id = a.Id,
@@ -1397,7 +1399,9 @@ namespace MahtaKala.Controllers
                     Address_Id = a.AddressId,
                     Address = new AddressModel(a.Address),
                     State = TranslateExtentions.GetTitle(a.State),
-                    DeliveryTrackNo = a.TrackNo
+                    DeliveryTrackNo = a.TrackNo,
+                    ShowSettleOrderButton = a.showSettleOrderButton,
+                    ShowDeleteSettlementsButton = a.showDeleteSettlementsButton
                 });
 
             var list = JsonConvert.SerializeObject(data, Formatting.None,
