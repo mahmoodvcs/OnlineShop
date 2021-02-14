@@ -1384,7 +1384,7 @@ namespace MahtaKala.Controllers
                     State = a.State,
                     a.TrackNo,
                     showSettleOrderButton = !db.PaymentSettlements.Where(x => x.OrderId == a.Id).Any(),
-                    showDeleteSettlementsButton = (db.PaymentSettlements.Where(x => x.OrderId == a.Id).Any() && !(db.PaymentSettlements.Where(x => x.OrderId == a.Id && x.Status == PaymentSettlementStatus.Succeeded).Any())),
+                    showDeleteSettlementsButton = db.PaymentSettlements.Where(x => x.OrderId == a.Id && x.Status == PaymentSettlementStatus.Failed).Any(),
                 }).ToDataSourceResultAsync(request, a => new OrderModel
                 {
                     Id = a.Id,

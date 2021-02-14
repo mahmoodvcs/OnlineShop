@@ -370,7 +370,22 @@ namespace MahtaKala.GeneralServices.Payment
 					shareAmount = (int)a.Sum(c => c.Amount)
 				}).ToList()
 			};
-
+			// TODO: Each day, only 10 "shaba_id"s can be sent for settlement, and there should be a database table for recording the left-overs
+			//if (request.scatteredSettlement.Count > 10)
+			//{
+			//	var req1 = new SettlementRequest()
+			//	{ 
+			//		referenceNumber = request.referenceNumber,
+			//		scatteredSettlement = request.scatteredSettlement.GetRange(0, 10)
+			//	};
+			//	var req2 = new SettlementRequest()
+			//	{
+			//		referenceNumber = request.referenceNumber,
+			//		scatteredSettlement = request.scatteredSettlement.GetRange(9, request.scatteredSettlement.Count - 10)
+			//	};
+			//	// and the rest of the thing, which includes planning (and implementing that plan) for the "List<PaymentSHareDataItem> items" 
+			//	// variable, and how it should be splitted
+			//}
 			var date = DateTime.Now;
 			var psItems = items.Select(a => new PaymentSettlement
 			{
