@@ -6,16 +6,16 @@ using System.Text;
 
 namespace EskadDataBringer.Models
 {
-	public class B2BContext : DbContext
+	public class EskadContext : DbContext
 	{
 		public virtual DbSet<Merchandise> Merchandise { get; set; }
 
 		public virtual DbSet<Sales> Sales { get; set; }
 
-		public B2BContext()
+		public EskadContext()
 		{ }
 
-		public B2BContext(DbContextOptions<B2BContext> options) : base(options)
+		public EskadContext(DbContextOptions<EskadContext> options) : base(options)
 		{ }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)

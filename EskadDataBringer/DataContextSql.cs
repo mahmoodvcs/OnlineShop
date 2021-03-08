@@ -6,7 +6,7 @@ using System.Text;
 
 namespace EskadDataBringer
 {
-	public class DataContextSql : B2BContext
+	public class DataContextSql : EskadContext
 	{
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
