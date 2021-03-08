@@ -11,7 +11,7 @@ namespace ExportSql2Pg_DotNetCore
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         { 
-            optionsBuilder.UseSqlServer("Server=Mahta.Eskad.ir;Database=Mahta;uid=sa;pwd=@Mahta@&1399!;Trusted_Connection=true;TrustServerCertificate=true");
+            optionsBuilder.UseSqlServer("Server=Mahta.Eskad.ir;Database=Mahta;uid=sa;pwd=@Mahta@&1399!;TrustServerCertificate=True");
             ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
          
         }
