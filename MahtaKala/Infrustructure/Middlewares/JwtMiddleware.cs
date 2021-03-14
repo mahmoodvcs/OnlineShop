@@ -13,6 +13,8 @@ using System.Security.Principal;
 using Microsoft.AspNetCore.Authentication;
 using MahtaKala.Helpers;
 using Microsoft.VisualBasic;
+using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace MahtaKala.Middlewares
 {
@@ -43,8 +45,67 @@ namespace MahtaKala.Middlewares
             await _next(context);
         }
 
+        public async Task HandleTokenTest(string token)
+        {
+            var tokenPartsBase64 = token.Split('.');
+            var tokenPartsBytes = tokenPartsBase64.Select(x => Convert.FromBase64String(x)).ToArray();
+            var headerString = Encoding.UTF8.GetString(tokenPartsBytes[0]);
+            var payloadString = Encoding.UTF8.GetString(tokenPartsBytes[1]);
+            var signature = tokenPartsBytes[2];
+            var hasher = new HMACSHA256(Encoding.UTF8.GetBytes("123"));
+            var generatedSignature = hasher.ComputeHash(Encoding.UTF8.GetBytes(tokenPartsBase64[0] + "." + tokenPartsBase64[1]));
+            Console.WriteLine($"Received Signature - length: {signature.Length}");
+            Console.WriteLine($"Generated Signature - length: {generatedSignature.Length}");
+            if (signature.Length != generatedSignature.Length)
+			{
+                Console.WriteLine("So far, the two signatures have different lengths! This is gonna be a looooong night!");
+			}
+			else
+			{
+                Console.WriteLine("Congrats! The first check seems to be ok! Now, let's check the whole thing, and see what happens! Keep your fingers crossed!");
+			}
+            bool tokenSignatureIsValid = true;
+            for (int i = 0; i < Math.Min(signature.Length, generatedSignature.Length); i++)
+            {
+                if (signature[i] != generatedSignature[i])
+				{
+                    tokenSignatureIsValid = false;
+                    break;
+                }
+            }
+            if (tokenSignatureIsValid)
+			{
+                Console.WriteLine("Yaaaayyyyy!");
+			}
+			else
+			{
+                Console.WriteLine("Fuck it man! Fuck it!");
+			}
+        }
+
         private async Task attachUserToContext(HttpContext context, IUserService userService, string token)
         {
+			try
+			{
+                var tokenPartsBase64 = token.Split('.');
+                var headerBytes = Base64UrlTextEncoder.Decode(tokenPartsBase64[0]);
+                var payloadBytes = Base64UrlTextEncoder.Decode(tokenPartsBase64[1]);
+                var headerString = Encoding.UTF8.GetString(headerBytes);
+                var payloadString = Encoding.UTF8.GetString(payloadBytes);
+                var signature = tokenPartsBase64[2];
+                var hasher = new HMACSHA256(Encoding.UTF8.GetBytes("123"));
+                var generatedSignatureBytes = hasher.ComputeHash(Encoding.UTF8.GetBytes(tokenPartsBase64[0] + "." + tokenPartsBase64[1]));
+                var generatedSignature = Base64UrlTextEncoder.Encode(generatedSignatureBytes);
+                if (signature.Equals(generatedSignature))
+				{
+                    //var payload = JsonSerializer.Deserialize(payloadString);
+				}
+            }
+            catch (Exception e)
+			{
+
+			}
+			return;
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
