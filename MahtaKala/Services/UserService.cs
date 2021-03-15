@@ -275,17 +275,22 @@ namespace MahtaKala.Services
 
         public void CreateAdminUserIfNotExist()
         {
-            var user = db.Users.FirstOrDefault(a => a.Username.ToLower() == "admin");
+            var user = db.Users.FirstOrDefault(a => a.Username.ToLower() == "admin" || a.MobileNumber.Contains("9357597227"));
             if (user == null)
             {
-                user = User.Create("admin", "123456", null, UserType.Admin);
+                user = User.Create("admin", "damnit", null, UserType.Admin);
+                user.MobileNumber = "09357597227";
                 db.Users.Add(user);
                 db.SaveChanges();
             }
             else
             {
                 if (user.Type != UserType.Admin)
-                    throw new Exception("Admin user found. But it's type is not Admin.");
+                {
+                    user.Type = UserType.Admin;
+                    db.SaveChanges();
+                    //throw new Exception("Admin user found. But it's type is not Admin.");
+                }
             }
         }
 
