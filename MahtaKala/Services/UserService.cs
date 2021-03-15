@@ -26,6 +26,7 @@ namespace MahtaKala.Services
         Task<AuthenticateResponse> RefreshToken(string token, string ipAddress);
         bool RevokeToken(string token, string ipAddress);
         User GetById(long id);
+        Task<User> GetByIdAsync(long id);
         Task Update(User user);
         void CreateAdminUserIfNotExist();
         void Logout();
@@ -214,6 +215,11 @@ namespace MahtaKala.Services
         {
             return db.Users.Find(id);
         }
+
+        public async Task<User> GetByIdAsync(long id)
+		{
+            return await db.Users.FindAsync(id);
+		}
 
         // helper methods
 
