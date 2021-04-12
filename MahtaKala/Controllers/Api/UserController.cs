@@ -124,7 +124,7 @@ namespace MahtaKala.Controllers
             }
             await db.SaveChangesAsync();
 
-            var tokens = await userService.Authenticate(user, GetIpAddress(), UserClient.Api);
+            var tokens = await userService.Authenticate(user, Util.GetIpAddress(HttpContext), UserClient.Api);
 
             return new VerifyRespnse
             {
@@ -145,7 +145,7 @@ namespace MahtaKala.Controllers
         [HttpPost]
         public async Task<IActionResult> Refresh([FromBody] RefreshRequest refreshRequest)
         {
-            var tokens = await userService.RefreshToken(refreshRequest.Refresh, GetIpAddress());
+            var tokens = await userService.RefreshToken(refreshRequest.Refresh, Util.GetIpAddress(HttpContext));
             if (tokens == null)
             {
                 return StatusCode(401);
@@ -319,19 +319,6 @@ namespace MahtaKala.Controllers
             await db.SaveChangesAsync();
             return StatusCode(200);
         }
-
-
-        #region Private Methods
-
-        private string GetIpAddress()
-        {
-            if (Request.Headers.ContainsKey("X-Forwarded-For"))
-                return Request.Headers["X-Forwarded-For"];
-            else
-                return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
-        }
-
-        #endregion Private Methods
 
     }
 }

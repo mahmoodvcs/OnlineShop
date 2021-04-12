@@ -78,8 +78,8 @@ namespace MahtaKala.Middlewares
                     return;
                 }
                 var signature = tokenPartsBase64[2];
-                var oneTwoThree = "123";    // This is just a chert temporary replacement! The following should use "jwtSecret" property, instead of this here oneTwoThree!
-                var hasher = new HMACSHA256(Encoding.UTF8.GetBytes(oneTwoThree));
+
+                var hasher = new HMACSHA256(Encoding.UTF8.GetBytes(jwtSecret));
                 var generatedSignatureBytes = hasher.ComputeHash(Encoding.UTF8.GetBytes(tokenPartsBase64[0] + "." + tokenPartsBase64[1]));
                 var generatedSignature = Base64UrlTextEncoder.Encode(generatedSignatureBytes);
                 if (!signature.Equals(generatedSignature))
@@ -128,11 +128,18 @@ namespace MahtaKala.Middlewares
                         throw new Exception($"Inconsistency in user data between mahtakala database and auth database! User with id {user.Id} has two different phone numbers in mahtakala and auth! Look into it! It might be important, and, your own ass might be on the line! So, stay sharp, and keep your head in the game!");
                     }
                 }
-                if (user.Type != Entities.UserType.Customer)
-                {
-                    if (!await userService.IsValidToken(user, token, Util.GetIpAddress(context)))
-                        return;
-                }
+                /////////////// WARNING TO THE DEVELOPER ////////////////////
+                /// The following "if" block has been commented out, because of changing the authentication method for normal users (customers, and NOT staff or admin), and they will use the auth-microservice
+                /// instead. Now, because there's a chance that staff users will use the new method, too! Removing the following check (i.e. userService.IsValidToken) will enable them to do so, but, 
+                /// it will also enable them to login from different machines at the same time; a possibility that were deliberately taken away! Although, the "IsValidToken" check won't work like this,
+                /// and, if added here, will always deny access to anyone! To make it work as it's supposed to, one has to do a lot more (e.g. recoding the user's ip address, first! Then, checking if they still have
+                /// the same address!).
+                /////////////////////////////////////////////////////////////
+                //if (user.Type != Entities.UserType.Customer)
+                //{
+                //    if (!await userService.IsValidToken(user, token, Util.GetIpAddress(context)))
+                //        return;
+                //}
 
                 context.Items["User"] = user;
             }
