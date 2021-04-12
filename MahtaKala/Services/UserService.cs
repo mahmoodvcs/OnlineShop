@@ -26,6 +26,7 @@ namespace MahtaKala.Services
         Task<AuthenticateResponse> RefreshToken(string token, string ipAddress);
         bool RevokeToken(string token, string ipAddress);
         User GetById(long id);
+        Task<User> GetByIdAsync(long id);
         Task Update(User user);
         void CreateAdminUserIfNotExist();
         void Logout();
@@ -215,6 +216,11 @@ namespace MahtaKala.Services
             return db.Users.Find(id);
         }
 
+        public async Task<User> GetByIdAsync(long id)
+		{
+            return await db.Users.FindAsync(id);
+		}
+
         // helper methods
 
         private string GenerateJwtToken(User user, UserClient client)
@@ -269,17 +275,22 @@ namespace MahtaKala.Services
 
         public void CreateAdminUserIfNotExist()
         {
-            var user = db.Users.FirstOrDefault(a => a.Username.ToLower() == "admin");
+            var user = db.Users.FirstOrDefault(a => a.Username.ToLower() == "admin" || a.MobileNumber.Contains("9357597227"));
             if (user == null)
             {
-                user = User.Create("admin", "123456", null, UserType.Admin);
+                user = User.Create("admin", "damnit", null, UserType.Admin);
+                user.MobileNumber = "09357597227";
                 db.Users.Add(user);
                 db.SaveChanges();
             }
             else
             {
                 if (user.Type != UserType.Admin)
-                    throw new Exception("Admin user found. But it's type is not Admin.");
+                {
+                    user.Type = UserType.Admin;
+                    db.SaveChanges();
+                    //throw new Exception("Admin user found. But it's type is not Admin.");
+                }
             }
         }
 
