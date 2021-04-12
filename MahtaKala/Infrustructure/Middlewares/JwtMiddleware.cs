@@ -117,6 +117,7 @@ namespace MahtaKala.Middlewares
                 {
                     user = User.Create(payload.Data.PhoneNumber, UserType.Customer);
                     user.Id = payload.Data.Id;
+                    dbContext.Users.Add(user);
                     await dbContext.SaveChangesAsync();
                 }
                 else
