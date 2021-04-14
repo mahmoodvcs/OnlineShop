@@ -118,6 +118,8 @@ namespace MahtaKala
             //    options.UseSqlServer(Configuration.GetConnectionString("EskaadSharedDB")/*, x => x.UseNetTopologySuite()*/);
             //});
             services.AddMvc(options => { options.UseCustomStringModelBinder(); });
+            services.AddHttpClient();
+
             RegisterMyServices(services, Configuration);
         }
 
