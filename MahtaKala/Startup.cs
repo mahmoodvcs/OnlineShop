@@ -90,7 +90,7 @@ namespace MahtaKala
             });
             services.AddAuthorizationCore(options =>
             {
-                foreach(var userName in EskaadService.ESKAAD_AUTHORIZED_USERS)
+                foreach(var userName in EskadServiceHttpClient.ESKAAD_AUTHORIZED_USERS)
 				{
                     options.AddPolicy("EskaadAuthorizedUsers", policy => policy.RequireUserName(userName));
                 }
@@ -113,10 +113,10 @@ namespace MahtaKala
             {
                 options.UseNpgsql(Configuration.GetConnectionString("DataContextPG")).UseSnakeCaseNamingConvention();
             });
-            services.AddDbContext<EskaadContext>(options =>
-            {
-                options.UseSqlServer(Configuration.GetConnectionString("EskaadSharedDB")/*, x => x.UseNetTopologySuite()*/);
-            });
+            //services.AddDbContext<EskaadContext>(options =>
+            //{
+            //    options.UseSqlServer(Configuration.GetConnectionString("EskaadSharedDB")/*, x => x.UseNetTopologySuite()*/);
+            //});
             services.AddMvc(options => { options.UseCustomStringModelBinder(); });
             RegisterMyServices(services, Configuration);
         }
@@ -148,7 +148,7 @@ namespace MahtaKala
             services.AddKendo();
             services.AddScoped<SettingsService>();
             services.AddScoped<IDeliveryService, YarBoxDeliveryService>();
-            services.AddTransient<EskaadService>();
+            services.AddTransient<EskadServiceHttpClient>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
             TaskManager.RegisterTasks(services, config);

@@ -153,6 +153,10 @@
   <ItemGroup>
     <Content Remove="C:\Users\DiakoSystem\.nuget\packages\mvcpagedlist.core\1.1.1\contentFiles\any\netstandard2.0\wwwroot\css\MvcPagedList.Core.css" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="PardakhtNovin.cer" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entitties\Entities.csproj" />
     <ProjectReference Include="..\GeneralServices\GeneralServices.csproj" />
@@ -165,15 +169,6 @@
     <Reference Include="Kendo.Mvc">
       <HintPath>..\lib\Kendo.Mvc.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="MahtaKala.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="PardakhtNovin.cer">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

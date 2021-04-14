@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EskadDataBringer", "EskadDa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExportSql2Pg-DotNetCore", "ExportSql2Pg-DotNetCore\ExportSql2Pg-DotNetCore.csproj", "{211ABAEC-DDD0-4304-83C2-C79628C77601}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EskadDataCommunicator", "EskadDataCommunicator\EskadDataCommunicator.csproj", "{AC18DC8D-27C5-4EAE-904A-4282F5188BD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EskadDataCommunicionAPI", "EskadDataCommunicator\EskadDataCommunicionAPI.csproj", "{AC18DC8D-27C5-4EAE-904A-4282F5188BD1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

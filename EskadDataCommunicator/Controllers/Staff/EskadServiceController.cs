@@ -18,22 +18,22 @@ using Microsoft.Extensions.Logging;
 
 namespace MahtaKala.Controllers.Staff
 {
-	[Route("~/Staff/BusinessDept/[action]")]
+	[Route("~/api/EskadService/[action]")]
 	[Authorize(UserType.Admin)]
-	public class BusinessDeptController : SiteControllerBase<BusinessDeptController>
+	public class EskadServiceController : SiteControllerBase<EskadServiceController>
 	{
-		private readonly EskaadContext eskaadDb;
+		//private readonly EskaadContext eskaadDb;
 		private readonly EskaadService eskaadService;
 
 		private readonly string[] EligibleUsers = { "katouzian", "mosalli", "ali.d" };
 
-		public BusinessDeptController(
+		public EskadServiceController(
 			DataContext context,
-			ILogger<BusinessDeptController> logger,
-			EskaadContext eskaadContext,
+			ILogger<EskadServiceController> logger,
+			//EskaadContext eskaadContext,
 			EskaadService eskaadService) : base(context, logger)
 		{
-			this.eskaadDb = eskaadContext;
+			//this.eskaadDb = eskaadContext;
 			this.eskaadService = eskaadService;
 		}
 
@@ -69,11 +69,11 @@ namespace MahtaKala.Controllers.Staff
 		//}
 
 		[HttpGet]
-		public async Task<IActionResult> GetEskaadSalesDataSource()
+		public async Task<IActionResult> GetEskaadSalesData(string dateFilter = "")
 		{
 			if (!UserHasTheAuthority())
 				return null;
-			var sales = await eskaadService.GetEskaadSales();
+			var sales = await eskaadService.GetEskaadSales(dateFilter);
 			return Json(sales);
 			//return KendoJson(await salesQuery.ToDataSourceResultAsync(request));
 		}
@@ -86,12 +86,12 @@ namespace MahtaKala.Controllers.Staff
 		//	return View("~/Views/Staff/BusinessDept/EskaadMerchandise.cshtml");
 		//}
 
-		[HttpGet]
-		public async Task<IActionResult> EskaadOrdersAlreadyPlacedForToday()
-		{
-			var alreadyDoneToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
-			return Json(new { alreadyDoneToday });
-		}
+		//[HttpGet]
+		//public async Task<IActionResult> EskaadOrdersAlreadyPlacedForToday()
+		//{
+		//	var alreadyDoneToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
+		//	return Json(new { alreadyDoneToday });
+		//}
 
 		[HttpPost]
 		public async Task<IActionResult> AddNewOrderItem(string merchandiseCode, int quantity)
@@ -105,7 +105,7 @@ namespace MahtaKala.Controllers.Staff
 
 		[HttpGet]
 		//[Microsoft.AspNetCore.Authorization.Authorize(policy: "EskaadAuthorizedUsers")]
-		public async Task<IActionResult> GetEskaadMerchandiseDataSource()
+		public async Task<IActionResult> GetEskadMerchandiseData()
 		{
 			if (!UserHasTheAuthority())
 				return null;
@@ -116,7 +116,7 @@ namespace MahtaKala.Controllers.Staff
 
 
 		[HttpGet]
-		public async Task<IActionResult> GetOrderDraftDataSource()
+		public async Task<IActionResult> GetEskadOrderDraftData()
 		{
 			if (!UserHasTheAuthority())
 				return null;
