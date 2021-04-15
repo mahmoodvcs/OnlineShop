@@ -19,4 +19,21 @@ namespace MahtaKala.Entities.Extentions
         }
 
     }
+
+    public static class CategoryExtensions
+    {
+        public static void GetCategoryChildrenRecursive(this Category category, List<long> resultList)
+        {
+            if (category.Children == null || category.Children.Count == 0)
+                return;
+            foreach (var child in category.Children)
+            {
+                if (!resultList.Contains(child.Id))
+                {
+                    resultList.Add(child.Id);
+                    child.GetCategoryChildrenRecursive(resultList);
+                }
+            }
+        }
+    }
 }

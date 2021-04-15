@@ -262,7 +262,18 @@ namespace MahtaKala.Controllers
         {
             List<long> cids = new List<long>();
             if (category.HasValue)
+            {
                 cids.Add(category.Value);
+                var baseFilterCategory = await db.Categories.Where(x => x.Id == category.Value).Include(x => x.Children)
+                    .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
+                    .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
+                    .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
+                    .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
+                    .FirstAsync();
+                if (baseFilterCategory == null)
+                    return new List<ProductConciseModel>();
+                baseFilterCategory.GetCategoryChildrenRecursive(cids);
+            }
 
             return await GetProductsData(cids, offset, page);
         }

@@ -22,7 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Z.EntityFramework.Plus;
-
+using MahtaKala.Entities.Extentions;
 namespace MahtaKala.Services
 {
     public class OrderService
@@ -350,20 +350,6 @@ namespace MahtaKala.Services
             }
         }
 
-        private void GetCategoryChildrenRecursive(Category category, List<long> resultList)
-        {
-            if (category.Children == null || category.Children.Count == 0)
-                return;
-            foreach (var child in category.Children)
-            {
-                if (!resultList.Contains(child.Id))
-                {
-                    resultList.Add(child.Id);
-                    GetCategoryChildrenRecursive(child, resultList);
-                }
-            }
-        }
-
 		private async Task<bool> ProductBelongsToCarSparePartsCategory(long productId)
         {
             var baseCategory = await db.Categories.Where(x => x.Id == CarSpareParts_CategoryId).Include(x => x.Children)
@@ -374,7 +360,7 @@ namespace MahtaKala.Services
                 .FirstAsync();
             var sparePartsCategoryIds = new List<long>();
             sparePartsCategoryIds.Add(baseCategory.Id);
-            GetCategoryChildrenRecursive(baseCategory, sparePartsCategoryIds);
+            baseCategory.GetCategoryChildrenRecursive(sparePartsCategoryIds);
             
             bool thisIsASparePartProduct = await db.Products.AnyAsync(x => x.Id == productId
                     && x.ProductCategories.Any(y => sparePartsCategoryIds.Contains(y.CategoryId)));
