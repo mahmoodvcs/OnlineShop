@@ -26,7 +26,6 @@ namespace MahtaKala.Controllers.Staff
 		private readonly EskadServiceHttpClient eskadApiCaller;
 
 		private readonly string[] EligibleUsers = { "katouzian", "mosalli", "ali.d" };
-		private readonly string accessToken;
 
 		public BusinessDeptController(
 			DataContext context,
@@ -34,11 +33,6 @@ namespace MahtaKala.Controllers.Staff
 			EskadServiceHttpClient eskaadService) : base(context, logger)
 		{
 			this.eskadApiCaller = eskaadService;
-			this.accessToken = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(new char[0], StringSplitOptions.RemoveEmptyEntries).Last();
-			if (string.IsNullOrWhiteSpace(accessToken))
-			{
-				this.accessToken = HttpContext.Request.Cookies["MahtaAuth"];
-			}
 		}
 
 		private bool UserHasTheAuthority()
@@ -64,6 +58,16 @@ namespace MahtaKala.Controllers.Staff
 		//	return View();
 		//}
 
+		private string GetUserToken()
+		{
+			string token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(new char[0], StringSplitOptions.RemoveEmptyEntries).Last();
+			if (string.IsNullOrWhiteSpace(token))
+			{
+				token = HttpContext.Request.Cookies["MahtaAuth"];
+			}
+			return token;
+		}
+
 		[HttpGet]
 		public IActionResult EskaadSalesView()
 		{
@@ -77,7 +81,8 @@ namespace MahtaKala.Controllers.Staff
 		{
 			if (!UserHasTheAuthority())
 				return null;
-			var salesQuery = await eskadApiCaller.CallGetEskadSalesData(accessToken);
+			string token = GetUserToken();
+			var salesQuery = await eskadApiCaller.CallGetEskadSalesData(token);
 			return KendoJson(await salesQuery.ToDataSourceResultAsync(request));
 		}
 
@@ -101,7 +106,8 @@ namespace MahtaKala.Controllers.Staff
 		{
 			if (!UserHasTheAuthority())
 				return Json(new { success = false, message = "Access denied!" });
-			(var success, var message) = await eskadApiCaller.CallAddNewOrderItem(accessToken, merchandiseCode, quantity);
+			var token = GetUserToken();
+			(var success, var message) = await eskadApiCaller.CallAddNewOrderItem(token, merchandiseCode, quantity);
 			return Json(new { success , message });
 		}
 
@@ -112,7 +118,8 @@ namespace MahtaKala.Controllers.Staff
 		{
 			if (!UserHasTheAuthority())
 				return null;
-			var eskaadMerchandise = await eskadApiCaller.CallGetEskadMerchandiseData(accessToken);
+			var token = GetUserToken();
+			var eskaadMerchandise = await eskadApiCaller.CallGetEskadMerchandiseData(token);
 			return KendoJson(await eskaadMerchandise.ToDataSourceResultAsync(request));
 		}
 
@@ -122,7 +129,8 @@ namespace MahtaKala.Controllers.Staff
 		{
 			if (!UserHasTheAuthority())
 				return null;
-			var orderDraftList = await eskadApiCaller.CallGetEskaadOrderDrafts(accessToken);
+			var token = GetUserToken();
+			var orderDraftList = await eskadApiCaller.CallGetEskaadOrderDrafts(token);
 			return KendoJson(await orderDraftList.ToDataSourceResultAsync(request));
 		}
 
@@ -132,7 +140,8 @@ namespace MahtaKala.Controllers.Staff
 		{
 			if (!UserHasTheAuthority())
 				return Json(new { success = false, message = "Access denied!" });
-			(var success, var message) = await eskadApiCaller.CallDeleteOrderDraftItem(accessToken, id);//.DeleteOrderDraftItem(id);
+			var token = GetUserToken();
+			(var success, var message) = await eskadApiCaller.CallDeleteOrderDraftItem(token, id);//.DeleteOrderDraftItem(id);
 			return Json(new { success, message });
 		}
 
@@ -142,7 +151,8 @@ namespace MahtaKala.Controllers.Staff
 			if (!UserHasTheAuthority())
 				return Json(new { success = false, message = "Access denied!" });
 
-			var placeOrdersResponse = await eskadApiCaller.CallPlaceOrdersForTodayOnEskad(accessToken);
+			var token = GetUserToken();
+			var placeOrdersResponse = await eskadApiCaller.CallPlaceOrdersForTodayOnEskad(token);
 			if (placeOrdersResponse.Item1)
 				return Json(new { success = true, message = placeOrdersResponse.Item2 });
 			return Json(new { success = false, Messages = placeOrdersResponse.Item2 });
