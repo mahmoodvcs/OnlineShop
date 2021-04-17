@@ -269,7 +269,7 @@ namespace MahtaKala.Controllers
                     .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
                     .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
                     .ThenInclude(x => x.Children).ThenInclude(x => x.Children).ThenInclude(x => x.Children)
-                    .FirstAsync();
+                    .FirstOrDefaultAsync();
                 if (baseFilterCategory == null)
                     return new List<ProductConciseModel>();
                 baseFilterCategory.GetCategoryChildrenRecursive(cids);
