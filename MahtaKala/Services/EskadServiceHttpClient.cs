@@ -2,6 +2,7 @@
 using MahtaKala.Entities.EskaadEntities;
 using MahtaKala.Helpers;
 using MahtaKala.Infrustructure.Exceptions;
+using MahtaKala.Infrustructure.Extensions;
 using MahtaKala.Models.StaffModels;
 using MahtaKala.SharedServices;
 using Microsoft.EntityFrameworkCore;
@@ -61,12 +62,21 @@ namespace MahtaKala.Services
 
 		public async Task<IQueryable<Merchandise>> CallGetEskadMerchandiseData(string token)//, bool onlyActive = true, bool removeIfNotInStock = true)
 		{
-			var httpClient = GetHttpClient(token);
-			var response = await httpClient.GetAsync("GetEskadMerchandiseData");
-			response.EnsureSuccessStatusCode();
-			using var responseStream = await response.Content.ReadAsStreamAsync();
-			var merchandise = await JsonSerializer.DeserializeAsync<IEnumerable<Merchandise>>(responseStream, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true }) ;
-			return merchandise.AsQueryable();
+			try
+			{
+				var httpClient = GetHttpClient(token);
+				var response = await httpClient.GetAsync("GetEskadMerchandiseData");
+				response.EnsureSuccessStatusCode();
+				using var responseStream = await response.Content.ReadAsStreamAsync();
+				var merchandise = await JsonSerializer.DeserializeAsync<IEnumerable<Merchandise>>(responseStream, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+				return merchandise.AsQueryable();
+			}
+			catch (Exception e)
+			{
+				var wholeMessage = e.DigOutWholeExceptionMessage();
+				logger.LogError(wholeMessage);
+				throw e;
+			}
 		}
 
 		public async Task<IQueryable<EskaadOrderDraft>> CallGetEskaadOrderDrafts(string token)
@@ -115,25 +125,43 @@ namespace MahtaKala.Services
 
 		public async Task<(bool, string)> CallPlaceOrdersForTodayOnEskad(string token)
 		{
-			var httpClient = GetHttpClient(token);
+			try
+			{
+				var httpClient = GetHttpClient(token);
 
-			var response = await httpClient.PostAsync("PlaceEskaadOrdersForToday", null);
-			response.EnsureSuccessStatusCode();
-			var responseString = await response.Content.ReadAsStringAsync();
-			var definintion = new { success = true, message = "" };
-			var responseAnonymousModel = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(responseString, definintion);
-			return (responseAnonymousModel.success, responseAnonymousModel.message);
+				var response = await httpClient.PostAsync("PlaceEskaadOrdersForToday", null);
+				response.EnsureSuccessStatusCode();
+				var responseString = await response.Content.ReadAsStringAsync();
+				var definintion = new { success = true, message = "" };
+				var responseAnonymousModel = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(responseString, definintion);
+				return (responseAnonymousModel.success, responseAnonymousModel.message);
+			}
+			catch (Exception e)
+			{
+				var wholeMessage = e.DigOutWholeExceptionMessage();
+				logger.LogError(wholeMessage);
+				throw e;
+			}
 			
 		}
 
 		public async Task<IQueryable<EskaadSalesModel>> CallGetEskadSalesData(string token, string dateFilter = "")
 		{
-			var httpClient = GetHttpClient(token);
-			var response = await httpClient.GetAsync("GetEskaadSalesData");
-			response.EnsureSuccessStatusCode();
-			using var responseStream = await response.Content.ReadAsStreamAsync();
-			var eskadSalesList = await JsonSerializer.DeserializeAsync<IEnumerable<EskaadSalesModel>>(responseStream, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-			return eskadSalesList.AsQueryable();
+			try
+			{
+				var httpClient = GetHttpClient(token);
+				var response = await httpClient.GetAsync("GetEskaadSalesData");
+				response.EnsureSuccessStatusCode();
+				using var responseStream = await response.Content.ReadAsStreamAsync();
+				var eskadSalesList = await JsonSerializer.DeserializeAsync<IEnumerable<EskaadSalesModel>>(responseStream, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+				return eskadSalesList.AsQueryable();
+			}
+			catch (Exception e)
+			{
+				var wholeMessage = e.DigOutWholeExceptionMessage();
+				logger.LogError(wholeMessage);
+				throw e;
+			}
 		}
 	}
 }
