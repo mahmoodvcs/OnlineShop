@@ -185,7 +185,9 @@
 							title: 'عملیات موفق',
 							text: response.message
 						});
-						location.reload();
+						//location.reload();
+						var draftGrid = $("#OrderDraftGrid").data("kendoGrid");
+						draftGrid.dataSource.read();
 						return;
 					}
 					else {

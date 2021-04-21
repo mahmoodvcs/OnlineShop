@@ -18,21 +18,23 @@ using Microsoft.Extensions.Logging;
 
 namespace MahtaKala.Controllers.Staff
 {
-	[Route("~/Staff/BusinessDept/[action]")]
+	[Route("~/api/EskadService/[action]")]
 	[Authorize(UserType.Admin)]
-	public class BusinessDeptController : SiteControllerBase<BusinessDeptController>
+	public class EskadServiceController : SiteControllerBase<EskadServiceController>
 	{
 		//private readonly EskaadContext eskaadDb;
-		private readonly EskadServiceHttpClient eskadApiCaller;
+		private readonly EskaadService eskaadService;
 
 		private readonly string[] EligibleUsers = { "katouzian", "mosalli", "ali.d" };
 
-		public BusinessDeptController(
+		public EskadServiceController(
 			DataContext context,
-			ILogger<BusinessDeptController> logger,
-			EskadServiceHttpClient eskaadService) : base(context, logger)
+			ILogger<EskadServiceController> logger,
+			//EskaadContext eskaadContext,
+			EskaadService eskaadService) : base(context, logger)
 		{
-			this.eskadApiCaller = eskaadService;
+			//this.eskaadDb = eskaadContext;
+			this.eskaadService = eskaadService;
 		}
 
 		private bool UserHasTheAuthority()
@@ -58,47 +60,36 @@ namespace MahtaKala.Controllers.Staff
 		//	return View();
 		//}
 
-		private string GetUserToken()
-		{
-			string token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(new char[0], StringSplitOptions.RemoveEmptyEntries).Last();
-			if (string.IsNullOrWhiteSpace(token))
-			{
-				token = HttpContext.Request.Cookies["MahtaAuth"];
-			}
-
-			return token;
-		}
+		//[HttpGet]
+		//public IActionResult EskaadSalesView()
+		//{
+		//	if (!UserHasTheAuthority())
+		//		return RedirectToAction("Index", "Staff");
+		//	return View("~/Views/Staff/BusinessDept/EskaadSalesView.cshtml");
+		//}
 
 		[HttpGet]
-		public IActionResult EskaadSalesView()
-		{
-			if (!UserHasTheAuthority())
-				return RedirectToAction("Index", "Staff");
-			return View("~/Views/Staff/BusinessDept/EskaadSalesView.cshtml");
-		}
-
-		[HttpPost]
-		public async Task<IActionResult> GetEskaadSalesDataSource([DataSourceRequest] DataSourceRequest request)
+		public async Task<IActionResult> GetEskaadSalesData(string dateFilter = "")
 		{
 			if (!UserHasTheAuthority())
 				return null;
-			string token = GetUserToken();
-			var salesQuery = await eskadApiCaller.CallGetEskadSalesData(token);
-			return KendoJson(await salesQuery.ToDataSourceResultAsync(request));
+			var sales = await eskaadService.GetEskaadSales(dateFilter);
+			return Json(sales);
+			//return KendoJson(await salesQuery.ToDataSourceResultAsync(request));
 		}
 
-		[HttpGet]
-		public IActionResult EskaadMerchandise()
-		{
-			if (!UserHasTheAuthority())
-				return RedirectToAction("Index", "Staff");
-			return View("~/Views/Staff/BusinessDept/EskaadMerchandise.cshtml");
-		}
+		//[HttpGet]
+		//public IActionResult EskaadMerchandise()
+		//{
+		//	if (!UserHasTheAuthority())
+		//		return RedirectToAction("Index", "Staff");
+		//	return View("~/Views/Staff/BusinessDept/EskaadMerchandise.cshtml");
+		//}
 
 		//[HttpGet]
 		//public async Task<IActionResult> EskaadOrdersAlreadyPlacedForToday()
 		//{
-		//	var alreadyDoneToday = await eskadApiCaller.EskaadOrderAlreadyPlacedToday();
+		//	var alreadyDoneToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
 		//	return Json(new { alreadyDoneToday });
 		//}
 
@@ -107,42 +98,40 @@ namespace MahtaKala.Controllers.Staff
 		{
 			if (!UserHasTheAuthority())
 				return Json(new { success = false, message = "Access denied!" });
-			var token = GetUserToken();
-			(var success, var message) = await eskadApiCaller.CallAddNewOrderItem(token, merchandiseCode, quantity);
+			(var success, var message) = await eskaadService.AddNewOrderItem(merchandiseCode, quantity);
 			return Json(new { success , message });
 		}
 
 
-		[HttpPost]
+		[HttpGet]
 		//[Microsoft.AspNetCore.Authorization.Authorize(policy: "EskaadAuthorizedUsers")]
-		public async Task<IActionResult> GetEskaadMerchandiseDataSource([DataSourceRequest] DataSourceRequest request)
+		public async Task<IActionResult> GetEskadMerchandiseData()
 		{
 			if (!UserHasTheAuthority())
 				return null;
-			var token = GetUserToken();
-			var eskaadMerchandise = await eskadApiCaller.CallGetEskadMerchandiseData(token);
-			return KendoJson(await eskaadMerchandise.ToDataSourceResultAsync(request));
+			var eskaadMerchandise = eskaadService.GetEskaadMerchandise(false, false);//eskaadDb.Merchandise.Where(x => Convert.ToInt32(x.Place) != 13).AsQueryable();
+			return Json(await eskaadMerchandise.ToListAsync());
+			//return KendoJson(await eskaadMerchandise.ToDataSourceResultAsync(request));
 		}
 
 
-		[HttpPost]
-		public async Task<IActionResult> GetOrderDraftDataSource([DataSourceRequest] DataSourceRequest request)
+		[HttpGet]
+		public async Task<IActionResult> GetEskadOrderDraftData()
 		{
 			if (!UserHasTheAuthority())
 				return null;
-			var token = GetUserToken();
-			var orderDraftList = await eskadApiCaller.CallGetEskaadOrderDrafts(token);
-			return KendoJson(await orderDraftList.ToDataSourceResultAsync(request));
+			var orderDraftList = await eskaadService.GetOrderDraftsForToday();
+			//return KendoJson(await orderDraftList.ToDataSourceResultAsync(request));
+			return Json(orderDraftList);
 		}
 
 		[HttpPost]
-		[AjaxAction]
+		//[AjaxAction]
 		public async Task<IActionResult> DeleteOrderDraftItem(long id)
 		{
 			if (!UserHasTheAuthority())
 				return Json(new { success = false, message = "Access denied!" });
-			var token = GetUserToken();
-			(var success, var message) = await eskadApiCaller.CallDeleteOrderDraftItem(token, id);//.DeleteOrderDraftItem(id);
+			(var success, var message) = await eskaadService.DeleteOrderDraftItem(id);
 			return Json(new { success, message });
 		}
 
@@ -152,11 +141,41 @@ namespace MahtaKala.Controllers.Staff
 			if (!UserHasTheAuthority())
 				return Json(new { success = false, message = "Access denied!" });
 
-			var token = GetUserToken();
-			var placeOrdersResponse = await eskadApiCaller.CallPlaceOrdersForTodayOnEskad(token);
-			if (placeOrdersResponse.Item1)
-				return Json(new { success = true, message = placeOrdersResponse.Item2 });
-			return Json(new { success = false, Messages = placeOrdersResponse.Item2 });
+			//var alreadyOrderedToday = await eskaadService.EskaadOrderAlreadyPlacedToday();
+			//if (alreadyOrderedToday)
+			//	return Json(new { success = false, message = "سفارش امروز قبلاً ثبت شده است." });
+			var now = DateTime.Now;
+			var draftsCount = await db.EskaadOrderDrafts.CountAsync(x => x.CreatedDate.Date.Equals(now.Date) && !x.OrderIsSealed);
+			if (draftsCount == 0)
+			{
+				return Json(new { success = false, message = "پیش سفارش برای امروز ثبت نشده است! لطفاً ابتدا کالاهای مورد نظر خود را در پیش سفارش ثبت کنید." });
+			}
+			try
+			{
+				int placedOrdersCount = await eskaadService.PlaceToday_sOrdersForEskaad();
+				return Json(new { success = true, message = $"تعداد {placedOrdersCount} سفارش در دیتابیس اسکاد ثبت شد." });
+			}
+			catch (Exception e)
+			{
+				if (e is ApiException)
+				{
+					return Json(new { success = false, message = e.Message });
+				}
+				else
+				{
+					Exception digger = e;
+					string errorMessage = e.Message;
+					while (digger.InnerException != null)
+					{
+						digger = digger.InnerException;
+						errorMessage += Environment.NewLine + "Going one level deepr! Inner exception message: " + Environment.NewLine +
+							digger.Message;
+					}
+					logger.LogError($"EskaadService - PlaceEskaadOrdersForToday - Exception: {errorMessage}");
+					return Json(new { success = false, message = "خطایی در انجام عملیات رخ داده است! لطفاً با ادمین سیستم تماس بگیرید!" + errorMessage });
+				}
+			}
+			
 		}
 
 		#region ProductMatching

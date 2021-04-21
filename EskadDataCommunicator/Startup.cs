@@ -11,7 +11,7 @@ using MahtaKala.Helpers;
 using MahtaKala.Infrustructure;
 using MahtaKala.Middlewares;
 using MahtaKala.Services;
-using MahtaKala.Services.Tasks;
+//using MahtaKala.Services.Tasks;
 using MahtaKala.SharedServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -90,7 +90,7 @@ namespace MahtaKala
             });
             services.AddAuthorizationCore(options =>
             {
-                foreach(var userName in EskadServiceHttpClient.ESKAAD_AUTHORIZED_USERS)
+                foreach(var userName in EskaadService.ESKAAD_AUTHORIZED_USERS)
 				{
                     options.AddPolicy("EskaadAuthorizedUsers", policy => policy.RequireUserName(userName));
                 }
@@ -113,13 +113,11 @@ namespace MahtaKala
             {
                 options.UseNpgsql(Configuration.GetConnectionString("DataContextPG")).UseSnakeCaseNamingConvention();
             });
-            //services.AddDbContext<EskaadContext>(options =>
-            //{
-            //    options.UseSqlServer(Configuration.GetConnectionString("EskaadSharedDB")/*, x => x.UseNetTopologySuite()*/);
-            //});
+            services.AddDbContext<EskaadContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("EskaadSharedDB")/*, x => x.UseNetTopologySuite()*/);
+            });
             services.AddMvc(options => { options.UseCustomStringModelBinder(); });
-            services.AddHttpClient();
-
             RegisterMyServices(services, Configuration);
         }
 
@@ -127,33 +125,33 @@ namespace MahtaKala
         {
             services.AddScoped<IUserService, UserService>();
             //services.AddScoped<IBankPaymentService, PardakhtNovinService>();
-            services.AddScoped<IBankPaymentService, DamavandEPaymentService>();
+            //services.AddScoped<IBankPaymentService, DamavandEPaymentService>();
             services.AddScoped<IFileService, FileService>();
 			//services.AddScoped<ISMSService, PayamSMSV2>();
 			//services.AddSingleton<ISMSService, PayamSMSV2>();
-			services.AddTransient<ISMSService, PayamSMSV2>();
+			//services.AddTransient<ISMSService, PayamSMSV2>();
 			//services.AddScoped<OrderService>();
 			//services.AddSingleton<OrderService>();
-			services.AddTransient<OrderService>();
+			//services.AddTransient<OrderService>();
 			services.AddSingleton<AppSettings>();
             services.AddSingleton<IPathService, PathService>();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<RandomGenerator>();
             
-            services.AddSingleton<IProductImageService, ProductImageService>();
-            services.AddSingleton<ICategoryImageService, CategoryImageService>();
-            services.AddSingleton<ImagesPathStrategy>();
+            //services.AddSingleton<IProductImageService, ProductImageService>();
+            //services.AddSingleton<ICategoryImageService, CategoryImageService>();
+            //services.AddSingleton<ImagesPathStrategy>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
-            services.AddScoped<ProductService>();
-            services.AddScoped<CategoryService>();
-            services.AddScoped<ImportService>();
-            services.AddKendo();
+            //services.AddScoped<ProductService>();
+            //services.AddScoped<CategoryService>();
+            //services.AddScoped<ImportService>();
+            //services.AddKendo();
             services.AddScoped<SettingsService>();
-            services.AddScoped<IDeliveryService, YarBoxDeliveryService>();
-            services.AddTransient<EskadServiceHttpClient>();
-            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            //services.AddScoped<IDeliveryService, YarBoxDeliveryService>();
+            services.AddTransient<EskaadService>();
+            //services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
-            TaskManager.RegisterTasks(services, config);
+            //TaskManager.RegisterTasks(services, config);
 
             services.AddEFSecondLevelCache();
             // Add an in-memory cache service provider
@@ -221,21 +219,21 @@ namespace MahtaKala
             //SMSManager.SetHttpContextAccessor(app.ApplicationServices.GetRequiredService<IHttpContextAccessor>());
             //SMSManager.RegisterProcessorType(typeof(DeliveryCodeReceiver));
 
-            UpdateDatabase(app);
+            //UpdateDatabase(app);
 
-            using (var serviceScope = app.ApplicationServices
-                .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                var userService = serviceScope.ServiceProvider.GetService<IUserService>();
-                userService.CreateAdminUserIfNotExist();
-                //var smsManager = serviceScope.ServiceProvider.GetService<SMSManager>();
-                //smsManager.RegisterProcessorType(typeof(DeliveryCodeReceiver));
-                //var deliveryCodeReceiver = serviceScope.ServiceProvider.GetService<DeliveryCodeReceiver>();
-                // Why would someone ever need this kind of complication?! Isn't it a little too much?! Do we really need all these layers of "abstraction" (or, "complication", if we want to be honest!) stacked on top of each other?!
+            //using (var serviceScope = app.ApplicationServices
+            //    .GetRequiredService<IServiceScopeFactory>()
+            //    .CreateScope())
+            //{
+            //    var userService = serviceScope.ServiceProvider.GetService<IUserService>();
+            //    userService.CreateAdminUserIfNotExist();
+            //    //var smsManager = serviceScope.ServiceProvider.GetService<SMSManager>();
+            //    //smsManager.RegisterProcessorType(typeof(DeliveryCodeReceiver));
+            //    //var deliveryCodeReceiver = serviceScope.ServiceProvider.GetService<DeliveryCodeReceiver>();
+            //    // Why would someone ever need this kind of complication?! Isn't it a little too much?! Do we really need all these layers of "abstraction" (or, "complication", if we want to be honest!) stacked on top of each other?!
 
-                // Temporarily removed...
-            }
+            //    // Temporarily removed...
+            //}
 
             //TODO: consider the performance overhead
             //For Paymernt/Paid?source=api

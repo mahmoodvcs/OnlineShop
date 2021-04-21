@@ -9,9 +9,9 @@ namespace MahtaKala.ViewComponents
 {
 	public class EskaadOrderFinilizedTodayViewComponent : ViewComponent
 	{
-		private readonly EskaadService eskaadService;
+		private readonly EskadServiceHttpClient eskaadService;
 
-		public EskaadOrderFinilizedTodayViewComponent(EskaadService eskaadService)
+		public EskaadOrderFinilizedTodayViewComponent(EskadServiceHttpClient eskaadService)
 		{
 			this.eskaadService = eskaadService;
 		}

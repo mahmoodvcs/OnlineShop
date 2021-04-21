@@ -51,7 +51,7 @@ namespace MahtaKala.Services
 			return merchandise;
 		}
 
-		public async Task<IQueryable<EskaadOrderDraft>> GetOrderDraftsForToday()
+		public async Task<List<EskaadOrderDraftModel>> GetOrderDraftsForToday()
 		{
 			var now = DateTime.Now;
 			var orderDrafts = await dbContext.EskaadOrderDrafts
@@ -71,7 +71,7 @@ namespace MahtaKala.Services
 				resultList.Add(draftModel);
 			}
 
-			return resultList.AsQueryable();
+			return resultList;
 		}
 
 		public async Task<bool> TodaysOrdersAreSealed()
@@ -316,9 +316,8 @@ namespace MahtaKala.Services
 			return updatedCount;
 		}
 
-		public async Task<IQueryable<EskaadSalesModel>> GetEskaadSales(string dateFilter = "")
+		public async Task<List<EskaadSalesModel>> GetEskaadSales(string dateFilter = "")
 		{
-
 			var salesQuery = eskaadDbContext.Sales
 				.OrderByDescending(x => x.Date)
 					.ThenByDescending(x => x.MahtaFactor).ThenByDescending(x => x.Id)
@@ -345,7 +344,7 @@ namespace MahtaKala.Services
 				}
 				resultList.Add(salesModelItem);
 			}
-			return resultList.AsQueryable();
+			return resultList.ToList();
 		}
 	}
 }
