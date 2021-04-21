@@ -176,7 +176,10 @@ namespace MahtaKala.Middlewares
                 if (user.Type != Entities.UserType.Customer)
                 {
                     if (!await userService.IsValidToken(user, token, Util.GetIpAddress(context)))
+                    {
+                        logger.LogWarning($"$#@! Is NOT valid token, dude! Is not!");
                         return;
+                    }
                 }
 
                 context.Items["User"] = user;

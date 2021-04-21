@@ -318,7 +318,7 @@ namespace MahtaKala.Services
 
 		public async Task<List<EskaadSalesModel>> GetEskaadSales(string dateFilter = "")
 		{
-
+			logger.LogWarning("$#@! We got here! It means that we're here! I'm serious!");
 			var salesQuery = eskaadDbContext.Sales
 				.OrderByDescending(x => x.Date)
 					.ThenByDescending(x => x.MahtaFactor).ThenByDescending(x => x.Id)
