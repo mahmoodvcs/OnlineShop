@@ -57,13 +57,11 @@ namespace MahtaKala.Services
 			httpClient.DefaultRequestHeaders.Accept.Add(
 				new MediaTypeWithQualityHeaderValue("application/json"));
 			httpClient.DefaultRequestHeaders.Add("Authorization", "bearer " + token);
-			logger.LogWarning($"~~||DEBUG|| HttpClient created; BaseAddress: {httpClient.BaseAddress}" + Environment.NewLine);
 			return httpClient;
 		}
 
 		public async Task<IQueryable<Merchandise>> CallGetEskadMerchandiseData(string token)//, bool onlyActive = true, bool removeIfNotInStock = true)
 		{
-			logger.LogWarning($"~~~|||DEBUGE|||skadHttpClientService: Calling GetEskadMerchandiseData" + Environment.NewLine);
 			try
 			{
 				var httpClient = GetHttpClient(token);
@@ -127,7 +125,6 @@ namespace MahtaKala.Services
 
 		public async Task<(bool, string)> CallPlaceOrdersForTodayOnEskad(string token)
 		{
-			logger.LogWarning($"~~~|||DEBUGE|||skadHttpClientService: Calling PlaceOrdersForTOdayOnEskad" + Environment.NewLine);
 			try
 			{
 				var httpClient = GetHttpClient(token);
@@ -150,7 +147,6 @@ namespace MahtaKala.Services
 
 		public async Task<IQueryable<EskaadSalesModel>> CallGetEskadSalesData(string token, string dateFilter = "")
 		{
-			logger.LogWarning($"~~~|||DEBUGE|||skadHttpClientService: Calling GetEskadSalesData" + Environment.NewLine);
 			try
 			{
 				var httpClient = GetHttpClient(token);

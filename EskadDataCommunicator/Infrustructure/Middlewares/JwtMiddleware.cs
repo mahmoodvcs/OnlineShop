@@ -39,14 +39,11 @@ namespace MahtaKala.Middlewares
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
-            logger.LogWarning($"$#@! Token extracted from headers[Authorization] : {token}" + Environment.NewLine);
-
             if (token != null)
                 await attachUserToContext(context, userService, token, dbContext);
             else
             {
                 token = context.Request.Cookies["MahtaAuth"];
-                logger.LogWarning($"$#@! Nothing! Now we try cookies[MahtaAuth]: {token}" + Environment.NewLine);
                 if (token != null)
                     await attachUserToContext(context, userService, token, dbContext);
             }

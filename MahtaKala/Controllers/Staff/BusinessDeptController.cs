@@ -61,11 +61,9 @@ namespace MahtaKala.Controllers.Staff
 		private string GetUserToken()
 		{
 			string token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(new char[0], StringSplitOptions.RemoveEmptyEntries).Last();
-			logger.LogWarning($"$#@! GetUserToken - token from headers[Authorization] be {token} - end of story!" + Environment.NewLine);
 			if (string.IsNullOrWhiteSpace(token))
 			{
 				token = HttpContext.Request.Cookies["MahtaAuth"];
-				logger.LogWarning($"$#@! Since that wasn't enough, we tried to get it from cookies[MahtaAuth], which be {token} - period.");
 			}
 
 			return token;
