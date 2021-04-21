@@ -173,14 +173,14 @@ namespace MahtaKala.Middlewares
                 var jwtToken = (JwtSecurityToken)validatedToken;
                 var userId = long.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
                 var user = userService.GetById(userId);
-                if (user.Type != Entities.UserType.Customer)
-                {
-                    if (!await userService.IsValidToken(user, token, Util.GetIpAddress(context)))
-                    {
-                        logger.LogWarning($"$#@! Is NOT valid token, dude! Is not!");
-                        return;
-                    }
-                }
+                //if (user.Type != Entities.UserType.Customer)
+                //{
+                //    if (!await userService.IsValidToken(user, token, Util.GetIpAddress(context)))
+                //    {
+                //        logger.LogWarning($"$#@! Is NOT valid token, dude! Is not!");
+                //        return;
+                //    }
+                //}
 
                 context.Items["User"] = user;
 
