@@ -18,6 +18,7 @@ using System.Text.Json;
 using MahtaKala.Infrustructure.Exceptions;
 using MahtaKala.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace MahtaKala.Middlewares
 {
@@ -25,22 +26,27 @@ namespace MahtaKala.Middlewares
     {
         private readonly RequestDelegate _next;
         private readonly string jwtSecret;
+        private readonly ILogger<JwtMiddleware> logger;
 
-        public JwtMiddleware(RequestDelegate next, IConfiguration configuration)
+        public JwtMiddleware(RequestDelegate next, IConfiguration configuration, ILogger<JwtMiddleware> logger)
         {
             _next = next;
             jwtSecret = configuration.GetSection("AppSettings")["JwtSecret"];
+            this.logger = logger;
         }
 
         public async Task Invoke(HttpContext context, IUserService userService, DataContext dbContext)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
+            logger.LogWarning($"$#@! Token extracted from headers[Authorization] : {token}" + Environment.NewLine);
+
             if (token != null)
                 await attachUserToContext(context, userService, token, dbContext);
             else
             {
                 token = context.Request.Cookies["MahtaAuth"];
+                logger.LogWarning($"$#@! Nothing! Now we try cookies[MahtaAuth]: {token}" + Environment.NewLine);
                 if (token != null)
                     await attachUserToContext(context, userService, token, dbContext);
             }
