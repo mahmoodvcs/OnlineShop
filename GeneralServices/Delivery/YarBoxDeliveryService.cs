@@ -31,7 +31,9 @@ namespace MahtaKala.GeneralServices.Delivery
 
         const string APIAddress = "https://api.yarbox.co/api/v3/";
         const string APIKey = @"eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiMDkxMjgzNTMyMzAiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3NlcmlhbG51bWJlciI6IjcwYmEwMDE5MzdlNDRhNWRiNGRmN2JlNDhlM2MxOTM1IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy91c2VyZGF0YSI6IjMzMjI0OTA5LThmMDAtZWIxMS05MGIyLTBjYzQ3YTMwZTY1NyIsIm5iZiI6MTYwMTE5MDMzNiwiZXhwIjoxNjAzNzgyMzM2LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0LyIsImF1ZCI6IkFueSJ9.LKhj6f9QglVfc-LFOJq0NcbCXmMRf9QqPvKSS7K_2Fw";
-         
+        const long DELIVERY_COMPANY_PAYMENT_PARTY_ID = 7;
+        const string DELIVERY_COMPANY_NAME = "یارباکس";
+
         public async Task InitDelivery(long orderId)
         {
             var items = await db.OrderItems.Where(a => a.OrderId == orderId)
@@ -131,12 +133,42 @@ namespace MahtaKala.GeneralServices.Delivery
 
         public string GetShabaId()
         {
-            return "IR360640012399674119600002";
+            var deliveryCompanyPaymentPartyEntity = db.PaymentParties.Where(x => x.Id == DELIVERY_COMPANY_PAYMENT_PARTY_ID).FirstOrDefault();
+            if (deliveryCompanyPaymentPartyEntity == null)
+			{
+                deliveryCompanyPaymentPartyEntity = db.PaymentParties.Where(x => x.Name.Trim().Equals(DELIVERY_COMPANY_NAME.Trim())).SingleOrDefault();
+                if (deliveryCompanyPaymentPartyEntity == null)
+				{
+                    logger.LogError($"None of the parties in payment_parties table of the database corresponds to the information regarding the delivery company, as recorded here," +
+                        $" niether to the Id of {DELIVERY_COMPANY_PAYMENT_PARTY_ID}, nor the name of '{DELIVERY_COMPANY_NAME}'! " +
+                        $" Something has changed in the database, but NOT in here, which, makes it awkward! Call the admin!");
+                    throw new Exception("خطا در دریافت شماره شبای شرکت حمل و نقل (دلیوری کالا)! لطفن با ادمین سیستم تماس بگیرید.");
+                }
+			}
+			else
+			{
+                if (!deliveryCompanyPaymentPartyEntity.Name.Trim().ToLower().Equals(DELIVERY_COMPANY_NAME.Trim().ToLower()))
+				{
+                    logger.LogError($"There's some discrepancy between the information recorded in the database, and the info recorded here in the code," +
+                        $" as the party who delivers the parcels, and, to whom the delivery fee should be paid!" +
+                        $" In here, it's indicated that, in table payment_parties, the record having an Id of {DELIVERY_COMPANY_PAYMENT_PARTY_ID}," +
+                        $" and bearing the name '{DELIVERY_COMPANY_NAME}', is the one to whom the delivery fee should go!" +
+                        $" But, right now, in the db, the Id {DELIVERY_COMPANY_PAYMENT_PARTY_ID} corresponds with the name '{deliveryCompanyPaymentPartyEntity.Name}'" +
+                        $" which does not match with what is expected here! Call someone right now!");
+                    throw new Exception("خطا در دریافت شماره شبای شرکت حمل و نقل (دلیوری کالا)! لطفن با ادمین سیستم تماس بگیرید.");
+				}
+			}
+            return deliveryCompanyPaymentPartyEntity.ShabaId;
+            //return "IR360640012399674119600002";
+            // The above "returh" statement, which is directly returning a hard-coded shaba_id, has the old one! Now it's changed to "IR870180000000000376114376"!
+            // As this is not good practice - because, in the least, you have to update the software itself each time you need to change the shaba_id to which the 
+            // delivery fee is paid - we now define and id, and a name, from which we can extract the shaba_id belonging to the delivery company.
+            // Maybe, it would be to check only for the Id, and get the name of the company from the database, too! Maybe!
         }
 
         public string GetName()
         {
-            return "یارباکس";
+            return DELIVERY_COMPANY_NAME;
         }
     }
 
