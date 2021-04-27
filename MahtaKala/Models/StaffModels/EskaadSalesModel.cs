@@ -9,6 +9,7 @@ namespace MahtaKala.Models.StaffModels
 	public class EskaadSalesModel : Sales
 	{
 		public string ProductTitle { get; set; }
+		public EskaadSalesModel() { }
 		public EskaadSalesModel(Sales saleItem)
 		{
 			this.Id = saleItem.Id;
