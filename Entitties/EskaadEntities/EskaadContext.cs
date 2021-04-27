@@ -78,6 +78,7 @@ namespace MahtaKala.Entities.EskaadEntities
                 entity.Property(e => e.IsInstallmentSale).HasColumnName("is_installment_sell");
                 entity.Property(e => e.BAgentName).HasColumnName("BAgent_Name");
                 entity.Property(e => e.BAgentId).HasColumnName("BAgent_ID");
+                entity.Property(e => e.NumOfInstallments).HasColumnName("NumOfInstallment");    // Notice the "s" at the end of the property name in our own code, making it plural!
             });
 
             modelBuilder.Entity<UpdateTime>(entity =>
