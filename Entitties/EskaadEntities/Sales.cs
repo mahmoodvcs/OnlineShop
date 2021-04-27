@@ -20,9 +20,9 @@ namespace MahtaKala.Entities.EskaadEntities
         public string Validation { get; set; }
 		public string BCode { get; set; }
 		public string BName { get; set; }
-		public int IsInstallmentSale { get; set; }
+		public byte IsInstallmentSale { get; set; }
 		public string BAgentName { get; set; }
 		public string BAgentId { get; set; }
-		public int NumOfInstallments { get; set; }
+		public byte NumOfInstallments { get; set; }
 	}
 }
