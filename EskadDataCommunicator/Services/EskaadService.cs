@@ -311,6 +311,7 @@ namespace MahtaKala.Services
 					BCode = BCODE_VALUE_TO_INDICATE_B2C_IN_ESKAD_SALES,
 					BName = BNAME_VALUE_TO_INDICATE_B2C_IN_ESKAD_SALES,
 					BAgentName = BAGENT_NAME_VALUE_TO_INDICATE_B2C_IN_ESKAD_SALES,
+					BAgentId = "",
 					IsInstallmentSale = 0,
 					NumOfInstallments = 0
 				};

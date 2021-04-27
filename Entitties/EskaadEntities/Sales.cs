@@ -22,6 +22,7 @@ namespace MahtaKala.Entities.EskaadEntities
 		public string BName { get; set; }
 		public int IsInstallmentSale { get; set; }
 		public string BAgentName { get; set; }
+		public string BAgentId { get; set; }
 		public int NumOfInstallments { get; set; }
 	}
 }

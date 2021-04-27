@@ -77,6 +77,7 @@ namespace MahtaKala.Entities.EskaadEntities
                     .HasMaxLength(10);
                 entity.Property(e => e.IsInstallmentSale).HasColumnName("is_installment_sell");
                 entity.Property(e => e.BAgentName).HasColumnName("BAgent_Name");
+                entity.Property(e => e.BAgentId).HasColumnName("BAgent_ID");
             });
 
             modelBuilder.Entity<UpdateTime>(entity =>
