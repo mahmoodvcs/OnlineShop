@@ -130,7 +130,7 @@ namespace MahtaKala.Services
 				var httpClient = GetHttpClient(token);
 
 				var response = await httpClient.PostAsync("PlaceEskaadOrdersForToday", null);
-				response.EnsureSuccessStatusCode();
+				 response.EnsureSuccessStatusCode();
 				var responseString = await response.Content.ReadAsStringAsync();
 				var definintion = new { success = true, message = "" };
 				var responseAnonymousModel = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(responseString, definintion);

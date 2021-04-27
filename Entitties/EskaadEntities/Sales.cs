@@ -18,5 +18,10 @@ namespace MahtaKala.Entities.EskaadEntities
         public double MahtaCountBefore { get; set; }
         public byte Flag { get; set; }
         public string Validation { get; set; }
-    }
+		public string BCode { get; set; }
+		public string BName { get; set; }
+		public int IsInstallmentSale { get; set; }
+		public string BAgentName { get; set; }
+		public int NumOfInstallments { get; set; }
+	}
 }

@@ -22,6 +22,9 @@ namespace MahtaKala.Services
 
 		public const long ESKAAD_SELLER_ID = 54;
 		public const int MAHTA_STORAGE_NUMBER_IN_ESKAAD = 13;
+		public const string BCODE_VALUE_TO_INDICATE_B2C_IN_ESKAD_SALES = "00001530";//"۰۰۰۰۱۵۳۰"
+		public const string BNAME_VALUE_TO_INDICATE_B2C_IN_ESKAD_SALES = "اعضای حقیقی- فروش اینترنتی کاال";
+		public const string BAGENT_NAME_VALUE_TO_INDICATE_B2C_IN_ESKAD_SALES = "مهتا";
 		public static readonly string[] ESKAAD_AUTHORIZED_USERS = { "katouzian", "mosalli", "ali.d" };
 
 		User User => currentUserService.User;
@@ -305,6 +308,11 @@ namespace MahtaKala.Services
 					MahtaCountBefore = 0,
 					Transact = null,
 					EskadBankCode = null,
+					BCode = BCODE_VALUE_TO_INDICATE_B2C_IN_ESKAD_SALES,
+					BName = BNAME_VALUE_TO_INDICATE_B2C_IN_ESKAD_SALES,
+					BAgentName = BAGENT_NAME_VALUE_TO_INDICATE_B2C_IN_ESKAD_SALES,
+					IsInstallmentSale = 0,
+					NumOfInstallments = 0
 				};
 				//eskaadDbContext.Sales.Add(newSaleItem);
 				finalOrderList.Add(newSaleItem);
