@@ -10,6 +10,7 @@
 
     <!-- Set this to true if you enable server-side prerendering -->
     <BuildServerSideRenderer>false</BuildServerSideRenderer>
+    <UserSecretsId>b04c117c-0ef1-4270-9347-403cd0de631b</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -89,6 +90,7 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\FakerController.cs" />
+    <Compile Remove="Services\Tasks\RollbackUnsuccessfulPaymentsTask.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -92,6 +92,7 @@ namespace MahtaKala.Entities
             // For products without a coefficient in their price, we set the value of the coefficient to 1, and treat all product prices
             // as if they have a coefficient (i.e. for every product, the value of Price is equal to RawPrice * PriceCoefficient)
             modelBuilder.Entity<ProductPrice>().Property(p => p.PriceCoefficient).HasDefaultValue(1);
+            modelBuilder.Entity<PaymentSettlement>().HasOne(a => a.Payment).WithMany().OnDelete(DeleteBehavior.NoAction);
         }
 
         protected virtual bool UseCaching => true;

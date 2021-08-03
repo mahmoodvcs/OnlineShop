@@ -102,7 +102,7 @@ namespace MahtaKala
 
             services.AddDbContext<DataContext>(options =>
             {
-                options.UseNpgsql(Configuration.GetConnectionString("DataContextPG")).UseSnakeCaseNamingConvention();
+                options.UseSqlServer(Configuration.GetConnectionString("DataContext"));
             });
             services.AddMvc(options => { options.UseCustomStringModelBinder(); });
             RegisterMyServices(services, Configuration);
@@ -115,7 +115,7 @@ namespace MahtaKala
             services.AddScoped<IFileService, FileService>();
 			//services.AddScoped<ISMSService, PayamSMSV2>();
 			//services.AddSingleton<ISMSService, PayamSMSV2>();
-			services.AddTransient<ISMSService, PayamSMSV2>();
+			services.AddTransient<ISMSService, ParsGreenSMSService>();
 			//services.AddScoped<OrderService>();
 			//services.AddSingleton<OrderService>();
 			services.AddTransient<OrderService>();
